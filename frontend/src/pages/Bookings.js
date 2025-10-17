@@ -1,0 +1,593 @@
+import React, { useState, useEffect } from 'react';
+import { bookingService, projectService, propertyService, categoryService, commissionService } from '../services';
+import { useAuth } from '../contexts/AuthContext';
+import { useCurrency } from '../contexts/CurrencyContext';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Plus, DollarSign, Calendar, CreditCard, CheckCircle, Clock } from 'lucide-react';
+import { toast } from 'sonner';
+import { Progress } from '@/components/ui/progress';
+
+const Bookings = () => {
+  const [bookings, setBookings] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [showDetailsDialog, setShowDetailsDialog] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState(null);
+  const [bookingDetails, setBookingDetails] = useState(null);
+  
+  const [projects, setProjects] = useState([]);
+  const [properties, setProperties] = useState([]);
+  const [paymentModes, setPaymentModes] = useState([]);
+  const [currencies, setCurrencies] = useState([]);
+  
+  const { user } = useAuth();
+  const { formatCurrency } = useCurrency();
+
+  const [formData, setFormData] = useState({
+    tenant_id: user?.tenant_id || '',
+    project_id: '',
+    property_id: '',
+    customer_name: '',
+    customer_phone: '',
+    customer_email: '',
+    booking_amount: '',
+    total_amount: '',
+    currency_id: '',
+    payment_plan_type: 'full_payment',
+    emi_months: '',
+    down_payment: '',
+    closed_by: user?.id,
+  });
+
+  const [paymentData, setPaymentData] = useState({
+    amount: '',
+    payment_mode_id: '',
+    transaction_id: '',
+    payment_type: 'installment',
+    installment_number: '',
+    notes: '',
+  });
+
+  useEffect(() => {
+    fetchBookings();
+    fetchProjects();
+    fetchCategories();
+  }, []);
+
+  const fetchBookings = async () => {
+    try {
+      const data = await bookingService.getAll();
+      setBookings(data);
+    } catch (error) {
+      toast.error('Failed to load bookings');
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchProjects = async () => {
+    try {
+      const data = await projectService.getAll();
+      setProjects(data);
+    } catch (error) {
+      console.error('Failed to load projects:', error);
+    }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const [modes, curr] = await Promise.all([
+        categoryService.getAll('payment_mode', user?.tenant_id),
+        categoryService.getAll('', user?.tenant_id),
+      ]);
+      setPaymentModes(modes);
+      
+      // Get currencies from context or API
+      const inrCurrency = { id: 'inr-id', code: 'INR', symbol: '₹' };
+      setCurrencies([inrCurrency]);
+      setFormData(prev => ({ ...prev, currency_id: inrCurrency.id }));
+    } catch (error) {
+      console.error('Failed to load categories:', error);
+    }
+  };
+
+  const handleProjectChange = async (projectId) => {
+    setFormData(prev => ({ ...prev, project_id: projectId, property_id: '' }));
+    try {
+      const props = await propertyService.getAll(projectId);
+      // Filter available properties
+      setProperties(props.filter(p => p.status_id && p.status_id.includes('available')));
+    } catch (error) {
+      console.error('Failed to load properties:', error);
+    }
+  };
+
+  const handlePropertyChange = (propertyId) => {
+    const property = properties.find(p => p.id === propertyId);
+    if (property) {
+      setFormData(prev => ({
+        ...prev,
+        property_id: propertyId,
+        total_amount: property.price.toString(),
+        booking_amount: (property.price * 0.1).toString(), // 10% booking amount
+      }));
+    }
+  };
+
+  const handleCreateBooking = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const bookingData = {
+        ...formData,
+        booking_amount: parseFloat(formData.booking_amount),
+        total_amount: parseFloat(formData.total_amount),
+        emi_months: formData.emi_months ? parseInt(formData.emi_months) : null,
+        down_payment: formData.down_payment ? parseFloat(formData.down_payment) : null,
+      };
+      
+      const booking = await bookingService.create(bookingData);
+      
+      // Auto-create commission for staff
+      try {
+        await commissionService.create({
+          booking_id: booking.id,
+          staff_id: user.id,
+        });
+      } catch (commErr) {
+        console.error('Commission creation failed:', commErr);
+      }
+      
+      toast.success('Booking created successfully!');
+      setShowCreateDialog(false);
+      fetchBookings();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Failed to create booking');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleViewBookingDetails = async (booking) => {
+    setSelectedBooking(booking);
+    setShowDetailsDialog(true);
+    try {
+      const details = await bookingService.getDetails(booking.id);
+      setBookingDetails(details);
+    } catch (error) {
+      toast.error('Failed to load booking details');
+      console.error(error);
+    }
+  };
+
+  const handleAddPayment = async (e) => {
+    e.preventDefault();
+    if (!selectedBooking) return;
+
+    try {
+      await bookingService.createPayment(selectedBooking.id, {
+        ...paymentData,
+        booking_id: selectedBooking.id,
+        amount: parseFloat(paymentData.amount),
+        installment_number: paymentData.installment_number ? parseInt(paymentData.installment_number) : null,
+        collected_by: user.id,
+      });
+      toast.success('Payment recorded successfully!');
+      setPaymentData({
+        amount: '',
+        payment_mode_id: '',
+        transaction_id: '',
+        payment_type: 'installment',
+        installment_number: '',
+        notes: '',
+      });
+      // Refresh booking details
+      const details = await bookingService.getDetails(selectedBooking.id);
+      setBookingDetails(details);
+      fetchBookings();
+    } catch (error) {
+      toast.error('Failed to record payment');
+      console.error(error);
+    }
+  };
+
+  if (loading && bookings.length === 0) {
+    return <div className="p-8">Loading bookings...</div>;
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-3xl font-bold">Bookings</h2>
+          <p className="text-gray-500">Manage property bookings and payments</p>
+        </div>
+        <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+          <DialogTrigger asChild>
+            <Button>
+              <Plus className="w-4 h-4 mr-2" />
+              New Booking
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Create New Booking</DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleCreateBooking} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Project *</label>
+                  <Select
+                    value={formData.project_id}
+                    onValueChange={handleProjectChange}
+                    required
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select project" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {projects.map((project) => (
+                        <SelectItem key={project.id} value={project.id}>
+                          {project.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Property *</label>
+                  <Select
+                    value={formData.property_id}
+                    onValueChange={handlePropertyChange}
+                    required
+                    disabled={!formData.project_id}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select property" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {properties.map((property) => (
+                        <SelectItem key={property.id} value={property.id}>
+                          {property.property_number} - ₹{(property.price / 100000).toFixed(2)}L
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Customer Name *</label>
+                  <Input
+                    value={formData.customer_name}
+                    onChange={(e) => setFormData(prev => ({ ...prev, customer_name: e.target.value }))}
+                    placeholder="John Doe"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Customer Phone *</label>
+                  <Input
+                    value={formData.customer_phone}
+                    onChange={(e) => setFormData(prev => ({ ...prev, customer_phone: e.target.value }))}
+                    placeholder="9876543210"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Customer Email</label>
+                <Input
+                  type="email"
+                  value={formData.customer_email}
+                  onChange={(e) => setFormData(prev => ({ ...prev, customer_email: e.target.value }))}
+                  placeholder="john@example.com"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Booking Amount *</label>
+                  <Input
+                    type="number"
+                    value={formData.booking_amount}
+                    onChange={(e) => setFormData(prev => ({ ...prev, booking_amount: e.target.value }))}
+                    placeholder="500000"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Total Amount *</label>
+                  <Input
+                    type="number"
+                    value={formData.total_amount}
+                    onChange={(e) => setFormData(prev => ({ ...prev, total_amount: e.target.value }))}
+                    placeholder="5000000"
+                    required
+                    disabled
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Payment Plan *</label>
+                <Select
+                  value={formData.payment_plan_type}
+                  onValueChange={(value) => setFormData(prev => ({ ...prev, payment_plan_type: value }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="full_payment">Full Payment</SelectItem>
+                    <SelectItem value="emi">EMI</SelectItem>
+                    <SelectItem value="custom">Custom</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {formData.payment_plan_type === 'emi' && (
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">EMI Months *</label>
+                    <Input
+                      type="number"
+                      value={formData.emi_months}
+                      onChange={(e) => setFormData(prev => ({ ...prev, emi_months: e.target.value }))}
+                      placeholder="12"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Down Payment</label>
+                    <Input
+                      type="number"
+                      value={formData.down_payment}
+                      onChange={(e) => setFormData(prev => ({ ...prev, down_payment: e.target.value }))}
+                      placeholder="1000000"
+                    />
+                  </div>
+                </div>
+              )}
+
+              <div className="flex gap-2 justify-end">
+                <Button type="button" variant="outline" onClick={() => setShowCreateDialog(false)}>
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={loading}>
+                  {loading ? 'Creating...' : 'Create Booking'}
+                </Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      {/* Bookings List */}
+      <Card>
+        <CardHeader>
+          <CardTitle>All Bookings</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {bookings.length === 0 ? (
+            <div className="text-center py-12">
+              <DollarSign className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+              <h3 className="text-lg font-semibold mb-2">No bookings yet</h3>
+              <p className="text-gray-500 mb-4">Start booking properties</p>
+              <Button onClick={() => setShowCreateDialog(true)}>
+                <Plus className="w-4 h-4 mr-2" />
+                Create Booking
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {bookings.map((booking) => (
+                <div
+                  key={booking.id}
+                  className="flex items-center justify-between p-4 border rounded hover:bg-gray-50 cursor-pointer"
+                  onClick={() => handleViewBookingDetails(booking)}
+                >
+                  <div>
+                    <div className="font-semibold">{booking.customer_name}</div>
+                    <div className="text-sm text-gray-600">{booking.customer_phone}</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="font-semibold">₹{(booking.total_amount / 100000).toFixed(2)}L</div>
+                    <Badge variant={booking.status === 'completed' ? 'default' : 'secondary'}>
+                      {booking.status}
+                    </Badge>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Booking Details Dialog */}
+      <Dialog open={showDetailsDialog} onOpenChange={setShowDetailsDialog}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{selectedBooking?.customer_name}'s Booking</DialogTitle>
+          </DialogHeader>
+          {bookingDetails && (
+            <Tabs defaultValue="details" className="w-full">
+              <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="details">Details</TabsTrigger>
+                <TabsTrigger value="payments">
+                  Payments ({bookingDetails.payments?.length || 0})
+                </TabsTrigger>
+                <TabsTrigger value="add-payment">Add Payment</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="details" className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium text-gray-500">Property</label>
+                    <div>{bookingDetails.property?.property_number}</div>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-500">Project</label>
+                    <div>{bookingDetails.project?.name}</div>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-500">Total Amount</label>
+                    <div className="text-lg font-semibold">
+                      ₹{(bookingDetails.booking.total_amount / 100000).toFixed(2)}L
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-500">Status</label>
+                    <div>
+                      <Badge>{bookingDetails.booking.status}</Badge>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium text-gray-500">Payment Progress</label>
+                  <div className="mt-2">
+                    <Progress value={bookingDetails.payment_progress || 0} className="h-2" />
+                    <div className="flex justify-between text-sm mt-1">
+                      <span>Paid: ₹{(bookingDetails.total_paid / 100000).toFixed(2)}L</span>
+                      <span>Pending: ₹{(bookingDetails.total_pending / 100000).toFixed(2)}L</span>
+                    </div>
+                  </div>
+                </div>
+
+                {bookingDetails.payment_schedules && bookingDetails.payment_schedules.length > 0 && (
+                  <div>
+                    <label className="text-sm font-medium text-gray-500">Payment Schedule</label>
+                    <div className="mt-2 space-y-2">
+                      {bookingDetails.payment_schedules.map((schedule) => (
+                        <div key={schedule.id} className="flex items-center justify-between p-3 bg-gray-50 rounded">
+                          <div className="flex items-center gap-2">
+                            <div className="font-medium">EMI #{schedule.installment_number}</div>
+                            <Badge variant={
+                              schedule.status === 'paid' ? 'default' :
+                              schedule.status === 'partial' ? 'secondary' : 
+                              'outline'
+                            }>
+                              {schedule.status}
+                            </Badge>
+                          </div>
+                          <div className="text-right">
+                            <div className="font-medium">₹{(schedule.due_amount / 100000).toFixed(2)}L</div>
+                            <div className="text-xs text-gray-500">
+                              Due: {new Date(schedule.due_date).toLocaleDateString()}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </TabsContent>
+
+              <TabsContent value="payments" className="space-y-3">
+                {bookingDetails.payments?.length === 0 ? (
+                  <p className="text-center text-gray-500 py-8">No payments yet</p>
+                ) : (
+                  bookingDetails.payments?.map((payment) => (
+                    <Card key={payment.id}>
+                      <CardContent className="pt-4">
+                        <div className="flex items-start justify-between">
+                          <div>
+                            <div className="font-semibold">₹{(payment.amount / 100000).toFixed(2)}L</div>
+                            <div className="text-sm text-gray-600">
+                              {new Date(payment.payment_date).toLocaleString()}
+                            </div>
+                            {payment.receipt_number && (
+                              <div className="text-xs text-gray-500 mt-1">
+                                Receipt: {payment.receipt_number}
+                              </div>
+                            )}
+                          </div>
+                          <Badge className="bg-green-500">{payment.status}</Badge>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))
+                )}
+              </TabsContent>
+
+              <TabsContent value="add-payment">
+                <form onSubmit={handleAddPayment} className="space-y-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Amount *</label>
+                    <Input
+                      type="number"
+                      value={paymentData.amount}
+                      onChange={(e) => setPaymentData(prev => ({ ...prev, amount: e.target.value }))}
+                      placeholder="500000"
+                      required
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Payment Mode *</label>
+                      <Select
+                        value={paymentData.payment_mode_id}
+                        onValueChange={(value) => setPaymentData(prev => ({ ...prev, payment_mode_id: value }))}
+                        required
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select mode" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {paymentModes.map((mode) => (
+                            <SelectItem key={mode.id} value={mode.id}>
+                              {mode.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Transaction ID</label>
+                      <Input
+                        value={paymentData.transaction_id}
+                        onChange={(e) => setPaymentData(prev => ({ ...prev, transaction_id: e.target.value }))}
+                        placeholder="TXN123456"
+                      />
+                    </div>
+                  </div>
+
+                  {bookingDetails.booking.payment_plan_type === 'emi' && (
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Installment Number</label>
+                      <Input
+                        type="number"
+                        value={paymentData.installment_number}
+                        onChange={(e) => setPaymentData(prev => ({ ...prev, installment_number: e.target.value }))}
+                        placeholder="1"
+                      />
+                    </div>
+                  )}
+
+                  <Button type="submit" className="w-full">
+                    Record Payment
+                  </Button>
+                </form>
+              </TabsContent>
+            </Tabs>
+          )}
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+};
+
+export default Bookings;
