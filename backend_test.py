@@ -707,6 +707,10 @@ def main():
     test_analytics_payments()
     test_analytics_commissions()
     
+    print("\n🔍 Testing Edge Cases...")
+    print("-" * 30)
+    test_analytics_edge_cases()
+    
     # Final Summary
     success = results.summary()
     
