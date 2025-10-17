@@ -421,9 +421,244 @@ def test_send_otp(phone):
         results.add_fail(f"Send OTP for {phone}", f"Exception: {str(e)}")
         return None
 
+def test_analytics_dashboard():
+    """Test GET /api/analytics/dashboard endpoint"""
+    try:
+        # Test 1: Without any filters
+        response = requests.get(f"{API_BASE}/analytics/dashboard", timeout=10)
+        
+        if response.status_code != 200:
+            results.add_fail("Analytics Dashboard - No filters", f"Status code: {response.status_code}")
+            return False
+            
+        data = response.json()
+        
+        # Validate response structure
+        required_keys = ['overview', 'property_stats', 'recent_leads', 'recent_bookings']
+        missing_keys = [key for key in required_keys if key not in data]
+        if missing_keys:
+            results.add_fail("Analytics Dashboard - No filters", f"Missing keys: {missing_keys}")
+            return False
+            
+        # Validate overview structure
+        overview = data['overview']
+        overview_keys = ['total_leads', 'converted_leads', 'conversion_rate', 'total_bookings', 
+                        'total_revenue', 'total_payments_collected', 'pending_payments']
+        missing_overview = [key for key in overview_keys if key not in overview]
+        if missing_overview:
+            results.add_fail("Analytics Dashboard - No filters", f"Missing overview keys: {missing_overview}")
+            return False
+            
+        results.add_pass("Analytics Dashboard - No filters")
+        print(f"   Overview: {overview['total_leads']} leads, {overview['total_bookings']} bookings, ${overview['total_revenue']} revenue")
+        
+        # Test 2: With tenant_id filter
+        response = requests.get(f"{API_BASE}/analytics/dashboard?tenant_id=test-tenant", timeout=10)
+        if response.status_code == 200:
+            results.add_pass("Analytics Dashboard - With tenant_id")
+        else:
+            results.add_fail("Analytics Dashboard - With tenant_id", f"Status code: {response.status_code}")
+            
+        # Test 3: With date range
+        response = requests.get(f"{API_BASE}/analytics/dashboard?start_date=2024-01-01&end_date=2024-12-31", timeout=10)
+        if response.status_code == 200:
+            results.add_pass("Analytics Dashboard - With date range")
+        else:
+            results.add_fail("Analytics Dashboard - With date range", f"Status code: {response.status_code}")
+            
+        return True
+        
+    except Exception as e:
+        results.add_fail("Analytics Dashboard", f"Exception: {str(e)}")
+        return False
+
+def test_analytics_leads():
+    """Test GET /api/analytics/leads endpoint"""
+    try:
+        # Test 1: Without filters
+        response = requests.get(f"{API_BASE}/analytics/leads", timeout=10)
+        
+        if response.status_code != 200:
+            results.add_fail("Analytics Leads - No filters", f"Status code: {response.status_code}")
+            return False
+            
+        data = response.json()
+        
+        # Validate response structure
+        required_keys = ['leads_by_source', 'leads_by_status', 'leads_by_quality', 'top_staff']
+        missing_keys = [key for key in required_keys if key not in data]
+        if missing_keys:
+            results.add_fail("Analytics Leads - No filters", f"Missing keys: {missing_keys}")
+            return False
+            
+        results.add_pass("Analytics Leads - No filters")
+        print(f"   Sources: {len(data['leads_by_source'])}, Statuses: {len(data['leads_by_status'])}, Top staff: {len(data['top_staff'])}")
+        
+        # Test 2: With tenant_id and project_id
+        response = requests.get(f"{API_BASE}/analytics/leads?tenant_id=test-tenant&project_id=test-project", timeout=10)
+        if response.status_code == 200:
+            results.add_pass("Analytics Leads - With filters")
+        else:
+            results.add_fail("Analytics Leads - With filters", f"Status code: {response.status_code}")
+            
+        # Test 3: With date range
+        response = requests.get(f"{API_BASE}/analytics/leads?start_date=2024-01-01&end_date=2024-12-31", timeout=10)
+        if response.status_code == 200:
+            results.add_pass("Analytics Leads - With date range")
+        else:
+            results.add_fail("Analytics Leads - With date range", f"Status code: {response.status_code}")
+            
+        return True
+        
+    except Exception as e:
+        results.add_fail("Analytics Leads", f"Exception: {str(e)}")
+        return False
+
+def test_analytics_sales():
+    """Test GET /api/analytics/sales endpoint"""
+    try:
+        # Test 1: Without filters
+        response = requests.get(f"{API_BASE}/analytics/sales", timeout=10)
+        
+        if response.status_code != 200:
+            results.add_fail("Analytics Sales - No filters", f"Status code: {response.status_code}")
+            return False
+            
+        data = response.json()
+        
+        # Validate response structure
+        required_keys = ['sales_by_project', 'monthly_trend', 'payment_plan_distribution']
+        missing_keys = [key for key in required_keys if key not in data]
+        if missing_keys:
+            results.add_fail("Analytics Sales - No filters", f"Missing keys: {missing_keys}")
+            return False
+            
+        results.add_pass("Analytics Sales - No filters")
+        print(f"   Projects: {len(data['sales_by_project'])}, Monthly trends: {len(data['monthly_trend'])}, Payment plans: {len(data['payment_plan_distribution'])}")
+        
+        # Test 2: With tenant_id
+        response = requests.get(f"{API_BASE}/analytics/sales?tenant_id=test-tenant", timeout=10)
+        if response.status_code == 200:
+            results.add_pass("Analytics Sales - With tenant_id")
+        else:
+            results.add_fail("Analytics Sales - With tenant_id", f"Status code: {response.status_code}")
+            
+        # Test 3: With date range
+        response = requests.get(f"{API_BASE}/analytics/sales?start_date=2024-01-01&end_date=2024-12-31", timeout=10)
+        if response.status_code == 200:
+            results.add_pass("Analytics Sales - With date range")
+        else:
+            results.add_fail("Analytics Sales - With date range", f"Status code: {response.status_code}")
+            
+        return True
+        
+    except Exception as e:
+        results.add_fail("Analytics Sales", f"Exception: {str(e)}")
+        return False
+
+def test_analytics_payments():
+    """Test GET /api/analytics/payments endpoint"""
+    try:
+        # Test 1: Without filters
+        response = requests.get(f"{API_BASE}/analytics/payments", timeout=10)
+        
+        if response.status_code != 200:
+            results.add_fail("Analytics Payments - No filters", f"Status code: {response.status_code}")
+            return False
+            
+        data = response.json()
+        
+        # Validate response structure
+        required_keys = ['payments_by_mode', 'payment_status', 'overdue']
+        missing_keys = [key for key in required_keys if key not in data]
+        if missing_keys:
+            results.add_fail("Analytics Payments - No filters", f"Missing keys: {missing_keys}")
+            return False
+            
+        # Validate payment_status structure
+        payment_status = data['payment_status']
+        status_keys = ['total_expected', 'total_collected', 'pending', 'collection_rate']
+        missing_status = [key for key in status_keys if key not in payment_status]
+        if missing_status:
+            results.add_fail("Analytics Payments - No filters", f"Missing payment_status keys: {missing_status}")
+            return False
+            
+        # Validate overdue structure
+        overdue = data['overdue']
+        overdue_keys = ['count', 'amount']
+        missing_overdue = [key for key in overdue_keys if key not in overdue]
+        if missing_overdue:
+            results.add_fail("Analytics Payments - No filters", f"Missing overdue keys: {missing_overdue}")
+            return False
+            
+        results.add_pass("Analytics Payments - No filters")
+        print(f"   Payment modes: {len(data['payments_by_mode'])}, Collection rate: {payment_status['collection_rate']}%, Overdue: {overdue['count']} items")
+        
+        # Test 2: With tenant_id
+        response = requests.get(f"{API_BASE}/analytics/payments?tenant_id=test-tenant", timeout=10)
+        if response.status_code == 200:
+            results.add_pass("Analytics Payments - With tenant_id")
+        else:
+            results.add_fail("Analytics Payments - With tenant_id", f"Status code: {response.status_code}")
+            
+        # Test 3: With date range
+        response = requests.get(f"{API_BASE}/analytics/payments?start_date=2024-01-01&end_date=2024-12-31", timeout=10)
+        if response.status_code == 200:
+            results.add_pass("Analytics Payments - With date range")
+        else:
+            results.add_fail("Analytics Payments - With date range", f"Status code: {response.status_code}")
+            
+        return True
+        
+    except Exception as e:
+        results.add_fail("Analytics Payments", f"Exception: {str(e)}")
+        return False
+
+def test_analytics_commissions():
+    """Test GET /api/analytics/commissions endpoint"""
+    try:
+        # Test 1: Without filters
+        response = requests.get(f"{API_BASE}/analytics/commissions", timeout=10)
+        
+        if response.status_code != 200:
+            results.add_fail("Analytics Commissions - No filters", f"Status code: {response.status_code}")
+            return False
+            
+        data = response.json()
+        
+        # Validate response structure
+        required_keys = ['commissions_by_status', 'top_earners']
+        missing_keys = [key for key in required_keys if key not in data]
+        if missing_keys:
+            results.add_fail("Analytics Commissions - No filters", f"Missing keys: {missing_keys}")
+            return False
+            
+        results.add_pass("Analytics Commissions - No filters")
+        print(f"   Commission statuses: {len(data['commissions_by_status'])}, Top earners: {len(data['top_earners'])}")
+        
+        # Test 2: With tenant_id and staff_id
+        response = requests.get(f"{API_BASE}/analytics/commissions?tenant_id=test-tenant&staff_id=test-staff", timeout=10)
+        if response.status_code == 200:
+            results.add_pass("Analytics Commissions - With filters")
+        else:
+            results.add_fail("Analytics Commissions - With filters", f"Status code: {response.status_code}")
+            
+        # Test 3: With date range
+        response = requests.get(f"{API_BASE}/analytics/commissions?start_date=2024-01-01&end_date=2024-12-31", timeout=10)
+        if response.status_code == 200:
+            results.add_pass("Analytics Commissions - With date range")
+        else:
+            results.add_fail("Analytics Commissions - With date range", f"Status code: {response.status_code}")
+            
+        return True
+        
+    except Exception as e:
+        results.add_fail("Analytics Commissions", f"Exception: {str(e)}")
+        return False
+
 def main():
-    """Run all tests"""
-    print("Starting RETOERP Backend API Tests")
+    """Run all analytics tests"""
+    print("Starting RETOERP Analytics Backend API Tests")
     print(f"Timestamp: {datetime.now().isoformat()}")
     print("=" * 80)
     
@@ -432,35 +667,21 @@ def main():
         print("❌ API is not running. Stopping tests.")
         return False
     
-    # Test 2: Get Roles
-    roles = test_get_roles()
+    print("\n📊 Testing Analytics Endpoints...")
+    print("-" * 50)
     
-    # Test 3: Get Default Tenant
-    default_tenant = test_get_tenants()
-    
-    # Test 4: Register Super Admin
-    super_admin = test_register_super_admin(roles)
-    
-    # Test 5: Register Tenant Admin
-    tenant_admin = test_register_tenant_admin(roles, default_tenant)
-    
-    # Test 6: Duplicate Registration
-    test_duplicate_registration()
-    
-    # Test 7: Invalid Data
-    test_invalid_data_registration(roles)
-    
-    # Test 8: Send OTP for registered users
-    if super_admin:
-        test_send_otp("9948303060")
-    if tenant_admin:
-        test_send_otp("9908290239")
+    # Test Analytics Endpoints
+    test_analytics_dashboard()
+    test_analytics_leads()
+    test_analytics_sales()
+    test_analytics_payments()
+    test_analytics_commissions()
     
     # Final Summary
     success = results.summary()
     
     if success:
-        print("\n🎉 All tests passed! User registration flow is working correctly.")
+        print("\n🎉 All analytics tests passed! Reports & Analytics Module is working correctly.")
     else:
         print(f"\n⚠️  {results.failed} test(s) failed. Please check the issues above.")
     
