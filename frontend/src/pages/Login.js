@@ -75,6 +75,12 @@ const Login = () => {
               <Button type="submit" className="w-full" disabled={loading}>
                 {loading ? 'Sending...' : 'Send OTP'}
               </Button>
+              <div className="text-center text-sm">
+                <span className="text-gray-600">Don't have an account? </span>
+                <Link to="/register" className="text-blue-600 hover:underline font-medium">
+                  Register here
+                </Link>
+              </div>
             </form>
           ) : (
             <form onSubmit={handleVerifyOTP} className="space-y-4">
