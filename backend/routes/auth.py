@@ -159,3 +159,12 @@ async def get_current_user_info(request: Request):
         "is_active": user.is_active,
         "last_login": user.last_login
     }
+
+@router.get("/roles")
+async def get_all_roles(request: Request):
+    """Get all available roles"""
+    db = get_db(request)
+    
+    roles = await db.roles.find({"deleted_at": None}, {"_id": 0}).to_list(length=None)
+    
+    return roles
