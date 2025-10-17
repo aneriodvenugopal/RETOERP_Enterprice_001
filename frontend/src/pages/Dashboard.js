@@ -91,7 +91,7 @@ const TenantAdminDashboard = () => {
         <StatCard icon={BarChart3} title="Bookings" value="0" color="purple" onClick={() => navigate('/bookings')} />
         <StatCard icon={Users} title="Team" value="0" color="orange" />
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate('/projects')}>
           <CardHeader>
             <CardTitle>Projects</CardTitle>
@@ -122,6 +122,17 @@ const TenantAdminDashboard = () => {
             <p className="text-gray-500">Track bookings and payments</p>
             <Button className="mt-4" onClick={() => navigate('/bookings')}>
               View Bookings
+            </Button>
+          </CardContent>
+        </Card>
+        <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate('/reports')}>
+          <CardHeader>
+            <CardTitle>Reports & Analytics</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-gray-500">View insights and reports</p>
+            <Button className="mt-4" onClick={() => navigate('/reports')}>
+              View Reports
             </Button>
           </CardContent>
         </Card>
