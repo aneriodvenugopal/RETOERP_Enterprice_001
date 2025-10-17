@@ -193,11 +193,7 @@ metadata:
   run_ui: false
 
 test_plan:
-  current_focus:
-    - "Notification API endpoints (all 8 endpoints)"
-    - "Multi-channel delivery (SMS, Email, WhatsApp)"
-    - "Template rendering and variable substitution"
-    - "Provider switching and configuration"
+  current_focus: []
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
