@@ -50,13 +50,98 @@ const Register = () => {
   const handleRoleChange = (roleId) => {
     setSelectedRole(roleId);
     setFormData({ ...formData, role_id: roleId });
+    setErrors({ ...errors, role_id: '' });
     
     // Find role to check if it's super admin
     const role = roles.find(r => r.id === roleId);
     if (role && role.slug === 'super_admin') {
       // Super admin doesn't need tenant
       setFormData({ ...formData, role_id: roleId, tenant_id: '' });
+      setErrors({ ...errors, role_id: '', tenant_id: '' });
     }
+  };
+
+  const validateField = (name, value) => {
+    let error = '';
+    
+    switch (name) {
+      case 'name':
+        if (!value || value.trim() === '') {
+          error = 'Full name is required';
+        } else if (value.trim().length < 2) {
+          error = 'Name must be at least 2 characters long';
+        }
+        break;
+        
+      case 'phone':
+        if (!value || value.trim() === '') {
+          error = 'Phone number is required';
+        } else if (!/^[0-9]{10}$/.test(value)) {
+          error = 'Please enter a valid 10-digit phone number';
+        }
+        break;
+        
+      case 'email':
+        if (value && value.trim() !== '') {
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          if (!emailRegex.test(value)) {
+            error = 'Please enter a valid email address';
+          }
+        }
+        break;
+        
+      case 'role_id':
+        if (!value || value === '') {
+          error = 'Please select a role';
+        }
+        break;
+        
+      case 'tenant_id':
+        const role = roles.find(r => r.id === formData.role_id);
+        if (role && role.slug !== 'super_admin' && (!value || value === '')) {
+          error = 'Please select an organization';
+        }
+        break;
+        
+      default:
+        break;
+    }
+    
+    return error;
+  };
+
+  const handleInputChange = (name, value) => {
+    setFormData({ ...formData, [name]: value });
+    
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors({ ...errors, [name]: '' });
+    }
+  };
+
+  const handleInputBlur = (name, value) => {
+    const error = validateField(name, value);
+    if (error) {
+      setErrors({ ...errors, [name]: error });
+    }
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+    
+    newErrors.name = validateField('name', formData.name);
+    newErrors.phone = validateField('phone', formData.phone);
+    newErrors.email = validateField('email', formData.email);
+    newErrors.role_id = validateField('role_id', formData.role_id);
+    newErrors.tenant_id = validateField('tenant_id', formData.tenant_id);
+    
+    // Remove empty errors
+    Object.keys(newErrors).forEach(key => {
+      if (!newErrors[key]) delete newErrors[key];
+    });
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
