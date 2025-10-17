@@ -188,3 +188,71 @@ export const propertyService = {
   },
 };
 
+export const leadService = {
+  // Get all leads
+  getAll: async (params = {}) => {
+    const response = await api.get('/leads/', { params });
+    return response.data;
+  },
+
+  // Get lead by ID
+  getById: async (id) => {
+    const response = await api.get(`/leads/${id}`);
+    return response.data;
+  },
+
+  // Get lead details (with relations)
+  getDetails: async (id) => {
+    const response = await api.get(`/leads/${id}/details`);
+    return response.data;
+  },
+
+  // Create lead
+  create: async (leadData) => {
+    const response = await api.post('/leads/', leadData);
+    return response.data;
+  },
+
+  // Update lead
+  update: async (id, leadData) => {
+    const response = await api.put(`/leads/${id}`, leadData);
+    return response.data;
+  },
+
+  // Delete lead
+  delete: async (id) => {
+    const response = await api.delete(`/leads/${id}`);
+    return response.data;
+  },
+
+  // Get lead follow-ups
+  getFollowups: async (leadId) => {
+    const response = await api.get(`/leads/${leadId}/followups`);
+    return response.data;
+  },
+
+  // Create follow-up
+  createFollowup: async (followupData) => {
+    const response = await api.post('/leads/followups', followupData);
+    return response.data;
+  },
+
+  // Convert lead to customer
+  convert: async (leadId, customerData) => {
+    const response = await api.post('/leads/convert', {
+      lead_id: leadId,
+      ...customerData,
+    });
+    return response.data;
+  },
+
+  // Get lead stats
+  getStats: async (tenantId, projectId) => {
+    const response = await api.get('/leads/stats/summary', {
+      params: { tenant_id: tenantId, project_id: projectId },
+    });
+    return response.data;
+  },
+};
+
+
