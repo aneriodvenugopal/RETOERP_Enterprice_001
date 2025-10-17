@@ -3,6 +3,7 @@ from models.tenant import Tenant, TenantCreate, Package, PackageCreate
 from utils.helpers import serialize_doc, deserialize_doc
 from middleware.auth import get_current_user
 from typing import List
+from datetime import datetime, timezone
 
 router = APIRouter(prefix="/tenants", tags=["tenants"])
 
