@@ -12,6 +12,7 @@ import ProjectDetail from "./pages/ProjectDetail";
 import Leads from "./pages/Leads";
 import Bookings from "./pages/Bookings";
 import Reports from "./pages/Reports";
+import UsersManagement from "./pages/UsersManagement";
 import PrivateRoute from "./components/PrivateRoute";
 
 function App() {
