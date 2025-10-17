@@ -8,6 +8,7 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Projects from "./pages/Projects";
 import ProjectDetail from "./pages/ProjectDetail";
+import Leads from "./pages/Leads";
 import PrivateRoute from "./components/PrivateRoute";
 
 function App() {
@@ -39,6 +40,14 @@ function App() {
                 element={
                   <PrivateRoute>
                     <ProjectDetail />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/leads"
+                element={
+                  <PrivateRoute>
+                    <Leads />
                   </PrivateRoute>
                 }
               />
