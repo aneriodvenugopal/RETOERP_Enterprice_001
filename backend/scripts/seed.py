@@ -128,6 +128,17 @@ async def seed_categories():
         MasterCategory(name="Booked", slug="booked", type="property_status", is_system=True, sort_order=3),
         MasterCategory(name="Sold", slug="sold", type="property_status", is_system=True, sort_order=4),
         MasterCategory(name="Resale", slug="resale", type="property_status", is_system=True, sort_order=5),
+        
+        # Lead Source
+        MasterCategory(name="Website", slug="website", type="lead_source", is_system=True, sort_order=1),
+        MasterCategory(name="IncomeLands App", slug="incomelands", type="lead_source", is_system=True, sort_order=2),
+        MasterCategory(name="Walk-in", slug="walk-in", type="lead_source", is_system=True, sort_order=3),
+        MasterCategory(name="Referral", slug="referral", type="lead_source", is_system=True, sort_order=4),
+        MasterCategory(name="Facebook", slug="facebook", type="lead_source", is_system=True, sort_order=5),
+        MasterCategory(name="Google Ads", slug="google-ads", type="lead_source", is_system=True, sort_order=6),
+        MasterCategory(name="Phone Call", slug="phone-call", type="lead_source", is_system=True, sort_order=7),
+        MasterCategory(name="Email", slug="email", type="lead_source", is_system=True, sort_order=8),
+        MasterCategory(name="Agent", slug="agent", type="lead_source", is_system=True, sort_order=9),
     ]
     
     for category in categories:
