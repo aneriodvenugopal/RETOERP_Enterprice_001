@@ -26,29 +26,35 @@ async def create_tenant():
     db = client[db_name]
     
     # Check if tenant already exists
-    existing = await db.tenants.find_one({'slug': 'default-tenant'}, {"_id": 0})
+    existing = await db.tenants.find_one({}, {"_id": 0})
     if existing:
         print(f"⏭️  Tenant already exists: {existing['name']}")
         print(f"   Tenant ID: {existing['id']}")
         client.close()
         return existing['id']
     
+    # Get INR currency ID
+    inr_currency = await db.currencies.find_one({'code': 'INR'}, {"_id": 0})
+    if not inr_currency:
+        print("❌ INR currency not found. Please run seed.py first.")
+        client.close()
+        return None
+    
     # Create default tenant
     tenant = Tenant(
         name="Default Organization",
-        slug="default-tenant",
-        business_name="Default Real Estate Company",
-        contact_email="admin@retoerp.com",
-        contact_phone="9999999999",
+        company_name="Default Real Estate Company",
+        phone="9999999999",
+        email="admin@retoerp.com",
         address="Default Address",
+        city="Mumbai",
+        state="Maharashtra",
+        country="India",
+        base_currency_id=inr_currency['id'],
+        primary_language="en",
+        timezone="Asia/Kolkata",
         is_active=True,
-        subscription_status="active",
-        subscription_start_date=datetime.now(timezone.utc),
-        settings={
-            "default_currency": "INR",
-            "default_language": "en",
-            "timezone": "Asia/Kolkata"
-        }
+        subscription_start=datetime.now(timezone.utc)
     )
     
     tenant_doc = serialize_doc(tenant.model_dump())
