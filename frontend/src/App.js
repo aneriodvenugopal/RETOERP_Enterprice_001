@@ -72,6 +72,14 @@ function App() {
                   </PrivateRoute>
                 }
               />
+              <Route
+                path="/users"
+                element={
+                  <PrivateRoute>
+                    <UsersManagement />
+                  </PrivateRoute>
+                }
+              />
               <Route path="/" element={<Navigate to="/dashboard" replace />} />
             </Routes>
           </BrowserRouter>
