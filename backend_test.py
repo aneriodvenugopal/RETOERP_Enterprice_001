@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Backend API Testing for RETOERP User Registration Flow
-Tests the complete user registration functionality including roles and registration endpoints.
+Backend API Testing for RETOERP Analytics Module
+Tests the complete analytics functionality including dashboard, leads, sales, payments, and commissions endpoints.
 """
 
 import requests
