@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Implement Communication Integration Module with SMS (MSG91), Email (SendGrid + AWS SES), and WhatsApp capabilities. Includes automated triggers for OTP, payment reminders, booking confirmations, and follow-up notifications with template management system."
+user_problem_statement: "Implement Automated Reminders & Scheduler system with payment reminders (3 days before due), overdue alerts, follow-up reminders for staff, and manual trigger options with configuration settings."
 
 backend:
   - task: "Create notification service with provider abstraction"
