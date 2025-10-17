@@ -78,22 +78,27 @@ const SuperAdminDashboard = () => {
 
 // Tenant Admin Dashboard
 const TenantAdminDashboard = () => {
+  const navigate = useNavigate();
+  
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold">Tenant Dashboard</h2>
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <StatCard icon={Building2} title="Projects" value="0" color="blue" />
+        <StatCard icon={Building2} title="Projects" value="0" color="blue" onClick={() => navigate('/projects')} />
         <StatCard icon={Users} title="Leads" value="0" color="green" />
         <StatCard icon={BarChart3} title="Sales" value="0" color="purple" />
         <StatCard icon={Users} title="Team" value="0" color="orange" />
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card>
+        <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate('/projects')}>
           <CardHeader>
-            <CardTitle>Recent Leads</CardTitle>
+            <CardTitle>Projects</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-gray-500">No leads yet</p>
+            <p className="text-gray-500">Manage your real estate projects</p>
+            <Button className="mt-4" onClick={() => navigate('/projects')}>
+              View Projects
+            </Button>
           </CardContent>
         </Card>
         <Card>
