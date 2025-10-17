@@ -443,7 +443,7 @@ async def populate_data():
             'emi_months': random.choice([12, 18, 24, 36]) if payment_plan == 'EMI' else 0,
             'agreement_number': f"AGR-{random.randint(100000, 999999)}",
             'status': random.choice(['Confirmed', 'Pending Documentation', 'Cancelled']),
-            'notes': f"Booking for {property_doc['unit_number']}",
+            'notes': f"Booking for {property_doc['property_number']}",
             'currency_id': currency_id,
             'created_at': random_date(120),
             'updated_at': random_date(30),
