@@ -33,3 +33,10 @@ class UserLogin(BaseModel):
 class OTPVerify(BaseModel):
     phone: str
     otp: str
+
+class UserUpdate(BaseModel):
+    name: Optional[str] = None
+    email: Optional[EmailStr] = None
+    role_id: Optional[str] = None
+    tenant_id: Optional[str] = None
+    is_active: Optional[bool] = None
