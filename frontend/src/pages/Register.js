@@ -15,6 +15,7 @@ const Register = () => {
     role_id: '',
     tenant_id: ''
   });
+  const [errors, setErrors] = useState({});
   const [roles, setRoles] = useState([]);
   const [tenants, setTenants] = useState([]);
   const [loading, setLoading] = useState(false);
