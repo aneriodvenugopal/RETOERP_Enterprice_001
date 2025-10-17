@@ -656,6 +656,36 @@ def test_analytics_commissions():
         results.add_fail("Analytics Commissions", f"Exception: {str(e)}")
         return False
 
+def test_analytics_edge_cases():
+    """Test edge cases and error scenarios"""
+    try:
+        # Test invalid date format
+        response = requests.get(f"{API_BASE}/analytics/dashboard?start_date=invalid-date", timeout=10)
+        if response.status_code in [400, 422]:
+            results.add_pass("Analytics Edge Cases - Invalid date format")
+        else:
+            results.add_fail("Analytics Edge Cases - Invalid date format", f"Expected 400/422, got {response.status_code}")
+        
+        # Test future date range
+        response = requests.get(f"{API_BASE}/analytics/dashboard?start_date=2025-01-01&end_date=2025-12-31", timeout=10)
+        if response.status_code == 200:
+            results.add_pass("Analytics Edge Cases - Future date range")
+        else:
+            results.add_fail("Analytics Edge Cases - Future date range", f"Status code: {response.status_code}")
+        
+        # Test reversed date range (end before start)
+        response = requests.get(f"{API_BASE}/analytics/dashboard?start_date=2024-12-31&end_date=2024-01-01", timeout=10)
+        if response.status_code == 200:  # Should handle gracefully
+            results.add_pass("Analytics Edge Cases - Reversed date range")
+        else:
+            results.add_fail("Analytics Edge Cases - Reversed date range", f"Status code: {response.status_code}")
+            
+        return True
+        
+    except Exception as e:
+        results.add_fail("Analytics Edge Cases", f"Exception: {str(e)}")
+        return False
+
 def main():
     """Run all analytics tests"""
     print("Starting RETOERP Analytics Backend API Tests")
