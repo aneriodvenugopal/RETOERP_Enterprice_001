@@ -6,6 +6,8 @@ import { CurrencyProvider } from "./contexts/CurrencyContext";
 import { Toaster } from "sonner";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
+import Projects from "./pages/Projects";
+import ProjectDetail from "./pages/ProjectDetail";
 import PrivateRoute from "./components/PrivateRoute";
 
 function App() {
@@ -21,6 +23,22 @@ function App() {
                 element={
                   <PrivateRoute>
                     <Dashboard />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/projects"
+                element={
+                  <PrivateRoute>
+                    <Projects />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/projects/:projectId"
+                element={
+                  <PrivateRoute>
+                    <ProjectDetail />
                   </PrivateRoute>
                 }
               />
