@@ -13,6 +13,7 @@ const Login = () => {
   const [step, setStep] = useState('phone'); // 'phone' or 'otp'
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
+  const [generatedOtp, setGeneratedOtp] = useState(''); // Store OTP for display
   const { login } = useAuth();
   const navigate = useNavigate();
 
