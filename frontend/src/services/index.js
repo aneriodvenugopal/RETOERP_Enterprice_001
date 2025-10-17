@@ -352,4 +352,66 @@ export const commissionService = {
   },
 };
 
+export const analyticsService = {
+  // Get dashboard analytics
+  getDashboard: async (tenantId, startDate, endDate) => {
+    const response = await api.get('/analytics/dashboard', {
+      params: {
+        tenant_id: tenantId,
+        start_date: startDate,
+        end_date: endDate,
+      },
+    });
+    return response.data;
+  },
 
+  // Get lead analytics
+  getLeads: async (tenantId, projectId, startDate, endDate) => {
+    const response = await api.get('/analytics/leads', {
+      params: {
+        tenant_id: tenantId,
+        project_id: projectId,
+        start_date: startDate,
+        end_date: endDate,
+      },
+    });
+    return response.data;
+  },
+
+  // Get sales analytics
+  getSales: async (tenantId, startDate, endDate) => {
+    const response = await api.get('/analytics/sales', {
+      params: {
+        tenant_id: tenantId,
+        start_date: startDate,
+        end_date: endDate,
+      },
+    });
+    return response.data;
+  },
+
+  // Get payment analytics
+  getPayments: async (tenantId, startDate, endDate) => {
+    const response = await api.get('/analytics/payments', {
+      params: {
+        tenant_id: tenantId,
+        start_date: startDate,
+        end_date: endDate,
+      },
+    });
+    return response.data;
+  },
+
+  // Get commission analytics
+  getCommissions: async (tenantId, staffId, startDate, endDate) => {
+    const response = await api.get('/analytics/commissions', {
+      params: {
+        tenant_id: tenantId,
+        staff_id: staffId,
+        start_date: startDate,
+        end_date: endDate,
+      },
+    });
+    return response.data;
+  },
+};
