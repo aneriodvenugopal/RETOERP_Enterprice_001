@@ -146,26 +146,18 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validate all fields
+    if (!validateForm()) {
+      return;
+    }
+    
     setLoading(true);
 
     try {
-      // Validate phone number
-      if (!/^[0-9]{10}$/.test(formData.phone)) {
-        toast.error('Please enter a valid 10-digit phone number');
-        setLoading(false);
-        return;
-      }
-
       // Find selected role
       const role = roles.find(r => r.id === formData.role_id);
       
-      // Validate tenant for non-super admin roles
-      if (role && role.slug !== 'super_admin' && !formData.tenant_id) {
-        toast.error('Please select a tenant organization');
-        setLoading(false);
-        return;
-      }
-
       // Prepare registration data
       const registrationData = {
         phone: formData.phone,
@@ -176,10 +168,21 @@ const Register = () => {
       };
 
       await authService.register(registrationData);
-      toast.success('Registration successful! Please login with OTP.');
+      toast.success('Registration successful! Please login with OTP.', {
+        style: {
+          background: '#10b981',
+          color: 'white',
+        },
+      });
       navigate('/login');
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Registration failed');
+      const errorMsg = error.response?.data?.detail || 'Registration failed';
+      toast.error(errorMsg, {
+        style: {
+          background: '#ef4444',
+          color: 'white',
+        },
+      });
     } finally {
       setLoading(false);
     }
