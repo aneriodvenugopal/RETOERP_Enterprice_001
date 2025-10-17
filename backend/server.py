@@ -40,6 +40,8 @@ api_router.include_router(auth.router)
 api_router.include_router(tenants.router)
 api_router.include_router(currencies.router)
 api_router.include_router(categories.router)
+api_router.include_router(projects.router)
+api_router.include_router(properties.router)
 
 # Include the router in the main app
 app.include_router(api_router)
