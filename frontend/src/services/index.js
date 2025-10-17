@@ -25,6 +25,12 @@ export const authService = {
     return response.data;
   },
 
+  // Get all roles
+  getRoles: async () => {
+    const response = await api.get('/auth/roles');
+    return response.data;
+  },
+
   // Logout
   logout: () => {
     localStorage.removeItem('token');
