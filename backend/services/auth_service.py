@@ -39,11 +39,13 @@ class AuthService:
     
     @staticmethod
     async def send_otp_sms(phone: str, otp: str) -> bool:
-        """Send OTP via SMS (placeholder - integrate with SMS provider)"""
-        # TODO: Integrate with SMS provider (Twilio, AWS SNS, etc.)
-        print(f"Sending OTP {otp} to phone {phone}")
-        # For now, just log it
-        return True
+        """Send OTP via SMS using notification service"""
+        from services.notification_service import NotificationService
+        
+        notification_service = NotificationService()
+        response = await notification_service.send_otp_sms(phone, otp)
+        
+        return response.get('success', False)
     
     @staticmethod
     def validate_otp_expiry(otp_expires_at: datetime) -> bool:
