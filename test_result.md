@@ -149,15 +149,18 @@ backend:
 
   - task: "Update auth service to use notification service"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/services/auth_service.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Updated send_otp_sms method to use NotificationService instead of console.log. OTPs now sent via configured SMS provider."
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: Auth service integration with NotificationService working correctly. OTP SMS functionality verified through notification service testing. Mock SMS provider properly handles OTP messages with correct formatting and logging. Integration seamless and functional."
 
   - task: "Register notification routes in server.py"
     implemented: true
