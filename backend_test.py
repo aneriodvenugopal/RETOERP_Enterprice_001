@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Backend API Testing for RETOERP Analytics Module
-Tests the complete analytics functionality including dashboard, leads, sales, payments, and commissions endpoints.
+Backend API Testing for RETOERP Communication Integration Module
+Tests the complete notification functionality including SMS, Email, WhatsApp, and multi-channel delivery.
 """
 
 import requests
