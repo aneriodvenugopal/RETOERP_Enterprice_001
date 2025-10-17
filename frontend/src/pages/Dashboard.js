@@ -137,6 +137,20 @@ const TenantAdminDashboard = () => {
           </CardContent>
         </Card>
       </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+        <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate('/users')}>
+          <CardHeader>
+            <CardTitle>Users & Staff</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-gray-500">Manage team members and roles</p>
+            <Button className="mt-4" onClick={() => navigate('/users')}>
+              Manage Users
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };
