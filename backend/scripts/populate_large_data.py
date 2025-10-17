@@ -422,7 +422,7 @@ async def populate_data():
         
         # Payment plan
         payment_plan = random.choice(['Full Payment', 'EMI', 'Custom'])
-        total_amount = property_doc['final_price']
+        total_amount = property_doc['price']
         
         # Booking amount (10-20% of total)
         booking_amount = round(total_amount * random.uniform(0.10, 0.20), 2)
