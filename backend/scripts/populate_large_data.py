@@ -257,6 +257,28 @@ async def populate_data():
                 {"_id": 0}
             )
             
+            # If no status found, use 'available' as default
+            if not status_cat:
+                status_cat = await db.categories.find_one(
+                    {'type': 'property_status', 'slug': 'available'}, 
+                    {"_id": 0}
+                )
+            
+            if not status_cat:
+                # Create available status if it doesn't exist
+                status_cat = {
+                    'id': str(uuid.uuid4()),
+                    'type': 'property_status',
+                    'name': 'Available',
+                    'slug': 'available',
+                    'description': 'Property available for sale',
+                    'parent_id': None,
+                    'is_active': True,
+                    'created_at': datetime.now(timezone.utc).isoformat(),
+                    'deleted_at': None
+                }
+                await db.categories.insert_one(serialize_doc(status_cat))
+            
             property_doc = {
                 'id': str(uuid.uuid4()),
                 'tenant_id': tenant_id,
