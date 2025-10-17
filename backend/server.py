@@ -42,6 +42,7 @@ api_router.include_router(currencies.router)
 api_router.include_router(categories.router)
 api_router.include_router(projects.router)
 api_router.include_router(properties.router)
+api_router.include_router(leads.router)
 
 # Include the router in the main app
 app.include_router(api_router)
