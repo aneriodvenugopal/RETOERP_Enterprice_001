@@ -45,6 +45,7 @@ api_router.include_router(properties.router)
 api_router.include_router(leads.router)
 api_router.include_router(bookings.router)
 api_router.include_router(commissions.router)
+api_router.include_router(analytics.router)
 
 # Include the router in the main app
 app.include_router(api_router)
