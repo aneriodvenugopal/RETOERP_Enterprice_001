@@ -1,0 +1,64 @@
+from pydantic import BaseModel, Field, ConfigDict
+from typing import Optional, List
+from datetime import datetime, timezone
+import uuid
+
+class Tenant(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    name: str
+    company_name: str
+    phone: str
+    email: str
+    address: Optional[str] = None
+    city: Optional[str] = None
+    state: Optional[str] = None
+    country: str = "India"
+    base_currency_id: str  # Reference to Currency
+    primary_language: str = "en"
+    timezone: str = "Asia/Kolkata"
+    is_active: bool = True
+    subscription_start: Optional[datetime] = None
+    subscription_end: Optional[datetime] = None
+    package_id: Optional[str] = None
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    deleted_at: Optional[datetime] = None
+
+class TenantCreate(BaseModel):
+    name: str
+    company_name: str
+    phone: str
+    email: str
+    address: Optional[str] = None
+    city: Optional[str] = None
+    state: Optional[str] = None
+    country: str = "India"
+    base_currency_id: str
+    primary_language: str = "en"
+    package_id: Optional[str] = None
+
+class Package(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    name: str
+    description: Optional[str] = None
+    price: float
+    currency_id: str
+    max_projects: int
+    max_staff: int
+    features: List[str] = []  # List of feature identifiers
+    is_active: bool = True
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class PackageCreate(BaseModel):
+    name: str
+    description: Optional[str] = None
+    price: float
+    currency_id: str
+    max_projects: int
+    max_staff: int
+    features: List[str] = []
