@@ -52,14 +52,18 @@ const Login = () => {
 
     try {
       const result = await authService.sendOTP(phone);
-      toast.success('OTP sent to your phone!', {
+      
+      // Store the OTP for display in development mode
+      if (result.otp) {
+        setGeneratedOtp(result.otp);
+      }
+      
+      toast.success('OTP sent successfully!', {
         style: {
           background: '#10b981',
           color: 'white',
         },
       });
-      // For development, show OTP in console
-      console.log('OTP:', result.otp);
       setStep('otp');
     } catch (error) {
       const errorMsg = error.response?.data?.detail || 'Failed to send OTP';
