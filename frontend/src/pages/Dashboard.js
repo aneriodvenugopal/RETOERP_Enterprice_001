@@ -87,7 +87,7 @@ const TenantAdminDashboard = () => {
       <h2 className="text-2xl font-bold">Tenant Dashboard</h2>
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <StatCard icon={Building2} title="Projects" value="0" color="blue" onClick={() => navigate('/projects')} />
-        <StatCard icon={Users} title="Leads" value="0" color="green" />
+        <StatCard icon={Users} title="Leads" value="0" color="green" onClick={() => navigate('/leads')} />
         <StatCard icon={BarChart3} title="Sales" value="0" color="purple" />
         <StatCard icon={Users} title="Team" value="0" color="orange" />
       </div>
@@ -103,12 +103,15 @@ const TenantAdminDashboard = () => {
             </Button>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate('/leads')}>
           <CardHeader>
-            <CardTitle>Recent Sales</CardTitle>
+            <CardTitle>Leads</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-gray-500">No sales yet</p>
+            <p className="text-gray-500">Manage and track your leads</p>
+            <Button className="mt-4" onClick={() => navigate('/leads')}>
+              View Leads
+            </Button>
           </CardContent>
         </Card>
       </div>
