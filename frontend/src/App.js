@@ -9,6 +9,7 @@ import Dashboard from "./pages/Dashboard";
 import Projects from "./pages/Projects";
 import ProjectDetail from "./pages/ProjectDetail";
 import Leads from "./pages/Leads";
+import Bookings from "./pages/Bookings";
 import PrivateRoute from "./components/PrivateRoute";
 
 function App() {
@@ -48,6 +49,14 @@ function App() {
                 element={
                   <PrivateRoute>
                     <Leads />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/bookings"
+                element={
+                  <PrivateRoute>
+                    <Bookings />
                   </PrivateRoute>
                 }
               />
