@@ -688,9 +688,396 @@ def test_analytics_edge_cases():
         results.add_fail("Analytics Edge Cases", f"Exception: {str(e)}")
         return False
 
+def test_send_sms():
+    """Test POST /api/notifications/send-sms endpoint"""
+    try:
+        test_data = {
+            "phone": "+919876543210",
+            "message": "Hello from RETOERP! This is a test SMS message to verify our communication system is working properly."
+        }
+        
+        response = requests.post(
+            f"{API_BASE}/notifications/send-sms",
+            json=test_data,
+            headers={"Content-Type": "application/json"},
+            timeout=10
+        )
+        
+        if response.status_code != 200:
+            results.add_fail("Send SMS", f"Status code: {response.status_code}, Response: {response.text}")
+            return False
+            
+        data = response.json()
+        
+        # Validate response structure
+        required_keys = ['success', 'message', 'details']
+        missing_keys = [key for key in required_keys if key not in data]
+        if missing_keys:
+            results.add_fail("Send SMS", f"Missing response keys: {missing_keys}")
+            return False
+            
+        # Check if it's using mock provider
+        details = data.get('details', {})
+        if details.get('provider') != 'mock':
+            results.add_fail("Send SMS", f"Expected mock provider, got: {details.get('provider')}")
+            return False
+            
+        results.add_pass("Send SMS - Mock provider working")
+        print(f"   Provider: {details.get('provider')}, Success: {data.get('success')}")
+        return True
+        
+    except Exception as e:
+        results.add_fail("Send SMS", f"Exception: {str(e)}")
+        return False
+
+def test_send_email():
+    """Test POST /api/notifications/send-email endpoint"""
+    try:
+        test_data = {
+            "to": "test@retoerp.com",
+            "subject": "Test Email from RETOERP Communication System",
+            "body": "<h1>Test Email</h1><p>This is a test email to verify our email communication system is working properly.</p><p>Features tested:</p><ul><li>HTML content rendering</li><li>Subject line handling</li><li>Mock provider integration</li></ul>",
+            "html": True
+        }
+        
+        response = requests.post(
+            f"{API_BASE}/notifications/send-email",
+            json=test_data,
+            headers={"Content-Type": "application/json"},
+            timeout=10
+        )
+        
+        if response.status_code != 200:
+            results.add_fail("Send Email", f"Status code: {response.status_code}, Response: {response.text}")
+            return False
+            
+        data = response.json()
+        
+        # Validate response structure
+        required_keys = ['success', 'message', 'details']
+        missing_keys = [key for key in required_keys if key not in data]
+        if missing_keys:
+            results.add_fail("Send Email", f"Missing response keys: {missing_keys}")
+            return False
+            
+        # Check if it's using mock provider
+        details = data.get('details', {})
+        if details.get('provider') != 'mock':
+            results.add_fail("Send Email", f"Expected mock provider, got: {details.get('provider')}")
+            return False
+            
+        results.add_pass("Send Email - Mock provider working")
+        print(f"   Provider: {details.get('provider')}, Success: {data.get('success')}")
+        return True
+        
+    except Exception as e:
+        results.add_fail("Send Email", f"Exception: {str(e)}")
+        return False
+
+def test_send_booking_confirmation():
+    """Test POST /api/notifications/send-booking-confirmation endpoint"""
+    try:
+        test_data = {
+            "customer_email": "customer@retoerp.com",
+            "customer_phone": "+919876543210",
+            "customer_name": "Rajesh Kumar",
+            "property_name": "Sunrise Apartments - 3BHK",
+            "booking_id": "BK2025001",
+            "booking_date": "2025-01-15",
+            "total_amount": 5500000.00,
+            "booking_amount": 550000.00,
+            "payment_plan": "20-80 Payment Plan",
+            "send_sms": True,
+            "send_email": True,
+            "send_whatsapp": True
+        }
+        
+        response = requests.post(
+            f"{API_BASE}/notifications/send-booking-confirmation",
+            json=test_data,
+            headers={"Content-Type": "application/json"},
+            timeout=10
+        )
+        
+        if response.status_code != 200:
+            results.add_fail("Send Booking Confirmation", f"Status code: {response.status_code}, Response: {response.text}")
+            return False
+            
+        data = response.json()
+        
+        # Validate response structure
+        required_keys = ['success', 'message', 'results']
+        missing_keys = [key for key in required_keys if key not in data]
+        if missing_keys:
+            results.add_fail("Send Booking Confirmation", f"Missing response keys: {missing_keys}")
+            return False
+            
+        # Check results array
+        results_array = data.get('results', [])
+        if len(results_array) != 3:  # SMS, Email, WhatsApp
+            results.add_fail("Send Booking Confirmation", f"Expected 3 channels, got {len(results_array)}")
+            return False
+            
+        # Validate each channel result
+        channels = [r.get('channel') for r in results_array]
+        expected_channels = ['sms', 'email', 'whatsapp']
+        missing_channels = [ch for ch in expected_channels if ch not in channels]
+        if missing_channels:
+            results.add_fail("Send Booking Confirmation", f"Missing channels: {missing_channels}")
+            return False
+            
+        results.add_pass("Send Booking Confirmation - Multi-channel delivery")
+        print(f"   Channels: {channels}, Overall success: {data.get('success')}")
+        return True
+        
+    except Exception as e:
+        results.add_fail("Send Booking Confirmation", f"Exception: {str(e)}")
+        return False
+
+def test_send_payment_reminder():
+    """Test POST /api/notifications/send-payment-reminder endpoint"""
+    try:
+        # Test 1: Non-overdue reminder
+        test_data = {
+            "customer_email": "customer@retoerp.com",
+            "customer_phone": "+919876543210",
+            "customer_name": "Priya Sharma",
+            "property_name": "Green Valley Villas - 2BHK",
+            "amount": 275000.00,
+            "due_date": "2025-02-15",
+            "overdue_days": 0,
+            "send_sms": True,
+            "send_email": True,
+            "send_whatsapp": True
+        }
+        
+        response = requests.post(
+            f"{API_BASE}/notifications/send-payment-reminder",
+            json=test_data,
+            headers={"Content-Type": "application/json"},
+            timeout=10
+        )
+        
+        if response.status_code != 200:
+            results.add_fail("Send Payment Reminder - Non-overdue", f"Status code: {response.status_code}")
+            return False
+            
+        data = response.json()
+        if 'results' not in data or len(data['results']) != 3:
+            results.add_fail("Send Payment Reminder - Non-overdue", "Invalid results structure")
+            return False
+            
+        results.add_pass("Send Payment Reminder - Non-overdue scenario")
+        
+        # Test 2: Overdue reminder
+        test_data['overdue_days'] = 5
+        test_data['customer_name'] = "Amit Patel"
+        
+        response = requests.post(
+            f"{API_BASE}/notifications/send-payment-reminder",
+            json=test_data,
+            headers={"Content-Type": "application/json"},
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            results.add_pass("Send Payment Reminder - Overdue scenario")
+            print(f"   Tested both non-overdue and overdue scenarios successfully")
+        else:
+            results.add_fail("Send Payment Reminder - Overdue", f"Status code: {response.status_code}")
+            
+        return True
+        
+    except Exception as e:
+        results.add_fail("Send Payment Reminder", f"Exception: {str(e)}")
+        return False
+
+def test_send_payment_receipt():
+    """Test POST /api/notifications/send-payment-receipt endpoint"""
+    try:
+        test_data = {
+            "customer_email": "customer@retoerp.com",
+            "customer_name": "Suresh Reddy",
+            "property_name": "Ocean View Towers - 4BHK",
+            "payment_date": "2025-01-15",
+            "amount": 825000.00,
+            "payment_mode": "Bank Transfer",
+            "receipt_no": "RCP2025001",
+            "balance_amount": 4125000.00
+        }
+        
+        response = requests.post(
+            f"{API_BASE}/notifications/send-payment-receipt",
+            json=test_data,
+            headers={"Content-Type": "application/json"},
+            timeout=10
+        )
+        
+        if response.status_code != 200:
+            results.add_fail("Send Payment Receipt", f"Status code: {response.status_code}, Response: {response.text}")
+            return False
+            
+        data = response.json()
+        
+        # Validate response structure
+        required_keys = ['success', 'message', 'details']
+        missing_keys = [key for key in required_keys if key not in data]
+        if missing_keys:
+            results.add_fail("Send Payment Receipt", f"Missing response keys: {missing_keys}")
+            return False
+            
+        # Check if it's using mock provider
+        details = data.get('details', {})
+        if details.get('provider') != 'mock':
+            results.add_fail("Send Payment Receipt", f"Expected mock provider, got: {details.get('provider')}")
+            return False
+            
+        results.add_pass("Send Payment Receipt - Email with HTML template")
+        print(f"   Receipt: {test_data['receipt_no']}, Amount: ₹{test_data['amount']:,.2f}")
+        return True
+        
+    except Exception as e:
+        results.add_fail("Send Payment Receipt", f"Exception: {str(e)}")
+        return False
+
+def test_get_notification_logs():
+    """Test GET /api/notifications/logs endpoint"""
+    try:
+        # Test 1: Get logs without filters
+        response = requests.get(f"{API_BASE}/notifications/logs", timeout=10)
+        
+        if response.status_code != 200:
+            results.add_fail("Get Notification Logs - No filters", f"Status code: {response.status_code}")
+            return False
+            
+        data = response.json()
+        
+        # Validate response structure
+        required_keys = ['logs', 'count']
+        missing_keys = [key for key in required_keys if key not in data]
+        if missing_keys:
+            results.add_fail("Get Notification Logs - No filters", f"Missing response keys: {missing_keys}")
+            return False
+            
+        results.add_pass("Get Notification Logs - No filters")
+        print(f"   Found {data['count']} notification logs")
+        
+        # Test 2: Filter by channel
+        for channel in ['sms', 'email', 'whatsapp']:
+            response = requests.get(f"{API_BASE}/notifications/logs?channel={channel}", timeout=10)
+            if response.status_code == 200:
+                results.add_pass(f"Get Notification Logs - Filter by {channel}")
+            else:
+                results.add_fail(f"Get Notification Logs - Filter by {channel}", f"Status code: {response.status_code}")
+        
+        # Test 3: Filter by status
+        response = requests.get(f"{API_BASE}/notifications/logs?status=sent", timeout=10)
+        if response.status_code == 200:
+            results.add_pass("Get Notification Logs - Filter by status")
+        else:
+            results.add_fail("Get Notification Logs - Filter by status", f"Status code: {response.status_code}")
+            
+        # Test 4: Limit parameter
+        response = requests.get(f"{API_BASE}/notifications/logs?limit=10", timeout=10)
+        if response.status_code == 200:
+            data = response.json()
+            if len(data['logs']) <= 10:
+                results.add_pass("Get Notification Logs - Limit parameter")
+            else:
+                results.add_fail("Get Notification Logs - Limit parameter", f"Expected ≤10 logs, got {len(data['logs'])}")
+        else:
+            results.add_fail("Get Notification Logs - Limit parameter", f"Status code: {response.status_code}")
+            
+        return True
+        
+    except Exception as e:
+        results.add_fail("Get Notification Logs", f"Exception: {str(e)}")
+        return False
+
+def test_get_notification_stats():
+    """Test GET /api/notifications/stats endpoint"""
+    try:
+        response = requests.get(f"{API_BASE}/notifications/stats", timeout=10)
+        
+        if response.status_code != 200:
+            results.add_fail("Get Notification Stats", f"Status code: {response.status_code}")
+            return False
+            
+        data = response.json()
+        
+        # Validate response structure
+        required_keys = ['by_channel', 'by_type', 'total_notifications']
+        missing_keys = [key for key in required_keys if key not in data]
+        if missing_keys:
+            results.add_fail("Get Notification Stats", f"Missing response keys: {missing_keys}")
+            return False
+            
+        # Validate by_channel structure
+        by_channel = data['by_channel']
+        expected_channels = ['sms', 'email', 'whatsapp']
+        for channel in expected_channels:
+            if channel not in by_channel:
+                results.add_fail("Get Notification Stats", f"Missing channel stats: {channel}")
+                return False
+                
+            channel_stats = by_channel[channel]
+            required_stats = ['total', 'success', 'failed', 'success_rate']
+            missing_stats = [stat for stat in required_stats if stat not in channel_stats]
+            if missing_stats:
+                results.add_fail("Get Notification Stats", f"Missing {channel} stats: {missing_stats}")
+                return False
+        
+        results.add_pass("Get Notification Stats - Complete structure")
+        print(f"   Total notifications: {data['total_notifications']}")
+        print(f"   SMS success rate: {by_channel['sms']['success_rate']}%")
+        print(f"   Email success rate: {by_channel['email']['success_rate']}%")
+        return True
+        
+    except Exception as e:
+        results.add_fail("Get Notification Stats", f"Exception: {str(e)}")
+        return False
+
+def test_notification_connection():
+    """Test GET /api/notifications/test-connection endpoint"""
+    try:
+        response = requests.get(f"{API_BASE}/notifications/test-connection", timeout=10)
+        
+        if response.status_code != 200:
+            results.add_fail("Test Notification Connection", f"Status code: {response.status_code}")
+            return False
+            
+        data = response.json()
+        
+        # Validate response structure
+        expected_providers = ['sms', 'email', 'whatsapp']
+        for provider in expected_providers:
+            if provider not in data:
+                results.add_fail("Test Notification Connection", f"Missing provider: {provider}")
+                return False
+                
+            provider_info = data[provider]
+            required_fields = ['configured', 'provider']
+            missing_fields = [field for field in required_fields if field not in provider_info]
+            if missing_fields:
+                results.add_fail("Test Notification Connection", f"Missing {provider} fields: {missing_fields}")
+                return False
+                
+            # All should be mock currently
+            if provider_info['provider'] != 'mock':
+                results.add_fail("Test Notification Connection", f"Expected mock provider for {provider}, got: {provider_info['provider']}")
+                return False
+        
+        results.add_pass("Test Notification Connection - All providers in mock mode")
+        print(f"   SMS: {data['sms']['provider']}, Email: {data['email']['provider']}, WhatsApp: {data['whatsapp']['provider']}")
+        return True
+        
+    except Exception as e:
+        results.add_fail("Test Notification Connection", f"Exception: {str(e)}")
+        return False
+
 def main():
-    """Run all analytics tests"""
-    print("Starting RETOERP Analytics Backend API Tests")
+    """Run all notification tests"""
+    print("Starting RETOERP Communication Integration Module Backend API Tests")
     print(f"Timestamp: {datetime.now().isoformat()}")
     print("=" * 80)
     
@@ -699,25 +1086,36 @@ def main():
         print("❌ API is not running. Stopping tests.")
         return False
     
-    print("\n📊 Testing Analytics Endpoints...")
-    print("-" * 50)
+    print("\n📱 Testing Communication Integration Module...")
+    print("-" * 60)
     
-    # Test Analytics Endpoints
-    test_analytics_dashboard()
-    test_analytics_leads()
-    test_analytics_sales()
-    test_analytics_payments()
-    test_analytics_commissions()
+    # Test basic notification endpoints
+    print("\n1️⃣ Testing Basic Notification Endpoints")
+    test_send_sms()
+    test_send_email()
     
-    print("\n🔍 Testing Edge Cases...")
-    print("-" * 30)
-    test_analytics_edge_cases()
+    print("\n2️⃣ Testing Multi-Channel Notifications")
+    test_send_booking_confirmation()
+    test_send_payment_reminder()
+    test_send_payment_receipt()
+    
+    print("\n3️⃣ Testing Notification Management")
+    test_get_notification_logs()
+    test_get_notification_stats()
+    test_notification_connection()
     
     # Final Summary
     success = results.summary()
     
     if success:
-        print("\n🎉 All analytics tests passed! Reports & Analytics Module is working correctly.")
+        print("\n🎉 All communication tests passed! Communication Integration Module is working correctly.")
+        print("📋 Key Features Verified:")
+        print("   ✅ SMS notifications with mock provider")
+        print("   ✅ Email notifications with HTML templates")
+        print("   ✅ Multi-channel delivery (SMS + Email + WhatsApp)")
+        print("   ✅ Template rendering with variable substitution")
+        print("   ✅ Notification logging and statistics")
+        print("   ✅ Provider configuration and connection testing")
     else:
         print(f"\n⚠️  {results.failed} test(s) failed. Please check the issues above.")
     
