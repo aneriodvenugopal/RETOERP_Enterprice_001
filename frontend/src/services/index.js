@@ -415,3 +415,55 @@ export const analyticsService = {
     return response.data;
   },
 };
+
+export const userService = {
+  // Get all users
+  getAll: async (params = {}) => {
+    const response = await api.get('/users/', { params });
+    return response.data;
+  },
+
+  // Get user by ID
+  getById: async (userId) => {
+    const response = await api.get(`/users/${userId}`);
+    return response.data;
+  },
+
+  // Create user
+  create: async (userData) => {
+    const response = await api.post('/users/', userData);
+    return response.data;
+  },
+
+  // Update user
+  update: async (userId, userData) => {
+    const response = await api.put(`/users/${userId}`, userData);
+    return response.data;
+  },
+
+  // Deactivate user
+  deactivate: async (userId) => {
+    const response = await api.delete(`/users/${userId}`);
+    return response.data;
+  },
+
+  // Activate user
+  activate: async (userId) => {
+    const response = await api.post(`/users/${userId}/activate`);
+    return response.data;
+  },
+
+  // Get user performance
+  getPerformance: async (userId) => {
+    const response = await api.get(`/users/${userId}/performance`);
+    return response.data;
+  },
+
+  // Get user stats
+  getStats: async (tenantId) => {
+    const response = await api.get('/users/stats/overview', {
+      params: { tenant_id: tenantId },
+    });
+    return response.data;
+  },
+};
