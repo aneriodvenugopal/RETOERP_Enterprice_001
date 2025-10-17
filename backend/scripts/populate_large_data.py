@@ -285,7 +285,7 @@ async def populate_data():
                 'project_id': project['id'],
                 'property_number': f"{chr(65 + random.randint(0, 10))}-{random.randint(101, 999)}",
                 'property_type_id': prop_type_cat['id'],
-                'status_id': status_cat['id'] if status_cat else None,
+                'status_id': status_cat['id'],  # Now guaranteed to have a value
                 'floor': random.randint(0, 25),
                 'block': random.choice(['A', 'B', 'C', 'D']),
                 'facing': random.choice(['North', 'South', 'East', 'West', 'North-East', 'South-West']),
