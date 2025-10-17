@@ -1038,9 +1038,9 @@ def test_get_notification_stats():
         return False
 
 def test_notification_connection():
-    """Test GET /api/notifications/test-connection endpoint"""
+    """Test POST /api/notifications/test-connection endpoint"""
     try:
-        response = requests.get(f"{API_BASE}/notifications/test-connection", timeout=10)
+        response = requests.post(f"{API_BASE}/notifications/test-connection", timeout=10)
         
         if response.status_code != 200:
             results.add_fail("Test Notification Connection", f"Status code: {response.status_code}")
