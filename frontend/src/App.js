@@ -63,6 +63,14 @@ function App() {
                   </PrivateRoute>
                 }
               />
+              <Route
+                path="/reports"
+                element={
+                  <PrivateRoute>
+                    <Reports />
+                  </PrivateRoute>
+                }
+              />
               <Route path="/" element={<Navigate to="/dashboard" replace />} />
             </Routes>
           </BrowserRouter>
