@@ -255,4 +255,101 @@ export const leadService = {
   },
 };
 
+export const bookingService = {
+  // Get all bookings
+  getAll: async (params = {}) => {
+    const response = await api.get('/bookings/', { params });
+    return response.data;
+  },
+
+  // Get booking by ID
+  getById: async (id) => {
+    const response = await api.get(`/bookings/${id}`);
+    return response.data;
+  },
+
+  // Get booking details (with payments & schedules)
+  getDetails: async (id) => {
+    const response = await api.get(`/bookings/${id}/details`);
+    return response.data;
+  },
+
+  // Create booking
+  create: async (bookingData) => {
+    const response = await api.post('/bookings/', bookingData);
+    return response.data;
+  },
+
+  // Get payments for booking
+  getPayments: async (bookingId) => {
+    const response = await api.get(`/bookings/${bookingId}/payments`);
+    return response.data;
+  },
+
+  // Create payment
+  createPayment: async (bookingId, paymentData) => {
+    const response = await api.post(`/bookings/${bookingId}/payments`, paymentData);
+    return response.data;
+  },
+
+  // Get payment schedules
+  getSchedules: async (bookingId) => {
+    const response = await api.get(`/bookings/${bookingId}/schedules`);
+    return response.data;
+  },
+};
+
+export const commissionService = {
+  // Get all commissions
+  getAll: async (params = {}) => {
+    const response = await api.get('/commissions/', { params });
+    return response.data;
+  },
+
+  // Get commission by ID
+  getById: async (id) => {
+    const response = await api.get(`/commissions/${id}`);
+    return response.data;
+  },
+
+  // Create commission
+  create: async (commissionData) => {
+    const response = await api.post('/commissions/', commissionData);
+    return response.data;
+  },
+
+  // Approve commission
+  approve: async (id) => {
+    const response = await api.post(`/commissions/${id}/approve`);
+    return response.data;
+  },
+
+  // Payout commission
+  payout: async (id, payoutData) => {
+    const response = await api.post(`/commissions/${id}/payout`, payoutData);
+    return response.data;
+  },
+
+  // Get commission stats
+  getStats: async (tenantId, projectId, staffId) => {
+    const response = await api.get('/commissions/stats/summary', {
+      params: { tenant_id: tenantId, project_id: projectId, staff_id: staffId },
+    });
+    return response.data;
+  },
+
+  // Commission Rules
+  getRules: async (tenantId, projectId) => {
+    const response = await api.get('/commissions/rules', {
+      params: { tenant_id: tenantId, project_id: projectId },
+    });
+    return response.data;
+  },
+
+  createRule: async (ruleData) => {
+    const response = await api.post('/commissions/rules', ruleData);
+    return response.data;
+  },
+};
+
 
