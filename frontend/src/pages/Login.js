@@ -126,12 +126,20 @@ const Login = () => {
                   type="tel"
                   placeholder="Enter your phone number"
                   value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  required
+                  onChange={(e) => {
+                    setPhone(e.target.value);
+                    if (errors.phone) setErrors({});
+                  }}
+                  onBlur={(e) => {
+                    const error = validatePhone(e.target.value);
+                    if (error) setErrors({ phone: error });
+                  }}
                   maxLength={10}
-                  pattern="[0-9]{10}"
-                  className="w-full"
+                  className={`w-full ${errors.phone ? 'border-red-500 focus:ring-red-500' : ''}`}
                 />
+                {errors.phone && (
+                  <p className="text-sm text-red-500 mt-1">{errors.phone}</p>
+                )}
               </div>
               <Button type="submit" className="w-full" disabled={loading}>
                 {loading ? 'Sending...' : 'Send OTP'}
@@ -151,12 +159,22 @@ const Login = () => {
                   type="text"
                   placeholder="Enter 6-digit OTP"
                   value={otp}
-                  onChange={(e) => setOtp(e.target.value)}
-                  required
+                  onChange={(e) => {
+                    setOtp(e.target.value);
+                    if (errors.otp) setErrors({});
+                  }}
+                  onBlur={(e) => {
+                    const error = validateOTP(e.target.value);
+                    if (error) setErrors({ otp: error });
+                  }}
                   maxLength={6}
-                  pattern="[0-9]{6}"
-                  className="w-full text-center text-2xl tracking-widest"
+                  className={`w-full text-center text-2xl tracking-widest ${
+                    errors.otp ? 'border-red-500 focus:ring-red-500' : ''
+                  }`}
                 />
+                {errors.otp && (
+                  <p className="text-sm text-red-500 mt-1 text-center">{errors.otp}</p>
+                )}
                 <p className="text-xs text-gray-500 text-center">
                   OTP sent to {phone}
                 </p>
@@ -169,6 +187,7 @@ const Login = () => {
                   onClick={() => {
                     setStep('phone');
                     setOtp('');
+                    setErrors({});
                   }}
                 >
                   Change Number
