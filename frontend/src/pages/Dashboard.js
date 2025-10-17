@@ -170,7 +170,7 @@ const DefaultDashboard = () => {
 };
 
 // Stat Card Component
-const StatCard = ({ icon: Icon, title, value, color }) => {
+const StatCard = ({ icon: Icon, title, value, color, onClick }) => {
   const colorClasses = {
     blue: 'bg-blue-500',
     green: 'bg-green-500',
@@ -179,7 +179,7 @@ const StatCard = ({ icon: Icon, title, value, color }) => {
   };
 
   return (
-    <Card>
+    <Card className={onClick ? 'cursor-pointer hover:shadow-lg transition-shadow' : ''} onClick={onClick}>
       <CardContent className="pt-6">
         <div className="flex items-center justify-between">
           <div>
