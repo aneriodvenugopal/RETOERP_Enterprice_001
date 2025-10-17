@@ -90,3 +90,101 @@ export const tenantService = {
     return response.data;
   },
 };
+
+export const projectService = {
+  // Get all projects
+  getAll: async (tenantId, status) => {
+    const response = await api.get('/projects/', {
+      params: { tenant_id: tenantId, status },
+    });
+    return response.data;
+  },
+
+  // Get project by ID
+  getById: async (id) => {
+    const response = await api.get(`/projects/${id}`);
+    return response.data;
+  },
+
+  // Get project stats
+  getStats: async (id) => {
+    const response = await api.get(`/projects/${id}/stats`);
+    return response.data;
+  },
+
+  // Create project
+  create: async (projectData) => {
+    const response = await api.post('/projects/', projectData);
+    return response.data;
+  },
+
+  // Update project
+  update: async (id, projectData) => {
+    const response = await api.put(`/projects/${id}`, projectData);
+    return response.data;
+  },
+
+  // Delete project
+  delete: async (id) => {
+    const response = await api.delete(`/projects/${id}`);
+    return response.data;
+  },
+};
+
+export const propertyService = {
+  // Get all properties
+  getAll: async (projectId, statusId, propertyTypeId) => {
+    const response = await api.get('/properties/', {
+      params: {
+        project_id: projectId,
+        status_id: statusId,
+        property_type_id: propertyTypeId,
+      },
+    });
+    return response.data;
+  },
+
+  // Get property by ID
+  getById: async (id) => {
+    const response = await api.get(`/properties/${id}`);
+    return response.data;
+  },
+
+  // Create property
+  create: async (propertyData) => {
+    const response = await api.post('/properties/', propertyData);
+    return response.data;
+  },
+
+  // Update property
+  update: async (id, propertyData) => {
+    const response = await api.put(`/properties/${id}`, propertyData);
+    return response.data;
+  },
+
+  // Block property
+  block: async (propertyId, userId, durationHours = 24) => {
+    const response = await api.post('/properties/block', {
+      property_id: propertyId,
+      user_id: userId,
+      duration_hours: durationHours,
+    });
+    return response.data;
+  },
+
+  // Book property
+  book: async (propertyId, customerId) => {
+    const response = await api.post('/properties/book', {
+      property_id: propertyId,
+      customer_id: customerId,
+    });
+    return response.data;
+  },
+
+  // Delete property
+  delete: async (id) => {
+    const response = await api.delete(`/properties/${id}`);
+    return response.data;
+  },
+};
+
