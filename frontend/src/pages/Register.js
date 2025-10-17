@@ -210,10 +210,13 @@ const Register = () => {
                 type="text"
                 placeholder="Enter your full name"
                 value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                required
-                className="w-full"
+                onChange={(e) => handleInputChange('name', e.target.value)}
+                onBlur={(e) => handleInputBlur('name', e.target.value)}
+                className={`w-full ${errors.name ? 'border-red-500 focus:ring-red-500' : ''}`}
               />
+              {errors.name && (
+                <p className="text-sm text-red-500 mt-1">{errors.name}</p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -222,12 +225,14 @@ const Register = () => {
                 type="tel"
                 placeholder="10-digit mobile number"
                 value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                required
+                onChange={(e) => handleInputChange('phone', e.target.value)}
+                onBlur={(e) => handleInputBlur('phone', e.target.value)}
                 maxLength={10}
-                pattern="[0-9]{10}"
-                className="w-full"
+                className={`w-full ${errors.phone ? 'border-red-500 focus:ring-red-500' : ''}`}
               />
+              {errors.phone && (
+                <p className="text-sm text-red-500 mt-1">{errors.phone}</p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -236,9 +241,13 @@ const Register = () => {
                 type="email"
                 placeholder="your.email@example.com"
                 value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="w-full"
+                onChange={(e) => handleInputChange('email', e.target.value)}
+                onBlur={(e) => handleInputBlur('email', e.target.value)}
+                className={`w-full ${errors.email ? 'border-red-500 focus:ring-red-500' : ''}`}
               />
+              {errors.email && (
+                <p className="text-sm text-red-500 mt-1">{errors.email}</p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -246,8 +255,12 @@ const Register = () => {
               <select
                 value={formData.role_id}
                 onChange={(e) => handleRoleChange(e.target.value)}
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                onBlur={(e) => handleInputBlur('role_id', e.target.value)}
+                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
+                  errors.role_id 
+                    ? 'border-red-500 focus:ring-red-500' 
+                    : 'border-gray-300 focus:ring-blue-500'
+                }`}
               >
                 <option value="">Select Role</option>
                 {roles.map((role) => (
@@ -256,6 +269,9 @@ const Register = () => {
                   </option>
                 ))}
               </select>
+              {errors.role_id && (
+                <p className="text-sm text-red-500 mt-1">{errors.role_id}</p>
+              )}
             </div>
 
             {!isSuperAdmin() && (
@@ -263,9 +279,13 @@ const Register = () => {
                 <label className="text-sm font-medium">Organization (Tenant) *</label>
                 <select
                   value={formData.tenant_id}
-                  onChange={(e) => setFormData({ ...formData, tenant_id: e.target.value })}
-                  required={!isSuperAdmin()}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  onChange={(e) => handleInputChange('tenant_id', e.target.value)}
+                  onBlur={(e) => handleInputBlur('tenant_id', e.target.value)}
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
+                    errors.tenant_id 
+                      ? 'border-red-500 focus:ring-red-500' 
+                      : 'border-gray-300 focus:ring-blue-500'
+                  }`}
                 >
                   <option value="">Select Organization</option>
                   {tenants.map((tenant) => (
@@ -274,6 +294,9 @@ const Register = () => {
                     </option>
                   ))}
                 </select>
+                {errors.tenant_id && (
+                  <p className="text-sm text-red-500 mt-1">{errors.tenant_id}</p>
+                )}
               </div>
             )}
 
