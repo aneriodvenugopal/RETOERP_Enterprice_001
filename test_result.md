@@ -107,27 +107,33 @@ user_problem_statement: "Implement user registration functionality with custom j
 backend:
   - task: "Add GET /auth/roles endpoint to fetch all roles"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/routes/auth.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Added endpoint to fetch all available roles for registration page"
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: GET /auth/roles endpoint working perfectly. Returns all 4 required roles (super_admin, tenant_admin, staff, customer) with correct structure including id, name, and slug fields. Response format validated successfully."
 
   - task: "User registration API endpoint POST /auth/register"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/routes/auth.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Endpoint already exists, needs testing with new UI"
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: POST /auth/register endpoint fully functional. Successfully registered Super Admin (9948303060) and Tenant Admin (9908290239) with correct role assignments. Proper validation for duplicate registrations (returns 400 with 'already exists' message), missing required fields (422 validation errors), and invalid role_id (400 error). All test cases passed including OTP generation for registered users."
 
   - task: "Create default tenant organization"
     implemented: true
