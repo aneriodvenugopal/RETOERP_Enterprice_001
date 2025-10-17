@@ -94,10 +94,16 @@ def random_email(name):
     domains = ['gmail.com', 'yahoo.com', 'outlook.com', 'hotmail.com']
     return f"{name.lower().replace(' ', '.')}@{random.choice(domains)}"
 
-# Random date within last N days
+# Random date within last N days (positive for past, negative for future)
 def random_date(days_back):
-    days = random.randint(0, days_back)
-    return (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
+    if days_back < 0:
+        # Future date
+        days = random.randint(0, abs(days_back))
+        return (datetime.now(timezone.utc) + timedelta(days=days)).isoformat()
+    else:
+        # Past date
+        days = random.randint(0, days_back)
+        return (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
 
 async def populate_data():
     """Populate database with large realistic data"""
