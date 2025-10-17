@@ -48,6 +48,7 @@ api_router.include_router(commissions.router)
 api_router.include_router(analytics.router)
 api_router.include_router(notifications.router)
 api_router.include_router(users.router)
+api_router.include_router(scheduler.router)
 
 # Include the router in the main app
 app.include_router(api_router)
