@@ -16,18 +16,58 @@ const Login = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
 
+  const validatePhone = (value) => {
+    if (!value || value.trim() === '') {
+      return 'Phone number is required';
+    }
+    if (!/^[0-9]{10}$/.test(value)) {
+      return 'Please enter a valid 10-digit phone number';
+    }
+    return '';
+  };
+
+  const validateOTP = (value) => {
+    if (!value || value.trim() === '') {
+      return 'OTP is required';
+    }
+    if (!/^[0-9]{6}$/.test(value)) {
+      return 'Please enter a valid 6-digit OTP';
+    }
+    return '';
+  };
+
   const handleSendOTP = async (e) => {
     e.preventDefault();
+    
+    // Validate phone
+    const phoneError = validatePhone(phone);
+    if (phoneError) {
+      setErrors({ phone: phoneError });
+      return;
+    }
+    
     setLoading(true);
+    setErrors({});
 
     try {
       const result = await authService.sendOTP(phone);
-      toast.success('OTP sent to your phone!');
+      toast.success('OTP sent to your phone!', {
+        style: {
+          background: '#10b981',
+          color: 'white',
+        },
+      });
       // For development, show OTP in console
       console.log('OTP:', result.otp);
       setStep('otp');
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Failed to send OTP');
+      const errorMsg = error.response?.data?.detail || 'Failed to send OTP';
+      toast.error(errorMsg, {
+        style: {
+          background: '#ef4444',
+          color: 'white',
+        },
+      });
     } finally {
       setLoading(false);
     }
@@ -35,14 +75,34 @@ const Login = () => {
 
   const handleVerifyOTP = async (e) => {
     e.preventDefault();
+    
+    // Validate OTP
+    const otpError = validateOTP(otp);
+    if (otpError) {
+      setErrors({ otp: otpError });
+      return;
+    }
+    
     setLoading(true);
+    setErrors({});
 
     try {
       await login(phone, otp);
-      toast.success('Login successful!');
+      toast.success('Login successful!', {
+        style: {
+          background: '#10b981',
+          color: 'white',
+        },
+      });
       navigate('/dashboard');
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Invalid OTP');
+      const errorMsg = error.response?.data?.detail || 'Invalid OTP';
+      toast.error(errorMsg, {
+        style: {
+          background: '#ef4444',
+          color: 'white',
+        },
+      });
     } finally {
       setLoading(false);
     }
