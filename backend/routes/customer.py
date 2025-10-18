@@ -3,15 +3,16 @@ from pydantic import BaseModel
 from datetime import datetime, timezone
 from typing import Optional, List
 from utils.helpers import serialize_doc
+from middleware.auth import get_current_user as auth_get_current_user
 
 router = APIRouter(prefix="/customer", tags=["customer"])
 
 def get_db(request: Request):
     return request.app.state.db
 
-def get_current_user(request: Request):
-    """Get current user from request state"""
-    return request.state.user if hasattr(request.state, 'user') else None
+async def get_current_user(request: Request):
+    """Get current user from JWT token"""
+    return await auth_get_current_user(request)
 
 class ResaleRequest(BaseModel):
     property_id: str
