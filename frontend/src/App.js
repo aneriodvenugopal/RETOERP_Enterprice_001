@@ -11,6 +11,8 @@ import Projects from "./pages/Projects";
 import ProjectDetail from "./pages/ProjectDetail";
 import ProjectLayoutPage from "./pages/ProjectLayoutPage";
 import LayoutCreatorTool from "./pages/LayoutCreatorTool";
+import LayoutCreatorToolStandalone from "./pages/LayoutCreatorToolStandalone";
+import LayoutsLibrary from "./pages/LayoutsLibrary";
 import PublicLayoutView from "./pages/PublicLayoutView";
 import Leads from "./pages/Leads";
 import Bookings from "./pages/Bookings";
