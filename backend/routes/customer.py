@@ -144,7 +144,7 @@ async def get_customer_bookings(request: Request):
 @router.get("/bookings/{booking_id}")
 async def get_booking_detail(booking_id: str, request: Request):
     """Get detailed booking information"""
-    user = get_current_user(request)
+    user = await get_current_user(request)
     db = get_db(request)
     
     if not user:
