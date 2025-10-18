@@ -153,44 +153,44 @@ const InteractiveLayoutViewer = ({ layoutData, projectData, onPlotClick, readOnl
                 )}
 
                 {/* Draw plots on same coordinate system */}
-                  {layoutData?.plots?.map((plot) => (
-                    <g key={plot.id}>
-                      <polygon
-                        points={getPolygonPoints(plot.coordinates)}
-                        fill={statusColors[plot.status]}
-                        fillOpacity={hoveredPlot?.id === plot.id ? 0.7 : 0.5}
-                        stroke={hoveredPlot?.id === plot.id ? '#ffffff' : '#0891b2'}
-                        strokeWidth={hoveredPlot?.id === plot.id ? 3 : 2}
-                        style={{ 
-                          cursor: 'pointer',
-                          transition: 'all 0.2s ease'
-                        }}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handlePlotClick(plot);
-                        }}
-                        onMouseEnter={() => setHoveredPlot(plot)}
-                        onMouseLeave={() => setHoveredPlot(null)}
-                      />
-                      <text
-                        x={plot.coordinates.reduce((sum, c) => sum + c.x, 0) / plot.coordinates.length}
-                        y={plot.coordinates.reduce((sum, c) => sum + c.y, 0) / plot.coordinates.length}
-                        textAnchor="middle"
-                        dominantBaseline="middle"
-                        fill="#ffffff"
-                        fontSize="100"
-                        fontWeight="bold"
-                        style={{ 
-                          pointerEvents: 'none',
-                          textShadow: '2px 2px 4px rgba(0,0,0,0.8)'
-                        }}
-                      >
-                        {plot.display_name}
-                      </text>
-                    </g>
-                  ))}
-                </svg>
-              </div>
+                {/* Draw plots on same coordinate system */}
+                {layoutData?.plots?.map((plot) => (
+                  <g key={plot.id}>
+                    <polygon
+                      points={getPolygonPoints(plot.coordinates)}
+                      fill={statusColors[plot.status]}
+                      fillOpacity={hoveredPlot?.id === plot.id ? 0.7 : 0.5}
+                      stroke={hoveredPlot?.id === plot.id ? '#ffffff' : '#0891b2'}
+                      strokeWidth={hoveredPlot?.id === plot.id ? 8 : 4}
+                      style={{ 
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease'
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handlePlotClick(plot);
+                      }}
+                      onMouseEnter={() => setHoveredPlot(plot)}
+                      onMouseLeave={() => setHoveredPlot(null)}
+                    />
+                    <text
+                      x={plot.coordinates.reduce((sum, c) => sum + c.x, 0) / plot.coordinates.length}
+                      y={plot.coordinates.reduce((sum, c) => sum + c.y, 0) / plot.coordinates.length}
+                      textAnchor="middle"
+                      dominantBaseline="middle"
+                      fill="#ffffff"
+                      fontSize="120"
+                      fontWeight="bold"
+                      style={{ 
+                        pointerEvents: 'none',
+                        textShadow: '2px 2px 4px rgba(0,0,0,0.8)'
+                      }}
+                    >
+                      {plot.display_name}
+                    </text>
+                  </g>
+                ))}
+              </svg>
             </div>
 
             {/* Hover Tooltip - Fixed position */}
