@@ -473,9 +473,9 @@ const CustomerDashboard = () => {
 
         {/* Payment Schedule Tab */}
         <TabsContent value="schedules">
-          <Card>
+          <Card className="glass-card">
             <CardHeader>
-              <CardTitle>Payment Schedule ({paymentSchedules.length})</CardTitle>
+              <CardTitle className="text-ocean-primary">Payment Schedule ({paymentSchedules.length})</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
