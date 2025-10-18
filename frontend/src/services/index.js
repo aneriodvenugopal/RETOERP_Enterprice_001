@@ -564,4 +564,65 @@ export const layoutService = {
     const response = await api.get(`/layouts/projects/${projectId}/layout/summary`);
     return response.data;
   },
+  
+  // === NEW LAYOUT LIBRARY FUNCTIONS ===
+  
+  // Upload SVG file
+  uploadSVG: async (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await api.post('/layouts/upload-svg', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  },
+
+  // Create master layout
+  createMasterLayout: async (layoutData) => {
+    const response = await api.post('/layouts', layoutData);
+    return response.data;
+  },
+
+  // Get all master layouts
+  getMasterLayouts: async (layoutType = null, includeTemplates = true) => {
+    const params = { include_templates: includeTemplates };
+    if (layoutType) params.layout_type = layoutType;
+    const response = await api.get('/layouts', { params });
+    return response.data;
+  },
+
+  // Get single master layout
+  getMasterLayout: async (layoutId) => {
+    const response = await api.get(`/layouts/${layoutId}`);
+    return response.data;
+  },
+
+  // Update master layout
+  updateMasterLayout: async (layoutId, layoutData) => {
+    const response = await api.put(`/layouts/${layoutId}`, layoutData);
+    return response.data;
+  },
+
+  // Delete master layout
+  deleteMasterLayout: async (layoutId) => {
+    const response = await api.delete(`/layouts/${layoutId}`);
+    return response.data;
+  },
+
+  // Assign layout to project
+  assignLayoutToProject: async (projectId, layoutId, customPlots = null) => {
+    const response = await api.post(`/layouts/projects/${projectId}/assign`, {
+      layout_id: layoutId,
+      custom_plots: customPlots,
+    });
+    return response.data;
+  },
+
+  // Get layout stats
+  getLayoutStats: async () => {
+    const response = await api.get('/layouts/stats');
+    return response.data;
+  },
 };
