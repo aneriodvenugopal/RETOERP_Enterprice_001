@@ -330,7 +330,7 @@ async def get_customer_properties(request: Request):
 @router.post("/resale-request")
 async def create_resale_request(resale_data: ResaleRequest, request: Request):
     """Request property resale"""
-    user = get_current_user(request)
+    user = await get_current_user(request)
     db = get_db(request)
     
     if not user:
