@@ -202,28 +202,6 @@ const StaffDashboard = () => {
   );
 };
 
-// Customer Dashboard
-const CustomerDashboard = () => {
-  return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold">My Properties</h2>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <StatCard icon={Building2} title="My Properties" value="0" color="blue" />
-        <StatCard icon={BarChart3} title="Payment Pending" value="₹0" color="orange" />
-        <StatCard icon={Users} title="Referrals" value="0" color="green" />
-      </div>
-      <Card>
-        <CardHeader>
-          <CardTitle>My Properties</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-gray-500">No properties purchased yet</p>
-        </CardContent>
-      </Card>
-    </div>
-  );
-};
-
 // Default Dashboard
 const DefaultDashboard = () => {
   return (
