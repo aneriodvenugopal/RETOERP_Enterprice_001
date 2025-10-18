@@ -121,7 +121,7 @@ async def populate_customer_data():
     booking_statuses = ['active', 'active', 'active', 'completed', 'under_construction']
     
     for customer in customers:
-        customer_id = customer['user_id']
+        customer_id = customer['id']  # Use 'id' field instead of 'user_id'
         customer_name = customer['name']
         
         print(f"\n👤 Creating data for customer: {customer_name} ({customer['phone']})")
