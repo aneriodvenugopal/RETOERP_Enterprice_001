@@ -1,13 +1,20 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { LogOut, User, Building2, Users, BarChart3 } from 'lucide-react';
+import { LogOut, User, Building2, Users, BarChart3, Home } from 'lucide-react';
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+
+  // Auto-redirect customers to their dedicated portal
+  useEffect(() => {
+    if (user?.role === 'customer') {
+      navigate('/customer-dashboard', { replace: true });
+    }
+  }, [user, navigate]);
 
   const getDashboardContent = () => {
     switch (user?.role) {
@@ -18,7 +25,7 @@ const Dashboard = () => {
       case 'staff':
         return <StaffDashboard />;
       case 'customer':
-        return <CustomerDashboard />;
+        return null; // Will be redirected
       default:
         return <DefaultDashboard />;
     }
