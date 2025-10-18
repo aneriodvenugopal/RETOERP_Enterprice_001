@@ -429,9 +429,9 @@ const CustomerDashboard = () => {
 
         {/* Properties Tab */}
         <TabsContent value="properties">
-          <Card>
+          <Card className="glass-card">
             <CardHeader>
-              <CardTitle>My Properties ({properties.length})</CardTitle>
+              <CardTitle className="text-ocean-primary">My Properties ({properties.length})</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
