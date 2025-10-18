@@ -441,3 +441,80 @@ agent_communication:
     message: "✅ BACKEND TESTING COMPLETE: All backend APIs for user registration are working perfectly. Comprehensive testing completed with 11/11 tests passed including: (1) GET /auth/roles - returns all required roles correctly, (2) POST /auth/register - successfully registers users with proper validation, (3) Duplicate registration handling, (4) Invalid data validation, (5) OTP generation for registered users. Both test users (Super Admin: 9948303060, Tenant Admin: 9908290239) registered successfully. Backend is fully functional and ready for frontend integration testing."
   - agent: "testing"
     message: "✅ ANALYTICS BACKEND TESTING COMPLETE: All Reports & Analytics Module backend APIs are working perfectly. Comprehensive testing completed with 19/19 tests passed including: (1) All 5 analytics endpoints functional with proper response structures, (2) Dashboard metrics with overview, property stats, recent activities, (3) Lead analytics with source/status/quality breakdowns, (4) Sales analytics with project trends and payment plans, (5) Payment analytics with collection rates and overdue tracking, (6) Commission analytics with status and top earners, (7) All filtering options (tenant_id, date ranges) working correctly, (8) Edge case handling for future dates and reversed ranges. Minor issue noted: Invalid date format returns 500 instead of 400 (doesn't affect core functionality). Backend analytics module is fully functional and ready for frontend integration."
+
+backend:
+  - task: "Customer Portal backend routes (8 endpoints)"
+    implemented: true
+    working: true
+    file: "/app/backend/routes/customer.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Backend routes already implemented: /dashboard, /bookings, /bookings/{id}, /payments, /payment-schedules, /properties, /resale-request, /resale-requests"
+
+frontend:
+  - task: "Add Customer Portal route in App.js"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Added /customer-dashboard route with PrivateRoute protection"
+
+  - task: "Implement role-based auto-redirect for customers"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/Dashboard.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Added useEffect hook to auto-redirect customer role users to /customer-dashboard. Prevents customers from seeing admin dashboard"
+
+  - task: "Add Customer Portal navigation for admins"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/Dashboard.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Added Customer Portal navigation cards to Super Admin and Tenant Admin dashboards for previewing customer experience"
+
+  - task: "Add header with navigation and logout to CustomerDashboard"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/CustomerDashboard.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Added professional header with: (1) Back to Dashboard button for admins, (2) RETOERP branding, (3) User info display, (4) Logout button. Fixed JSX syntax error by properly closing nested divs"
+
+metadata:
+  created_by: "main_agent"
+  version: "4.0"
+  test_sequence: 5
+  run_ui: true
+
+test_plan:
+  current_focus:
+    - "Customer Portal role-based routing"
+    - "Customer Portal UI rendering"
+    - "Auto-redirect for customer users"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
