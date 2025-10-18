@@ -20,7 +20,7 @@ MONGO_URL = os.getenv('MONGO_URL', 'mongodb://localhost:27017/retoerp')
 async def populate_customer_data():
     """Populate customer data for testing"""
     client = AsyncIOMotorClient(MONGO_URL)
-    db = client.get_database()
+    db = client['retoerp']
     
     print("🚀 Starting customer data population...")
     
