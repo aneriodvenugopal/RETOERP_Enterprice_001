@@ -103,7 +103,7 @@ async def create_master_layout(
         'plots': [plot.dict() for plot in layout_data.plots],
         'metadata': layout_data.metadata,
         'is_template': layout_data.is_template,
-        'created_by': user['id'],
+        'created_by': user['user_id'],
         'created_at': datetime.now(timezone.utc).isoformat(),
         'updated_at': datetime.now(timezone.utc).isoformat(),
         'deleted_at': None
