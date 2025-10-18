@@ -275,9 +275,9 @@ const CustomerDashboard = () => {
         {/* Overview Tab */}
         <TabsContent value="overview" className="space-y-6">
           {/* Upcoming Payments */}
-          <Card>
+          <Card className="glass-card">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2 text-ocean-primary">
                 <Calendar className="h-5 w-5" />
                 Upcoming Payments
               </CardTitle>
