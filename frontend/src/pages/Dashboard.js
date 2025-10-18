@@ -158,6 +158,12 @@ const TenantAdminDashboard = () => {
           onClick={() => navigate('/projects')}
         />
         <ActionCard
+          icon={Layers}
+          title="Layouts Library"
+          description="Manage property layouts and maps"
+          onClick={() => navigate('/layouts')}
+        />
+        <ActionCard
           icon={Users}
           title="Leads"
           description="Manage and track your leads"
