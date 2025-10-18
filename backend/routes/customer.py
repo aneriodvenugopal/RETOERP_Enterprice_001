@@ -383,7 +383,7 @@ async def create_resale_request(resale_data: ResaleRequest, request: Request):
 @router.get("/resale-requests")
 async def get_customer_resale_requests(request: Request):
     """Get customer's resale requests"""
-    user = get_current_user(request)
+    user = await get_current_user(request)
     db = get_db(request)
     
     if not user:
