@@ -125,6 +125,22 @@ function App() {
                 }
               />
               <Route
+                path="/layouts/:layoutId/view"
+                element={
+                  <PrivateRoute>
+                    <LayoutViewer />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/layouts/:layoutId/edit"
+                element={
+                  <PrivateRoute>
+                    <LayoutEditor />
+                  </PrivateRoute>
+                }
+              />
+              <Route
                 path="/projects/:projectId/layout/create"
                 element={
                   <PrivateRoute>
