@@ -2162,6 +2162,51 @@ def test_template_creation_as_tenant(auth_token):
         results.add_fail("Template Creation as Tenant", f"Exception: {str(e)}")
         return False
 
+def test_assign_layout_to_nonexistent_project(auth_token, layout_id):
+    """Test assigning layout to non-existent project (should fail)"""
+    if not auth_token:
+        results.add_fail("Assign Layout to Non-existent Project", "No auth token available")
+        return False
+        
+    if not layout_id:
+        results.add_fail("Assign Layout to Non-existent Project", "No layout ID available")
+        return False
+        
+    try:
+        fake_project_id = "non-existent-project-id"
+        assignment_data = {
+            "layout_id": layout_id
+        }
+        
+        headers = {
+            "Authorization": f"Bearer {auth_token}",
+            "Content-Type": "application/json"
+        }
+        
+        response = requests.post(
+            f"{API_BASE}/layouts/projects/{fake_project_id}/assign",
+            json=assignment_data,
+            headers=headers,
+            timeout=10
+        )
+        
+        if response.status_code == 404:
+            error_data = response.json()
+            if "Project not found" in error_data.get('detail', ''):
+                results.add_pass("Assign Layout to Non-existent Project - Correctly rejected")
+                print(f"   Error message: {error_data.get('detail')}")
+                return True
+            else:
+                results.add_fail("Assign Layout to Non-existent Project", f"Wrong error message: {error_data.get('detail')}")
+                return False
+        else:
+            results.add_fail("Assign Layout to Non-existent Project", f"Expected 404, got {response.status_code}")
+            return False
+            
+    except Exception as e:
+        results.add_fail("Assign Layout to Non-existent Project", f"Exception: {str(e)}")
+        return False
+
 def main():
     """Run all Layout Library backend tests"""
     print("Starting RETOERP Backend API Tests - Layout Library Focus")
