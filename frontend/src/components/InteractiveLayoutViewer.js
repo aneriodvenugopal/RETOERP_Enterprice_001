@@ -142,39 +142,52 @@ const InteractiveLayoutViewer = ({ layoutData, projectData, onPlotClick, readOnl
           </div>
 
           <div
-            className="relative bg-gray-50 rounded-lg overflow-hidden border-2 border-ocean-primary/20"
-            style={{ height: '600px', cursor: isPanning ? 'grabbing' : 'grab' }}
+            className="relative bg-white rounded-lg overflow-hidden border-2 border-ocean-primary/20"
+            style={{ height: '700px', cursor: isPanning ? 'grabbing' : 'grab' }}
             onMouseDown={handlePanStart}
             onMouseMove={handlePanMove}
             onMouseUp={handlePanEnd}
             onMouseLeave={handlePanEnd}
           >
-            <svg
-              ref={svgRef}
-              width="100%"
-              height="100%"
-              viewBox="0 0 5000 6000"
-              preserveAspectRatio="xMidYMid meet"
+            <div
               style={{
                 transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
-                transformOrigin: 'center center'
+                transformOrigin: 'center center',
+                transition: isPanning ? 'none' : 'transform 0.1s ease-out',
+                width: '100%',
+                height: '100%',
+                position: 'relative'
               }}
             >
-              {/* Render background SVG if provided - scale it to match plot coordinates */}
+              {/* Background SVG Map */}
               {layoutData?.svg_content && (
-                <g 
-                  transform="scale(4.45, 7.55)"
-                  opacity="0.8"
-                  dangerouslySetInnerHTML={{ 
-                    __html: layoutData.svg_content
-                      .replace(/<\?xml[^>]*\?>/gi, '')
-                      .replace(/<svg[^>]*>/gi, '<g>')
-                      .replace(/<\/svg>/gi, '</g>')
-                  }} 
+                <div 
+                  style={{ 
+                    width: '100%', 
+                    height: '100%',
+                    position: 'absolute',
+                    top: 0,
+                    left: 0
+                  }}
+                  dangerouslySetInnerHTML={{ __html: layoutData.svg_content }}
                 />
               )}
 
-              {/* Render interactive plots on top */}
+              {/* Interactive Plots Overlay */}
+              <svg
+                ref={svgRef}
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '100%',
+                  pointerEvents: 'none'
+                }}
+                viewBox="0 0 5000 6000"
+                preserveAspectRatio="xMidYMid meet"
+              >
+                {/* Render interactive plots */}
               {layoutData?.plots?.map((plot) => (
                 <g key={plot.id}>
                   <polygon
