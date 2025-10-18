@@ -503,9 +503,9 @@ const CustomerDashboard = () => {
 
         {/* Resale Requests Tab */}
         <TabsContent value="resale">
-          <Card>
+          <Card className="glass-card">
             <CardHeader>
-              <CardTitle>Resale Requests ({resaleRequests.length})</CardTitle>
+              <CardTitle className="text-ocean-primary">Resale Requests ({resaleRequests.length})</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
