@@ -1,9 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Edit, Trash2, Download, Share2, Building2, MapPin, Trees, Warehouse, LayoutGrid } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { 
+  ArrowLeft, Edit, Trash2, Download, Share2, Building2, MapPin, Trees, Warehouse, LayoutGrid,
+  Maximize2, Minimize2, ZoomIn, ZoomOut, RotateCcw, Search, Filter, X, 
+  Home, IndianRupee, Ruler, Calendar, User, Phone, Mail, MessageSquare,
+  Image as ImageIcon, Video, FileText, Heart, ShoppingCart, CheckCircle
+} from 'lucide-react';
 import { toast } from 'sonner';
 import { layoutService } from '../services';
 
