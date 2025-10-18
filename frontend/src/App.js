@@ -13,6 +13,8 @@ import ProjectLayoutPage from "./pages/ProjectLayoutPage";
 import LayoutCreatorTool from "./pages/LayoutCreatorTool";
 import LayoutCreatorToolStandalone from "./pages/LayoutCreatorToolStandalone";
 import LayoutsLibrary from "./pages/LayoutsLibrary";
+import LayoutViewer from "./pages/LayoutViewer";
+import LayoutEditor from "./pages/LayoutEditor";
 import PublicLayoutView from "./pages/PublicLayoutView";
 import Leads from "./pages/Leads";
 import Bookings from "./pages/Bookings";
