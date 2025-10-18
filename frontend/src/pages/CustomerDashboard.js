@@ -131,7 +131,42 @@ const CustomerDashboard = () => {
   }
 
   return (
-    <div className="container mx-auto p-6">
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b mb-6">
+        <div className="container mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              {user?.role !== 'customer' && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => navigate('/dashboard')}
+                >
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Back to Dashboard
+                </Button>
+              )}
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">RETOERP</h1>
+                <p className="text-sm text-gray-500">Customer Portal</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="text-right">
+                <p className="text-sm font-medium text-gray-900">{user?.name}</p>
+                <p className="text-xs text-gray-500 capitalize">{user?.role?.replace('_', ' ')}</p>
+              </div>
+              <Button variant="outline" size="sm" onClick={logout}>
+                <LogOut className="w-4 h-4 mr-2" />
+                Logout
+              </Button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div className="container mx-auto p-6">
       <div className="mb-6">
         <h1 className="text-3xl font-bold">Welcome, {user?.name}!</h1>
         <p className="text-gray-600">Manage your properties and payments</p>
