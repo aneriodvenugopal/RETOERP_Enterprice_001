@@ -473,3 +473,55 @@ export const userService = {
     return response.data;
   },
 };
+
+export const customerService = {
+  // Get customer dashboard
+  getDashboard: async () => {
+    const response = await api.get('/customer/dashboard');
+    return response.data;
+  },
+
+  // Get customer bookings
+  getBookings: async () => {
+    const response = await api.get('/customer/bookings');
+    return response.data;
+  },
+
+  // Get booking detail
+  getBookingDetail: async (bookingId) => {
+    const response = await api.get(`/customer/bookings/${bookingId}`);
+    return response.data;
+  },
+
+  // Get customer payments
+  getPayments: async () => {
+    const response = await api.get('/customer/payments');
+    return response.data;
+  },
+
+  // Get payment schedules
+  getPaymentSchedules: async (status = null) => {
+    const response = await api.get('/customer/payment-schedules', {
+      params: { status },
+    });
+    return response.data;
+  },
+
+  // Get customer properties
+  getProperties: async () => {
+    const response = await api.get('/customer/properties');
+    return response.data;
+  },
+
+  // Create resale request
+  createResaleRequest: async (resaleData) => {
+    const response = await api.post('/customer/resale-request', resaleData);
+    return response.data;
+  },
+
+  // Get resale requests
+  getResaleRequests: async () => {
+    const response = await api.get('/customer/resale-requests');
+    return response.data;
+  },
+};
