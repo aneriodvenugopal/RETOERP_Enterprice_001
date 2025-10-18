@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
+  <rect x="10" y="10" width="100" height="80" fill="lightblue" stroke="blue" stroke-width="2"/>
+  <rect x="120" y="10" width="100" height="80" fill="lightgreen" stroke="green" stroke-width="2"/>
+  <rect x="10" y="100" width="100" height="80" fill="lightcoral" stroke="red" stroke-width="2"/>
+  <rect x="120" y="100" width="100" height="80" fill="lightyellow" stroke="orange" stroke-width="2"/>
+  <text x="200" y="150" font-family="Arial" font-size="16" fill="black">Test Layout</text>
+</svg>
