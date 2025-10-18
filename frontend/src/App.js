@@ -128,7 +128,7 @@ function App() {
                 path="/layouts/:layoutId/view"
                 element={
                   <PrivateRoute>
-                    <LayoutViewer />
+                    <AdvancedLayoutViewer />
                   </PrivateRoute>
                 }
               />
