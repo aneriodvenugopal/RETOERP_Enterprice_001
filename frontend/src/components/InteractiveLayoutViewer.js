@@ -159,6 +159,12 @@ const InteractiveLayoutViewer = ({ layoutData, projectData, onPlotClick, readOnl
                 transformOrigin: 'center center'
               }}
             >
+              {/* Render background SVG if provided */}
+              {layoutData?.svg_content && (
+                <g dangerouslySetInnerHTML={{ __html: layoutData.svg_content }} />
+              )}
+
+              {/* Render interactive plots on top */}
               {layoutData?.plots?.map((plot) => (
                 <g key={plot.id}>
                   <polygon
