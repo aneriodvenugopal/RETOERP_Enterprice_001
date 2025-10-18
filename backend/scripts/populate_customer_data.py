@@ -34,9 +34,15 @@ async def populate_customer_data():
     tenant_id = tenant['id']
     print(f"✅ Using tenant: {tenant['name']} ({tenant_id})")
     
-    # Get customer users
+    # Get customer users by role_id
+    # First get customer role
+    customer_role = await db.roles.find_one({'slug': 'customer'})
+    if not customer_role:
+        print("❌ Customer role not found in database.")
+        return
+    
     customers = await db.users.find({
-        'role': 'customer',
+        'role_id': customer_role['id'],
         'deleted_at': None
     }).to_list(length=None)
     
