@@ -1858,9 +1858,8 @@ def test_create_project_for_assignment(auth_token):
         return None
         
     try:
-        # First get the tenant info
-        headers = {"Authorization": f"Bearer {auth_token}"}
-        tenant_response = requests.get(f"{API_BASE}/tenants/", headers=headers, timeout=10)
+        # Get tenant info from tenants endpoint (no auth required)
+        tenant_response = requests.get(f"{API_BASE}/tenants/", timeout=10)
         
         if tenant_response.status_code != 200:
             results.add_fail("Create Test Project", f"Failed to get tenant info: {tenant_response.status_code}")
