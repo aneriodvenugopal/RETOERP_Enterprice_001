@@ -10,6 +10,7 @@ import Dashboard from "./pages/Dashboard";
 import Projects from "./pages/Projects";
 import ProjectDetail from "./pages/ProjectDetail";
 import ProjectLayoutPage from "./pages/ProjectLayoutPage";
+import LayoutCreatorTool from "./pages/LayoutCreatorTool";
 import PublicLayoutView from "./pages/PublicLayoutView";
 import Leads from "./pages/Leads";
 import Bookings from "./pages/Bookings";
