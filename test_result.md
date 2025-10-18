@@ -632,9 +632,6 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Create MasterLayout and ProjectLayout models with new architecture"
-    - "Create layouts library API routes"
-    - "Register layouts_library router in server.py"
     - "Add layout library service functions to services/index.js"
     - "Create LayoutCreatorToolStandalone page"
     - "Create LayoutsLibrary page"
