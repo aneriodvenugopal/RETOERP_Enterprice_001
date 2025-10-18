@@ -133,21 +133,21 @@ const InteractiveLayoutViewer = ({ layoutData, projectData, onPlotClick, readOnl
                 width: 'fit-content'
               }}
             >
-              {/* Single SVG container with both background and plots */}
+              {/* Single SVG container - landscape orientation matching sathhenapally.svg */}
               <svg
-                width="5000"
-                height="6500"
+                width="800"
+                height="600"
                 viewBox="0 0 5000 6500"
                 style={{ display: 'block', background: 'white' }}
               >
-                {/* Embed background SVG content scaled to match plot coordinates */}
+                {/* Embed background SVG scaled to fit plot coordinates */}
                 {layoutData?.svg_url && (
                   <image
                     href={layoutData.svg_url}
                     x="0"
-                    y="0"
+                    y="2500"
                     width="5000"
-                    height="6500"
+                    height="3500"
                     preserveAspectRatio="xMidYMid meet"
                   />
                 )}
