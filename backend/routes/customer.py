@@ -196,7 +196,7 @@ async def get_booking_detail(booking_id: str, request: Request):
 @router.get("/payments")
 async def get_customer_payments(request: Request):
     """Get all customer payments"""
-    user = get_current_user(request)
+    user = await get_current_user(request)
     db = get_db(request)
     
     if not user:
