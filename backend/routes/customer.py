@@ -24,7 +24,7 @@ class ResaleRequest(BaseModel):
 @router.get("/dashboard")
 async def get_customer_dashboard(request: Request):
     """Get customer dashboard overview"""
-    user = get_current_user(request)
+    user = await get_current_user(request)
     db = get_db(request)
     
     if not user:
