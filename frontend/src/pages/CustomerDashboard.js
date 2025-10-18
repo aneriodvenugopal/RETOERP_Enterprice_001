@@ -385,9 +385,9 @@ const CustomerDashboard = () => {
 
         {/* Payments Tab */}
         <TabsContent value="payments">
-          <Card>
+          <Card className="glass-card">
             <CardHeader>
-              <CardTitle>Payment History ({payments.length})</CardTitle>
+              <CardTitle className="text-ocean-primary">Payment History ({payments.length})</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="overflow-x-auto">
