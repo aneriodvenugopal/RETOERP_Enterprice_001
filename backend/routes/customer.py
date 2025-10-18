@@ -230,7 +230,7 @@ async def get_customer_payments(request: Request):
 @router.get("/payment-schedules")
 async def get_customer_payment_schedules(request: Request, status: Optional[str] = Query(None)):
     """Get customer's payment schedules"""
-    user = get_current_user(request)
+    user = await get_current_user(request)
     db = get_db(request)
     
     if not user:
