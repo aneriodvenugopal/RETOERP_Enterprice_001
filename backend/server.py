@@ -51,6 +51,7 @@ api_router.include_router(users.router)
 api_router.include_router(scheduler.router)
 api_router.include_router(customer.router)
 api_router.include_router(layouts.router)
+api_router.include_router(layouts_library.router)
 
 # Include the router in the main app
 app.include_router(api_router)
