@@ -105,7 +105,53 @@
 user_problem_statement: "Build Layout Upload & Editor Tool for RETOERP SaaS multi-tenant system. This system should allow tenants to create reusable layout libraries (for Ventures, Apartments, Open Lands, Farm Lands) that can be assigned to multiple projects. Super Admin should be able to create global templates. The tool should support PDF/SVG upload, interactive plot marking with 4-point boundary selection, and storing layout data in a master layouts collection separate from projects."
 
 backend:
-  - task: "Create notification service with provider abstraction"
+  - task: "Create MasterLayout and ProjectLayout models with new architecture"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/models/layout.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Updated layout models to support new architecture: MasterLayout (standalone layouts), ProjectLayout (project-layout association), layout types (venture/apartment/open_land/farm_land), template support for Super Admin, and tenant-specific layouts. Maintains backward compatibility with existing code."
+  
+  - task: "Create layouts library API routes"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/routes/layouts_library.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Created comprehensive layouts_library.py with 11 endpoints: (1) POST /layouts/upload-svg - chunked file upload with 1MB chunks, (2) GET /layouts/files/{filename} - serve SVG files, (3) POST /layouts - create master layout with type and template support, (4) GET /layouts - list layouts filtered by type and tenant, (5) GET /layouts/{id} - get single layout, (6) PUT /layouts/{id} - update layout, (7) DELETE /layouts/{id} - soft delete with project assignment check, (8) POST /layouts/projects/{id}/assign - assign layout to project, (9) GET /layouts/stats - layout statistics. All endpoints support tenant isolation and Super Admin privileges."
+
+  - task: "Register layouts_library router in server.py"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Imported and registered layouts_library router. Backend restarted successfully."
+
+  - task: "Create uploads directory for SVG files"
+    implemented: true
+    working: true
+    file: "/app/uploads/layouts/"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Created /app/uploads/layouts directory with proper permissions for file storage."
     implemented: true
     working: true
     file: "/app/backend/services/notification_service.py"
