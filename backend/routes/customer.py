@@ -100,7 +100,7 @@ async def get_customer_dashboard(request: Request):
 @router.get("/bookings")
 async def get_customer_bookings(request: Request):
     """Get all customer bookings"""
-    user = get_current_user(request)
+    user = await get_current_user(request)
     db = get_db(request)
     
     if not user:
