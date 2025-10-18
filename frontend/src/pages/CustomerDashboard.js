@@ -331,9 +331,9 @@ const CustomerDashboard = () => {
 
         {/* Bookings Tab */}
         <TabsContent value="bookings">
-          <Card>
+          <Card className="glass-card">
             <CardHeader>
-              <CardTitle>My Bookings ({bookings.length})</CardTitle>
+              <CardTitle className="text-ocean-primary">My Bookings ({bookings.length})</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
