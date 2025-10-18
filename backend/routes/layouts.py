@@ -263,3 +263,56 @@ async def get_layout_summary(project_id: str, request: Request):
         'average_price': total_value / total_plots if total_plots > 0 else 0,
         'average_area': total_area / total_plots if total_plots > 0 else 0
     }
+
+@router.post("/projects/{project_id}/layout/quick-create")
+async def quick_create_layout(
+    project_id: str,
+    layout_data: LayoutCreate,
+    request: Request
+):
+    """Quick create layout from SVG upload and manual plot marking"""
+    user = await get_current_user(request)
+    db = get_db(request)
+    
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    
+    # Check if project exists
+    project = await db.projects.find_one({
+        'id': project_id,
+        'tenant_id': user['tenant_id'],
+        'deleted_at': None
+    })
+    
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    # Delete existing layout if any
+    await db.project_layouts.delete_many({
+        'project_id': project_id,
+        'tenant_id': user['tenant_id']
+    })
+    
+    # Create new layout
+    layout_id = str(uuid.uuid4())
+    layout_doc = {
+        'id': layout_id,
+        'project_id': project_id,
+        'tenant_id': user['tenant_id'],
+        'layout_name': layout_data.layout_name,
+        'svg_content': layout_data.svg_content,
+        'svg_url': layout_data.svg_url,
+        'plots': [plot.dict() for plot in layout_data.plots],
+        'metadata': layout_data.metadata,
+        'created_at': datetime.now(timezone.utc).isoformat(),
+        'updated_at': datetime.now(timezone.utc).isoformat(),
+        'deleted_at': None
+    }
+    
+    await db.project_layouts.insert_one(layout_doc)
+    
+    return {
+        "message": "Layout created successfully",
+        "layout_id": layout_id,
+        "total_plots": len(layout_data.plots)
+    }
