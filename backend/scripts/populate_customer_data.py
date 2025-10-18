@@ -16,11 +16,12 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 load_dotenv()
 
 MONGO_URL = os.getenv('MONGO_URL', 'mongodb://localhost:27017/retoerp')
+DB_NAME = os.getenv('DB_NAME', 'test_database')
 
 async def populate_customer_data():
     """Populate customer data for testing"""
     client = AsyncIOMotorClient(MONGO_URL)
-    db = client['retoerp']
+    db = client[DB_NAME]
     
     print("🚀 Starting customer data population...")
     
