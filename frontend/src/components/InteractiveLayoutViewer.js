@@ -188,8 +188,9 @@ const InteractiveLayoutViewer = ({ layoutData, projectData, onPlotClick, readOnl
                 preserveAspectRatio="xMidYMid meet"
               >
                 {/* Render interactive plots */}
-              {layoutData?.plots?.map((plot) => (
-                <g key={plot.id}>
+                {/* Render interactive plots */}
+                {layoutData?.plots?.map((plot) => (
+                <g key={plot.id} style={{ pointerEvents: 'auto' }}>
                   <polygon
                     points={getPolygonPoints(plot.coordinates)}
                     fill={statusColors[plot.status]}
@@ -217,7 +218,8 @@ const InteractiveLayoutViewer = ({ layoutData, projectData, onPlotClick, readOnl
                   </text>
                 </g>
               ))}
-            </svg>
+              </svg>
+            </div>
 
             {hoveredPlot && (
               <div className="absolute top-4 left-4 glass-card p-4 max-w-xs z-50" style={{ pointerEvents: 'none' }}>
