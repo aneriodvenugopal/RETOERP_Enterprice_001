@@ -525,3 +525,43 @@ export const customerService = {
     return response.data;
   },
 };
+
+
+// Layout Service
+export const layoutService = {
+  // Create or update project layout
+  createLayout: async (projectId, layoutData) => {
+    const response = await api.post(`/layouts/projects/${projectId}/layout`, layoutData);
+    return response.data;
+  },
+
+  // Get project layout (authenticated)
+  getLayout: async (projectId) => {
+    const response = await api.get(`/layouts/projects/${projectId}/layout`);
+    return response.data;
+  },
+
+  // Get public project layout (no auth)
+  getPublicLayout: async (projectId) => {
+    const response = await api.get(`/layouts/public/projects/${projectId}/layout`);
+    return response.data;
+  },
+
+  // Update plot status
+  updatePlotStatus: async (projectId, plotId, statusData) => {
+    const response = await api.patch(`/layouts/projects/${projectId}/layout/plots/${plotId}`, statusData);
+    return response.data;
+  },
+
+  // Delete layout
+  deleteLayout: async (projectId) => {
+    const response = await api.delete(`/layouts/projects/${projectId}/layout`);
+    return response.data;
+  },
+
+  // Get layout summary
+  getLayoutSummary: async (projectId) => {
+    const response = await api.get(`/layouts/projects/${projectId}/layout/summary`);
+    return response.data;
+  },
+};
