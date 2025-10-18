@@ -296,6 +296,66 @@ backend:
         comment: "Added analytics router to main server, backend restarted successfully"
 
 frontend:
+  - task: "Add layout library service functions to services/index.js"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/services/index.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Added 9 new layout library functions: uploadSVG, createMasterLayout, getMasterLayouts, getMasterLayout, updateMasterLayout, deleteMasterLayout, assignLayoutToProject, getLayoutStats. Maintained backward compatibility with existing layout functions."
+
+  - task: "Create LayoutCreatorToolStandalone page"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/LayoutCreatorToolStandalone.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Created standalone layout creator without project dependency. Features: (1) Layout name and type selection (venture/apartment/open_land/farm_land), (2) SVG file upload with server upload, (3) Interactive 4-point plot marking on SVG, (4) Plot details form (name, block, area, price, status), (5) Plot management (add, delete, undo), (6) Zoom controls, (7) Save to layouts library. Ocean Theme glassmorphism design applied."
+
+  - task: "Create LayoutsLibrary page"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/LayoutsLibrary.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Created layouts library view page with: (1) Statistics cards (total layouts, by type, assigned to projects), (2) Filter by type (all/venture/apartment/open_land/farm_land), (3) Layout cards grid with preview, type icons, plot count, (4) Actions: View, Edit, Delete, (5) Template badge for Super Admin templates, (6) Create New Layout button, (7) Ocean Theme design with glassmorphism."
+
+  - task: "Add routes for layouts in App.js"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Added 3 new routes: (1) /layouts - Layouts Library page, (2) /layouts/create - Standalone Layout Creator, (3) /projects/:projectId/layout/create - Project-specific layout creator (legacy). All routes protected with PrivateRoute."
+
+  - task: "Add Layouts Library navigation to Dashboard"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/Dashboard.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Added 'Layouts Library' action card to Tenant Admin dashboard with Layers icon, positioned between Projects and Leads. Navigates to /layouts route."
+
   - task: "Install chart libraries (recharts, xlsx)"
     implemented: true
     working: true
