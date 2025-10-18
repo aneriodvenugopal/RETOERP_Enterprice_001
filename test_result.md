@@ -454,6 +454,9 @@ backend:
       - working: true
         agent: "main"
         comment: "Backend routes already implemented: /dashboard, /bookings, /bookings/{id}, /payments, /payment-schedules, /properties, /resale-request, /resale-requests"
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: All 8 Customer Portal backend APIs working perfectly! Comprehensive testing completed with 10/10 tests passed including: (1) Customer authentication via OTP (6666666666 - Sneha Reddy) successful, (2) GET /customer/dashboard - returns proper overview structure with statistics (total_bookings, active_bookings, total_invested, total_paid, total_pending, overdue_amount, overdue_count), properties, upcoming_payments, recent_payments, (3) GET /customer/bookings - returns customer-specific bookings with proper structure, (4) GET /customer/payments - returns payment history with proper filtering, (5) GET /customer/properties - returns customer properties with booking details, (6) GET /customer/payment-schedules - supports status filtering (tested with 'pending' filter), (7) GET /customer/resale-requests - returns resale requests with property enrichment. All endpoints handle empty data gracefully (customer has no bookings/payments in fresh system), return proper JSON structures, and implement customer-specific data filtering via JWT authentication. Fixed authentication middleware integration during testing - customer routes now properly use JWT token validation."
 
 frontend:
   - task: "Add Customer Portal route in App.js"
