@@ -2214,6 +2214,9 @@ def main():
     if project_id and layout_id:
         test_assign_layout_to_project(auth_token, layout_id, project_id)
         test_delete_assigned_layout(auth_token, layout_id)
+    else:
+        # Test assignment with non-existent project (should fail gracefully)
+        test_assign_layout_to_nonexistent_project(auth_token, layout_id)
     
     # Test deletion
     print("\n6️⃣ Testing Layout Deletion")
