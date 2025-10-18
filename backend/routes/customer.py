@@ -283,7 +283,7 @@ async def get_customer_payment_schedules(request: Request, status: Optional[str]
 @router.get("/properties")
 async def get_customer_properties(request: Request):
     """Get all properties owned by customer"""
-    user = get_current_user(request)
+    user = await get_current_user(request)
     db = get_db(request)
     
     if not user:
