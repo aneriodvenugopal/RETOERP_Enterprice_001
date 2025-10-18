@@ -1,268 +1,209 @@
 import React, { useState, useEffect } from 'react';
-import { authService, tenantService } from '../services';
+import { authService } from '../services';
+import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'sonner';
-import api from '../services/api';
+import { Waves, UserPlus, Phone, Mail, User, Briefcase } from 'lucide-react';
 
 const Register = () => {
   const [formData, setFormData] = useState({
-    phone: '',
-    email: '',
     name: '',
-    role_id: '',
-    tenant_id: ''
+    email: '',
+    phone: '',
+    role_id: ''
   });
-  const [errors, setErrors] = useState({});
   const [roles, setRoles] = useState([]);
-  const [tenants, setTenants] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [selectedRole, setSelectedRole] = useState('');
+  const [errors, setErrors] = useState({});
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchRoles();
-    fetchTenants();
+    loadRoles();
   }, []);
 
-  const fetchRoles = async () => {
+  const loadRoles = async () => {
     try {
-      const response = await api.get('/auth/roles');
-      setRoles(response.data || []);
+      const data = await authService.getRoles();
+      setRoles(data.roles || []);
     } catch (error) {
-      console.error('Failed to fetch roles:', error);
       toast.error('Failed to load roles');
     }
   };
 
-  const fetchTenants = async () => {
-    try {
-      const data = await tenantService.getAll();
-      setTenants(data || []);
-    } catch (error) {
-      console.error('Failed to fetch tenants:', error);
-      // Not critical, tenant selection might not be needed for super admin
-    }
+  const validateName = (value) => {
+    if (!value) return 'Name is required';
+    if (value.length < 2) return 'Name must be at least 2 characters';
+    return '';
   };
 
-  const handleRoleChange = (roleId) => {
-    setSelectedRole(roleId);
-    setFormData({ ...formData, role_id: roleId });
-    setErrors({ ...errors, role_id: '' });
-    
-    // Find role to check if it's super admin
-    const role = roles.find(r => r.id === roleId);
-    if (role && role.slug === 'super_admin') {
-      // Super admin doesn't need tenant
-      setFormData({ ...formData, role_id: roleId, tenant_id: '' });
-      setErrors({ ...errors, role_id: '', tenant_id: '' });
-    }
+  const validateEmail = (value) => {
+    if (!value) return 'Email is required';
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return 'Invalid email format';
+    return '';
   };
 
-  const validateField = (name, value) => {
-    let error = '';
-    
-    switch (name) {
-      case 'name':
-        if (!value || value.trim() === '') {
-          error = 'Full name is required';
-        } else if (value.trim().length < 2) {
-          error = 'Name must be at least 2 characters long';
-        }
-        break;
-        
-      case 'phone':
-        if (!value || value.trim() === '') {
-          error = 'Phone number is required';
-        } else if (!/^[0-9]{10}$/.test(value)) {
-          error = 'Please enter a valid 10-digit phone number';
-        }
-        break;
-        
-      case 'email':
-        if (value && value.trim() !== '') {
-          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-          if (!emailRegex.test(value)) {
-            error = 'Please enter a valid email address';
-          }
-        }
-        break;
-        
-      case 'role_id':
-        if (!value || value === '') {
-          error = 'Please select a role';
-        }
-        break;
-        
-      case 'tenant_id':
-        const role = roles.find(r => r.id === formData.role_id);
-        if (role && role.slug !== 'super_admin' && (!value || value === '')) {
-          error = 'Please select an organization';
-        }
-        break;
-        
-      default:
-        break;
-    }
-    
-    return error;
+  const validatePhone = (value) => {
+    if (!value) return 'Phone number is required';
+    if (!/^\d{10}$/.test(value)) return 'Phone number must be 10 digits';
+    return '';
   };
 
-  const handleInputChange = (name, value) => {
-    setFormData({ ...formData, [name]: value });
-    
-    // Clear error when user starts typing
-    if (errors[name]) {
-      setErrors({ ...errors, [name]: '' });
-    }
-  };
-
-  const handleInputBlur = (name, value) => {
-    const error = validateField(name, value);
-    if (error) {
-      setErrors({ ...errors, [name]: error });
-    }
-  };
-
-  const validateForm = () => {
-    const newErrors = {};
-    
-    newErrors.name = validateField('name', formData.name);
-    newErrors.phone = validateField('phone', formData.phone);
-    newErrors.email = validateField('email', formData.email);
-    newErrors.role_id = validateField('role_id', formData.role_id);
-    newErrors.tenant_id = validateField('tenant_id', formData.tenant_id);
-    
-    // Remove empty errors
-    Object.keys(newErrors).forEach(key => {
-      if (!newErrors[key]) delete newErrors[key];
-    });
-    
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+  const validateRole = (value) => {
+    if (!value) return 'Please select a role';
+    return '';
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Validate all fields
-    if (!validateForm()) {
+    const newErrors = {
+      name: validateName(formData.name),
+      email: validateEmail(formData.email),
+      phone: validatePhone(formData.phone),
+      role_id: validateRole(formData.role_id)
+    };
+
+    const hasErrors = Object.values(newErrors).some(error => error !== '');
+    setErrors(newErrors);
+
+    if (hasErrors) {
+      toast.error('Please fix all errors');
       return;
     }
-    
+
     setLoading(true);
-
     try {
-      // Find selected role
-      const role = roles.find(r => r.id === formData.role_id);
-      
-      // Prepare registration data
-      const registrationData = {
-        phone: formData.phone,
-        name: formData.name,
-        email: formData.email || null,
-        role_id: formData.role_id,
-        tenant_id: role && role.slug === 'super_admin' ? null : formData.tenant_id
-      };
-
-      await authService.register(registrationData);
-      toast.success('Registration successful! Please login with OTP.', {
-        style: {
-          background: '#10b981',
-          color: 'white',
-        },
-      });
+      await authService.register(formData);
+      toast.success('Registration successful! Please login.');
       navigate('/login');
     } catch (error) {
-      const errorMsg = error.response?.data?.detail || 'Registration failed';
-      toast.error(errorMsg, {
-        style: {
-          background: '#ef4444',
-          color: 'white',
-        },
-      });
+      toast.error(error.response?.data?.detail || 'Registration failed');
     } finally {
       setLoading(false);
     }
   };
 
-  const isSuperAdmin = () => {
-    const role = roles.find(r => r.id === formData.role_id);
-    return role && role.slug === 'super_admin';
+  const handleChange = (field, value) => {
+    setFormData({ ...formData, [field]: value });
+    if (errors[field]) {
+      setErrors({ ...errors, [field]: '' });
+    }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-3xl font-bold text-center">RETOERP</CardTitle>
-          <CardDescription className="text-center">
-            Create your account
-          </CardDescription>
+    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Animated Background */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-10 w-72 h-72 bg-ocean-primary/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-ocean-secondary/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+      </div>
+
+      <Card className="w-full max-w-md glass-card-dark border-ocean-primary/20 relative z-10">
+        <CardHeader className="space-y-4 text-center">
+          <div className="flex justify-center">
+            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-ocean-primary to-ocean-secondary flex items-center justify-center shadow-lg">
+              <Waves className="w-10 h-10 text-white" />
+            </div>
+          </div>
+          <div>
+            <CardTitle className="text-3xl font-bold bg-gradient-to-r from-ocean-primary to-ocean-secondary bg-clip-text text-transparent">
+              Create Account
+            </CardTitle>
+            <CardDescription className="text-base mt-2">
+              Join RETOERP today
+            </CardDescription>
+          </div>
         </CardHeader>
+
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium">Full Name *</label>
+              <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                <User className="w-4 h-4 text-ocean-primary" />
+                Full Name
+              </label>
               <Input
                 type="text"
                 placeholder="Enter your full name"
                 value={formData.name}
-                onChange={(e) => handleInputChange('name', e.target.value)}
-                onBlur={(e) => handleInputBlur('name', e.target.value)}
-                className={`w-full ${errors.name ? 'border-red-500 focus:ring-red-500' : ''}`}
+                onChange={(e) => handleChange('name', e.target.value)}
+                onBlur={() => {
+                  const error = validateName(formData.name);
+                  if (error) setErrors({ ...errors, name: error });
+                }}
+                className={`glass-input ${errors.name ? 'border-red-500' : 'border-ocean-primary/30'}`}
               />
               {errors.name && (
-                <p className="text-sm text-red-500 mt-1">{errors.name}</p>
+                <p className="text-sm text-red-500 flex items-center gap-1">
+                  <span className="text-xs">⚠</span> {errors.name}
+                </p>
               )}
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Phone Number *</label>
-              <Input
-                type="tel"
-                placeholder="10-digit mobile number"
-                value={formData.phone}
-                onChange={(e) => handleInputChange('phone', e.target.value)}
-                onBlur={(e) => handleInputBlur('phone', e.target.value)}
-                maxLength={10}
-                className={`w-full ${errors.phone ? 'border-red-500 focus:ring-red-500' : ''}`}
-              />
-              {errors.phone && (
-                <p className="text-sm text-red-500 mt-1">{errors.phone}</p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Email (Optional)</label>
+              <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                <Mail className="w-4 h-4 text-ocean-primary" />
+                Email
+              </label>
               <Input
                 type="email"
                 placeholder="your.email@example.com"
                 value={formData.email}
-                onChange={(e) => handleInputChange('email', e.target.value)}
-                onBlur={(e) => handleInputBlur('email', e.target.value)}
-                className={`w-full ${errors.email ? 'border-red-500 focus:ring-red-500' : ''}`}
+                onChange={(e) => handleChange('email', e.target.value)}
+                onBlur={() => {
+                  const error = validateEmail(formData.email);
+                  if (error) setErrors({ ...errors, email: error });
+                }}
+                className={`glass-input ${errors.email ? 'border-red-500' : 'border-ocean-primary/30'}`}
               />
               {errors.email && (
-                <p className="text-sm text-red-500 mt-1">{errors.email}</p>
+                <p className="text-sm text-red-500 flex items-center gap-1">
+                  <span className="text-xs">⚠</span> {errors.email}
+                </p>
               )}
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Role *</label>
+              <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                <Phone className="w-4 h-4 text-ocean-primary" />
+                Phone Number
+              </label>
+              <Input
+                type="tel"
+                placeholder="10-digit phone number"
+                value={formData.phone}
+                onChange={(e) => handleChange('phone', e.target.value)}
+                onBlur={() => {
+                  const error = validatePhone(formData.phone);
+                  if (error) setErrors({ ...errors, phone: error });
+                }}
+                className={`glass-input ${errors.phone ? 'border-red-500' : 'border-ocean-primary/30'}`}
+                maxLength={10}
+              />
+              {errors.phone && (
+                <p className="text-sm text-red-500 flex items-center gap-1">
+                  <span className="text-xs">⚠</span> {errors.phone}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                <Briefcase className="w-4 h-4 text-ocean-primary" />
+                Role
+              </label>
               <select
                 value={formData.role_id}
-                onChange={(e) => handleRoleChange(e.target.value)}
-                onBlur={(e) => handleInputBlur('role_id', e.target.value)}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
-                  errors.role_id 
-                    ? 'border-red-500 focus:ring-red-500' 
-                    : 'border-gray-300 focus:ring-blue-500'
-                }`}
+                onChange={(e) => handleChange('role_id', e.target.value)}
+                onBlur={() => {
+                  const error = validateRole(formData.role_id);
+                  if (error) setErrors({ ...errors, role_id: error });
+                }}
+                className={`w-full glass-input ${errors.role_id ? 'border-red-500' : 'border-ocean-primary/30'}`}
               >
-                <option value="">Select Role</option>
+                <option value="">Select your role</option>
                 {roles.map((role) => (
                   <option key={role.id} value={role.id}>
                     {role.name}
@@ -270,47 +211,42 @@ const Register = () => {
                 ))}
               </select>
               {errors.role_id && (
-                <p className="text-sm text-red-500 mt-1">{errors.role_id}</p>
+                <p className="text-sm text-red-500 flex items-center gap-1">
+                  <span className="text-xs">⚠</span> {errors.role_id}
+                </p>
               )}
             </div>
 
-            {!isSuperAdmin() && (
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Organization (Tenant) *</label>
-                <select
-                  value={formData.tenant_id}
-                  onChange={(e) => handleInputChange('tenant_id', e.target.value)}
-                  onBlur={(e) => handleInputBlur('tenant_id', e.target.value)}
-                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
-                    errors.tenant_id 
-                      ? 'border-red-500 focus:ring-red-500' 
-                      : 'border-gray-300 focus:ring-blue-500'
-                  }`}
-                >
-                  <option value="">Select Organization</option>
-                  {tenants.map((tenant) => (
-                    <option key={tenant.id} value={tenant.id}>
-                      {tenant.name}
-                    </option>
-                  ))}
-                </select>
-                {errors.tenant_id && (
-                  <p className="text-sm text-red-500 mt-1">{errors.tenant_id}</p>
-                )}
-              </div>
-            )}
-
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? 'Registering...' : 'Register'}
+            <Button
+              type="submit"
+              disabled={loading}
+              className="w-full h-12 text-base font-semibold bg-gradient-to-r from-ocean-primary to-ocean-secondary hover:from-ocean-primary-light hover:to-ocean-secondary-light text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5"
+            >
+              {loading ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  Creating Account...
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <UserPlus className="w-5 h-5" />
+                  Register
+                </div>
+              )}
             </Button>
+          </form>
 
-            <div className="text-center text-sm">
-              <span className="text-gray-600">Already have an account? </span>
-              <Link to="/login" className="text-blue-600 hover:underline font-medium">
+          <div className="text-center pt-4 border-t border-ocean-primary/10 mt-6">
+            <p className="text-sm text-gray-600">
+              Already have an account?{' '}
+              <Link 
+                to="/login" 
+                className="font-semibold text-ocean-primary hover:text-ocean-primary-dark transition-colors underline-offset-4 hover:underline"
+              >
                 Login here
               </Link>
-            </div>
-          </form>
+            </p>
+          </div>
         </CardContent>
       </Card>
     </div>
