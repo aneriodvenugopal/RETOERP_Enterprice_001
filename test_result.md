@@ -365,6 +365,42 @@ frontend:
         agent: "main"
         comment: "Added 'Layouts Library' action card to Tenant Admin dashboard with Layers icon, positioned between Projects and Leads. Navigates to /layouts route."
 
+  - task: "Create LayoutViewer page for viewing layouts"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/LayoutViewer.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Created LayoutViewer page to display layout details with: (1) Layout info cards (type, total plots, available, created date), (2) Plots sidebar with status badges and details, (3) Interactive SVG map with color-coded plots and labels, (4) Legend for status colors, (5) Edit and Delete buttons, (6) Ocean Theme design. Route: /layouts/{layoutId}/view"
+
+  - task: "Create LayoutEditor page for editing layouts"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/LayoutEditor.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Created LayoutEditor page with full editing capabilities: (1) Load existing layout data, (2) Edit layout name and type, (3) Upload new SVG (optional), (4) Add new plots with 4-point marking, (5) Edit existing plots (name, area, price, status, coordinates), (6) Delete plots, (7) Update layout to database, (8) Zoom controls, (9) Ocean Theme design. Route: /layouts/{layoutId}/edit"
+
+  - task: "Add view and edit routes to App.js"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Added routes: (1) /layouts/:layoutId/view - LayoutViewer, (2) /layouts/:layoutId/edit - LayoutEditor. Both routes protected with PrivateRoute authentication."
+
   - task: "Install chart libraries (recharts, xlsx)"
     implemented: true
     working: true
