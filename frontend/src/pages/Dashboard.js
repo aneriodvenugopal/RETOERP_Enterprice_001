@@ -157,6 +157,17 @@ const TenantAdminDashboard = () => {
             </Button>
           </CardContent>
         </Card>
+        <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate('/customer-dashboard')}>
+          <CardHeader>
+            <CardTitle>Customer Portal</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-gray-500">View customer experience</p>
+            <Button className="mt-4" onClick={() => navigate('/customer-dashboard')}>
+              View Portal
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
