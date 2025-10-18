@@ -302,9 +302,9 @@ const CustomerDashboard = () => {
           </Card>
 
           {/* Recent Payments */}
-          <Card>
+          <Card className="glass-card">
             <CardHeader>
-              <CardTitle>Recent Payments</CardTitle>
+              <CardTitle className="text-ocean-primary">Recent Payments</CardTitle>
             </CardHeader>
             <CardContent>
               {dashboardData?.recent_payments?.length > 0 ? (
