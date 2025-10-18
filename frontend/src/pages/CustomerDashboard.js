@@ -131,33 +131,46 @@ const CustomerDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen relative">
+      {/* Animated Background */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-10 w-72 h-72 bg-ocean-primary/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-ocean-secondary/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+      </div>
+
       {/* Header */}
-      <header className="bg-white shadow-sm border-b mb-6">
+      <header className="glass-header sticky top-0 z-50">
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
               {user?.role !== 'customer' && (
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => navigate('/dashboard')}
+                  className="text-ocean-primary hover:bg-ocean-primary/10"
                 >
                   <ArrowLeft className="w-4 h-4 mr-2" />
-                  Back to Dashboard
+                  Back
                 </Button>
               )}
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-ocean-primary to-ocean-secondary flex items-center justify-center shadow-lg">
+                <Home className="w-6 h-6 text-white" />
+              </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">RETOERP</h1>
-                <p className="text-sm text-gray-500">Customer Portal</p>
+                <h1 className="text-xl font-bold bg-gradient-to-r from-ocean-primary to-ocean-secondary bg-clip-text text-transparent">RETOERP</h1>
+                <p className="text-xs text-gray-500">Customer Portal</p>
               </div>
             </div>
             <div className="flex items-center gap-4">
-              <div className="text-right">
+              <div className="text-right hidden md:block">
                 <p className="text-sm font-medium text-gray-900">{user?.name}</p>
-                <p className="text-xs text-gray-500 capitalize">{user?.role?.replace('_', ' ')}</p>
+                <p className="text-xs text-ocean-primary capitalize">{user?.role?.replace('_', ' ')}</p>
               </div>
-              <Button variant="outline" size="sm" onClick={logout}>
+              <Button 
+                onClick={logout}
+                className="bg-gradient-to-r from-ocean-primary to-ocean-secondary hover:from-ocean-primary-light hover:to-ocean-secondary-light text-white"
+              >
                 <LogOut className="w-4 h-4 mr-2" />
                 Logout
               </Button>
@@ -166,7 +179,7 @@ const CustomerDashboard = () => {
         </div>
       </header>
 
-      <div className="container mx-auto p-6">
+      <div className="container mx-auto p-6 relative z-10">
       <div className="mb-6">
         <h1 className="text-3xl font-bold">Welcome, {user?.name}!</h1>
         <p className="text-gray-600">Manage your properties, bookings and payments</p>
