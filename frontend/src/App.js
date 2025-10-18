@@ -106,6 +106,30 @@ function App() {
                   </PrivateRoute>
                 }
               />
+              <Route
+                path="/layouts"
+                element={
+                  <PrivateRoute>
+                    <LayoutsLibrary />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/layouts/create"
+                element={
+                  <PrivateRoute>
+                    <LayoutCreatorToolStandalone />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/projects/:projectId/layout/create"
+                element={
+                  <PrivateRoute>
+                    <LayoutCreatorTool />
+                  </PrivateRoute>
+                }
+              />
               <Route path="/" element={<Navigate to="/dashboard" replace />} />
             </Routes>
           </BrowserRouter>
