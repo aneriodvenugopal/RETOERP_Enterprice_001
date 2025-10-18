@@ -153,18 +153,24 @@ const InteractiveLayoutViewer = ({ layoutData, projectData, onPlotClick, readOnl
               ref={svgRef}
               width="100%"
               height="100%"
-              viewBox="0 0 5000 5000"
+              viewBox="0 0 5000 6000"
               preserveAspectRatio="xMidYMid meet"
               style={{
                 transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
                 transformOrigin: 'center center'
               }}
             >
-              {/* Render background SVG if provided */}
+              {/* Render background SVG if provided - scale it to match plot coordinates */}
               {layoutData?.svg_content && (
                 <g 
-                  transform="scale(4.0)"
-                  dangerouslySetInnerHTML={{ __html: layoutData.svg_content.replace(/<\?xml[^>]*\?>|<svg[^>]*>|<\/svg>/gi, '') }}
+                  transform="scale(4.45, 7.55)"
+                  opacity="0.8"
+                  dangerouslySetInnerHTML={{ 
+                    __html: layoutData.svg_content
+                      .replace(/<\?xml[^>]*\?>/gi, '')
+                      .replace(/<svg[^>]*>/gi, '<g>')
+                      .replace(/<\/svg>/gi, '</g>')
+                  }} 
                 />
               )}
 
