@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
 """
-Backend API Testing for RETOERP Communication Integration Module
-Tests the complete notification functionality including SMS, Email, WhatsApp, and multi-channel delivery.
+Backend API Testing for RETOERP Layout Library Module
+Tests the complete Layout Upload & Editor Tool functionality including SVG upload, 
+master layout CRUD operations, project assignments, and tenant isolation.
 """
 
 import requests
 import json
 import sys
 import os
+import io
 from datetime import datetime
 
 # Get backend URL from frontend .env file
