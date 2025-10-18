@@ -85,7 +85,7 @@ const InteractiveLayoutViewer = ({ layoutData, projectData, onPlotClick, readOnl
   const statusSummary = getStatusSummary();
 
   return (
-    <div className=\"space-y-4\">
+    <div className="space-y-4">
       <Card className=\"glass-card\">
         <CardHeader>
           <div className=\"flex items-center justify-between\">
