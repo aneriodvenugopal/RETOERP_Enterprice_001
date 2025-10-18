@@ -65,6 +65,8 @@ const Dashboard = () => {
 
 // Super Admin Dashboard
 const SuperAdminDashboard = () => {
+  const navigate = useNavigate();
+  
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold">Super Admin Dashboard</h2>
@@ -72,6 +74,19 @@ const SuperAdminDashboard = () => {
         <StatCard icon={Building2} title="Total Tenants" value="0" color="blue" />
         <StatCard icon={Users} title="Total Users" value="0" color="green" />
         <StatCard icon={BarChart3} title="Active Subscriptions" value="0" color="purple" />
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate('/customer-dashboard')}>
+          <CardHeader>
+            <CardTitle>Customer Portal</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-gray-500">Preview customer experience</p>
+            <Button className="mt-4" onClick={() => navigate('/customer-dashboard')}>
+              View Portal
+            </Button>
+          </CardContent>
+        </Card>
       </div>
       <Card>
         <CardHeader>
