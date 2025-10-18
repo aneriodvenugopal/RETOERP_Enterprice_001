@@ -133,34 +133,26 @@ const InteractiveLayoutViewer = ({ layoutData, projectData, onPlotClick, readOnl
                 width: 'fit-content'
               }}
             >
-              {/* Wrapper for SVG background and plots */}
-              <div style={{ position: 'relative', display: 'inline-block', width: '1200px' }}>
-                {/* Background SVG */}
+              {/* Single SVG container with both background and plots */}
+              <svg
+                width="5000"
+                height="6500"
+                viewBox="0 0 5000 6500"
+                style={{ display: 'block', background: 'white' }}
+              >
+                {/* Embed background SVG content scaled to match plot coordinates */}
                 {layoutData?.svg_url && (
-                  <img 
-                    src={layoutData.svg_url} 
-                    alt="Layout Map"
-                    style={{ 
-                      display: 'block', 
-                      width: '100%', 
-                      height: 'auto',
-                      transform: 'rotate(0deg)'
-                    }}
+                  <image
+                    href={layoutData.svg_url}
+                    x="0"
+                    y="0"
+                    width="5000"
+                    height="6500"
+                    preserveAspectRatio="xMidYMid meet"
                   />
                 )}
 
-                {/* Overlay SVG for plots - use SAME coordinate space as plots */}
-                <svg
-                  style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: '100%'
-                  }}
-                  viewBox="0 0 5000 6500"
-                  preserveAspectRatio="xMidYMid meet"
-                >
+                {/* Draw plots on same coordinate system */}
                   {layoutData?.plots?.map((plot) => (
                     <g key={plot.id}>
                       <polygon
