@@ -157,6 +157,46 @@ async def get_master_layouts(
         "total": len(layouts)
     }
 
+@router.get("/stats")
+async def get_layout_stats(request: Request):
+    """Get layout statistics for current tenant"""
+    user = await get_current_user(request)
+    db = get_db(request)
+    
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    
+    # Count layouts by type
+    query = {'deleted_at': None}
+    if user.get('role') != 'super_admin':
+        query['tenant_id'] = user['tenant_id']
+    
+    layouts = await db.master_layouts.find(query, {'_id': 0}).to_list(length=None)
+    
+    stats = {
+        'total_layouts': len(layouts),
+        'by_type': {},
+        'templates': 0,
+        'assigned_to_projects': 0
+    }
+    
+    for layout in layouts:
+        layout_type = layout.get('layout_type', 'other')
+        stats['by_type'][layout_type] = stats['by_type'].get(layout_type, 0) + 1
+        
+        if layout.get('is_template'):
+            stats['templates'] += 1
+    
+    # Count assignments
+    assignment_query = {'deleted_at': None, 'tenant_id': user['tenant_id']}
+    assignments = await db.project_layouts.count_documents(assignment_query)
+    stats['assigned_to_projects'] = assignments
+    
+    return {
+        "success": True,
+        "stats": stats
+    }
+
 @router.get("/{layout_id}")
 async def get_master_layout(layout_id: str, request: Request):
     """Get a specific master layout"""
