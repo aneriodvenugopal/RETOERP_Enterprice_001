@@ -617,15 +617,24 @@ frontend:
 
 metadata:
   created_by: "main_agent"
-  version: "4.0"
-  test_sequence: 5
-  run_ui: true
+  version: "5.0"
+  test_sequence: 6
+  run_ui: false
 
 test_plan:
   current_focus:
-    - "Customer Portal role-based routing"
-    - "Customer Portal UI rendering"
-    - "Auto-redirect for customer users"
+    - "Create MasterLayout and ProjectLayout models with new architecture"
+    - "Create layouts library API routes"
+    - "Register layouts_library router in server.py"
+    - "Add layout library service functions to services/index.js"
+    - "Create LayoutCreatorToolStandalone page"
+    - "Create LayoutsLibrary page"
+    - "Add routes for layouts in App.js"
+    - "Add Layouts Library navigation to Dashboard"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
+
+agent_communication:
+  - agent: "main"
+    message: "Implemented Phase 1 & 2 of Layout Upload & Editor Tool for multi-tenant SaaS. Backend: (1) New architecture with MasterLayout (reusable standalone layouts) and ProjectLayout (project-layout association) models, (2) 11 comprehensive API endpoints in /layouts route for CRUD operations, file upload with chunking (1MB chunks), layout assignment to projects, statistics, (3) Tenant isolation and Super Admin template support, (4) Layout types: venture, apartment, open_land, farm_land, (5) Persistent file storage in /app/uploads/layouts/. Frontend: (1) LayoutCreatorToolStandalone page - standalone layout creator with SVG upload, 4-point plot marking, plot details form, zoom controls, (2) LayoutsLibrary page - view all layouts with filters, stats, preview, CRUD actions, (3) New routes: /layouts, /layouts/create, (4) Dashboard navigation updated with Layouts Library card, (5) Ocean Theme glassmorphism design applied. Ready for backend API testing. Note: View and Edit layout pages not yet implemented."
