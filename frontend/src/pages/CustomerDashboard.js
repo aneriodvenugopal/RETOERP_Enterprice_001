@@ -582,7 +582,10 @@ const CustomerDashboard = () => {
                 rows={3}
               />
             </div>
-            <Button onClick={handleResaleRequest} className="w-full">
+            <Button 
+              onClick={handleResaleRequest} 
+              className="w-full bg-gradient-to-r from-ocean-primary to-ocean-secondary hover:from-ocean-primary-light hover:to-ocean-secondary-light text-white"
+            >
               Submit Resale Request
             </Button>
           </div>
