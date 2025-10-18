@@ -551,6 +551,7 @@ const CustomerDashboard = () => {
           </div>
         </DialogContent>
       </Dialog>
+      </div>
     </div>
   );
 };
