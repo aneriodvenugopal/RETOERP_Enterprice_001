@@ -52,6 +52,18 @@ function App() {
                 }
               />
               <Route
+                path="/projects/:projectId/layout"
+                element={
+                  <PrivateRoute>
+                    <ProjectLayoutPage />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/public/layout/:projectId"
+                element={<PublicLayoutView />}
+              />
+              <Route
                 path="/leads"
                 element={
                   <PrivateRoute>
