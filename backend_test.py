@@ -1858,12 +1858,28 @@ def test_create_project_for_assignment(auth_token):
         return None
         
     try:
+        # First get the tenant info
+        headers = {"Authorization": f"Bearer {auth_token}"}
+        tenant_response = requests.get(f"{API_BASE}/tenants/", headers=headers, timeout=10)
+        
+        if tenant_response.status_code != 200:
+            results.add_fail("Create Test Project", f"Failed to get tenant info: {tenant_response.status_code}")
+            return None
+            
+        tenants = tenant_response.json()
+        if not tenants or len(tenants) == 0:
+            results.add_fail("Create Test Project", "No tenants found")
+            return None
+            
+        tenant_id = tenants[0]['id']
+        
         project_data = {
             "project_name": "Test Project for Layout Assignment",
             "project_type": "venture",
             "location": "Test Location",
             "description": "Test project created for layout assignment testing",
-            "status": "active"
+            "status": "active",
+            "tenant_id": tenant_id
         }
         
         headers = {
