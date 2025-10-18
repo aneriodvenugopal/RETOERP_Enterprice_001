@@ -181,71 +181,95 @@ const CustomerDashboard = () => {
 
       <div className="container mx-auto p-6 relative z-10">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold">Welcome, {user?.name}!</h1>
-        <p className="text-gray-600">Manage your properties, bookings and payments</p>
+        <h1 className="text-3xl font-bold bg-gradient-to-r from-ocean-primary to-ocean-secondary bg-clip-text text-transparent">
+          Welcome, {user?.name}!
+        </h1>
+        <p className="text-gray-600 mt-1">Manage your properties, bookings and payments</p>
       </div>
 
       {/* Overview Cards */}
       {dashboardData && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Active Bookings</CardTitle>
-              <Building className="h-4 w-4 text-blue-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{dashboardData.overview.active_bookings}</div>
-              <p className="text-xs text-gray-600">Total: {dashboardData.overview.total_bookings}</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Total Invested</CardTitle>
-              <DollarSign className="h-4 w-4 text-green-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">₹{dashboardData.overview.total_invested.toLocaleString()}</div>
-              <p className="text-xs text-green-600">Portfolio Value</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Pending Payment</CardTitle>
-              <CreditCard className="h-4 w-4 text-orange-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-orange-600">₹{dashboardData.overview.total_pending.toLocaleString()}</div>
-              <p className="text-xs text-gray-600">Paid: ₹{dashboardData.overview.total_paid.toLocaleString()}</p>
-            </CardContent>
-          </Card>
-
-          <Card className={dashboardData.overview.overdue_count > 0 ? "border-red-200" : ""}>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Overdue</CardTitle>
-              <AlertCircle className={`h-4 w-4 ${dashboardData.overview.overdue_count > 0 ? 'text-red-600' : 'text-gray-400'}`} />
-            </CardHeader>
-            <CardContent>
-              <div className={`text-2xl font-bold ${dashboardData.overview.overdue_count > 0 ? 'text-red-600' : 'text-gray-600'}`}>
-                {dashboardData.overview.overdue_count}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <Card className="glass-card hover-lift">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Active Bookings</p>
+                  <p className="text-3xl font-bold mt-2 text-ocean-primary">
+                    {dashboardData.overview.active_bookings}
+                  </p>
+                  <p className="text-xs text-gray-600 mt-1">Total: {dashboardData.overview.total_bookings}</p>
+                </div>
+                <div className="p-4 rounded-xl bg-gradient-to-br from-ocean-primary to-ocean-secondary shadow-lg">
+                  <Building className="w-7 h-7 text-white" />
+                </div>
               </div>
-              <p className="text-xs text-red-600">
-                {dashboardData.overview.overdue_count > 0 ? `₹${dashboardData.overview.overdue_amount.toLocaleString()}` : 'No overdue'}
-              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="glass-card hover-lift">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Total Invested</p>
+                  <p className="text-3xl font-bold mt-2 text-ocean-secondary">
+                    ₹{dashboardData.overview.total_invested.toLocaleString()}
+                  </p>
+                  <p className="text-xs text-green-600 mt-1">Portfolio Value</p>
+                </div>
+                <div className="p-4 rounded-xl bg-gradient-to-br from-ocean-secondary to-ocean-accent shadow-lg">
+                  <DollarSign className="w-7 h-7 text-white" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="glass-card hover-lift">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Pending Payment</p>
+                  <p className="text-3xl font-bold mt-2 text-yellow-600">
+                    ₹{dashboardData.overview.total_pending.toLocaleString()}
+                  </p>
+                  <p className="text-xs text-gray-600 mt-1">Paid: ₹{dashboardData.overview.total_paid.toLocaleString()}</p>
+                </div>
+                <div className="p-4 rounded-xl bg-gradient-to-br from-yellow-500 to-orange-500 shadow-lg">
+                  <CreditCard className="w-7 h-7 text-white" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="glass-card hover-lift">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Overdue Amount</p>
+                  <p className={`text-3xl font-bold mt-2 ${dashboardData.overview.overdue_count > 0 ? 'text-red-600' : 'text-gray-600'}`}>
+                    {dashboardData.overview.overdue_count > 0 ? dashboardData.overview.overdue_count : '0'}
+                  </p>
+                  <p className="text-xs text-red-600 mt-1">
+                    {dashboardData.overview.overdue_count > 0 ? `₹${dashboardData.overview.overdue_amount.toLocaleString()}` : 'No overdue'}
+                  </p>
+                </div>
+                <div className="p-4 rounded-xl bg-gradient-to-br from-red-500 to-red-600 shadow-lg">
+                  <AlertCircle className="w-7 h-7 text-white" />
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>
       )}
 
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="bookings">My Bookings</TabsTrigger>
-          <TabsTrigger value="payments">Payments</TabsTrigger>
-          <TabsTrigger value="properties">My Properties</TabsTrigger>
-          <TabsTrigger value="schedules">Payment Schedule</TabsTrigger>
-          <TabsTrigger value="resale">Resale Requests</TabsTrigger>
+        <TabsList className="glass-tabs p-1 h-auto">
+          <TabsTrigger value="overview" className="glass-tab">Overview</TabsTrigger>
+          <TabsTrigger value="bookings" className="glass-tab">My Bookings</TabsTrigger>
+          <TabsTrigger value="payments" className="glass-tab">Payments</TabsTrigger>
+          <TabsTrigger value="properties" className="glass-tab">My Properties</TabsTrigger>
+          <TabsTrigger value="schedules" className="glass-tab">Payment Schedule</TabsTrigger>
+          <TabsTrigger value="resale" className="glass-tab">Resale Requests</TabsTrigger>
         </TabsList>
 
         {/* Overview Tab */}
