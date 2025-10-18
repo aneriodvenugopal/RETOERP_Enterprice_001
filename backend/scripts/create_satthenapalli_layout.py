@@ -107,8 +107,8 @@ async def create_satthenapalli_layout():
         'project_id': project_id,
         'tenant_id': tenant_id,
         'layout_name': 'Satthenapalli Main Layout',
-        'svg_content': svg_content,
-        'svg_url': None,
+        'svg_content': None,  # Don't store large SVG in DB
+        'svg_url': '/sathhenapally.svg',  # Reference to public file
         'plots': formatted_plots,
         'metadata': {
             'version': '1.0',
