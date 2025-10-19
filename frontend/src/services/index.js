@@ -579,6 +579,19 @@ export const layoutService = {
     return response.data;
   },
 
+  // Parse layout file (DXF, SVG, PDF, or Image with AI/OCR)
+  parseLayoutFile: async (file, parseMethod) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('parse_method', parseMethod);
+    const response = await api.post('/layouts/parse-file', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  },
+
   // Create master layout
   createMasterLayout: async (layoutData) => {
     const response = await api.post('/layouts', layoutData);
