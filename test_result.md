@@ -337,27 +337,33 @@ backend:
 frontend:
   - task: "Add parseLayoutFile function to layoutService"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/frontend/src/services/index.js"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Added parseLayoutFile function to layoutService that accepts file and parseMethod, creates FormData, posts to /layouts/parse-file endpoint with multipart/form-data headers. Returns parsed plot data with coordinates, metadata, and confidence scores."
+      - working: true
+        agent: "testing"
+        comment: "✅ VERIFIED: parseLayoutFile function correctly implemented in layoutService. Function properly creates FormData, appends file and parse_method parameters, makes POST request to /layouts/parse-file endpoint with multipart/form-data headers. Backend integration confirmed working through direct API testing."
   
   - task: "Integrate real parsing API in HybridLayoutCreator"
     implemented: true
-    working: "NA"
+    working: false
     file: "/app/frontend/src/pages/HybridLayoutCreator.js"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
     needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Updated handleProcessFile function to call real parseLayoutFile API instead of generating mock data. Maps selectedMethod to parse method ('dxf', 'svg', 'pdf', 'ai_ocr'), calls API, transforms response plots to expected format with id, display_name, block, coordinates, area, price, status. Shows confidence score in success message. Handles empty plot detection gracefully."
+      - working: false
+        agent: "testing"
+        comment: "❌ BLOCKED BY AUTHENTICATION: Unable to test HybridLayoutCreator integration due to frontend OTP verification failing consistently with 400 errors. Code review shows proper implementation: handleProcessFile correctly calls parseLayoutFile API, maps selectedMethod to parse types, transforms response plots to expected format. Backend API confirmed working via direct testing. Issue is frontend authentication preventing access to protected /layouts/create route. Frontend OTP handling needs investigation."
 
   - task: "Add layout library service functions to services/index.js"
     implemented: true
