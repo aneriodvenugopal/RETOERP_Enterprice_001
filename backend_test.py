@@ -2215,10 +2215,13 @@ def test_tenant_admin_projects(auth_token):
         
     try:
         headers = {"Authorization": f"Bearer {auth_token}"}
+        print(f"   Using token: {auth_token[:50]}...")
         response = requests.get(f"{API_BASE}/projects", headers=headers, timeout=10)
         
         if response.status_code != 200:
             results.add_fail("Tenant Admin Projects", f"Status code: {response.status_code}, Response: {response.text}")
+            # Let's also check if there are any backend logs
+            print("   Checking backend logs for authentication errors...")
             return False
             
         data = response.json()
