@@ -299,6 +299,139 @@ const PlotReviewer = ({ detectedPlots, setDetectedPlots, selectedMethod, saving,
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Bulk Price Modal */}
+      <Dialog open={showBulkPriceModal} onOpenChange={setShowBulkPriceModal}>
+        <DialogContent className="glass-modal max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-ocean-primary">Apply Bulk Price</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <p className="text-sm text-gray-600">
+              This will apply the same price to all <strong>{plotsWithoutPrice} unpriced plots</strong>.
+            </p>
+            
+            <div>
+              <label className="text-sm font-semibold mb-1 block">Price per Plot (₹) *</label>
+              <Input
+                type="number"
+                value={bulkPrice}
+                onChange={(e) => setBulkPrice(e.target.value)}
+                placeholder="Enter price"
+                className="glass-input"
+              />
+            </div>
+            
+            <div className="flex gap-2 pt-4">
+              <Button
+                onClick={() => { setShowBulkPriceModal(false); setBulkPrice(''); }}
+                variant="outline"
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleBulkPrice}
+                className="flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white"
+              >
+                <DollarSign className="w-4 h-4 mr-2" />
+                Apply
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Manual Plot Modal */}
+      <Dialog open={showAddPlotModal} onOpenChange={setShowAddPlotModal}>
+        <DialogContent className="glass-modal max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-ocean-primary">Add Plot Manually</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm font-semibold mb-1 block">Plot Name *</label>
+              <Input
+                value={newPlot.display_name}
+                onChange={(e) => setNewPlot({ ...newPlot, display_name: e.target.value })}
+                placeholder="e.g., A-15"
+                className="glass-input"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm font-semibold mb-1 block">Block</label>
+                <Input
+                  value={newPlot.block}
+                  onChange={(e) => setNewPlot({ ...newPlot, block: e.target.value })}
+                  placeholder="e.g., A"
+                  className="glass-input"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm font-semibold mb-1 block">Area (sq.ft) *</label>
+                <Input
+                  type="number"
+                  value={newPlot.area}
+                  onChange={(e) => setNewPlot({ ...newPlot, area: e.target.value })}
+                  placeholder="1000"
+                  className="glass-input"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="text-sm font-semibold mb-1 block">Price (₹) *</label>
+              <Input
+                type="number"
+                value={newPlot.price}
+                onChange={(e) => setNewPlot({ ...newPlot, price: e.target.value })}
+                placeholder="500000"
+                className="glass-input"
+              />
+            </div>
+
+            <div>
+              <label className="text-sm font-semibold mb-1 block">Status</label>
+              <select
+                value={newPlot.status}
+                onChange={(e) => setNewPlot({ ...newPlot, status: e.target.value })}
+                className="w-full glass-input"
+              >
+                <option value="available">Available</option>
+                <option value="booked">Booked</option>
+                <option value="blocked">Blocked</option>
+                <option value="sold">Sold</option>
+              </select>
+            </div>
+            
+            <div className="flex gap-2 pt-4">
+              <Button
+                onClick={() => {
+                  setShowAddPlotModal(false);
+                  setNewPlot({ display_name: '', block: 'A', area: '', price: '', status: 'available' });
+                }}
+                variant="outline"
+                className="flex-1"
+              >
+                <X className="w-4 h-4 mr-2" />
+                Cancel
+              </Button>
+              <Button
+                onClick={handleAddManualPlot}
+                className="flex-1 bg-gradient-to-r from-ocean-primary to-ocean-secondary text-white"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Add Plot
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
