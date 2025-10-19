@@ -2392,7 +2392,7 @@ def test_no_auth_header():
     """Test endpoints without authentication header"""
     try:
         # Test without auth header
-        response = requests.get(f"{API_BASE}/projects", timeout=10)
+        response = requests.get(f"{API_BASE}/projects/", timeout=10)  # Added trailing slash
         
         if response.status_code == 401:
             results.add_pass("No Auth Header - Request rejected")
