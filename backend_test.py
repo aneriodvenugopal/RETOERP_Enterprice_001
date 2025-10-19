@@ -2207,88 +2207,235 @@ def test_assign_layout_to_nonexistent_project(auth_token, layout_id):
         results.add_fail("Assign Layout to Non-existent Project", f"Exception: {str(e)}")
         return False
 
+def test_tenant_admin_projects(auth_token):
+    """Test GET /api/projects endpoint for Tenant Admin"""
+    if not auth_token:
+        results.add_fail("Tenant Admin Projects", "No auth token available")
+        return False
+        
+    try:
+        headers = {"Authorization": f"Bearer {auth_token}"}
+        response = requests.get(f"{API_BASE}/projects", headers=headers, timeout=10)
+        
+        if response.status_code != 200:
+            results.add_fail("Tenant Admin Projects", f"Status code: {response.status_code}, Response: {response.text}")
+            return False
+            
+        data = response.json()
+        
+        # Validate response structure
+        if not isinstance(data, list):
+            results.add_fail("Tenant Admin Projects", "Response should be a list")
+            return False
+            
+        results.add_pass("Tenant Admin Projects - Structure validated")
+        print(f"   Found {len(data)} projects for tenant admin")
+        
+        # Check if projects have tenant_id field
+        if data:
+            project = data[0]
+            if 'tenant_id' not in project:
+                results.add_fail("Tenant Admin Projects", "Projects missing tenant_id field")
+                return False
+            else:
+                results.add_pass("Tenant Admin Projects - tenant_id field present")
+                print(f"   Sample project tenant_id: {project['tenant_id']}")
+        
+        return True
+        
+    except Exception as e:
+        results.add_fail("Tenant Admin Projects", f"Exception: {str(e)}")
+        return False
+
+def test_tenant_admin_bookings(auth_token):
+    """Test GET /api/bookings endpoint for Tenant Admin"""
+    if not auth_token:
+        results.add_fail("Tenant Admin Bookings", "No auth token available")
+        return False
+        
+    try:
+        headers = {"Authorization": f"Bearer {auth_token}"}
+        response = requests.get(f"{API_BASE}/bookings", headers=headers, timeout=10)
+        
+        if response.status_code != 200:
+            results.add_fail("Tenant Admin Bookings", f"Status code: {response.status_code}, Response: {response.text}")
+            return False
+            
+        data = response.json()
+        
+        # Validate response structure
+        if not isinstance(data, list):
+            results.add_fail("Tenant Admin Bookings", "Response should be a list")
+            return False
+            
+        results.add_pass("Tenant Admin Bookings - Structure validated")
+        print(f"   Found {len(data)} bookings for tenant admin")
+        
+        # Check if bookings have tenant_id field
+        if data:
+            booking = data[0]
+            if 'tenant_id' not in booking:
+                results.add_fail("Tenant Admin Bookings", "Bookings missing tenant_id field")
+                return False
+            else:
+                results.add_pass("Tenant Admin Bookings - tenant_id field present")
+                print(f"   Sample booking tenant_id: {booking['tenant_id']}")
+        
+        return True
+        
+    except Exception as e:
+        results.add_fail("Tenant Admin Bookings", f"Exception: {str(e)}")
+        return False
+
+def test_tenant_admin_properties(auth_token):
+    """Test GET /api/properties endpoint for Tenant Admin"""
+    if not auth_token:
+        results.add_fail("Tenant Admin Properties", "No auth token available")
+        return False
+        
+    try:
+        headers = {"Authorization": f"Bearer {auth_token}"}
+        response = requests.get(f"{API_BASE}/properties", headers=headers, timeout=10)
+        
+        if response.status_code != 200:
+            results.add_fail("Tenant Admin Properties", f"Status code: {response.status_code}, Response: {response.text}")
+            return False
+            
+        data = response.json()
+        
+        # Validate response structure
+        if not isinstance(data, list):
+            results.add_fail("Tenant Admin Properties", "Response should be a list")
+            return False
+            
+        results.add_pass("Tenant Admin Properties - Structure validated")
+        print(f"   Found {len(data)} properties for tenant admin")
+        
+        # Check if properties have tenant_id field
+        if data:
+            property_item = data[0]
+            if 'tenant_id' not in property_item:
+                results.add_fail("Tenant Admin Properties", "Properties missing tenant_id field")
+                return False
+            else:
+                results.add_pass("Tenant Admin Properties - tenant_id field present")
+                print(f"   Sample property tenant_id: {property_item['tenant_id']}")
+        
+        return True
+        
+    except Exception as e:
+        results.add_fail("Tenant Admin Properties", f"Exception: {str(e)}")
+        return False
+
+def test_tenant_admin_leads(auth_token):
+    """Test GET /api/leads endpoint for Tenant Admin"""
+    if not auth_token:
+        results.add_fail("Tenant Admin Leads", "No auth token available")
+        return False
+        
+    try:
+        headers = {"Authorization": f"Bearer {auth_token}"}
+        response = requests.get(f"{API_BASE}/leads", headers=headers, timeout=10)
+        
+        if response.status_code != 200:
+            results.add_fail("Tenant Admin Leads", f"Status code: {response.status_code}, Response: {response.text}")
+            return False
+            
+        data = response.json()
+        
+        # Validate response structure
+        if not isinstance(data, list):
+            results.add_fail("Tenant Admin Leads", "Response should be a list")
+            return False
+            
+        results.add_pass("Tenant Admin Leads - Structure validated")
+        print(f"   Found {len(data)} leads for tenant admin")
+        
+        # Check if leads have tenant_id field
+        if data:
+            lead = data[0]
+            if 'tenant_id' not in lead:
+                results.add_fail("Tenant Admin Leads", "Leads missing tenant_id field")
+                return False
+            else:
+                results.add_pass("Tenant Admin Leads - tenant_id field present")
+                print(f"   Sample lead tenant_id: {lead['tenant_id']}")
+        
+        return True
+        
+    except Exception as e:
+        results.add_fail("Tenant Admin Leads", f"Exception: {str(e)}")
+        return False
+
+def test_authentication_middleware():
+    """Test authentication middleware with invalid token"""
+    try:
+        # Test with invalid token
+        headers = {"Authorization": "Bearer invalid-token"}
+        response = requests.get(f"{API_BASE}/projects", headers=headers, timeout=10)
+        
+        if response.status_code == 401:
+            results.add_pass("Authentication Middleware - Invalid token rejected")
+            return True
+        else:
+            results.add_fail("Authentication Middleware", f"Expected 401, got {response.status_code}")
+            return False
+            
+    except Exception as e:
+        results.add_fail("Authentication Middleware", f"Exception: {str(e)}")
+        return False
+
+def test_no_auth_header():
+    """Test endpoints without authentication header"""
+    try:
+        # Test without auth header
+        response = requests.get(f"{API_BASE}/projects", timeout=10)
+        
+        if response.status_code == 401:
+            results.add_pass("No Auth Header - Request rejected")
+            return True
+        else:
+            results.add_fail("No Auth Header", f"Expected 401, got {response.status_code}")
+            return False
+            
+    except Exception as e:
+        results.add_fail("No Auth Header", f"Exception: {str(e)}")
+        return False
+
 def main():
-    """Run all Layout Library backend tests"""
-    print("Starting RETOERP Backend API Tests - Layout Library Focus")
-    print(f"Timestamp: {datetime.now().isoformat()}")
+    """Main test execution - Focus on Projects and Bookings API for Tenant Admin"""
+    print("Starting RETOERP Backend API Testing...")
+    print("Testing Projects and Bookings API endpoints for Tenant Admin role")
     print("=" * 80)
     
     # Test 1: Health Check
     if not test_health_check():
-        print("❌ API is not running. Stopping tests.")
+        print("❌ Backend is not running. Exiting...")
         return False
     
-    print("\n🏗️ Testing Layout Library Backend APIs...")
-    print("-" * 60)
+    # Test 2: Authentication middleware
+    print("\n🔐 Testing Authentication Security:")
+    test_authentication_middleware()
+    test_no_auth_header()
     
-    # Test authentication
-    print("\n1️⃣ Testing Authentication")
-    auth_token = test_tenant_admin_login()
-    
-    if not auth_token:
-        print("❌ Authentication failed. Cannot proceed with layout library tests.")
-        results.summary()
+    # Test 3: Tenant Admin Login
+    print("\n🔑 Authenticating Tenant Admin:")
+    tenant_admin_token = test_tenant_admin_login()
+    if not tenant_admin_token:
+        print("❌ Could not authenticate Tenant Admin. Exiting...")
         return False
     
-    # Test unauthorized access
-    print("\n2️⃣ Testing Security")
-    test_unauthorized_access()
-    test_template_creation_as_tenant(auth_token)
+    print(f"✅ Tenant Admin authenticated successfully")
     
-    # Test file upload
-    print("\n3️⃣ Testing File Upload")
-    svg_data = test_upload_svg(auth_token)
-    test_upload_invalid_file(auth_token)
+    # Test 4: Core endpoints that are failing
+    print("\n📋 Testing Core Endpoints:")
+    test_tenant_admin_projects(tenant_admin_token)
+    test_tenant_admin_bookings(tenant_admin_token)
+    test_tenant_admin_properties(tenant_admin_token)
+    test_tenant_admin_leads(tenant_admin_token)
     
-    if not svg_data:
-        print("❌ SVG upload failed. Cannot proceed with layout creation tests.")
-        results.summary()
-        return False
-    
-    # Test layout CRUD operations
-    print("\n4️⃣ Testing Layout CRUD Operations")
-    layout_id = test_create_master_layout(auth_token, svg_data)
-    test_get_master_layouts(auth_token)
-    test_get_single_layout(auth_token, layout_id)
-    test_get_layout_stats(auth_token)
-    test_update_master_layout(auth_token, layout_id)
-    
-    # Test project assignment
-    print("\n5️⃣ Testing Project Assignment")
-    project_id = test_create_project_for_assignment(auth_token)
-    if project_id and layout_id:
-        test_assign_layout_to_project(auth_token, layout_id, project_id)
-        test_delete_assigned_layout(auth_token, layout_id)
-    else:
-        # Test assignment with non-existent project (should fail gracefully)
-        test_assign_layout_to_nonexistent_project(auth_token, layout_id)
-    
-    # Test deletion
-    print("\n6️⃣ Testing Layout Deletion")
-    test_create_and_delete_layout(auth_token, svg_data)
-    
-    # Final Summary
+    # Print final results
     success = results.summary()
-    
-    if success:
-        print("\n🎉 All Layout Library tests passed! Layout Upload & Editor Tool Backend APIs are working correctly.")
-        print("📋 Key Features Verified:")
-        print("   ✅ SVG file upload with chunked upload (1MB chunks)")
-        print("   ✅ File validation (SVG only)")
-        print("   ✅ Master layout creation with plots and metadata")
-        print("   ✅ Layout listing with type filters")
-        print("   ✅ Single layout retrieval")
-        print("   ✅ Layout statistics generation")
-        print("   ✅ Layout updates")
-        print("   ✅ Project assignment functionality")
-        print("   ✅ Deletion protection for assigned layouts")
-        print("   ✅ Soft delete for unassigned layouts")
-        print("   ✅ Authentication and authorization")
-        print("   ✅ Tenant isolation")
-        print("   ✅ Template creation restrictions")
-    else:
-        print(f"\n⚠️  {results.failed} test(s) failed. Please check the issues above.")
-    
     return success
 
 if __name__ == "__main__":
