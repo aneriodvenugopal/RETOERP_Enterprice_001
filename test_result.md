@@ -329,6 +329,30 @@ backend:
         comment: "Added analytics router to main server, backend restarted successfully"
 
 frontend:
+  - task: "Add parseLayoutFile function to layoutService"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/services/index.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Added parseLayoutFile function to layoutService that accepts file and parseMethod, creates FormData, posts to /layouts/parse-file endpoint with multipart/form-data headers. Returns parsed plot data with coordinates, metadata, and confidence scores."
+  
+  - task: "Integrate real parsing API in HybridLayoutCreator"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/HybridLayoutCreator.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Updated handleProcessFile function to call real parseLayoutFile API instead of generating mock data. Maps selectedMethod to parse method ('dxf', 'svg', 'pdf', 'ai_ocr'), calls API, transforms response plots to expected format with id, display_name, block, coordinates, area, price, status. Shows confidence score in success message. Handles empty plot detection gracefully."
+
   - task: "Add layout library service functions to services/index.js"
     implemented: true
     working: "NA"
