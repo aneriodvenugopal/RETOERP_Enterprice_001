@@ -2338,7 +2338,7 @@ def test_tenant_admin_leads(auth_token):
         
     try:
         headers = {"Authorization": f"Bearer {auth_token}"}
-        response = requests.get(f"{API_BASE}/leads", headers=headers, timeout=10)
+        response = requests.get(f"{API_BASE}/leads/", headers=headers, timeout=10)  # Added trailing slash
         
         if response.status_code != 200:
             results.add_fail("Tenant Admin Leads", f"Status code: {response.status_code}, Response: {response.text}")
