@@ -307,8 +307,9 @@ async def get_lead_followups(lead_id: str, request: Request):
         {"_id": 0}
     ).sort('followup_date', -1).to_list(100)
     
-    for followup in followups:
-        # deserialize_doc(followup)
+    # Process followups if needed
+    # for followup in followups:
+    #     deserialize_doc(followup)
     
     return [LeadFollowup(**f) for f in followups]
 
