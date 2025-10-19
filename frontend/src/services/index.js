@@ -639,3 +639,57 @@ export const layoutService = {
     return response.data;
   },
 };
+
+export const notificationService = {
+  // Get user notifications
+  getNotifications: async (limit = 50, unreadOnly = false, type = null) => {
+    const params = { limit, unread_only: unreadOnly };
+    if (type) params.notification_type = type;
+    const response = await api.get('/in-app-notifications', { params });
+    return response.data;
+  },
+
+  // Get unread count
+  getUnreadCount: async () => {
+    const response = await api.get('/in-app-notifications/unread-count');
+    return response.data;
+  },
+
+  // Mark notifications as read
+  markAsRead: async (notificationIds) => {
+    const response = await api.post('/in-app-notifications/mark-read', {
+      notification_ids: notificationIds
+    });
+    return response.data;
+  },
+
+  // Mark all as read
+  markAllAsRead: async () => {
+    const response = await api.post('/in-app-notifications/mark-all-read');
+    return response.data;
+  },
+
+  // Delete notification
+  deleteNotification: async (notificationId) => {
+    const response = await api.delete(`/in-app-notifications/${notificationId}`);
+    return response.data;
+  },
+
+  // Get notification preferences
+  getPreferences: async () => {
+    const response = await api.get('/in-app-notifications/preferences');
+    return response.data;
+  },
+
+  // Update notification preferences
+  updatePreferences: async (preferences) => {
+    const response = await api.put('/in-app-notifications/preferences', preferences);
+    return response.data;
+  },
+
+  // Create notification (admin only)
+  createNotification: async (notificationData) => {
+    const response = await api.post('/in-app-notifications', notificationData);
+    return response.data;
+  },
+};
