@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { LogOut, Building2, Users, BarChart3, FileText, UserCog, Home, Layers } from 'lucide-react';
+import NotificationCenter from '../components/notifications/NotificationCenter';
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
