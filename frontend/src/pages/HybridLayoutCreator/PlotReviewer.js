@@ -126,13 +126,35 @@ const PlotReviewer = ({ detectedPlots, setDetectedPlots, selectedMethod, saving,
           </div>
           
           {plotsWithoutPrice > 0 && (
-            <div className="mt-4 bg-yellow-100 border border-yellow-300 rounded-lg p-3 flex items-start gap-2">
-              <AlertCircle className="w-5 h-5 text-yellow-700 mt-0.5" />
-              <p className="text-sm text-yellow-800">
-                <strong>{plotsWithoutPrice} plots</strong> need pricing
-              </p>
+            <div className="mt-4 bg-yellow-100 border border-yellow-300 rounded-lg p-3 flex items-center justify-between">
+              <div className="flex items-start gap-2">
+                <AlertCircle className="w-5 h-5 text-yellow-700 mt-0.5" />
+                <p className="text-sm text-yellow-800">
+                  <strong>{plotsWithoutPrice} plots</strong> need pricing
+                </p>
+              </div>
+              <Button 
+                onClick={() => setShowBulkPriceModal(true)}
+                size="sm"
+                className="bg-yellow-600 hover:bg-yellow-700 text-white"
+              >
+                <DollarSign className="w-4 h-4 mr-1" />
+                Bulk Price
+              </Button>
             </div>
           )}
+
+          <div className="mt-4 flex gap-2">
+            <Button
+              onClick={() => setShowAddPlotModal(true)}
+              variant="outline"
+              size="sm"
+              className="text-ocean-primary border-ocean-primary"
+            >
+              <Plus className="w-4 h-4 mr-1" />
+              Add Plot Manually
+            </Button>
+          </div>
         </CardContent>
       </Card>
 
