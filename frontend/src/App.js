@@ -12,6 +12,7 @@ import ProjectDetail from "./pages/ProjectDetail";
 import ProjectLayoutPage from "./pages/ProjectLayoutPage";
 import LayoutCreatorTool from "./pages/LayoutCreatorTool";
 import LayoutCreatorToolStandalone from "./pages/LayoutCreatorToolStandalone";
+import HybridLayoutCreator from "./pages/HybridLayoutCreator";
 import LayoutsLibrary from "./pages/LayoutsLibrary";
 import AdvancedLayoutViewer from "./pages/AdvancedLayoutViewer";
 import LayoutEditor from "./pages/LayoutEditor";
