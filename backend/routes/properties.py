@@ -163,7 +163,8 @@ async def update_property(property_id: str, property_update: PropertyUpdate, req
     
     # Get updated property
     property_doc = await db.properties.find_one({'id': property_id}, {"_id": 0})
-    property_doc = deserialize_doc(property_doc)
+    # Skip deserialization since Pydantic model expects string datetime fields
+    # property_doc = deserialize_doc(property_doc)
     
     return Property(**property_doc)
 
