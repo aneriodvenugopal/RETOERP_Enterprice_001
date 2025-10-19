@@ -337,6 +337,10 @@ async def create_resale_request(resale_data: ResaleRequest, request: Request):
         raise HTTPException(status_code=401, detail="Not authenticated")
     
     user_id = user.get('user_id')
+    tenant_id = user.get('tenant_id')
+    
+    # Get user details
+    customer = await db.users.find_one({'id': user_id}, {'_id': 0})
     
     # Verify booking belongs to customer
     booking = await db.bookings.find_one(
@@ -346,6 +350,12 @@ async def create_resale_request(resale_data: ResaleRequest, request: Request):
     
     if not booking:
         raise HTTPException(status_code=404, detail="Booking not found")
+    
+    # Get property details
+    property_doc = await db.properties.find_one(
+        {'id': resale_data.property_id, 'deleted_at': None},
+        {'_id': 0}
+    )
     
     # Check if already requested
     existing = await db.resale_requests.find_one({
@@ -374,6 +384,43 @@ async def create_resale_request(resale_data: ResaleRequest, request: Request):
     }
     
     await db.resale_requests.insert_one(serialize_doc(resale_request))
+    
+    # Create notification for tenant admin
+    tenant_admins = await db.users.find({
+        'tenant_id': tenant_id,
+        'role_id': {'$in': [
+            (await db.roles.find_one({'slug': 'tenant_admin'}, {'_id': 0}))['id'],
+            (await db.roles.find_one({'slug': 'super_admin'}, {'_id': 0}))['id']
+        ]},
+        'is_active': True,
+        'deleted_at': None
+    }, {'_id': 0}).to_list(length=100)
+    
+    # Create notification for each admin
+    for admin in tenant_admins:
+        notification_doc = {
+            'id': str(uuid.uuid4()),
+            'user_id': admin['id'],
+            'tenant_id': tenant_id,
+            'title': '🏠 New Resale Request',
+            'message': f'{customer.get("name", "Customer")} requested to resell {property_doc.get("property_name", "property")} for ₹{resale_data.asking_price:,.0f}',
+            'type': 'booking',
+            'priority': 'high',
+            'read': False,
+            'action_url': '/bookings',
+            'action_label': 'View Request',
+            'metadata': {
+                'customer_id': user_id,
+                'customer_name': customer.get('name'),
+                'property_id': resale_data.property_id,
+                'property_name': property_doc.get('property_name'),
+                'asking_price': resale_data.asking_price,
+                'request_id': resale_request['id']
+            },
+            'created_at': datetime.now(timezone.utc).isoformat(),
+            'read_at': None
+        }
+        await db.in_app_notifications.insert_one(notification_doc)
     
     return {
         'message': 'Resale request submitted successfully',
