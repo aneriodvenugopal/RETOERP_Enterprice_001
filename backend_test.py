@@ -353,6 +353,51 @@ def test_dashboard_analytics(auth_token):
         traceback.print_exc()
         return False
 
+def main():
+    """Main test execution following the requested test sequence"""
+    print("🚀 STARTING QUICK TEST OF PROJECT AND BOOKING DETAILS ENDPOINTS")
+    print("=" * 80)
+    
+    # Test API health first
+    if not test_health_check():
+        print("❌ API is not healthy, stopping tests")
+        return
+    
+    # Step 1: Login as tenant admin
+    auth_token = tenant_admin_login()
+    if not auth_token:
+        print("❌ Failed to login as tenant admin, stopping tests")
+        return
+    
+    # Step 2 & 3: Get list of projects and take first project ID
+    first_project = test_get_projects(auth_token)
+    project_id = first_project.get('id') if first_project else None
+    
+    # Step 4: Call GET /api/projects/{project_id}
+    if project_id:
+        test_get_project_details(auth_token, project_id)
+    else:
+        results.add_fail("Project Details Test", "No project ID available from projects list")
+    
+    # Step 6 & 7: Get list of bookings and take first booking ID
+    first_booking = test_get_bookings(auth_token)
+    booking_id = first_booking.get('id') if first_booking else None
+    
+    # Step 8: Call GET /api/bookings/{booking_id}
+    if booking_id:
+        test_get_booking_details(auth_token, booking_id)
+    else:
+        results.add_fail("Booking Details Test", "No booking ID available from bookings list")
+    
+    # Step 10: Call GET /api/analytics/dashboard
+    test_dashboard_analytics(auth_token)
+    
+    # Print final summary
+    results.summary()
+
+if __name__ == "__main__":
+    main()
+
 def test_get_roles():
     """Test GET /api/auth/roles endpoint"""
     try:
