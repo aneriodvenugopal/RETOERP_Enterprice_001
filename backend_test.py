@@ -118,10 +118,10 @@ def tenant_admin_login():
             
         print(f"✅ OTP sent successfully: {otp}")
         
-        # Step 2: Verify OTP (using any 6 digits as mentioned in request)
+        # Step 2: Verify OTP (using the actual OTP received)
         verify_data = {
             "phone": "9908290239",
-            "otp": "123456"  # Any 6 digits as per request
+            "otp": otp  # Use the actual OTP received
         }
         
         response = requests.post(
