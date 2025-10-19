@@ -68,8 +68,9 @@ async def get_projects(
     
     projects = await db.projects.find(query, {"_id": 0}).skip(skip).limit(limit).to_list(limit)
     
-    for project in projects:
-        deserialize_doc(project)
+    # Skip deserialization since Pydantic model expects string datetime fields
+    # for project in projects:
+    #     deserialize_doc(project)
     
     return [Project(**p) for p in projects]
 
