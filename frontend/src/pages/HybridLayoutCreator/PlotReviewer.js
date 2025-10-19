@@ -57,6 +57,55 @@ const PlotReviewer = ({ detectedPlots, setDetectedPlots, selectedMethod, saving,
     toast.success('Plot deleted');
   };
 
+  const handleBulkPrice = () => {
+    if (!bulkPrice || bulkPrice <= 0) {
+      toast.error('Please enter valid price');
+      return;
+    }
+
+    const unpriced = detectedPlots.filter(p => !p.price || p.price <= 0);
+    setDetectedPlots(plots => plots.map(p => {
+      if (!p.price || p.price <= 0) {
+        return { ...p, price: parseFloat(bulkPrice) };
+      }
+      return p;
+    }));
+
+    setShowBulkPriceModal(false);
+    setBulkPrice('');
+    toast.success(`✅ Applied price to ${unpriced.length} plots!`);
+  };
+
+  const handleAddManualPlot = () => {
+    if (!newPlot.display_name || !newPlot.area || !newPlot.price) {
+      toast.error('Please fill all required fields');
+      return;
+    }
+
+    const plot = {
+      id: `manual-${Date.now()}`,
+      display_name: newPlot.display_name,
+      block: newPlot.block,
+      coordinates: [], // Manual plots don't have coordinates initially
+      area: parseFloat(newPlot.area),
+      price: parseFloat(newPlot.price),
+      status: newPlot.status,
+      amenities: [],
+      confidence: 100 // Manual entry is 100% confident
+    };
+
+    setDetectedPlots(plots => [...plots, plot]);
+    setShowAddPlotModal(false);
+    setNewPlot({
+      display_name: '',
+      block: 'A',
+      area: '',
+      price: '',
+      status: 'available'
+    });
+    toast.success('✅ Plot added successfully!');
+  };
+
   return (
     <div className="space-y-6">
       <Card className="glass-card bg-gradient-to-r from-green-50 to-blue-50">
