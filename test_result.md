@@ -710,17 +710,16 @@ frontend:
 
 metadata:
   created_by: "main_agent"
-  version: "5.0"
-  test_sequence: 6
+  version: "6.0"
+  test_sequence: 7
   run_ui: false
 
 test_plan:
   current_focus:
-    - "Add layout library service functions to services/index.js"
-    - "Create LayoutCreatorToolStandalone page"
-    - "Create LayoutsLibrary page"
-    - "Add routes for layouts in App.js"
-    - "Add Layouts Library navigation to Dashboard"
+    - "Create DXF, SVG, PDF, and AI/OCR parsers"
+    - "Create API endpoint for file parsing"
+    - "Add parseLayoutFile function to layoutService"
+    - "Integrate real parsing API in HybridLayoutCreator"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
@@ -734,3 +733,5 @@ agent_communication:
     message: "✅ PROJECTS & BOOKINGS API TESTING COMPLETE: Successfully resolved 'Failed to load projects' and 'Failed to load bookings' errors for Tenant Admin role. Root cause analysis revealed: (1) HTTP 307 redirects were stripping Authorization headers - fixed by using correct URLs with trailing slashes, (2) Pydantic model validation errors due to database schema mismatches - fixed by updated Project and Booking models to match actual database fields and making some fields optional for backward compatibility. All 4 core endpoints now working perfectly: GET /api/projects/ (31 projects), GET /api/bookings/ (100 bookings), GET /api/properties/ (100 properties), GET /api/leads/ (100 leads). Authentication working correctly with JWT tokens, tenant isolation implemented properly, all responses include required tenant_id fields. The frontend 'Failed to load' errors should now be resolved."
   - agent: "testing"
     message: "✅ QUICK TEST OF PROJECT & BOOKING DETAILS ENDPOINTS COMPLETE: All requested endpoints are working perfectly! Test results: (1) Tenant Admin login (9908290239) successful with OTP authentication, (2) GET /api/projects/ - returns 31 projects correctly, (3) GET /api/projects/{project_id} - individual project details working (tested with Oberoi Plaza Pune), (4) GET /api/bookings/ - returns 100 bookings correctly, (5) GET /api/bookings/{booking_id} - individual booking details working, (6) GET /api/analytics/dashboard - dashboard stats working with overview metrics (801 leads, 312 bookings, $20.6B revenue). Fixed IndentationError in leads.py during testing. All 6/6 tests passed successfully. No errors found in the requested endpoints."
+  - agent: "main"
+    message: "✅ SMART LAYOUT PARSING IMPLEMENTATION COMPLETE: Implemented comprehensive backend parsing infrastructure for hybrid layout creation. Backend Parsers: (1) DXFParser - AutoCAD DXF/DWG file parsing using ezdxf, extracts polylines/polygons as plot boundaries, matches text labels to plot centroids, calculates polygon areas with shoelace formula, handles complex CAD files, (2) SVGParser - SVG file parsing using BeautifulSoup, extracts rectangles/polygons/paths as plots, parses text elements and matches to centroids, supports various SVG shape types, (3) PDFParser - PyMuPDF-based PDF parsing, auto-detects vector vs raster PDFs, extracts vector paths/drawings for vector PDFs, flags raster PDFs for OCR processing, (4) CVOCRParser - Computer vision and OCR parsing using OpenCV + Tesseract, contour detection for plot boundaries, edge detection fallback method, OCR text extraction from plot regions, handles scanned PDFs and images. All parsers return standardized format: plots with coordinates, area, block, display_name, confidence score. Backend API: Added POST /layouts/parse-file endpoint with file upload, parse method selection (dxf/svg/pdf/ai_ocr), automatic parser routing, file validation and error handling. Frontend Integration: Updated HybridLayoutCreator handleProcessFile to call real parsing API, method mapping to parse types, plot transformation and display, confidence score display, graceful handling of zero detections. Ready for comprehensive backend testing of new parse endpoint."
