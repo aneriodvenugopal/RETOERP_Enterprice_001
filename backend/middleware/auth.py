@@ -9,25 +9,41 @@ async def get_current_user(request: Request) -> dict:
     """Get current user from JWT token"""
     try:
         authorization: str = request.headers.get("Authorization")
+        print(f"DEBUG: Authorization header: {authorization}")
         if not authorization:
+            print("DEBUG: No authorization header")
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Not authenticated"
             )
         
-        scheme, token = authorization.split()
+        parts = authorization.split()
+        if len(parts) != 2:
+            print(f"DEBUG: Invalid authorization format: {parts}")
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid authorization format"
+            )
+            
+        scheme, token = parts
+        print(f"DEBUG: Scheme: {scheme}, Token: {token[:50]}...")
         if scheme.lower() != 'bearer':
+            print(f"DEBUG: Invalid scheme: {scheme}")
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid authentication scheme"
             )
         
         payload = AuthService.decode_token(token)
+        print(f"DEBUG: Decoded payload: {payload}")
         return payload
+    except HTTPException:
+        raise
     except Exception as e:
+        print(f"DEBUG: Exception in get_current_user: {e}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=str(e)
+            detail=f"401: {str(e)}"
         )
 
 async def get_current_tenant(request: Request) -> Optional[str]:
