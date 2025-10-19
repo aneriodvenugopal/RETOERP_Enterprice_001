@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException, Request, Query
 from services.analytics_service import AnalyticsService
+from middleware.auth import get_current_user
 from datetime import datetime
 from typing import Optional
 
@@ -7,10 +8,6 @@ router = APIRouter(prefix="/analytics", tags=["analytics"])
 
 def get_db(request: Request):
     return request.app.state.db
-
-def get_current_user(request: Request):
-    """Get current user from request state (set by auth middleware)"""
-    return request.state.user if hasattr(request.state, 'user') else None
 
 @router.get("/dashboard")
 async def get_dashboard_analytics(
@@ -21,6 +18,11 @@ async def get_dashboard_analytics(
 ):
     """Get dashboard analytics and metrics"""
     db = get_db(request)
+    user = await get_current_user(request)
+    
+    # Use user's tenant_id if not super admin
+    if user.get('role') != 'super_admin':
+        tenant_id = user.get('tenant_id')
     
     # Parse dates
     start = datetime.fromisoformat(start_date) if start_date else None
