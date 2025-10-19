@@ -2258,7 +2258,7 @@ def test_tenant_admin_bookings(auth_token):
         
     try:
         headers = {"Authorization": f"Bearer {auth_token}"}
-        response = requests.get(f"{API_BASE}/bookings", headers=headers, timeout=10)
+        response = requests.get(f"{API_BASE}/bookings/", headers=headers, timeout=10)  # Added trailing slash
         
         if response.status_code != 200:
             results.add_fail("Tenant Admin Bookings", f"Status code: {response.status_code}, Response: {response.text}")
