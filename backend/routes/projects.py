@@ -83,7 +83,8 @@ async def get_project(project_id: str, request: Request):
     if not project_doc:
         raise HTTPException(status_code=404, detail="Project not found")
     
-    project_doc = deserialize_doc(project_doc)
+    # Skip deserialization since Pydantic model expects string datetime fields
+    # project_doc = deserialize_doc(project_doc)
     return Project(**project_doc)
 
 @router.get("/{project_id}/stats")
