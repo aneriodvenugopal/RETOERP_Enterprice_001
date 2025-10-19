@@ -398,8 +398,6 @@ def main():
 if __name__ == "__main__":
     main()
 
-# All old test functions removed - only keeping the new focused tests above
-
 def test_get_tenants():
     """Test GET /api/tenants endpoint to get default tenant"""
     try:
