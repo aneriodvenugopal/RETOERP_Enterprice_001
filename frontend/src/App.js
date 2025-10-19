@@ -121,6 +121,14 @@ function App() {
                 path="/layouts/create"
                 element={
                   <PrivateRoute>
+                    <HybridLayoutCreator />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/layouts/create-manual"
+                element={
+                  <PrivateRoute>
                     <LayoutCreatorToolStandalone />
                   </PrivateRoute>
                 }
