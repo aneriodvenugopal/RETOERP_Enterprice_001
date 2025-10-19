@@ -28,8 +28,13 @@ class Project(BaseModel):
     
     # Status
     status: str = "active"  # active, completed, upcoming, on_hold
-    launch_date: Optional[datetime] = None
-    completion_date: Optional[datetime] = None
+    start_date: Optional[str] = None  # Match database field name
+    expected_completion: Optional[str] = None  # Match database field name
+    launch_date: Optional[datetime] = None  # Keep for backward compatibility
+    completion_date: Optional[datetime] = None  # Keep for backward compatibility
+    
+    # Additional fields from database
+    rera_number: Optional[str] = None
     
     # Pricing
     price_per_unit: Optional[float] = None  # Base price
@@ -50,9 +55,9 @@ class Project(BaseModel):
     blocked_units: int = 0
     
     is_active: bool = True
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    deleted_at: Optional[datetime] = None
+    created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())  # Match database format
+    updated_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())  # Match database format
+    deleted_at: Optional[str] = None  # Match database format
 
 class ProjectCreate(BaseModel):
     tenant_id: str
