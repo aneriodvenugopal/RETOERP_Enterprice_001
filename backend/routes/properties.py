@@ -95,8 +95,9 @@ async def get_properties(
     
     properties = await db.properties.find(query, {"_id": 0}).skip(skip).limit(limit).to_list(limit)
     
-    for prop in properties:
-        deserialize_doc(prop)
+    # Skip deserialization since Pydantic model expects string datetime fields
+    # for prop in properties:
+    #     deserialize_doc(prop)
     
     return [Property(**p) for p in properties]
 
@@ -109,7 +110,8 @@ async def get_property(property_id: str, request: Request):
     if not property_doc:
         raise HTTPException(status_code=404, detail="Property not found")
     
-    property_doc = deserialize_doc(property_doc)
+    # Skip deserialization since Pydantic model expects string datetime fields
+    # property_doc = deserialize_doc(property_doc)
     return Property(**property_doc)
 
 @router.put("/{property_id}", response_model=Property)
