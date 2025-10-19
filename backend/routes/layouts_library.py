@@ -7,6 +7,10 @@ import uuid
 import os
 import shutil
 from middleware.auth import get_current_user
+from services.dxf_parser import DXFParser
+from services.svg_parser import SVGParser
+from services.pdf_parser import PDFParser
+from services.cv_ocr_parser import CVOCRParser
 
 router = APIRouter(prefix="/layouts", tags=["layouts_library"])
 
