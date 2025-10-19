@@ -53,6 +53,75 @@ async def create_lead(lead_create: LeadCreate, request: Request):
         ip_address=request.client.host
     )
     
+    # Create notification for tenant admins about new lead
+    import uuid as uuid_lib
+    tenant_admins = await db.users.find({
+        'tenant_id': lead.tenant_id,
+        'role_id': {'$in': [
+            (await db.roles.find_one({'slug': 'tenant_admin'}, {'_id': 0}))['id'],
+            (await db.roles.find_one({'slug': 'super_admin'}, {'_id': 0}))['id']
+        ]},
+        'is_active': True,
+        'deleted_at': None
+    }, {'_id': 0}).to_list(length=100)
+    
+    # Get project name if available
+    project_name = "property"
+    if lead.project_id:
+        project = await db.projects.find_one({'id': lead.project_id}, {'_id': 0})
+        if project:
+            project_name = project.get('name', 'property')
+    
+    # Create notification for each admin
+    for admin in tenant_admins:
+        notification_doc = {
+            'id': str(uuid_lib.uuid4()),
+            'user_id': admin['id'],
+            'tenant_id': lead.tenant_id,
+            'title': '👤 New Property Interest',
+            'message': f'{lead.name} ({lead.phone}) showed interest in {project_name}',
+            'type': 'lead',
+            'priority': 'high',
+            'read': False,
+            'action_url': '/leads',
+            'action_label': 'View Lead',
+            'metadata': {
+                'lead_id': lead.id,
+                'lead_name': lead.name,
+                'lead_phone': lead.phone,
+                'project_id': lead.project_id,
+                'project_name': project_name
+            },
+            'created_at': datetime.now(timezone.utc).isoformat(),
+            'read_at': None
+        }
+        await db.in_app_notifications.insert_one(notification_doc)
+    
+    # If lead is assigned to staff, notify them too
+    if lead.assigned_to:
+        staff_user = await db.users.find_one({'id': lead.assigned_to}, {'_id': 0})
+        if staff_user:
+            notification_doc = {
+                'id': str(uuid_lib.uuid4()),
+                'user_id': staff_user['id'],
+                'tenant_id': lead.tenant_id,
+                'title': '📋 New Lead Assigned',
+                'message': f'Lead "{lead.name}" has been assigned to you for follow-up',
+                'type': 'lead',
+                'priority': 'normal',
+                'read': False,
+                'action_url': '/leads',
+                'action_label': 'View Lead',
+                'metadata': {
+                    'lead_id': lead.id,
+                    'lead_name': lead.name,
+                    'lead_phone': lead.phone
+                },
+                'created_at': datetime.now(timezone.utc).isoformat(),
+                'read_at': None
+            }
+            await db.in_app_notifications.insert_one(notification_doc)
+    
     return lead
 
 @router.get("/", response_model=List[Lead])
