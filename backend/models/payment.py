@@ -13,15 +13,15 @@ class Booking(BaseModel):
     
     # Customer information
     customer_id: str  # User ID (customer role)
-    customer_name: str
-    customer_phone: str
+    customer_name: Optional[str] = None  # Make optional for backward compatibility
+    customer_phone: Optional[str] = None  # Make optional for backward compatibility
     customer_email: Optional[str] = None
     
     # Booking details
     booking_date: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())  # Match database format
-    booking_amount: float  # Token/booking amount
+    booking_amount: Optional[float] = None  # Make optional for backward compatibility
     total_amount: float  # Total property price (can be int or float in database)
-    currency_id: str
+    currency_id: Optional[str] = None  # Make optional for backward compatibility
     
     # Additional fields from database
     paid_amount: Optional[float] = None
