@@ -100,7 +100,7 @@ async def get_leads(
     leads = await db.leads.find(query, {"_id": 0}).sort('created_at', -1).skip(skip).limit(limit).to_list(limit)
     
     for lead in leads:
-        deserialize_doc(lead)
+        # deserialize_doc(lead)
     
     return [Lead(**l) for l in leads]
 
@@ -169,7 +169,7 @@ async def get_lead_details(lead_id: str, request: Request):
     ).sort('followup_date', -1).to_list(50)
     
     for followup in followups:
-        deserialize_doc(followup)
+        # deserialize_doc(followup)
     
     return {
         'lead': Lead(**lead_doc),
@@ -306,7 +306,7 @@ async def get_lead_followups(lead_id: str, request: Request):
     ).sort('followup_date', -1).to_list(100)
     
     for followup in followups:
-        deserialize_doc(followup)
+        # deserialize_doc(followup)
     
     return [LeadFollowup(**f) for f in followups]
 
