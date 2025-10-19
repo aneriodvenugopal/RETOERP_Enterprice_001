@@ -162,7 +162,8 @@ async def get_booking(booking_id: str, request: Request):
     if not booking_doc:
         raise HTTPException(status_code=404, detail="Booking not found")
     
-    booking_doc = deserialize_doc(booking_doc)
+    # Skip deserialization since Pydantic model expects string datetime fields
+    # booking_doc = deserialize_doc(booking_doc)
     return Booking(**booking_doc)
 
 @router.get("/{booking_id}/details")
@@ -174,7 +175,8 @@ async def get_booking_details(booking_id: str, request: Request):
     if not booking_doc:
         raise HTTPException(status_code=404, detail="Booking not found")
     
-    booking_doc = deserialize_doc(booking_doc)
+    # Skip deserialization since Pydantic model expects string datetime fields
+    # booking_doc = deserialize_doc(booking_doc)
     
     # Get property
     property_doc = await db.properties.find_one({'id': booking_doc['property_id']}, {"_id": 0})
