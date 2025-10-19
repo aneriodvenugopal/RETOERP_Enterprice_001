@@ -722,8 +722,6 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Create DXF, SVG, PDF, and AI/OCR parsers"
-    - "Create API endpoint for file parsing"
     - "Add parseLayoutFile function to layoutService"
     - "Integrate real parsing API in HybridLayoutCreator"
   stuck_tasks: []
