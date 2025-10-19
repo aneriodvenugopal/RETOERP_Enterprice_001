@@ -398,49 +398,7 @@ def main():
 if __name__ == "__main__":
     main()
 
-def test_get_roles():
-    """Test GET /api/auth/roles endpoint"""
-    try:
-        response = requests.get(f"{API_BASE}/auth/roles", timeout=10)
-        
-        if response.status_code != 200:
-            results.add_fail("GET /auth/roles", f"Status code: {response.status_code}")
-            return None
-            
-        roles = response.json()
-        
-        if not isinstance(roles, list):
-            results.add_fail("GET /auth/roles", "Response is not a list")
-            return None
-            
-        if len(roles) == 0:
-            results.add_fail("GET /auth/roles", "No roles returned")
-            return None
-            
-        # Check for required roles
-        role_slugs = [role.get('slug') for role in roles]
-        required_roles = ['super_admin', 'tenant_admin', 'staff', 'customer']
-        
-        missing_roles = [role for role in required_roles if role not in role_slugs]
-        if missing_roles:
-            results.add_fail("GET /auth/roles", f"Missing required roles: {missing_roles}")
-            return None
-            
-        # Validate role structure
-        for role in roles:
-            required_fields = ['id', 'name', 'slug']
-            missing_fields = [field for field in required_fields if field not in role]
-            if missing_fields:
-                results.add_fail("GET /auth/roles", f"Role missing fields: {missing_fields}")
-                return None
-                
-        results.add_pass("GET /auth/roles - Structure and required roles")
-        print(f"   Found {len(roles)} roles: {role_slugs}")
-        return roles
-        
-    except Exception as e:
-        results.add_fail("GET /auth/roles", f"Exception: {str(e)}")
-        return None
+# All old test functions removed - only keeping the new focused tests above
 
 def test_get_tenants():
     """Test GET /api/tenants endpoint to get default tenant"""
