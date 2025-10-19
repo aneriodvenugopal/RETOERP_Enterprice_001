@@ -53,45 +53,68 @@ const HybridLayoutCreator = () => {
     setProcessing(true);
 
     try {
-      toast.info('Uploading...');
-      const uploadResult = await layoutService.uploadSVG(file);
-      setSvgFileInfo(uploadResult);
+      toast.info('📤 Uploading file...');
       
-      toast.info('Processing...');
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      // Determine parse method from selected method
+      const parseMethodMap = {
+        'dxf': 'dxf',
+        'svg': 'svg',
+        'pdf_vector': 'pdf',
+        'cv_ocr': 'ai_ocr'
+      };
       
-      // Generate mock plots based on method
-      const count = { 'dxf': 15, 'svg': 12, 'pdf_vector': 10, 'cv_ocr': 8 }[selectedMethod] || 10;
-      const plots = [];
+      const parseMethod = parseMethodMap[selectedMethod] || 'svg';
       
-      for (let i = 0; i < count; i++) {
-        const block = String.fromCharCode(65 + Math.floor(i / 5));
-        const num = (i % 5) + 1;
-        
-        plots.push({
-          id: `plot-${Date.now()}-${i}`,
-          display_name: `${block}-${num}`,
-          block,
-          coordinates: [
-            { x: 50 + (i * 80), y: 50 },
-            { x: 120 + (i * 80), y: 50 },
-            { x: 120 + (i * 80), y: 150 },
-            { x: 50 + (i * 80), y: 150 }
-          ],
-          area: Math.floor(1000 + Math.random() * 500),
-          price: null,
-          status: 'available',
-          amenities: []
-        });
+      // Call the new parse-file endpoint
+      const parseResult = await layoutService.parseLayoutFile(file, parseMethod);
+      
+      if (!parseResult.success) {
+        throw new Error('Parsing failed');
       }
       
-      setDetectedPlots(plots);
+      setSvgFileInfo({
+        file_id: parseResult.file_id,
+        file_url: parseResult.file_url,
+        filename: parseResult.filename
+      });
+      
+      // Check if plots were detected
+      const detectedPlotsData = parseResult.plots || [];
+      
+      if (detectedPlotsData.length === 0) {
+        toast.warning('⚠️ No plots detected. You can add them manually.');
+        setDetectedPlots([]);
+        setStep(3);
+        return;
+      }
+      
+      // Transform plots to match expected format
+      const transformedPlots = detectedPlotsData.map((plot, idx) => ({
+        id: plot.id || `plot-${Date.now()}-${idx}`,
+        display_name: plot.display_name || `Plot-${idx + 1}`,
+        block: plot.block || 'A',
+        coordinates: plot.coordinates || [],
+        area: plot.area || 0,
+        price: null, // User needs to fill this
+        status: 'available',
+        amenities: [],
+        confidence: plot.confidence || 0
+      }));
+      
+      setDetectedPlots(transformedPlots);
       setStep(3);
-      toast.success(`✅ Detected ${plots.length} plots!`);
+      
+      const avgConfidence = Math.round(
+        transformedPlots.reduce((sum, p) => sum + p.confidence, 0) / transformedPlots.length
+      );
+      
+      toast.success(
+        `✅ Detected ${transformedPlots.length} plots! (Confidence: ${avgConfidence}%)`
+      );
       
     } catch (error) {
-      console.error(error);
-      toast.error('Failed to process');
+      console.error('File processing error:', error);
+      toast.error(error.message || 'Failed to process file. Please try again.');
     } finally {
       setProcessing(false);
     }
