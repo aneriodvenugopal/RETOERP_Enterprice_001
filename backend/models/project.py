@@ -10,11 +10,11 @@ class Project(BaseModel):
     tenant_id: str  # Reference to Tenant
     name: str
     description: Optional[str] = None
-    project_type: str  # residential, commercial, agricultural, etc.
+    project_type: Optional[str] = None  # Make optional for backward compatibility
     location: str
     address: Optional[str] = None
-    city: str
-    state: str
+    city: Optional[str] = None  # Make optional for backward compatibility
+    state: Optional[str] = None  # Make optional for backward compatibility
     country: str = "India"
     pincode: Optional[str] = None
     
