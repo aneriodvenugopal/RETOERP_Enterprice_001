@@ -18,10 +18,17 @@ class Booking(BaseModel):
     customer_email: Optional[str] = None
     
     # Booking details
-    booking_date: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    booking_date: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())  # Match database format
     booking_amount: float  # Token/booking amount
-    total_amount: float  # Total property price
+    total_amount: float  # Total property price (can be int or float in database)
     currency_id: str
+    
+    # Additional fields from database
+    paid_amount: Optional[float] = None
+    balance_amount: Optional[float] = None
+    payment_plan: Optional[str] = None  # Database field name
+    agreement_number: Optional[str] = None
+    is_active: Optional[bool] = True
     
     # Payment plan
     payment_plan_type: str  # full_payment, emi, custom
@@ -44,9 +51,9 @@ class Booking(BaseModel):
     # Notes
     notes: Optional[str] = None
     
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    deleted_at: Optional[datetime] = None
+    created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())  # Match database format
+    updated_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())  # Match database format
+    deleted_at: Optional[str] = None  # Match database format
 
 class BookingCreate(BaseModel):
     tenant_id: str
