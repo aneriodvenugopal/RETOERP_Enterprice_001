@@ -1,15 +1,14 @@
 #!/usr/bin/env python3
 """
-Backend API Testing for RETOERP Layout Library Module
-Tests the complete Layout Upload & Editor Tool functionality including SVG upload, 
-master layout CRUD operations, project assignments, and tenant isolation.
+Backend API Testing for RETOERP - Quick Test of Project and Booking Details Endpoints
+Tests specific endpoints to identify exact errors as requested.
 """
 
 import requests
 import json
 import sys
 import os
-import io
+import traceback
 from datetime import datetime
 
 # Get backend URL from frontend .env file
