@@ -99,8 +99,9 @@ async def get_leads(
     
     leads = await db.leads.find(query, {"_id": 0}).sort('created_at', -1).skip(skip).limit(limit).to_list(limit)
     
-    for lead in leads:
-        # deserialize_doc(lead)
+    # Process leads if needed
+    # for lead in leads:
+    #     deserialize_doc(lead)
     
     return [Lead(**l) for l in leads]
 
