@@ -353,9 +353,299 @@ def test_dashboard_analytics(auth_token):
         traceback.print_exc()
         return False
 
+def test_parse_svg_file(auth_token):
+    """Test parsing SVG file with valid data"""
+    if not auth_token:
+        results.add_fail("Parse SVG File", "No auth token available")
+        return False
+        
+    try:
+        print("\n📄 TESTING: POST /api/layouts/parse-file (SVG)")
+        
+        # Use the existing SVG file
+        svg_file_path = "/app/frontend/public/sathhenapally.svg"
+        
+        if not os.path.exists(svg_file_path):
+            results.add_fail("Parse SVG File", f"SVG file not found at {svg_file_path}")
+            return False
+        
+        headers = {"Authorization": f"Bearer {auth_token}"}
+        
+        with open(svg_file_path, 'rb') as f:
+            files = {'file': ('sathhenapally.svg', f, 'image/svg+xml')}
+            data = {'parse_method': 'svg'}
+            
+            response = requests.post(
+                f"{API_BASE}/layouts/parse-file",
+                headers=headers,
+                files=files,
+                data=data,
+                timeout=30
+            )
+        
+        if response.status_code != 200:
+            results.add_fail("Parse SVG File", f"Status code: {response.status_code}")
+            print_error_details("Parse SVG File", response)
+            return False
+            
+        result = response.json()
+        
+        # Validate response structure
+        required_fields = ['success', 'method', 'file_id', 'filename', 'file_path', 'file_url', 'original_filename', 'plots', 'metadata', 'total_plots_detected']
+        missing_fields = [field for field in required_fields if field not in result]
+        
+        if missing_fields:
+            results.add_fail("Parse SVG File", f"Missing fields in response: {missing_fields}")
+            return False
+        
+        if not result.get('success'):
+            results.add_fail("Parse SVG File", "Response success is False")
+            return False
+        
+        if result.get('method') != 'svg':
+            results.add_fail("Parse SVG File", f"Expected method 'svg', got '{result.get('method')}'")
+            return False
+        
+        plots = result.get('plots', [])
+        metadata = result.get('metadata', {})
+        
+        # Validate plots structure
+        if not isinstance(plots, list):
+            results.add_fail("Parse SVG File", "Plots is not a list")
+            return False
+        
+        if len(plots) > 0:
+            plot = plots[0]
+            required_plot_fields = ['display_name', 'block', 'coordinates', 'area', 'confidence']
+            missing_plot_fields = [field for field in required_plot_fields if field not in plot]
+            
+            if missing_plot_fields:
+                results.add_fail("Parse SVG File", f"Missing plot fields: {missing_plot_fields}")
+                return False
+            
+            # Validate coordinates structure
+            coordinates = plot.get('coordinates', [])
+            if not isinstance(coordinates, list) or len(coordinates) < 3:
+                results.add_fail("Parse SVG File", "Invalid coordinates structure")
+                return False
+            
+            # Check coordinate format
+            coord = coordinates[0]
+            if not isinstance(coord, dict) or 'x' not in coord or 'y' not in coord:
+                results.add_fail("Parse SVG File", "Invalid coordinate format")
+                return False
+        
+        # Validate metadata
+        if not isinstance(metadata, dict):
+            results.add_fail("Parse SVG File", "Metadata is not a dict")
+            return False
+        
+        results.add_pass("Parse SVG File")
+        print(f"   ✅ Successfully parsed SVG file")
+        print(f"   📊 Detected {len(plots)} plots")
+        print(f"   📝 Metadata: {metadata}")
+        if len(plots) > 0:
+            print(f"   🎯 First plot: {plots[0]['display_name']} (Area: {plots[0]['area']}, Confidence: {plots[0]['confidence']}%)")
+        
+        return True
+        
+    except Exception as e:
+        results.add_fail("Parse SVG File", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+def test_parse_invalid_file_type(auth_token):
+    """Test parsing with invalid file type"""
+    if not auth_token:
+        results.add_fail("Parse Invalid File Type", "No auth token available")
+        return False
+        
+    try:
+        print("\n❌ TESTING: POST /api/layouts/parse-file (Invalid File Type)")
+        
+        headers = {"Authorization": f"Bearer {auth_token}"}
+        
+        # Create a temporary text file
+        temp_file_content = "This is not an SVG file"
+        files = {'file': ('test.txt', temp_file_content, 'text/plain')}
+        data = {'parse_method': 'svg'}
+        
+        response = requests.post(
+            f"{API_BASE}/layouts/parse-file",
+            headers=headers,
+            files=files,
+            data=data,
+            timeout=10
+        )
+        
+        if response.status_code != 400:
+            results.add_fail("Parse Invalid File Type", f"Expected 400, got {response.status_code}")
+            print_error_details("Parse Invalid File Type", response)
+            return False
+        
+        error_data = response.json()
+        if 'detail' not in error_data:
+            results.add_fail("Parse Invalid File Type", "No error detail in response")
+            return False
+        
+        results.add_pass("Parse Invalid File Type")
+        print(f"   ✅ Correctly rejected invalid file type: {error_data['detail']}")
+        return True
+        
+    except Exception as e:
+        results.add_fail("Parse Invalid File Type", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+def test_parse_invalid_method(auth_token):
+    """Test parsing with invalid parse method"""
+    if not auth_token:
+        results.add_fail("Parse Invalid Method", "No auth token available")
+        return False
+        
+    try:
+        print("\n❌ TESTING: POST /api/layouts/parse-file (Invalid Parse Method)")
+        
+        svg_file_path = "/app/frontend/public/sathhenapally.svg"
+        
+        if not os.path.exists(svg_file_path):
+            results.add_fail("Parse Invalid Method", f"SVG file not found at {svg_file_path}")
+            return False
+        
+        headers = {"Authorization": f"Bearer {auth_token}"}
+        
+        with open(svg_file_path, 'rb') as f:
+            files = {'file': ('sathhenapally.svg', f, 'image/svg+xml')}
+            data = {'parse_method': 'invalid_method'}
+            
+            response = requests.post(
+                f"{API_BASE}/layouts/parse-file",
+                headers=headers,
+                files=files,
+                data=data,
+                timeout=10
+            )
+        
+        if response.status_code != 400:
+            results.add_fail("Parse Invalid Method", f"Expected 400, got {response.status_code}")
+            print_error_details("Parse Invalid Method", response)
+            return False
+        
+        error_data = response.json()
+        if 'detail' not in error_data:
+            results.add_fail("Parse Invalid Method", "No error detail in response")
+            return False
+        
+        results.add_pass("Parse Invalid Method")
+        print(f"   ✅ Correctly rejected invalid parse method: {error_data['detail']}")
+        return True
+        
+    except Exception as e:
+        results.add_fail("Parse Invalid Method", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+def test_parse_without_auth():
+    """Test parsing without authentication"""
+    try:
+        print("\n🔒 TESTING: POST /api/layouts/parse-file (No Auth)")
+        
+        svg_file_path = "/app/frontend/public/sathhenapally.svg"
+        
+        if not os.path.exists(svg_file_path):
+            results.add_fail("Parse Without Auth", f"SVG file not found at {svg_file_path}")
+            return False
+        
+        with open(svg_file_path, 'rb') as f:
+            files = {'file': ('sathhenapally.svg', f, 'image/svg+xml')}
+            data = {'parse_method': 'svg'}
+            
+            response = requests.post(
+                f"{API_BASE}/layouts/parse-file",
+                files=files,
+                data=data,
+                timeout=10
+            )
+        
+        if response.status_code != 401:
+            results.add_fail("Parse Without Auth", f"Expected 401, got {response.status_code}")
+            print_error_details("Parse Without Auth", response)
+            return False
+        
+        results.add_pass("Parse Without Auth")
+        print(f"   ✅ Correctly rejected request without authentication")
+        return True
+        
+    except Exception as e:
+        results.add_fail("Parse Without Auth", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+def test_file_storage(auth_token):
+    """Test that parsed files are properly stored"""
+    if not auth_token:
+        results.add_fail("File Storage Test", "No auth token available")
+        return False
+        
+    try:
+        print("\n💾 TESTING: File Storage After Parsing")
+        
+        svg_file_path = "/app/frontend/public/sathhenapally.svg"
+        
+        if not os.path.exists(svg_file_path):
+            results.add_fail("File Storage Test", f"SVG file not found at {svg_file_path}")
+            return False
+        
+        headers = {"Authorization": f"Bearer {auth_token}"}
+        
+        with open(svg_file_path, 'rb') as f:
+            files = {'file': ('sathhenapally.svg', f, 'image/svg+xml')}
+            data = {'parse_method': 'svg'}
+            
+            response = requests.post(
+                f"{API_BASE}/layouts/parse-file",
+                headers=headers,
+                files=files,
+                data=data,
+                timeout=30
+            )
+        
+        if response.status_code != 200:
+            results.add_fail("File Storage Test", f"Parse failed with status: {response.status_code}")
+            return False
+            
+        result = response.json()
+        file_path = result.get('file_path')
+        file_url = result.get('file_url')
+        
+        if not file_path or not file_url:
+            results.add_fail("File Storage Test", "No file_path or file_url in response")
+            return False
+        
+        # Check if file exists on disk
+        if not os.path.exists(file_path):
+            results.add_fail("File Storage Test", f"File not found at {file_path}")
+            return False
+        
+        # Test file URL access
+        file_response = requests.get(f"{API_BASE.replace('/api', '')}{file_url}", timeout=10)
+        if file_response.status_code != 200:
+            results.add_fail("File Storage Test", f"File URL not accessible: {file_response.status_code}")
+            return False
+        
+        results.add_pass("File Storage Test")
+        print(f"   ✅ File stored successfully at: {file_path}")
+        print(f"   🌐 File accessible via URL: {file_url}")
+        return True
+        
+    except Exception as e:
+        results.add_fail("File Storage Test", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
 def main():
-    """Main test execution following the requested test sequence"""
-    print("🚀 STARTING QUICK TEST OF PROJECT AND BOOKING DETAILS ENDPOINTS")
+    """Main test execution for layout file parsing functionality"""
+    print("🚀 STARTING LAYOUT FILE PARSING FUNCTIONALITY TESTING")
     print("=" * 80)
     
     # Test API health first
@@ -363,37 +653,42 @@ def main():
         print("❌ API is not healthy, stopping tests")
         return
     
-    # Step 1: Login as tenant admin
+    # Step 1: Login as tenant admin (9908290239)
     auth_token = tenant_admin_login()
     if not auth_token:
         print("❌ Failed to login as tenant admin, stopping tests")
         return
     
-    # Step 2 & 3: Get list of projects and take first project ID
-    first_project = test_get_projects(auth_token)
-    project_id = first_project.get('id') if first_project else None
+    print("\n🎯 TESTING LAYOUT FILE PARSING ENDPOINTS")
+    print("=" * 60)
     
-    # Step 4: Call GET /api/projects/{project_id}
-    if project_id:
-        test_get_project_details(auth_token, project_id)
-    else:
-        results.add_fail("Project Details Test", "No project ID available from projects list")
+    # Test 1: Parse SVG file successfully
+    test_parse_svg_file(auth_token)
     
-    # Step 6 & 7: Get list of bookings and take first booking ID
-    first_booking = test_get_bookings(auth_token)
-    booking_id = first_booking.get('id') if first_booking else None
+    # Test 2: Test invalid file type
+    test_parse_invalid_file_type(auth_token)
     
-    # Step 8: Call GET /api/bookings/{booking_id}
-    if booking_id:
-        test_get_booking_details(auth_token, booking_id)
-    else:
-        results.add_fail("Booking Details Test", "No booking ID available from bookings list")
+    # Test 3: Test invalid parse method
+    test_parse_invalid_method(auth_token)
     
-    # Step 10: Call GET /api/analytics/dashboard
-    test_dashboard_analytics(auth_token)
+    # Test 4: Test without authentication
+    test_parse_without_auth()
+    
+    # Test 5: Test file storage
+    test_file_storage(auth_token)
     
     # Print final summary
-    results.summary()
+    success = results.summary()
+    
+    if success:
+        print("\n🎉 ALL LAYOUT PARSING TESTS PASSED!")
+        print("✅ The POST /api/layouts/parse-file endpoint is working correctly")
+        print("✅ SVG file parsing is functional")
+        print("✅ File validation is working")
+        print("✅ Authentication is enforced")
+        print("✅ File storage is operational")
+    else:
+        print("\n❌ SOME TESTS FAILED - CHECK DETAILS ABOVE")
 
 if __name__ == "__main__":
     main()
