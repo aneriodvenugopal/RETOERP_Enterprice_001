@@ -79,6 +79,115 @@ async def get_svg_file(filename: str):
     
     return FileResponse(file_path, media_type="image/svg+xml")
 
+@router.post("/parse-file")
+async def parse_layout_file(
+    file: UploadFile = File(...),
+    parse_method: str = Form(...),
+    request: Request = None
+):
+    """
+    Parse uploaded layout file and extract plot data.
+    
+    Supports:
+    - DXF files (AutoCAD)
+    - SVG files (vector graphics)
+    - PDF files (vector or raster)
+    - Image files (PNG, JPG, JPEG) with AI/OCR
+    
+    Args:
+        file: The uploaded file
+        parse_method: One of 'dxf', 'svg', 'pdf', 'ai_ocr'
+    
+    Returns:
+        Parsed plot data with coordinates, metadata, and confidence scores
+    """
+    user = await get_current_user(request)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    
+    # Validate file extension
+    file_extension = os.path.splitext(file.filename)[1].lower()
+    allowed_extensions = {
+        'dxf': ['.dxf', '.dwg'],
+        'svg': ['.svg'],
+        'pdf': ['.pdf'],
+        'ai_ocr': ['.png', '.jpg', '.jpeg', '.bmp', '.tiff', '.pdf']
+    }
+    
+    if parse_method not in allowed_extensions:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid parse method. Must be one of: {', '.join(allowed_extensions.keys())}"
+        )
+    
+    if file_extension not in allowed_extensions[parse_method]:
+        raise HTTPException(
+            status_code=400,
+            detail=f"File extension {file_extension} not valid for {parse_method} method. "
+                   f"Expected: {', '.join(allowed_extensions[parse_method])}"
+        )
+    
+    # Generate temporary filename
+    temp_file_id = str(uuid.uuid4())
+    temp_filename = f"{temp_file_id}{file_extension}"
+    temp_file_path = os.path.join(UPLOAD_DIR, temp_filename)
+    
+    try:
+        # Save uploaded file temporarily
+        with open(temp_file_path, "wb") as buffer:
+            while True:
+                chunk = await file.read(1024 * 1024)  # Read 1MB at a time
+                if not chunk:
+                    break
+                buffer.write(chunk)
+        
+        # Parse file based on method
+        result = None
+        
+        if parse_method == 'dxf':
+            result = DXFParser.parse_file(temp_file_path)
+        
+        elif parse_method == 'svg':
+            result = SVGParser.parse_file(temp_file_path)
+        
+        elif parse_method == 'pdf':
+            result = PDFParser.parse_file(temp_file_path)
+            
+            # If PDF is raster and needs OCR, use CV/OCR parser
+            if result.get('needs_ocr'):
+                result = CVOCRParser.parse_file(temp_file_path)
+        
+        elif parse_method == 'ai_ocr':
+            result = CVOCRParser.parse_file(temp_file_path)
+        
+        # Keep the file for later use
+        final_filename = f"parsed_{temp_filename}"
+        final_file_path = os.path.join(UPLOAD_DIR, final_filename)
+        shutil.move(temp_file_path, final_file_path)
+        
+        return {
+            "success": True,
+            "method": parse_method,
+            "file_id": temp_file_id,
+            "filename": final_filename,
+            "file_path": final_file_path,
+            "file_url": f"/api/layouts/files/{final_filename}",
+            "original_filename": file.filename,
+            "plots": result.get('plots', []),
+            "metadata": result.get('metadata', {}),
+            "total_plots_detected": len(result.get('plots', []))
+        }
+    
+    except Exception as e:
+        # Clean up temp file on error
+        if os.path.exists(temp_file_path):
+            os.remove(temp_file_path)
+        
+        raise HTTPException(
+            status_code=500,
+            detail=f"File parsing failed: {str(e)}"
+        )
+
 @router.post("")
 async def create_master_layout(
     layout_data: MasterLayoutCreate,
