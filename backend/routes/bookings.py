@@ -147,8 +147,9 @@ async def get_bookings(
     
     bookings = await db.bookings.find(query, {"_id": 0}).sort('created_at', -1).skip(skip).limit(limit).to_list(limit)
     
-    for booking in bookings:
-        deserialize_doc(booking)
+    # Skip deserialization since Pydantic model expects string datetime fields
+    # for booking in bookings:
+    #     deserialize_doc(booking)
     
     return [Booking(**b) for b in bookings]
 
