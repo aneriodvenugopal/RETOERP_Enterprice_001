@@ -2375,7 +2375,7 @@ def test_authentication_middleware():
     try:
         # Test with invalid token
         headers = {"Authorization": "Bearer invalid-token"}
-        response = requests.get(f"{API_BASE}/projects", headers=headers, timeout=10)
+        response = requests.get(f"{API_BASE}/projects/", headers=headers, timeout=10)  # Added trailing slash
         
         if response.status_code == 401:
             results.add_pass("Authentication Middleware - Invalid token rejected")
