@@ -724,6 +724,7 @@ test_plan:
   current_focus:
     - "Add parseLayoutFile function to layoutService"
     - "Integrate real parsing API in HybridLayoutCreator"
+    - "Frontend E2E testing of Hybrid Layout Creator workflow"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
