@@ -59,6 +59,18 @@ class TestResults:
 
 results = TestResults()
 
+def print_error_details(test_name, response):
+    """Print detailed error information"""
+    print(f"\n🔍 DETAILED ERROR ANALYSIS for {test_name}:")
+    print(f"   Status Code: {response.status_code}")
+    print(f"   Headers: {dict(response.headers)}")
+    try:
+        error_data = response.json()
+        print(f"   Response JSON: {json.dumps(error_data, indent=2)}")
+    except:
+        print(f"   Response Text: {response.text}")
+    print("   " + "=" * 60)
+
 def test_health_check():
     """Test if the API is running"""
     try:
