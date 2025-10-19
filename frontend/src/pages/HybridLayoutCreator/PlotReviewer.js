@@ -4,19 +4,31 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { ArrowLeft, Save, Edit2, Trash2, Check, X, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Save, Edit2, Trash2, Check, X, AlertCircle, DollarSign, Plus, Upload, Download } from 'lucide-react';
 import { toast } from 'sonner';
 
 const methodNames = {
   dxf: { title: 'DXF/DWG', accuracy: '100%' },
   svg: { title: 'SVG', accuracy: '95%' },
   pdf_vector: { title: 'PDF Vector', accuracy: '80%' },
-  cv_ocr: { title: 'AI/OCR', accuracy: '60-70%' }
+  cv_ocr: { title: 'AI/OCR', accuracy: '60-70%' },
+  pdf: { title: 'PDF', accuracy: '80%' },
+  ai_ocr: { title: 'AI/OCR', accuracy: '60-70%' }
 };
 
 const PlotReviewer = ({ detectedPlots, setDetectedPlots, selectedMethod, saving, onSave, onBack }) => {
   const [editingPlot, setEditingPlot] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showBulkPriceModal, setShowBulkPriceModal] = useState(false);
+  const [bulkPrice, setBulkPrice] = useState('');
+  const [showAddPlotModal, setShowAddPlotModal] = useState(false);
+  const [newPlot, setNewPlot] = useState({
+    display_name: '',
+    block: 'A',
+    area: '',
+    price: '',
+    status: 'available'
+  });
 
   const method = methodNames[selectedMethod] || {};
   const plotsWithPrice = detectedPlots.filter(p => p.price && p.price > 0).length;
