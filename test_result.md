@@ -105,6 +105,30 @@
 user_problem_statement: "Build Layout Upload & Editor Tool for RETOERP SaaS multi-tenant system. This system should allow tenants to create reusable layout libraries (for Ventures, Apartments, Open Lands, Farm Lands) that can be assigned to multiple projects. Super Admin should be able to create global templates. The tool should support PDF/SVG upload, interactive plot marking with 4-point boundary selection, and storing layout data in a master layouts collection separate from projects."
 
 backend:
+  - task: "Create DXF, SVG, PDF, and AI/OCR parsers"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/services/dxf_parser.py, /app/backend/services/svg_parser.py, /app/backend/services/pdf_parser.py, /app/backend/services/cv_ocr_parser.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Implemented 4 parser services: (1) DXFParser - extracts plot boundaries from AutoCAD DXF/DWG files using ezdxf, parses polylines/polygons, matches text labels to plots, calculates areas. (2) SVGParser - extracts plots from SVG files using BeautifulSoup, parses rects/polygons/paths, matches text to centroids. (3) PDFParser - handles both vector and raster PDFs using PyMuPDF, detects PDF type, extracts vector paths or flags for OCR. (4) CVOCRParser - uses OpenCV and Tesseract OCR for image-based layouts and scanned PDFs, contour detection, edge detection fallback. All parsers return plots with coordinates, areas, text labels, and confidence scores."
+  
+  - task: "Create API endpoint for file parsing"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/routes/layouts_library.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Added POST /layouts/parse-file endpoint that accepts file upload and parse_method parameter. Supports parse methods: 'dxf', 'svg', 'pdf', 'ai_ocr'. Validates file extensions, saves files temporarily, calls appropriate parser based on method, returns detected plots with coordinates, metadata, and confidence scores. Handles automatic fallback to OCR for raster PDFs. Returns file_url for later use in layout creation."
+
   - task: "Create MasterLayout and ProjectLayout models with new architecture"
     implemented: true
     working: true
