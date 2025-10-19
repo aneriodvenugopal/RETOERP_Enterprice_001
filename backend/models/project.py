@@ -38,7 +38,7 @@ class Project(BaseModel):
     
     # Pricing
     price_per_unit: Optional[float] = None  # Base price
-    currency_id: str
+    currency_id: Optional[str] = None  # Make optional for backward compatibility
     
     # Media
     images: list[str] = []  # Image URLs
