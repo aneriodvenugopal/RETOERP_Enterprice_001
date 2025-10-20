@@ -68,38 +68,38 @@ const Home = () => {
       </section>
 
       {/* Problem Section */}
-      <section className="py-20 bg-gray-900/50">
+      <section className="py-20 bg-gray-50">
         <div className="container mx-auto px-6">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-white mb-4">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">
               The Real Estate Problem
             </h2>
-            <p className="text-xl text-gray-300">
+            <p className="text-xl text-gray-600">
               Traditional real estate operations lose money every day
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-red-900/30 backdrop-blur-md rounded-lg p-8 border border-red-500/30">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            <div className="bg-white rounded-xl p-8 shadow-md border border-red-100">
               <div className="text-5xl mb-4">📉</div>
-              <h3 className="text-xl font-bold text-white mb-3">Lead Leakage</h3>
-              <p className="text-gray-300">
+              <h3 className="text-xl font-bold text-gray-900 mb-3">Lead Leakage</h3>
+              <p className="text-gray-600">
                 Losing qualified leads due to poor follow-up and manual processes
               </p>
             </div>
             
-            <div className="bg-red-900/30 backdrop-blur-md rounded-lg p-8 border border-red-500/30">
+            <div className="bg-white rounded-xl p-8 shadow-md border border-red-100">
               <div className="text-5xl mb-4">⏰</div>
-              <h3 className="text-xl font-bold text-white mb-3">Slow Processes</h3>
-              <p className="text-gray-300">
+              <h3 className="text-xl font-bold text-gray-900 mb-3">Slow Processes</h3>
+              <p className="text-gray-600">
                 Manual work, delayed payments, and inefficient operations
               </p>
             </div>
             
-            <div className="bg-red-900/30 backdrop-blur-md rounded-lg p-8 border border-red-500/30">
+            <div className="bg-white rounded-xl p-8 shadow-md border border-red-100">
               <div className="text-5xl mb-4">💸</div>
-              <h3 className="text-xl font-bold text-white mb-3">Revenue Loss</h3>
-              <p className="text-gray-300">
+              <h3 className="text-xl font-bold text-gray-900 mb-3">Revenue Loss</h3>
+              <p className="text-gray-600">
                 Missing commissions, payment delays, and poor customer experience
               </p>
             </div>
