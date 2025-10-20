@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { MessageSquare } from 'lucide-react';
+import LanguageSelector from '../../components/LanguageSelector';
 
 const Home = () => {
   const navigate = useNavigate();
