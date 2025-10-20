@@ -105,6 +105,42 @@
 user_problem_statement: "Build a modern Marketing Website for RETOERP with multi-language support (English, Telugu, Hindi). The website should include: (1) Home page with hero section, features, problem/solution, ecosystem overview, and email subscription, (2) Pricing page with 3 tiered plans (Starter ₹9,999, Professional ₹24,999, Enterprise ₹49,999) including SMS/Email credits and monthly/yearly billing toggle, (3) About page showcasing 10 years of experience and company story, (4) Features page detailing all platform capabilities, (5) Contact page with form and company information, (6) AI-powered translation service using OpenAI GPT-5 to translate UI text from English to Telugu and Hindi dynamically."
 
 backend:
+  - task: "Create AI-powered translation service using OpenAI GPT-5"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/services/translation_service.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Implemented TranslationService using emergentintegrations library with OpenAI GPT-5. Features: (1) translate_text() for single text translation, (2) translate_batch() for multiple texts, (3) Supports Telugu and Hindi translation, (4) In-memory caching to avoid repeated API calls, (5) Graceful fallback to original text on errors. Uses EMERGENT_LLM_KEY from environment variables."
+  
+  - task: "Create translation API routes"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/routes/translations.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Created 3 translation endpoints: (1) POST /api/translations/translate - translate single text, (2) POST /api/translations/translate-batch - translate multiple texts, (3) GET /api/translations/languages - get supported languages list. All endpoints validate language support (telugu, hindi) and return proper error messages."
+  
+  - task: "Install emergentintegrations and register translation routes"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Installed emergentintegrations library, added EMERGENT_LLM_KEY to .env file, registered translations.router in server.py. Backend restarted successfully."
+  
   - task: "Create DXF, SVG, PDF, and AI/OCR parsers"
     implemented: true
     working: true
