@@ -39,6 +39,7 @@ import Contact from "./pages/marketing/Contact";
 
 // Content Pages
 import ContentLibrary from "./pages/content/ContentLibrary";
+import ArticleDetail from "./pages/content/ArticleDetail";
 
 function App() {
   return (
