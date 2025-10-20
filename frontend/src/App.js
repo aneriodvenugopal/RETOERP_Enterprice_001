@@ -3,6 +3,7 @@ import "@/App.css";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import { CurrencyProvider } from "./contexts/CurrencyContext";
+import { LanguageProvider } from "./contexts/LanguageContext";
 import { Toaster } from "sonner";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -28,6 +29,13 @@ import PrivateRoute from "./components/PrivateRoute";
 import PWALogin from "./pages/pwa/PWALogin";
 import PWADashboard from "./pages/pwa/PWADashboard";
 import PWANotifications from "./pages/pwa/PWANotifications";
+
+// Marketing Pages
+import Home from "./pages/marketing/Home";
+import Pricing from "./pages/marketing/Pricing";
+import About from "./pages/marketing/About";
+import Features from "./pages/marketing/Features";
+import Contact from "./pages/marketing/Contact";
 
 function App() {
   return (
