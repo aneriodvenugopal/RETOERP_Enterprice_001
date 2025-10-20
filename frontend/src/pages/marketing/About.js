@@ -30,7 +30,8 @@ const About = () => {
               Get Started
             </Link>
           </div>
-        </header>
+        </div>
+      </header>
 
       {/* Hero Section */}
       <section className="container mx-auto px-6 py-16">
