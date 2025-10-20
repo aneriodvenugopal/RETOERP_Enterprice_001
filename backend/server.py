@@ -56,6 +56,7 @@ api_router.include_router(layouts_library.router)
 api_router.include_router(referrals.router)
 api_router.include_router(translations.router)
 api_router.include_router(content.router)
+api_router.include_router(advisory.router)
 
 # Include the router in the main app
 app.include_router(api_router)
