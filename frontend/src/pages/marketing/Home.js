@@ -298,7 +298,7 @@ const Home = () => {
             </div>
             
             <div>
-              <h4 className="text-lg font-semibold text-white mb-3">Product</h4>
+              <h4 className="text-lg font-semibold text-gray-900 mb-3">Product</h4>
               <ul className="space-y-2">
                 <li><Link to="/features" className="text-gray-400 hover:text-cyan-400">Features</Link></li>
                 <li><Link to="/pricing" className="text-gray-400 hover:text-cyan-400">Pricing</Link></li>
@@ -307,14 +307,14 @@ const Home = () => {
             </div>
             
             <div>
-              <h4 className="text-lg font-semibold text-white mb-3">Company</h4>
+              <h4 className="text-lg font-semibold text-gray-900 mb-3">Company</h4>
               <ul className="space-y-2">
                 <li><Link to="/about" className="text-gray-400 hover:text-cyan-400">About Us</Link></li>
               </ul>
             </div>
             
             <div>
-              <h4 className="text-lg font-semibold text-white mb-3">Get Started</h4>
+              <h4 className="text-lg font-semibold text-gray-900 mb-3">Get Started</h4>
               <ul className="space-y-2">
                 <li><Link to="/register" className="text-gray-400 hover:text-cyan-400">Sign Up</Link></li>
                 <li><Link to="/login" className="text-gray-400 hover:text-cyan-400">Login</Link></li>
