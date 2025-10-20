@@ -90,67 +90,7 @@ def test_health_check():
         results.add_fail("API Health Check", f"Connection error: {str(e)}")
         return False
 
-def tenant_admin_login():
-    """Login as tenant admin and return auth token"""
-    try:
-        print("\n🔐 LOGGING IN AS TENANT ADMIN (9908290239)...")
-        
-        # Step 1: Send OTP
-        otp_data = {"phone": "9908290239"}
-        response = requests.post(
-            f"{API_BASE}/auth/send-otp",
-            json=otp_data,
-            headers={"Content-Type": "application/json"},
-            timeout=10
-        )
-        
-        if response.status_code != 200:
-            print(f"❌ Failed to send OTP: {response.status_code}")
-            print_error_details("Send OTP", response)
-            return None
-            
-        otp_response = response.json()
-        otp = otp_response.get('otp')
-        
-        if not otp:
-            print(f"❌ No OTP received in response")
-            return None
-            
-        print(f"✅ OTP sent successfully: {otp}")
-        
-        # Step 2: Verify OTP (using the actual OTP received)
-        verify_data = {
-            "phone": "9908290239",
-            "otp": otp  # Use the actual OTP received
-        }
-        
-        response = requests.post(
-            f"{API_BASE}/auth/verify-otp",
-            json=verify_data,
-            headers={"Content-Type": "application/json"},
-            timeout=10
-        )
-        
-        if response.status_code != 200:
-            print(f"❌ Failed to verify OTP: {response.status_code}")
-            print_error_details("Verify OTP", response)
-            return None
-            
-        login_response = response.json()
-        
-        if 'access_token' not in login_response:
-            print(f"❌ No access token in response")
-            return None
-            
-        user = login_response.get('user', {})
-        print(f"✅ Logged in successfully as: {user.get('name')} (Role: {user.get('role')})")
-        
-        return login_response['access_token']
-        
-    except Exception as e:
-        print(f"❌ Login exception: {str(e)}")
-        traceback.print_exc()
-        return None
+# Translation endpoints are PUBLIC - no authentication required
 
 def test_get_projects(auth_token):
     """Test 2: Get list of projects"""
