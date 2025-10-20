@@ -65,6 +65,10 @@ function App() {
                 <Route path="/content/:slug" element={<ArticleDetail />} />
                 <Route path="/learn" element={<ContentLibrary />} />
                 
+                {/* Advisory Routes - Public */}
+                <Route path="/advisory" element={<AdvisoryHub />} />
+                <Route path="/advisory/:category" element={<AdvisoryChat />} />
+                
                 {/* PWA Routes */}
                 <Route path="/pwa/login" element={<PWALogin />} />
                 <Route path="/pwa/dashboard" element={<PWADashboard />} />
