@@ -120,59 +120,53 @@ const ContentLibrary = () => {
               >
                 <div className="bg-white rounded-xl overflow-hidden border border-gray-200 hover:border-blue-400 hover:shadow-xl transition-all duration-300 h-full">
                   {/* Featured Image */}
-                  {article.featured_image && (
-                    <div className="relative h-56 overflow-hidden">
-                      <img
-                        src={article.featured_image}
-                        alt={article.title}
-                        className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                      
-                      {/* Category Badge */}
-                      <div className="absolute top-4 right-4">
-                        <span className="px-4 py-2 bg-white/90 backdrop-blur-sm rounded-full text-sm font-bold text-purple-900 shadow-lg">
-                          {categories.find(c => c.id === article.category_id)?.icon} {categories.find(c => c.id === article.category_id)?.name}
+                  <div className="relative h-48 overflow-hidden bg-gradient-to-br from-blue-100 to-cyan-100">
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className="text-6xl">
+                        {categories.find(c => c.id === article.category_id)?.icon}
+                      </span>
+                    </div>
+                    
+                    {/* Category Badge */}
+                    <div className="absolute top-3 right-3">
+                      <span className="px-3 py-1 bg-white rounded-full text-xs font-semibold text-gray-700 shadow-sm">
+                        {categories.find(c => c.id === article.category_id)?.name}
+                      </span>
+                    </div>
+
+                    {/* Trending Badge */}
+                    {article.view_count > 100 && (
+                      <div className="absolute top-3 left-3">
+                        <span className="px-2 py-1 bg-blue-600 rounded-full text-xs font-bold text-white shadow-sm flex items-center">
+                          <TrendingUp className="w-3 h-3 mr-1" />
+                          Trending
                         </span>
                       </div>
-
-                      {/* Trending Badge */}
-                      {article.view_count > 100 && (
-                        <div className="absolute top-4 left-4">
-                          <span className="px-3 py-1 bg-gradient-to-r from-pink-500 to-orange-500 rounded-full text-xs font-bold text-white shadow-lg flex items-center">
-                            <TrendingUp className="w-4 h-4 mr-1" />
-                            Trending
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  )}
+                    )}
+                  </div>
 
                   {/* Content */}
-                  <div className="p-6">
-                    <h2 className="text-2xl font-bold text-white mb-3 group-hover:text-pink-300 transition-colors">
+                  <div className="p-5">
+                    <h2 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors line-clamp-2">
                       {article.title}
                     </h2>
-                    <p className="text-white/80 mb-4 line-clamp-2">
+                    <p className="text-gray-600 mb-4 line-clamp-2 text-sm">
                       {article.excerpt}
                     </p>
 
                     {/* Meta Info */}
-                    <div className="flex items-center justify-between text-white/60 text-sm">
-                      <div className="flex items-center space-x-4">
+                    <div className="flex items-center justify-between text-gray-500 text-xs pt-4 border-t">
+                      <div className="flex items-center space-x-3">
                         <span className="flex items-center">
-                          <Clock className="w-4 h-4 mr-1" />
+                          <Clock className="w-3 h-3 mr-1" />
                           {article.reading_time} min
                         </span>
                         <span className="flex items-center">
-                          <Eye className="w-4 h-4 mr-1" />
+                          <Eye className="w-3 h-3 mr-1" />
                           {article.view_count}
                         </span>
-                        <span className="flex items-center">
-                          <Share2 className="w-4 h-4 mr-1" />
-                          {article.share_count}
-                        </span>
                       </div>
+                      <span className="text-blue-600 font-medium">Read →</span>
                     </div>
                   </div>
                 </div>
