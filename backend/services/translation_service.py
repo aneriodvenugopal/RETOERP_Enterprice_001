@@ -6,8 +6,11 @@ import os
 import asyncio
 from emergentintegrations.llm.chat import LlmChat, UserMessage
 from dotenv import load_dotenv
+from pathlib import Path
 
-load_dotenv()
+# Load environment variables from the correct path
+ROOT_DIR = Path(__file__).parent.parent
+load_dotenv(ROOT_DIR / '.env')
 
 class TranslationService:
     def __init__(self):
