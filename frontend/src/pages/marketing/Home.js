@@ -291,8 +291,8 @@ const Home = () => {
         <div className="container mx-auto px-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
-              <h3 className="text-xl font-bold text-white mb-4">RETOERP</h3>
-              <p className="text-gray-400">
+              <h3 className="text-xl font-bold text-gray-900 mb-4">RETOERP</h3>
+              <p className="text-gray-600">
                 Transforming real estate operations with AI and automation
               </p>
             </div>
