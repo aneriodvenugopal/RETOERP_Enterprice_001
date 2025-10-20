@@ -307,6 +307,7 @@ const Home = () => {
               <ul className="space-y-2">
                 <li><Link to="/features" className="text-gray-400 hover:text-cyan-400">Features</Link></li>
                 <li><Link to="/pricing" className="text-gray-400 hover:text-cyan-400">Pricing</Link></li>
+                <li><Link to="/content" className="text-gray-400 hover:text-cyan-400">Knowledge Hub</Link></li>
               </ul>
             </div>
             
