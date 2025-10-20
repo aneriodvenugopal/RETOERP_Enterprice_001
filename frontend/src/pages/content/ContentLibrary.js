@@ -100,26 +100,25 @@ const ContentLibrary = () => {
       </header>
 
       {/* Articles Grid */}
-      <section className="relative z-10 container mx-auto px-6 pb-20">
+      <section className="container mx-auto px-6 py-12">
         {loading ? (
-          <div className="text-center text-white text-2xl py-20">
-            <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-white mx-auto"></div>
+          <div className="text-center text-gray-600 text-xl py-20">
+            <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-600 mx-auto"></div>
             <p className="mt-4">Loading amazing content...</p>
           </div>
         ) : articles.length === 0 ? (
-          <div className="text-center text-white text-2xl py-20">
+          <div className="text-center text-gray-600 text-xl py-20">
             <p>No articles found. Check back soon!</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {articles.map((article, index) => (
               <Link
                 key={article.id}
                 to={`/content/${article.slug}`}
-                className="group animate-fadeInUp"
-                style={{ animationDelay: `${index * 100}ms` }}
+                className="group"
               >
-                <div className="bg-white/10 backdrop-blur-xl rounded-3xl overflow-hidden border border-white/20 hover:border-white/40 transition-all duration-500 transform hover:-translate-y-2 hover:shadow-2xl hover:shadow-purple-500/50">
+                <div className="bg-white rounded-xl overflow-hidden border border-gray-200 hover:border-blue-400 hover:shadow-xl transition-all duration-300 h-full">
                   {/* Featured Image */}
                   {article.featured_image && (
                     <div className="relative h-56 overflow-hidden">
