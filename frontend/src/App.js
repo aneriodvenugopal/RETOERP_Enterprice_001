@@ -36,6 +36,12 @@ function App() {
         <div className="App">
           <BrowserRouter>
             <Routes>
+              {/* PWA Routes */}
+              <Route path="/pwa/login" element={<PWALogin />} />
+              <Route path="/pwa/dashboard" element={<PWADashboard />} />
+              <Route path="/pwa/notifications" element={<PWANotifications />} />
+              
+              {/* Regular Web Routes */}
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route
