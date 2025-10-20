@@ -55,6 +55,10 @@ function App() {
                 <Route path="/features" element={<Features />} />
                 <Route path="/contact" element={<Contact />} />
                 
+                {/* Content Routes - Public */}
+                <Route path="/content" element={<ContentLibrary />} />
+                <Route path="/learn" element={<ContentLibrary />} />
+                
                 {/* PWA Routes */}
                 <Route path="/pwa/login" element={<PWALogin />} />
                 <Route path="/pwa/dashboard" element={<PWADashboard />} />
