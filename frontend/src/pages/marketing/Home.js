@@ -316,7 +316,7 @@ const Home = () => {
             <div>
               <h4 className="text-lg font-semibold text-gray-900 mb-3">Get Started</h4>
               <ul className="space-y-2">
-                <li><Link to="/register" className="text-gray-400 hover:text-cyan-400">Sign Up</Link></li>
+                <li><Link to="/register" className="text-gray-600 hover:text-blue-600">Sign Up</Link></li>
                 <li><Link to="/login" className="text-gray-400 hover:text-cyan-400">Login</Link></li>
               </ul>
             </div>
