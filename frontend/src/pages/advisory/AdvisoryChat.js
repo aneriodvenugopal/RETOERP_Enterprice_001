@@ -65,7 +65,7 @@ const AdvisoryChat = () => {
   const [leadData, setLeadData] = useState({ name: '', email: '', phone: '' });
 
   if (!config) {
-    return <div className=\"p-8 text-center\">Invalid advisory category</div>;
+    return <div className="p-8 text-center">Invalid advisory category</div>;
   }
 
   const handleInputChange = (key, value) => {
