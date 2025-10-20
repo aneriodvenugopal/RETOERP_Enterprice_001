@@ -227,9 +227,21 @@ const PWALogin = () => {
               </button>
               
               <h2 className="text-2xl font-bold text-gray-900 mb-2">Verify OTP</h2>
-              <p className="text-gray-600 mb-6">
+              <p className="text-gray-600 mb-2">
                 Enter the OTP sent to +91 {phone}
               </p>
+              
+              {/* Show OTP in Development */}
+              {devOTP && (
+                <div className="mb-4 p-4 bg-green-100 border-2 border-green-500 rounded-xl">
+                  <p className="text-sm text-green-800 font-semibold mb-1">
+                    🔓 Development Mode - OTP:
+                  </p>
+                  <p className="text-3xl font-bold text-green-900 text-center tracking-wider">
+                    {devOTP}
+                  </p>
+                </div>
+              )}
               
               <div className="mb-6">
                 <input
