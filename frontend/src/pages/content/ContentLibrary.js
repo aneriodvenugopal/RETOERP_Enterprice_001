@@ -44,35 +44,29 @@ const ContentLibrary = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-pink-800 to-blue-900 relative overflow-hidden">
-      {/* Animated Background Blobs */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-96 h-96 bg-pink-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob" />
-        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000" />
-        <div className="absolute top-1/2 left-1/2 w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000" />
-      </div>
-
+    <div className="min-h-screen bg-gray-50">
       {/* Language Selector */}
       <div className="fixed top-6 right-6 z-50">
         <LanguageSelector />
       </div>
 
       {/* Header */}
-      <header className="relative z-10 container mx-auto px-6 py-12">
-        <div className="text-center mb-12">
-          <Link to="/" className="inline-block mb-6 text-white/80 hover:text-white transition-colors">
-            ← Back to Home
-          </Link>
-          <h1 className="text-6xl font-bold text-white mb-6 animate-fadeInUp">
-            Real Estate Growth
-            <span className="block bg-gradient-to-r from-pink-400 via-purple-400 to-blue-400 bg-clip-text text-transparent">
-              Knowledge Hub
-            </span>
-          </h1>
-          <p className="text-2xl text-white/90 max-w-3xl mx-auto animate-fadeInUp animation-delay-200">
-            Learn how to grow your real estate business 40X faster
-          </p>
-        </div>
+      <header className="bg-white border-b">
+        <div className="container mx-auto px-6 py-12">
+          <div className="text-center mb-8">
+            <Link to="/" className="inline-block mb-6 text-gray-600 hover:text-blue-600 transition-colors font-medium">
+              ← Back to Home
+            </Link>
+            <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-4">
+              Real Estate Growth
+              <span className="block text-blue-600 mt-2">
+                Knowledge Hub
+              </span>
+            </h1>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Learn how to grow your real estate business 40X faster with proven strategies
+            </p>
+          </div>
 
         {/* Category Filter */}
         <div className="flex flex-wrap justify-center gap-4 mb-12">
