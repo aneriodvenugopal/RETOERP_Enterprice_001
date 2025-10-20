@@ -44,7 +44,22 @@ const PWALogin = () => {
     setLoading(true);
     try {
       const response = await authService.sendOTP(phone);
-      toast.success('OTP sent successfully!');
+      
+      // Show OTP in development
+      if (response.otp) {
+        toast.success(`OTP sent! Dev OTP: ${response.otp}`, {
+          duration: 10000,
+          style: {
+            background: '#10b981',
+            color: 'white',
+            fontSize: '16px',
+            fontWeight: 'bold'
+          }
+        });
+      } else {
+        toast.success('OTP sent successfully!');
+      }
+      
       setStep(2);
       setTimer(60); // 60 seconds resend timer
     } catch (error) {
