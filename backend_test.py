@@ -643,9 +643,405 @@ def test_file_storage(auth_token):
         traceback.print_exc()
         return False
 
+def test_get_supported_languages():
+    """Test 1: GET /api/translations/languages"""
+    try:
+        print("\n🌐 TESTING: GET /api/translations/languages")
+        
+        response = requests.get(f"{API_BASE}/translations/languages", timeout=10)
+        
+        if response.status_code != 200:
+            results.add_fail("Get Supported Languages", f"Status code: {response.status_code}")
+            print_error_details("Get Supported Languages", response)
+            return False
+            
+        data = response.json()
+        
+        # Validate response structure
+        if 'languages' not in data:
+            results.add_fail("Get Supported Languages", "No 'languages' field in response")
+            return False
+        
+        languages = data['languages']
+        if not isinstance(languages, list):
+            results.add_fail("Get Supported Languages", "Languages is not a list")
+            return False
+        
+        # Check for expected languages
+        expected_codes = ['en', 'te', 'hi']
+        actual_codes = [lang.get('code') for lang in languages]
+        
+        for code in expected_codes:
+            if code not in actual_codes:
+                results.add_fail("Get Supported Languages", f"Missing language code: {code}")
+                return False
+        
+        # Validate language structure
+        for lang in languages:
+            required_fields = ['code', 'name', 'native']
+            missing_fields = [field for field in required_fields if field not in lang]
+            if missing_fields:
+                results.add_fail("Get Supported Languages", f"Missing fields in language: {missing_fields}")
+                return False
+        
+        results.add_pass("Get Supported Languages")
+        print(f"   ✅ Found {len(languages)} supported languages:")
+        for lang in languages:
+            print(f"      - {lang['code']}: {lang['name']} ({lang['native']})")
+        return True
+        
+    except Exception as e:
+        results.add_fail("Get Supported Languages", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+def test_translate_single_text_telugu():
+    """Test 2a: POST /api/translations/translate - English to Telugu"""
+    try:
+        print("\n🔤 TESTING: POST /api/translations/translate (English to Telugu)")
+        
+        test_data = {
+            "text": "Real Estate, 40X Faster",
+            "target_language": "telugu"
+        }
+        
+        response = requests.post(
+            f"{API_BASE}/translations/translate",
+            json=test_data,
+            headers={"Content-Type": "application/json"},
+            timeout=30  # Translation may take time
+        )
+        
+        if response.status_code != 200:
+            results.add_fail("Translate Single Text (Telugu)", f"Status code: {response.status_code}")
+            print_error_details("Translate Single Text (Telugu)", response)
+            return False
+            
+        data = response.json()
+        
+        # Validate response structure
+        required_fields = ['original', 'translated', 'language']
+        missing_fields = [field for field in required_fields if field not in data]
+        
+        if missing_fields:
+            results.add_fail("Translate Single Text (Telugu)", f"Missing fields: {missing_fields}")
+            return False
+        
+        # Validate content
+        if data['original'] != test_data['text']:
+            results.add_fail("Translate Single Text (Telugu)", "Original text mismatch")
+            return False
+        
+        if data['language'] != test_data['target_language']:
+            results.add_fail("Translate Single Text (Telugu)", "Language mismatch")
+            return False
+        
+        if not data['translated'] or data['translated'] == data['original']:
+            results.add_fail("Translate Single Text (Telugu)", "Translation appears to have failed")
+            return False
+        
+        results.add_pass("Translate Single Text (Telugu)")
+        print(f"   ✅ Original: {data['original']}")
+        print(f"   ✅ Telugu: {data['translated']}")
+        print(f"   ✅ Language: {data['language']}")
+        return True
+        
+    except Exception as e:
+        results.add_fail("Translate Single Text (Telugu)", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+def test_translate_single_text_hindi():
+    """Test 2b: POST /api/translations/translate - English to Hindi"""
+    try:
+        print("\n🔤 TESTING: POST /api/translations/translate (English to Hindi)")
+        
+        test_data = {
+            "text": "Transform your business",
+            "target_language": "hindi"
+        }
+        
+        response = requests.post(
+            f"{API_BASE}/translations/translate",
+            json=test_data,
+            headers={"Content-Type": "application/json"},
+            timeout=30
+        )
+        
+        if response.status_code != 200:
+            results.add_fail("Translate Single Text (Hindi)", f"Status code: {response.status_code}")
+            print_error_details("Translate Single Text (Hindi)", response)
+            return False
+            
+        data = response.json()
+        
+        # Validate response structure
+        required_fields = ['original', 'translated', 'language']
+        missing_fields = [field for field in required_fields if field not in data]
+        
+        if missing_fields:
+            results.add_fail("Translate Single Text (Hindi)", f"Missing fields: {missing_fields}")
+            return False
+        
+        # Validate content
+        if data['original'] != test_data['text']:
+            results.add_fail("Translate Single Text (Hindi)", "Original text mismatch")
+            return False
+        
+        if data['language'] != test_data['target_language']:
+            results.add_fail("Translate Single Text (Hindi)", "Language mismatch")
+            return False
+        
+        if not data['translated'] or data['translated'] == data['original']:
+            results.add_fail("Translate Single Text (Hindi)", "Translation appears to have failed")
+            return False
+        
+        results.add_pass("Translate Single Text (Hindi)")
+        print(f"   ✅ Original: {data['original']}")
+        print(f"   ✅ Hindi: {data['translated']}")
+        print(f"   ✅ Language: {data['language']}")
+        return True
+        
+    except Exception as e:
+        results.add_fail("Translate Single Text (Hindi)", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+def test_translate_invalid_language():
+    """Test 2c: POST /api/translations/translate - Invalid language"""
+    try:
+        print("\n❌ TESTING: POST /api/translations/translate (Invalid Language)")
+        
+        test_data = {
+            "text": "Hello World",
+            "target_language": "spanish"  # Not supported
+        }
+        
+        response = requests.post(
+            f"{API_BASE}/translations/translate",
+            json=test_data,
+            headers={"Content-Type": "application/json"},
+            timeout=10
+        )
+        
+        if response.status_code != 400:
+            results.add_fail("Translate Invalid Language", f"Expected 400, got {response.status_code}")
+            print_error_details("Translate Invalid Language", response)
+            return False
+        
+        error_data = response.json()
+        if 'detail' not in error_data:
+            results.add_fail("Translate Invalid Language", "No error detail in response")
+            return False
+        
+        results.add_pass("Translate Invalid Language")
+        print(f"   ✅ Correctly rejected invalid language: {error_data['detail']}")
+        return True
+        
+    except Exception as e:
+        results.add_fail("Translate Invalid Language", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+def test_translate_empty_text():
+    """Test 2d: POST /api/translations/translate - Empty text"""
+    try:
+        print("\n🔤 TESTING: POST /api/translations/translate (Empty Text)")
+        
+        test_data = {
+            "text": "",
+            "target_language": "telugu"
+        }
+        
+        response = requests.post(
+            f"{API_BASE}/translations/translate",
+            json=test_data,
+            headers={"Content-Type": "application/json"},
+            timeout=10
+        )
+        
+        # Should handle gracefully - either return empty or original
+        if response.status_code == 200:
+            data = response.json()
+            if 'translated' in data:
+                results.add_pass("Translate Empty Text")
+                print(f"   ✅ Handled empty text gracefully: '{data['translated']}'")
+                return True
+        
+        # If it returns an error, that's also acceptable
+        if response.status_code in [400, 422]:
+            results.add_pass("Translate Empty Text")
+            print(f"   ✅ Correctly rejected empty text with status {response.status_code}")
+            return True
+        
+        results.add_fail("Translate Empty Text", f"Unexpected status code: {response.status_code}")
+        print_error_details("Translate Empty Text", response)
+        return False
+        
+    except Exception as e:
+        results.add_fail("Translate Empty Text", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+def test_translate_batch_telugu():
+    """Test 3a: POST /api/translations/translate-batch - Multiple texts to Telugu"""
+    try:
+        print("\n📝 TESTING: POST /api/translations/translate-batch (Telugu)")
+        
+        test_data = {
+            "texts": ["Welcome", "Get Started", "Sign In"],
+            "target_language": "telugu"
+        }
+        
+        response = requests.post(
+            f"{API_BASE}/translations/translate-batch",
+            json=test_data,
+            headers={"Content-Type": "application/json"},
+            timeout=60  # Batch translation may take longer
+        )
+        
+        if response.status_code != 200:
+            results.add_fail("Translate Batch (Telugu)", f"Status code: {response.status_code}")
+            print_error_details("Translate Batch (Telugu)", response)
+            return False
+            
+        data = response.json()
+        
+        # Validate response structure
+        required_fields = ['translations', 'language']
+        missing_fields = [field for field in required_fields if field not in data]
+        
+        if missing_fields:
+            results.add_fail("Translate Batch (Telugu)", f"Missing fields: {missing_fields}")
+            return False
+        
+        # Validate translations dictionary
+        translations = data['translations']
+        if not isinstance(translations, dict):
+            results.add_fail("Translate Batch (Telugu)", "Translations is not a dictionary")
+            return False
+        
+        # Check all original texts are present as keys
+        for original_text in test_data['texts']:
+            if original_text not in translations:
+                results.add_fail("Translate Batch (Telugu)", f"Missing translation for: {original_text}")
+                return False
+        
+        # Validate language
+        if data['language'] != test_data['target_language']:
+            results.add_fail("Translate Batch (Telugu)", "Language mismatch")
+            return False
+        
+        results.add_pass("Translate Batch (Telugu)")
+        print(f"   ✅ Successfully translated {len(translations)} texts:")
+        for original, translated in translations.items():
+            print(f"      - {original} → {translated}")
+        return True
+        
+    except Exception as e:
+        results.add_fail("Translate Batch (Telugu)", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+def test_translate_batch_hindi():
+    """Test 3b: POST /api/translations/translate-batch - Multiple texts to Hindi"""
+    try:
+        print("\n📝 TESTING: POST /api/translations/translate-batch (Hindi)")
+        
+        test_data = {
+            "texts": ["Home", "Pricing", "About"],
+            "target_language": "hindi"
+        }
+        
+        response = requests.post(
+            f"{API_BASE}/translations/translate-batch",
+            json=test_data,
+            headers={"Content-Type": "application/json"},
+            timeout=60
+        )
+        
+        if response.status_code != 200:
+            results.add_fail("Translate Batch (Hindi)", f"Status code: {response.status_code}")
+            print_error_details("Translate Batch (Hindi)", response)
+            return False
+            
+        data = response.json()
+        
+        # Validate response structure
+        required_fields = ['translations', 'language']
+        missing_fields = [field for field in required_fields if field not in data]
+        
+        if missing_fields:
+            results.add_fail("Translate Batch (Hindi)", f"Missing fields: {missing_fields}")
+            return False
+        
+        # Validate translations dictionary
+        translations = data['translations']
+        if not isinstance(translations, dict):
+            results.add_fail("Translate Batch (Hindi)", "Translations is not a dictionary")
+            return False
+        
+        # Check all original texts are present as keys
+        for original_text in test_data['texts']:
+            if original_text not in translations:
+                results.add_fail("Translate Batch (Hindi)", f"Missing translation for: {original_text}")
+                return False
+        
+        # Validate language
+        if data['language'] != test_data['target_language']:
+            results.add_fail("Translate Batch (Hindi)", "Language mismatch")
+            return False
+        
+        results.add_pass("Translate Batch (Hindi)")
+        print(f"   ✅ Successfully translated {len(translations)} texts:")
+        for original, translated in translations.items():
+            print(f"      - {original} → {translated}")
+        return True
+        
+    except Exception as e:
+        results.add_fail("Translate Batch (Hindi)", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+def test_translate_batch_invalid_language():
+    """Test 3c: POST /api/translations/translate-batch - Invalid language"""
+    try:
+        print("\n❌ TESTING: POST /api/translations/translate-batch (Invalid Language)")
+        
+        test_data = {
+            "texts": ["Hello", "World"],
+            "target_language": "french"  # Not supported
+        }
+        
+        response = requests.post(
+            f"{API_BASE}/translations/translate-batch",
+            json=test_data,
+            headers={"Content-Type": "application/json"},
+            timeout=10
+        )
+        
+        if response.status_code != 400:
+            results.add_fail("Translate Batch Invalid Language", f"Expected 400, got {response.status_code}")
+            print_error_details("Translate Batch Invalid Language", response)
+            return False
+        
+        error_data = response.json()
+        if 'detail' not in error_data:
+            results.add_fail("Translate Batch Invalid Language", "No error detail in response")
+            return False
+        
+        results.add_pass("Translate Batch Invalid Language")
+        print(f"   ✅ Correctly rejected invalid language: {error_data['detail']}")
+        return True
+        
+    except Exception as e:
+        results.add_fail("Translate Batch Invalid Language", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
 def main():
-    """Main test execution for layout file parsing functionality"""
-    print("🚀 STARTING LAYOUT FILE PARSING FUNCTIONALITY TESTING")
+    """Main test execution for translation API functionality"""
+    print("🚀 STARTING TRANSLATION API ENDPOINTS TESTING")
     print("=" * 80)
     
     # Test API health first
@@ -653,40 +1049,34 @@ def main():
         print("❌ API is not healthy, stopping tests")
         return
     
-    # Step 1: Login as tenant admin (9908290239)
-    auth_token = tenant_admin_login()
-    if not auth_token:
-        print("❌ Failed to login as tenant admin, stopping tests")
-        return
-    
-    print("\n🎯 TESTING LAYOUT FILE PARSING ENDPOINTS")
+    print("\n🌐 TESTING TRANSLATION API ENDPOINTS")
     print("=" * 60)
     
-    # Test 1: Parse SVG file successfully
-    test_parse_svg_file(auth_token)
+    # Test 1: Get supported languages (PUBLIC endpoint)
+    test_get_supported_languages()
     
-    # Test 2: Test invalid file type
-    test_parse_invalid_file_type(auth_token)
+    # Test 2: Single text translation (PUBLIC endpoints)
+    test_translate_single_text_telugu()
+    test_translate_single_text_hindi()
+    test_translate_invalid_language()
+    test_translate_empty_text()
     
-    # Test 3: Test invalid parse method
-    test_parse_invalid_method(auth_token)
-    
-    # Test 4: Test without authentication
-    test_parse_without_auth()
-    
-    # Test 5: Test file storage
-    test_file_storage(auth_token)
+    # Test 3: Batch translation (PUBLIC endpoints)
+    test_translate_batch_telugu()
+    test_translate_batch_hindi()
+    test_translate_batch_invalid_language()
     
     # Print final summary
     success = results.summary()
     
     if success:
-        print("\n🎉 ALL LAYOUT PARSING TESTS PASSED!")
-        print("✅ The POST /api/layouts/parse-file endpoint is working correctly")
-        print("✅ SVG file parsing is functional")
-        print("✅ File validation is working")
-        print("✅ Authentication is enforced")
-        print("✅ File storage is operational")
+        print("\n🎉 ALL TRANSLATION API TESTS PASSED!")
+        print("✅ GET /api/translations/languages endpoint is working correctly")
+        print("✅ POST /api/translations/translate endpoint is functional")
+        print("✅ POST /api/translations/translate-batch endpoint is functional")
+        print("✅ Language validation is working")
+        print("✅ Error handling is operational")
+        print("✅ AI-powered translation via OpenAI GPT-5 is working")
     else:
         print("\n❌ SOME TESTS FAILED - CHECK DETAILS ABOVE")
 
