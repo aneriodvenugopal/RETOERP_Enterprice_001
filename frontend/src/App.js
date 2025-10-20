@@ -41,6 +41,10 @@ import Contact from "./pages/marketing/Contact";
 import ContentLibrary from "./pages/content/ContentLibrary";
 import ArticleDetail from "./pages/content/ArticleDetail";
 
+// Advisory Pages
+import AdvisoryHub from "./pages/advisory/AdvisoryHub";
+import AdvisoryChat from "./pages/advisory/AdvisoryChat";
+
 function App() {
   return (
     <AuthProvider>
