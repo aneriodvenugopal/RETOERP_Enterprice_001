@@ -9,6 +9,7 @@ const PWALogin = () => {
   const [step, setStep] = useState(1); // 1: Phone, 2: OTP
   const [loading, setLoading] = useState(false);
   const [timer, setTimer] = useState(0);
+  const [devOTP, setDevOTP] = useState(''); // Store OTP for display
   const navigate = useNavigate();
 
   useEffect(() => {
