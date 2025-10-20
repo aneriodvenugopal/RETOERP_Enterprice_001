@@ -58,6 +58,7 @@ function App() {
                 
                 {/* Content Routes - Public */}
                 <Route path="/content" element={<ContentLibrary />} />
+                <Route path="/content/:slug" element={<ArticleDetail />} />
                 <Route path="/learn" element={<ContentLibrary />} />
                 
                 {/* PWA Routes */}
