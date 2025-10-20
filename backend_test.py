@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Backend API Testing for RETOERP - Layout File Parsing Functionality Testing
-Tests the new POST /api/layouts/parse-file endpoint with comprehensive test cases.
+Backend API Testing for RETOERP - Translation API Endpoints Testing
+Tests the AI-powered translation service endpoints with comprehensive test cases.
 """
 
 import requests
