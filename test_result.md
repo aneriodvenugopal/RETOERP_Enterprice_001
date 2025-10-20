@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Build Layout Upload & Editor Tool for RETOERP SaaS multi-tenant system. This system should allow tenants to create reusable layout libraries (for Ventures, Apartments, Open Lands, Farm Lands) that can be assigned to multiple projects. Super Admin should be able to create global templates. The tool should support PDF/SVG upload, interactive plot marking with 4-point boundary selection, and storing layout data in a master layouts collection separate from projects."
+user_problem_statement: "Build a modern Marketing Website for RETOERP with multi-language support (English, Telugu, Hindi). The website should include: (1) Home page with hero section, features, problem/solution, ecosystem overview, and email subscription, (2) Pricing page with 3 tiered plans (Starter ₹9,999, Professional ₹24,999, Enterprise ₹49,999) including SMS/Email credits and monthly/yearly billing toggle, (3) About page showcasing 10 years of experience and company story, (4) Features page detailing all platform capabilities, (5) Contact page with form and company information, (6) AI-powered translation service using OpenAI GPT-5 to translate UI text from English to Telugu and Hindi dynamically."
 
 backend:
   - task: "Create DXF, SVG, PDF, and AI/OCR parsers"
