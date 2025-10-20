@@ -190,19 +190,19 @@ const Home = () => {
               <h3 className="text-2xl font-bold text-gray-900 mb-4">For Real Estate Companies</h3>
               <ul className="space-y-3 text-gray-600">
                 <li className="flex items-start">
-                  <span className="text-cyan-400 mr-2">✓</span>
+                  <span className="text-blue-600 mr-2">✓</span>
                   Multi-tenant SaaS architecture
                 </li>
                 <li className="flex items-start">
-                  <span className="text-cyan-400 mr-2">✓</span>
+                  <span className="text-blue-600 mr-2">✓</span>
                   Complete CRM and lead management
                 </li>
                 <li className="flex items-start">
-                  <span className="text-cyan-400 mr-2">✓</span>
+                  <span className="text-blue-600 mr-2">✓</span>
                   Booking and payment automation
                 </li>
                 <li className="flex items-start">
-                  <span className="text-cyan-400 mr-2">✓</span>
+                  <span className="text-blue-600 mr-2">✓</span>
                   Commission tracking and reports
                 </li>
               </ul>
@@ -212,19 +212,19 @@ const Home = () => {
               <h3 className="text-2xl font-bold text-white mb-4">For Customers</h3>
               <ul className="space-y-3 text-gray-200">
                 <li className="flex items-start">
-                  <span className="text-cyan-400 mr-2">✓</span>
+                  <span className="text-blue-600 mr-2">✓</span>
                   Free AI-powered property advisory
                 </li>
                 <li className="flex items-start">
-                  <span className="text-cyan-400 mr-2">✓</span>
+                  <span className="text-blue-600 mr-2">✓</span>
                   Customer portal for bookings & payments
                 </li>
                 <li className="flex items-start">
-                  <span className="text-cyan-400 mr-2">✓</span>
+                  <span className="text-blue-600 mr-2">✓</span>
                   Referral rewards and benefits
                 </li>
                 <li className="flex items-start">
-                  <span className="text-cyan-400 mr-2">✓</span>
+                  <span className="text-blue-600 mr-2">✓</span>
                   Educational content and insights
                 </li>
               </ul>
