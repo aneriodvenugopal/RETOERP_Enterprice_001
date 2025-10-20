@@ -868,9 +868,7 @@ metadata:
   run_ui: false
 
 test_plan:
-  current_focus:
-    - "Translation API endpoints testing (POST /translate, POST /translate-batch, GET /languages)"
-    - "LanguageContext integration with backend translation service"
+  current_focus: []
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
