@@ -208,9 +208,9 @@ const Home = () => {
               </ul>
             </div>
 
-            <div className="bg-white/10 backdrop-blur-md rounded-lg p-8 border border-white/20">
-              <h3 className="text-2xl font-bold text-white mb-4">For Customers</h3>
-              <ul className="space-y-3 text-gray-200">
+            <div className="bg-white rounded-xl p-8 shadow-md border border-gray-100">
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">For Customers</h3>
+              <ul className="space-y-3 text-gray-600">
                 <li className="flex items-start">
                   <span className="text-blue-600 mr-2">✓</span>
                   Free AI-powered property advisory
