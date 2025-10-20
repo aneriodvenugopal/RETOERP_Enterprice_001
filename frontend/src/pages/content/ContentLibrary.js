@@ -68,34 +68,34 @@ const ContentLibrary = () => {
             </p>
           </div>
 
-        {/* Category Filter */}
-        <div className="flex flex-wrap justify-center gap-4 mb-12">
-          <button
-            onClick={() => setSelectedCategory(null)}
-            className={`px-6 py-3 rounded-full font-semibold transition-all transform hover:scale-105 ${
-              selectedCategory === null
-                ? 'bg-white text-purple-900 shadow-lg'
-                : 'bg-white/10 backdrop-blur-md text-white hover:bg-white/20'
-            }`}
-          >
-            <Filter className="inline mr-2 w-5 h-5" />
-            All Articles
-          </button>
-          {categories.map((category) => (
+          {/* Category Filter */}
+          <div className="flex flex-wrap justify-center gap-3">
             <button
-              key={category.id}
-              onClick={() => setSelectedCategory(category.id)}
-              className={`px-6 py-3 rounded-full font-semibold transition-all transform hover:scale-105 ${
-                selectedCategory === category.id
-                  ? 'bg-white text-purple-900 shadow-lg'
-                  : 'bg-white/10 backdrop-blur-md text-white hover:bg-white/20'
+              onClick={() => setSelectedCategory(null)}
+              className={`px-5 py-2 rounded-lg font-medium transition-all ${
+                selectedCategory === null
+                  ? 'bg-blue-600 text-white shadow-md'
+                  : 'bg-white text-gray-700 hover:bg-gray-100 border'
               }`}
-              style={{ borderColor: category.color }}
             >
-              <span className="mr-2">{category.icon}</span>
-              {category.name}
+              <Filter className="inline mr-2 w-4 h-4" />
+              All Articles
             </button>
-          ))}
+            {categories.map((category) => (
+              <button
+                key={category.id}
+                onClick={() => setSelectedCategory(category.id)}
+                className={`px-5 py-2 rounded-lg font-medium transition-all ${
+                  selectedCategory === category.id
+                    ? 'bg-blue-600 text-white shadow-md'
+                    : 'bg-white text-gray-700 hover:bg-gray-100 border'
+                }`}
+              >
+                <span className="mr-2">{category.icon}</span>
+                {category.name}
+              </button>
+            ))}
+          </div>
         </div>
       </header>
 
