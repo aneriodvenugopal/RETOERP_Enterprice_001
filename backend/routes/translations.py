@@ -7,7 +7,7 @@ from pydantic import BaseModel
 from typing import List, Dict
 from services.translation_service import translation_service
 
-router = APIRouter(prefix="/api/translations", tags=["translations"])
+router = APIRouter(prefix="/translations", tags=["translations"])
 
 class TranslateRequest(BaseModel):
     text: str
