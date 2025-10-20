@@ -37,6 +37,9 @@ import About from "./pages/marketing/About";
 import Features from "./pages/marketing/Features";
 import Contact from "./pages/marketing/Contact";
 
+// Content Pages
+import ContentLibrary from "./pages/content/ContentLibrary";
+
 function App() {
   return (
     <AuthProvider>
