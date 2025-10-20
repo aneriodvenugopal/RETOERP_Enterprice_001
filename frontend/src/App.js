@@ -41,17 +41,25 @@ function App() {
   return (
     <AuthProvider>
       <CurrencyProvider>
-        <div className="App">
-          <BrowserRouter>
-            <Routes>
-              {/* PWA Routes */}
-              <Route path="/pwa/login" element={<PWALogin />} />
-              <Route path="/pwa/dashboard" element={<PWADashboard />} />
-              <Route path="/pwa/notifications" element={<PWANotifications />} />
-              
-              {/* Regular Web Routes */}
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
+        <LanguageProvider>
+          <div className="App">
+            <BrowserRouter>
+              <Routes>
+                {/* Marketing Routes - Public */}
+                <Route path="/" element={<Home />} />
+                <Route path="/pricing" element={<Pricing />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/features" element={<Features />} />
+                <Route path="/contact" element={<Contact />} />
+                
+                {/* PWA Routes */}
+                <Route path="/pwa/login" element={<PWALogin />} />
+                <Route path="/pwa/dashboard" element={<PWADashboard />} />
+                <Route path="/pwa/notifications" element={<PWANotifications />} />
+                
+                {/* Auth Routes */}
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
               <Route
                 path="/dashboard"
                 element={
