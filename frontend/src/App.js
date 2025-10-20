@@ -24,6 +24,11 @@ import UsersManagement from "./pages/UsersManagement";
 import CustomerDashboard from "./pages/CustomerDashboard";
 import PrivateRoute from "./components/PrivateRoute";
 
+// PWA Pages
+import PWALogin from "./pages/pwa/PWALogin";
+import PWADashboard from "./pages/pwa/PWADashboard";
+import PWANotifications from "./pages/pwa/PWANotifications";
+
 function App() {
   return (
     <AuthProvider>
