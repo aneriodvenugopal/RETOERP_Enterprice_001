@@ -177,18 +177,18 @@ const Home = () => {
       <section className="py-20 bg-gray-50">
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-white mb-4">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">
               Complete Real Estate Ecosystem
             </h2>
-            <p className="text-xl text-gray-300">
+            <p className="text-xl text-gray-600">
               Everything you need to succeed in one platform
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="bg-white/10 backdrop-blur-md rounded-lg p-8 border border-white/20">
-              <h3 className="text-2xl font-bold text-white mb-4">For Real Estate Companies</h3>
-              <ul className="space-y-3 text-gray-200">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+            <div className="bg-white rounded-xl p-8 shadow-md border border-gray-100">
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">For Real Estate Companies</h3>
+              <ul className="space-y-3 text-gray-600">
                 <li className="flex items-start">
                   <span className="text-cyan-400 mr-2">✓</span>
                   Multi-tenant SaaS architecture
