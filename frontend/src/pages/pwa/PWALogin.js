@@ -46,8 +46,9 @@ const PWALogin = () => {
     try {
       const response = await authService.sendOTP(phone);
       
-      // Show OTP in development
+      // Store and show OTP in development
       if (response.otp) {
+        setDevOTP(response.otp);
         toast.success(`OTP sent! Dev OTP: ${response.otp}`, {
           duration: 10000,
           style: {
