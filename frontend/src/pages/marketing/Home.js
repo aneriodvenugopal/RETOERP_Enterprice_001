@@ -322,8 +322,8 @@ const Home = () => {
             </div>
           </div>
           
-          <div className="border-t border-white/10 mt-8 pt-8 text-center">
-            <p className="text-gray-400">
+          <div className="border-t border-gray-200 mt-8 pt-8 text-center">
+            <p className="text-gray-600">
               © 2025 RETOERP. All rights reserved. | 10+ Years in Real Estate Excellence
             </p>
           </div>
