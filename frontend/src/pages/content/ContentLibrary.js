@@ -177,55 +177,22 @@ const ContentLibrary = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="relative z-10 container mx-auto px-6 pb-20">
-        <div className="bg-gradient-to-r from-pink-500/20 via-purple-500/20 to-blue-500/20 backdrop-blur-xl rounded-3xl p-12 border border-white/20 text-center">
-          <h2 className="text-4xl font-bold text-white mb-4">
+      <section className="container mx-auto px-6 py-16">
+        <div className="bg-gradient-to-r from-blue-600 to-cyan-600 rounded-2xl p-12 text-center text-white">
+          <h2 className="text-4xl font-bold mb-4">
             Ready to Transform Your Real Estate Business?
           </h2>
-          <p className="text-xl text-white/90 mb-8">
+          <p className="text-xl mb-8 opacity-90">
             Join hundreds of real estate companies achieving 40X faster growth
           </p>
           <Link
             to="/register"
-            className="inline-block px-8 py-4 bg-gradient-to-r from-pink-500 to-purple-500 text-white font-bold rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all"
+            className="inline-block px-8 py-4 bg-white text-blue-600 font-bold rounded-lg hover:bg-gray-100 shadow-lg transition-all"
           >
             Start Free Trial Now →
           </Link>
         </div>
       </section>
-
-      <style jsx>{`
-        @keyframes blob {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          33% { transform: translate(30px, -50px) scale(1.1); }
-          66% { transform: translate(-20px, 20px) scale(0.9); }
-        }
-        @keyframes fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        .animate-blob {
-          animation: blob 7s infinite;
-        }
-        .animation-delay-2000 {
-          animation-delay: 2s;
-        }
-        .animation-delay-4000 {
-          animation-delay: 4s;
-        }
-        .animate-fadeInUp {
-          animation: fadeInUp 0.8s ease-out forwards;
-        }
-        .animation-delay-200 {
-          animation-delay: 0.2s;
-        }
-      `}</style>
     </div>
   );
 };
