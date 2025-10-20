@@ -234,52 +234,54 @@ const Home = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20">
-        <div className="container mx-auto px-6 text-center">
-          <h2 className="text-4xl font-bold text-white mb-6">
-            Ready to Transform Your Real Estate Business?
-          </h2>
-          <p className="text-xl text-gray-300 mb-8">
-            Join hundreds of real estate companies using RETOERP
-          </p>
-          
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-            <Link 
-              to="/register" 
-              className="px-8 py-4 bg-cyan-500 hover:bg-cyan-600 text-white font-semibold rounded-lg shadow-lg transform hover:scale-105 transition-all"
-            >
-              Start Free Trial
-            </Link>
-            <Link 
-              to="/pricing" 
-              className="px-8 py-4 bg-white/10 backdrop-blur-md hover:bg-white/20 text-white font-semibold rounded-lg border-2 border-white/20 transition-all"
-            >
-              View Pricing
-            </Link>
-          </div>
-
-          {/* Email Subscription */}
-          <div className="max-w-md mx-auto">
-            <h3 className="text-xl text-white mb-4">Get Real Estate Tips & Updates</h3>
-            <form onSubmit={handleEmailSubscribe} className="flex gap-2">
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email"
-                required
-                className="flex-1 px-4 py-3 rounded-lg bg-white/10 backdrop-blur-md border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:border-cyan-500"
-              />
-              <button 
-                type="submit"
-                className="px-6 py-3 bg-cyan-500 hover:bg-cyan-600 text-white font-semibold rounded-lg transition-all"
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-6">
+          <div className="bg-gradient-to-r from-blue-600 to-cyan-600 rounded-2xl p-12 text-center text-white">
+            <h2 className="text-4xl font-bold mb-6">
+              Ready to Transform Your Real Estate Business?
+            </h2>
+            <p className="text-xl mb-8 opacity-90">
+              Join hundreds of real estate companies using RETOERP
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+              <Link 
+                to="/register" 
+                className="px-8 py-4 bg-white text-blue-600 font-semibold rounded-lg hover:bg-gray-100 shadow-lg transition-all"
               >
-                Subscribe
-              </button>
-            </form>
-            {subscribed && (
-              <p className="text-green-400 mt-2">Thank you! You're subscribed to our newsletter.</p>
-            )}
+                Start Free Trial
+              </Link>
+              <Link 
+                to="/pricing" 
+                className="px-8 py-4 bg-blue-700 hover:bg-blue-800 text-white font-semibold rounded-lg transition-all"
+              >
+                View Pricing
+              </Link>
+            </div>
+
+            {/* Email Subscription */}
+            <div className="max-w-md mx-auto">
+              <h3 className="text-xl mb-4">Get Real Estate Tips & Updates</h3>
+              <form onSubmit={handleEmailSubscribe} className="flex gap-2">
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter your email"
+                  required
+                  className="flex-1 px-4 py-3 rounded-lg bg-white/20 backdrop-blur-sm border border-white/30 text-white placeholder-white/70 focus:outline-none focus:border-white"
+                />
+                <button 
+                  type="submit"
+                  className="px-6 py-3 bg-white text-blue-600 font-semibold rounded-lg hover:bg-gray-100 transition-all"
+                >
+                  Subscribe
+                </button>
+              </form>
+              {subscribed && (
+                <p className="text-green-200 mt-2">Thank you! You're subscribed to our newsletter.</p>
+              )}
+            </div>
           </div>
         </div>
       </section>
