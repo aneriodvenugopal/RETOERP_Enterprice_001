@@ -16,59 +16,52 @@ const Home = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-cyan-900">
+    <div className="min-h-screen bg-white">
       {/* Language Selector - Fixed Top Right */}
       <div className="fixed top-4 right-4 z-50">
         <LanguageSelector />
       </div>
       
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        {/* Background Image */}
-        <div 
-          className="absolute inset-0 bg-cover bg-center opacity-20"
-          style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1599090738077-75-1?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2Njl8MHwxfHNlYXJjaGZvcnwyXHxwcm8xcm8zcG9ydHwsIHRoZSBsYXN0IGZpcnN0IGltYWdlKQ==&q=85)' }}
-        />
-        
-        {/* Content */}
-        <div className="container mx-auto px-6 relative z-10 text-center">
-          <h1 className="text-5xl md:text-7xl font-bold text-white mb-6">
-            Real Estate, <span className="text-cyan-300">40X Faster</span>
+      <section className="bg-gradient-to-br from-blue-50 to-cyan-50 py-20">
+        <div className="container mx-auto px-6 text-center">
+          <h1 className="text-5xl md:text-7xl font-bold text-gray-900 mb-6">
+            Real Estate, <span className="text-blue-600">40X Faster</span>
           </h1>
           
-          <p className="text-xl md:text-2xl text-gray-200 mb-8 max-w-3xl mx-auto">
+          <p className="text-xl md:text-2xl text-gray-600 mb-8 max-w-3xl mx-auto">
             Transform your real estate business with AI-powered automation. 
             Zero leakage, maximum profits.
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
             <Link 
               to="/register" 
-              className="px-8 py-4 bg-cyan-500 hover:bg-cyan-600 text-white font-semibold rounded-lg shadow-lg transform hover:scale-105 transition-all"
+              className="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-lg transition-all"
             >
               Get Started Free
             </Link>
             <Link 
               to="/login" 
-              className="px-8 py-4 bg-white/10 backdrop-blur-md hover:bg-white/20 text-white font-semibold rounded-lg border-2 border-white/30 transition-all"
+              className="px-8 py-4 bg-white hover:bg-gray-50 text-blue-600 font-semibold rounded-lg border-2 border-blue-200 transition-all"
             >
               Sign In
             </Link>
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16">
-            <div className="bg-white/10 backdrop-blur-md rounded-lg p-6 border border-white/20">
-              <div className="text-4xl font-bold text-cyan-300 mb-2">10+</div>
-              <div className="text-white">Years Experience</div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16 max-w-4xl mx-auto">
+            <div className="bg-white rounded-xl p-8 shadow-md border border-gray-100">
+              <div className="text-5xl font-bold text-blue-600 mb-2">10+</div>
+              <div className="text-gray-600 font-medium">Years Experience</div>
             </div>
-            <div className="bg-white/10 backdrop-blur-md rounded-lg p-6 border border-white/20">
-              <div className="text-4xl font-bold text-cyan-300 mb-2">40X</div>
-              <div className="text-white">Faster Growth</div>
+            <div className="bg-white rounded-xl p-8 shadow-md border border-gray-100">
+              <div className="text-5xl font-bold text-blue-600 mb-2">40X</div>
+              <div className="text-gray-600 font-medium">Faster Growth</div>
             </div>
-            <div className="bg-white/10 backdrop-blur-md rounded-lg p-6 border border-white/20">
-              <div className="text-4xl font-bold text-cyan-300 mb-2">0%</div>
-              <div className="text-white">Lead Leakage</div>
+            <div className="bg-white rounded-xl p-8 shadow-md border border-gray-100">
+              <div className="text-5xl font-bold text-blue-600 mb-2">0%</div>
+              <div className="text-gray-600 font-medium">Lead Leakage</div>
             </div>
           </div>
         </div>
