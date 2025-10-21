@@ -366,6 +366,9 @@ async def create_category(category_data: dict, request: Request):
     
     await db.content_categories.insert_one(category)
     
+    # Remove _id field if it exists to avoid serialization issues
+    category.pop('_id', None)
+    
     return {
         "success": True,
         "message": "Category created successfully",
