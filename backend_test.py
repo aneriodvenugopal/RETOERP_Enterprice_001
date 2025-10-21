@@ -1160,9 +1160,11 @@ def test_admin_create_article(auth_token):
     try:
         print("\n📝 TESTING: POST /api/admin/content/articles")
         
-        # First create a category
+        # First create a category with unique name
+        import uuid
+        unique_suffix = str(uuid.uuid4())[:8]
         category_data = {
-            "name": "Real Estate Technology",
+            "name": f"Real Estate Technology {unique_suffix}",
             "description": "Articles about real estate technology solutions",
             "icon": "🏠",
             "color": "#3B82F6"
