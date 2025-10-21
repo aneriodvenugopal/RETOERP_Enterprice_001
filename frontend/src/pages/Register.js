@@ -101,6 +101,8 @@ const Register = () => {
       name: validateName(formData.name),
       email: validateEmail(formData.email),
       phone: validatePhone(formData.phone),
+      password: validatePassword(formData.password),
+      confirmPassword: validateConfirmPassword(formData.confirmPassword),
       role_id: validateRole(formData.role_id)
     };
 
@@ -114,7 +116,9 @@ const Register = () => {
 
     setLoading(true);
     try {
-      await authService.register(formData);
+      // Remove confirmPassword before sending
+      const { confirmPassword, ...registrationData } = formData;
+      await authService.register(registrationData);
       toast.success('Registration successful! Please login.');
       navigate('/login');
     } catch (error) {
