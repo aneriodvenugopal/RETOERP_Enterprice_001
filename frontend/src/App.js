@@ -207,6 +207,7 @@ function App() {
             </Routes>
           </BrowserRouter>
           <Toaster position="top-right" richColors />
+          <PWAInstallPrompt />
         </div>
         </LanguageProvider>
       </CurrencyProvider>
