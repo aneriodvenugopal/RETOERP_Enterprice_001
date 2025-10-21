@@ -1810,9 +1810,545 @@ def test_unauthenticated_access():
         traceback.print_exc()
         return False
 
+# ============ RESALE REQUEST SYSTEM TESTS ============
+
+def test_customer_create_resale_request(customer_token, project_id):
+    """Test POST /api/resale/request - Customer creates resale request"""
+    if not customer_token or not project_id:
+        results.add_fail("Customer Create Resale Request", "Missing customer token or project ID")
+        return None
+        
+    try:
+        print("\n🏠 TESTING: POST /api/resale/request")
+        
+        resale_data = {
+            "project_id": project_id,
+            "property_id": "PROP-001",
+            "plot_number": "A-101",
+            "reason": "Relocating to another city for job",
+            "expected_price": 2500000.0,
+            "urgent": True,
+            "contact_phone": "9876543210",
+            "contact_email": "customer@example.com"
+        }
+        
+        headers = {"Authorization": f"Bearer {customer_token}"}
+        response = requests.post(
+            f"{API_BASE}/resale/request",
+            json=resale_data,
+            headers=headers,
+            timeout=10
+        )
+        
+        if response.status_code != 200:
+            results.add_fail("Customer Create Resale Request", f"Status code: {response.status_code}")
+            print_error_details("Customer Create Resale Request", response)
+            return None
+            
+        data = response.json()
+        
+        # Validate response structure
+        required_fields = ['success', 'message', 'request_id', 'request']
+        missing_fields = [field for field in required_fields if field not in data]
+        
+        if missing_fields:
+            results.add_fail("Customer Create Resale Request", f"Missing fields: {missing_fields}")
+            return None
+        
+        if not data.get('success'):
+            results.add_fail("Customer Create Resale Request", "Response success is False")
+            return None
+        
+        request_id = data.get('request_id')
+        if not request_id:
+            results.add_fail("Customer Create Resale Request", "No request_id in response")
+            return None
+        
+        # Validate request data
+        request_data = data.get('request', {})
+        if request_data.get('status') != 'pending':
+            results.add_fail("Customer Create Resale Request", f"Expected status 'pending', got '{request_data.get('status')}'")
+            return None
+        
+        results.add_pass("Customer Create Resale Request")
+        print(f"   ✅ Resale request created successfully: {request_id}")
+        print(f"   🏠 Property: {resale_data['plot_number']} - ₹{resale_data['expected_price']:,.0f}")
+        print(f"   📞 Contact: {resale_data['contact_phone']}")
+        print(f"   ⚡ Urgent: {resale_data['urgent']}")
+        
+        return request_id
+        
+    except Exception as e:
+        results.add_fail("Customer Create Resale Request", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return None
+
+def test_customer_get_my_requests(customer_token):
+    """Test GET /api/resale/my-requests - Get customer's resale requests"""
+    if not customer_token:
+        results.add_fail("Customer Get My Requests", "No customer token available")
+        return False
+        
+    try:
+        print("\n📋 TESTING: GET /api/resale/my-requests")
+        headers = {"Authorization": f"Bearer {customer_token}"}
+        response = requests.get(f"{API_BASE}/resale/my-requests", headers=headers, timeout=10)
+        
+        if response.status_code != 200:
+            results.add_fail("Customer Get My Requests", f"Status code: {response.status_code}")
+            print_error_details("Customer Get My Requests", response)
+            return False
+            
+        data = response.json()
+        
+        # Validate response structure
+        required_fields = ['success', 'requests', 'total']
+        missing_fields = [field for field in required_fields if field not in data]
+        
+        if missing_fields:
+            results.add_fail("Customer Get My Requests", f"Missing fields: {missing_fields}")
+            return False
+        
+        if not data.get('success'):
+            results.add_fail("Customer Get My Requests", "Response success is False")
+            return False
+        
+        requests_list = data.get('requests', [])
+        if not isinstance(requests_list, list):
+            results.add_fail("Customer Get My Requests", "Requests is not a list")
+            return False
+        
+        results.add_pass("Customer Get My Requests")
+        print(f"   ✅ Retrieved {len(requests_list)} resale requests")
+        if requests_list:
+            first_request = requests_list[0]
+            print(f"   🏠 First request: {first_request.get('plot_number', 'Unknown')} - {first_request.get('status', 'Unknown')}")
+        
+        return True
+        
+    except Exception as e:
+        results.add_fail("Customer Get My Requests", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+def test_get_single_resale_request(customer_token, request_id):
+    """Test GET /api/resale/request/{id} - Get single resale request"""
+    if not customer_token or not request_id:
+        results.add_fail("Get Single Resale Request", "Missing customer token or request ID")
+        return False
+        
+    try:
+        print(f"\n📄 TESTING: GET /api/resale/request/{request_id}")
+        headers = {"Authorization": f"Bearer {customer_token}"}
+        response = requests.get(f"{API_BASE}/resale/request/{request_id}", headers=headers, timeout=10)
+        
+        if response.status_code != 200:
+            results.add_fail("Get Single Resale Request", f"Status code: {response.status_code}")
+            print_error_details("Get Single Resale Request", response)
+            return False
+            
+        request_data = response.json()
+        
+        # Validate request structure
+        required_fields = ['id', 'customer_id', 'project_id', 'status', 'created_at']
+        missing_fields = [field for field in required_fields if field not in request_data]
+        
+        if missing_fields:
+            results.add_fail("Get Single Resale Request", f"Missing fields: {missing_fields}")
+            return False
+        
+        if request_data.get('id') != request_id:
+            results.add_fail("Get Single Resale Request", "Request ID mismatch")
+            return False
+        
+        results.add_pass("Get Single Resale Request")
+        print(f"   ✅ Request retrieved: {request_data.get('plot_number', 'Unknown')}")
+        print(f"   📊 Status: {request_data.get('status', 'Unknown')}")
+        print(f"   💰 Expected Price: ₹{request_data.get('expected_price', 0):,.0f}")
+        
+        return True
+        
+    except Exception as e:
+        results.add_fail("Get Single Resale Request", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+def test_admin_get_all_requests(admin_token):
+    """Test GET /api/resale/admin/requests - Admin view all requests"""
+    if not admin_token:
+        results.add_fail("Admin Get All Requests", "No admin token available")
+        return False
+        
+    try:
+        print("\n👨‍💼 TESTING: GET /api/resale/admin/requests")
+        headers = {"Authorization": f"Bearer {admin_token}"}
+        response = requests.get(f"{API_BASE}/resale/admin/requests", headers=headers, timeout=10)
+        
+        if response.status_code != 200:
+            results.add_fail("Admin Get All Requests", f"Status code: {response.status_code}")
+            print_error_details("Admin Get All Requests", response)
+            return False
+            
+        data = response.json()
+        
+        # Validate response structure
+        required_fields = ['success', 'requests', 'total', 'pending_count', 'approved_count', 'rejected_count']
+        missing_fields = [field for field in required_fields if field not in data]
+        
+        if missing_fields:
+            results.add_fail("Admin Get All Requests", f"Missing fields: {missing_fields}")
+            return False
+        
+        if not data.get('success'):
+            results.add_fail("Admin Get All Requests", "Response success is False")
+            return False
+        
+        requests_list = data.get('requests', [])
+        if not isinstance(requests_list, list):
+            results.add_fail("Admin Get All Requests", "Requests is not a list")
+            return False
+        
+        results.add_pass("Admin Get All Requests")
+        print(f"   ✅ Retrieved {len(requests_list)} total requests")
+        print(f"   📊 Pending: {data.get('pending_count', 0)}, Approved: {data.get('approved_count', 0)}, Rejected: {data.get('rejected_count', 0)}")
+        
+        return True
+        
+    except Exception as e:
+        results.add_fail("Admin Get All Requests", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+def test_admin_filter_requests_by_status(admin_token):
+    """Test GET /api/resale/admin/requests?status=pending - Admin filter by status"""
+    if not admin_token:
+        results.add_fail("Admin Filter Requests", "No admin token available")
+        return False
+        
+    try:
+        print("\n🔍 TESTING: GET /api/resale/admin/requests?status=pending")
+        headers = {"Authorization": f"Bearer {admin_token}"}
+        response = requests.get(f"{API_BASE}/resale/admin/requests?status=pending", headers=headers, timeout=10)
+        
+        if response.status_code != 200:
+            results.add_fail("Admin Filter Requests", f"Status code: {response.status_code}")
+            print_error_details("Admin Filter Requests", response)
+            return False
+            
+        data = response.json()
+        
+        if not data.get('success'):
+            results.add_fail("Admin Filter Requests", "Response success is False")
+            return False
+        
+        requests_list = data.get('requests', [])
+        
+        # Validate all requests have pending status
+        for request in requests_list:
+            if request.get('status') != 'pending':
+                results.add_fail("Admin Filter Requests", f"Found non-pending request: {request.get('status')}")
+                return False
+        
+        results.add_pass("Admin Filter Requests")
+        print(f"   ✅ Filtered {len(requests_list)} pending requests")
+        
+        return True
+        
+    except Exception as e:
+        results.add_fail("Admin Filter Requests", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+def test_admin_approve_request(admin_token, request_id):
+    """Test POST /api/resale/admin/review/{id} - Admin approve request"""
+    if not admin_token or not request_id:
+        results.add_fail("Admin Approve Request", "Missing admin token or request ID")
+        return False
+        
+    try:
+        print(f"\n✅ TESTING: POST /api/resale/admin/review/{request_id} (APPROVE)")
+        
+        review_data = {
+            "status": "approved",
+            "review_notes": "Property meets all criteria for resale. Approved for listing."
+        }
+        
+        headers = {"Authorization": f"Bearer {admin_token}"}
+        response = requests.post(
+            f"{API_BASE}/resale/admin/review/{request_id}",
+            json=review_data,
+            headers=headers,
+            timeout=10
+        )
+        
+        if response.status_code != 200:
+            results.add_fail("Admin Approve Request", f"Status code: {response.status_code}")
+            print_error_details("Admin Approve Request", response)
+            return False
+            
+        data = response.json()
+        
+        # Validate response
+        required_fields = ['success', 'message', 'status']
+        missing_fields = [field for field in required_fields if field not in data]
+        
+        if missing_fields:
+            results.add_fail("Admin Approve Request", f"Missing fields: {missing_fields}")
+            return False
+        
+        if not data.get('success'):
+            results.add_fail("Admin Approve Request", "Response success is False")
+            return False
+        
+        if data.get('status') != 'approved':
+            results.add_fail("Admin Approve Request", f"Expected status 'approved', got '{data.get('status')}'")
+            return False
+        
+        results.add_pass("Admin Approve Request")
+        print(f"   ✅ Request approved successfully")
+        print(f"   📝 Review Notes: {review_data['review_notes']}")
+        print(f"   👥 Notified Users: {data.get('notified_users', 0)}")
+        
+        return True
+        
+    except Exception as e:
+        results.add_fail("Admin Approve Request", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+def test_admin_reject_request(admin_token, request_id):
+    """Test POST /api/resale/admin/review/{id} - Admin reject request"""
+    if not admin_token or not request_id:
+        results.add_fail("Admin Reject Request", "Missing admin token or request ID")
+        return False
+        
+    try:
+        print(f"\n❌ TESTING: POST /api/resale/admin/review/{request_id} (REJECT)")
+        
+        review_data = {
+            "status": "rejected",
+            "review_notes": "Property does not meet resale criteria. Outstanding dues pending."
+        }
+        
+        headers = {"Authorization": f"Bearer {admin_token}"}
+        response = requests.post(
+            f"{API_BASE}/resale/admin/review/{request_id}",
+            json=review_data,
+            headers=headers,
+            timeout=10
+        )
+        
+        if response.status_code != 200:
+            results.add_fail("Admin Reject Request", f"Status code: {response.status_code}")
+            print_error_details("Admin Reject Request", response)
+            return False
+            
+        data = response.json()
+        
+        if not data.get('success'):
+            results.add_fail("Admin Reject Request", "Response success is False")
+            return False
+        
+        if data.get('status') != 'rejected':
+            results.add_fail("Admin Reject Request", f"Expected status 'rejected', got '{data.get('status')}'")
+            return False
+        
+        results.add_pass("Admin Reject Request")
+        print(f"   ✅ Request rejected successfully")
+        print(f"   📝 Review Notes: {review_data['review_notes']}")
+        
+        return True
+        
+    except Exception as e:
+        results.add_fail("Admin Reject Request", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+def test_get_available_resales(customer_token):
+    """Test GET /api/resale/available - Browse approved resales"""
+    if not customer_token:
+        results.add_fail("Get Available Resales", "No customer token available")
+        return None
+        
+    try:
+        print("\n🏪 TESTING: GET /api/resale/available")
+        headers = {"Authorization": f"Bearer {customer_token}"}
+        response = requests.get(f"{API_BASE}/resale/available", headers=headers, timeout=10)
+        
+        if response.status_code != 200:
+            results.add_fail("Get Available Resales", f"Status code: {response.status_code}")
+            print_error_details("Get Available Resales", response)
+            return None
+            
+        data = response.json()
+        
+        # Validate response structure
+        required_fields = ['success', 'resales', 'total']
+        missing_fields = [field for field in required_fields if field not in data]
+        
+        if missing_fields:
+            results.add_fail("Get Available Resales", f"Missing fields: {missing_fields}")
+            return None
+        
+        if not data.get('success'):
+            results.add_fail("Get Available Resales", "Response success is False")
+            return None
+        
+        resales = data.get('resales', [])
+        if not isinstance(resales, list):
+            results.add_fail("Get Available Resales", "Resales is not a list")
+            return None
+        
+        # Validate all resales are approved
+        for resale in resales:
+            if resale.get('status') != 'approved':
+                results.add_fail("Get Available Resales", f"Found non-approved resale: {resale.get('status')}")
+                return None
+        
+        results.add_pass("Get Available Resales")
+        print(f"   ✅ Retrieved {len(resales)} available resales")
+        if resales:
+            first_resale = resales[0]
+            print(f"   🏠 First resale: {first_resale.get('plot_number', 'Unknown')} - ₹{first_resale.get('expected_price', 0):,.0f}")
+        
+        return resales[0]['id'] if resales else None
+        
+    except Exception as e:
+        results.add_fail("Get Available Resales", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return None
+
+def test_get_resale_details(customer_token, resale_id):
+    """Test GET /api/resale/available/{id} - Get resale details"""
+    if not customer_token or not resale_id:
+        results.add_fail("Get Resale Details", "Missing customer token or resale ID")
+        return False
+        
+    try:
+        print(f"\n🏠 TESTING: GET /api/resale/available/{resale_id}")
+        headers = {"Authorization": f"Bearer {customer_token}"}
+        response = requests.get(f"{API_BASE}/resale/available/{resale_id}", headers=headers, timeout=10)
+        
+        if response.status_code != 200:
+            results.add_fail("Get Resale Details", f"Status code: {response.status_code}")
+            print_error_details("Get Resale Details", response)
+            return False
+            
+        resale = response.json()
+        
+        # Validate resale structure
+        required_fields = ['id', 'project_name', 'plot_number', 'expected_price', 'status']
+        missing_fields = [field for field in required_fields if field not in resale]
+        
+        if missing_fields:
+            results.add_fail("Get Resale Details", f"Missing fields: {missing_fields}")
+            return False
+        
+        if resale.get('status') != 'approved':
+            results.add_fail("Get Resale Details", f"Expected status 'approved', got '{resale.get('status')}'")
+            return False
+        
+        results.add_pass("Get Resale Details")
+        print(f"   ✅ Resale details retrieved: {resale.get('plot_number', 'Unknown')}")
+        print(f"   🏗️ Project: {resale.get('project_name', 'Unknown')}")
+        print(f"   💰 Price: ₹{resale.get('expected_price', 0):,.0f}")
+        print(f"   📞 Contact: {resale.get('contact_phone', 'Unknown')}")
+        
+        return True
+        
+    except Exception as e:
+        results.add_fail("Get Resale Details", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+def test_access_control_customer_to_admin(customer_token):
+    """Test that customers can't access admin endpoints"""
+    if not customer_token:
+        results.add_fail("Access Control - Customer to Admin", "No customer token available")
+        return False
+        
+    try:
+        print("\n🚫 TESTING: Customer access to admin endpoints")
+        headers = {"Authorization": f"Bearer {customer_token}"}
+        
+        # Test access to admin endpoints
+        admin_endpoints = [
+            "/resale/admin/requests",
+            "/resale/admin/review/test-id"
+        ]
+        
+        for endpoint in admin_endpoints:
+            if endpoint.endswith("test-id"):
+                response = requests.post(
+                    f"{API_BASE}{endpoint}",
+                    json={"status": "approved", "review_notes": "test"},
+                    headers=headers,
+                    timeout=10
+                )
+            else:
+                response = requests.get(f"{API_BASE}{endpoint}", headers=headers, timeout=10)
+            
+            if response.status_code != 403:
+                results.add_fail("Access Control - Customer to Admin", f"Expected 403 for {endpoint}, got {response.status_code}")
+                return False
+        
+        results.add_pass("Access Control - Customer to Admin")
+        print(f"   ✅ Customer correctly denied access to admin endpoints (403)")
+        return True
+        
+    except Exception as e:
+        results.add_fail("Access Control - Customer to Admin", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+def test_notifications_in_database(admin_token):
+    """Test that notifications are saved to database"""
+    if not admin_token:
+        results.add_fail("Notifications in Database", "No admin token available")
+        return False
+        
+    try:
+        print("\n🔔 TESTING: Notifications saved to database")
+        
+        # Get in-app notifications to verify they were created
+        headers = {"Authorization": f"Bearer {admin_token}"}
+        response = requests.get(f"{API_BASE}/in-app-notifications/", headers=headers, timeout=10)
+        
+        if response.status_code != 200:
+            results.add_fail("Notifications in Database", f"Status code: {response.status_code}")
+            print_error_details("Notifications in Database", response)
+            return False
+            
+        data = response.json()
+        
+        if not isinstance(data, list):
+            results.add_fail("Notifications in Database", "Response is not a list")
+            return False
+        
+        # Look for resale-related notifications
+        resale_notifications = [
+            notif for notif in data 
+            if 'resale' in notif.get('title', '').lower() or 'resale' in notif.get('message', '').lower()
+        ]
+        
+        results.add_pass("Notifications in Database")
+        print(f"   ✅ Found {len(data)} total notifications in database")
+        print(f"   🏠 Found {len(resale_notifications)} resale-related notifications")
+        
+        if resale_notifications:
+            first_notif = resale_notifications[0]
+            print(f"   📢 Sample: {first_notif.get('title', 'Unknown')}")
+        
+        return True
+        
+    except Exception as e:
+        results.add_fail("Notifications in Database", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
 def main():
-    """Main test execution for CMS Dashboard and Share-Referral System"""
-    print("🚀 STARTING CMS DASHBOARD AND SHARE-REFERRAL SYSTEM TESTING")
+    """Main test execution for Resale Request System"""
+    print("🚀 STARTING RESALE REQUEST SYSTEM TESTING")
     print("=" * 80)
     
     # Test API health first
