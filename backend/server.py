@@ -58,6 +58,24 @@ api_router.include_router(translations.router)
 api_router.include_router(content.router)
 api_router.include_router(advisory.router)
 
+# PWA Install tracking
+@api_router.post("/analytics/pwa-install")
+async def track_pwa_install(request: Request, platform: str = "unknown"):
+    """Track PWA installations"""
+    db = request.app.state.db
+    
+    install_record = {
+        "id": str(uuid.uuid4()),
+        "platform": platform,
+        "user_agent": request.headers.get("user-agent"),
+        "ip_address": request.client.host if request.client else None,
+        "installed_at": datetime.utcnow().isoformat()
+    }
+    
+    await db.pwa_installs.insert_one(install_record)
+    
+    return {"success": True}
+
 # Include the router in the main app
 app.include_router(api_router)
 
