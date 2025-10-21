@@ -75,6 +75,16 @@ function App() {
                 <Route path="/advisory" element={<AdvisoryHub />} />
                 <Route path="/advisory/:category" element={<AdvisoryChat />} />
                 
+                {/* Admin Routes - Protected */}
+                <Route 
+                  path="/admin/content" 
+                  element={
+                    <PrivateRoute>
+                      <ContentManagement />
+                    </PrivateRoute>
+                  } 
+                />
+                
                 {/* PWA Routes */}
                 <Route path="/pwa/login" element={<PWALogin />} />
                 <Route path="/pwa/dashboard" element={<PWADashboard />} />
