@@ -29,8 +29,10 @@ const Register = () => {
   const loadRoles = async () => {
     try {
       const data = await authService.getRoles();
-      setRoles(data.roles || []);
+      // Backend returns array directly, not wrapped in object
+      setRoles(Array.isArray(data) ? data : data.roles || []);
     } catch (error) {
+      console.error('Failed to load roles:', error);
       toast.error('Failed to load roles');
     }
   };
