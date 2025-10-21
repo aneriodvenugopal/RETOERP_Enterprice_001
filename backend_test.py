@@ -1774,18 +1774,25 @@ def test_unauthenticated_access():
         print(f"\n🔒 TESTING: Unauthenticated access to protected endpoints")
         
         # Test share-referral endpoints without auth
-        endpoints = [
-            "/share-referral/create-share-link",
-            "/share-referral/my-analytics",
-            "/share-referral/my-leads",
-            "/share-referral/leaderboard"
+        test_cases = [
+            {"endpoint": "/share-referral/create-share-link", "method": "POST", "data": {"article_id": "test", "platform": "whatsapp"}},
+            {"endpoint": "/share-referral/my-analytics", "method": "GET", "data": None},
+            {"endpoint": "/share-referral/my-leads", "method": "GET", "data": None},
+            {"endpoint": "/share-referral/leaderboard", "method": "GET", "data": None}
         ]
         
-        for endpoint in endpoints:
-            response = requests.get(f"{API_BASE}{endpoint}", timeout=10)
+        for test_case in test_cases:
+            endpoint = test_case["endpoint"]
+            method = test_case["method"]
+            data = test_case["data"]
+            
+            if method == "POST":
+                response = requests.post(f"{API_BASE}{endpoint}", json=data, timeout=10)
+            else:
+                response = requests.get(f"{API_BASE}{endpoint}", timeout=10)
             
             if response.status_code != 401:
-                results.add_fail("Unauthenticated Access Test", f"Expected 401 for {endpoint}, got {response.status_code}")
+                results.add_fail("Unauthenticated Access Test", f"Expected 401 for {method} {endpoint}, got {response.status_code}")
                 return False
         
         results.add_pass("Unauthenticated Access Test")
