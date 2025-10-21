@@ -21,8 +21,8 @@ async def check_admin_access(user: dict):
     if not user:
         raise HTTPException(status_code=401, detail="Not authenticated")
     
-    # Check if user is super_admin or admin
-    if user.get('role_id') not in ['super_admin', 'admin']:
+    # Check if user is super_admin or admin (using role slug from JWT)
+    if user.get('role') not in ['super_admin', 'admin']:
         raise HTTPException(status_code=403, detail="Admin access required")
     
     return True
