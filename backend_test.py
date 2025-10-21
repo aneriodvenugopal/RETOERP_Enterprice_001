@@ -2428,7 +2428,7 @@ def main():
     print("\n🔔 TESTING NOTIFICATIONS")
     print("-" * 40)
     
-    test_notifications_in_database(admin_token)
+    test_notifications_in_database(customer_token)
     
     # Print final summary
     success = results.summary()
