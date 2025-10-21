@@ -2310,8 +2310,12 @@ def test_notifications_in_database(customer_token):
     try:
         print("\n🔔 TESTING: Notifications saved to database")
         
-        # Get in-app notifications to verify they were created
+        # Debug: First test a simple endpoint to verify token works
         headers = {"Authorization": f"Bearer {customer_token}"}
+        debug_response = requests.get(f"{API_BASE}/resale/my-requests", headers=headers, timeout=10)
+        print(f"   🔍 Debug - resale endpoint status: {debug_response.status_code}")
+        
+        # Get in-app notifications to verify they were created
         response = requests.get(f"{API_BASE}/in-app-notifications/", headers=headers, timeout=10)
         
         if response.status_code != 200:
