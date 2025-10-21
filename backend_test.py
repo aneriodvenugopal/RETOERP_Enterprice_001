@@ -979,9 +979,827 @@ def test_translate_batch_invalid_language():
         traceback.print_exc()
         return False
 
+def authenticate_admin():
+    """Authenticate as admin user and return token"""
+    try:
+        print("\n🔐 AUTHENTICATING AS ADMIN USER")
+        
+        # Use super_admin phone from test_result.md
+        admin_phone = "9948303060"
+        
+        # Step 1: Send OTP
+        print(f"   📱 Sending OTP to {admin_phone}")
+        otp_response = requests.post(
+            f"{API_BASE}/auth/send-otp",
+            json={"phone": admin_phone},
+            timeout=10
+        )
+        
+        if otp_response.status_code != 200:
+            print(f"   ❌ Failed to send OTP: {otp_response.status_code}")
+            print_error_details("Send OTP", otp_response)
+            return None
+        
+        otp_data = otp_response.json()
+        otp = otp_data.get('otp')
+        
+        if not otp:
+            print("   ❌ No OTP received in response")
+            return None
+        
+        print(f"   ✅ OTP sent successfully: {otp}")
+        
+        # Step 2: Verify OTP
+        print("   🔑 Verifying OTP")
+        verify_response = requests.post(
+            f"{API_BASE}/auth/verify-otp",
+            json={"phone": admin_phone, "otp": otp},
+            timeout=10
+        )
+        
+        if verify_response.status_code != 200:
+            print(f"   ❌ Failed to verify OTP: {verify_response.status_code}")
+            print_error_details("Verify OTP", verify_response)
+            return None
+        
+        verify_data = verify_response.json()
+        token = verify_data.get('access_token')
+        user = verify_data.get('user', {})
+        
+        if not token:
+            print("   ❌ No access token received")
+            return None
+        
+        print(f"   ✅ Authentication successful!")
+        print(f"   👤 User: {user.get('name')} ({user.get('role')})")
+        print(f"   🏢 Tenant: {user.get('tenant_id')}")
+        
+        return token
+        
+    except Exception as e:
+        print(f"   ❌ Authentication failed: {str(e)}")
+        traceback.print_exc()
+        return None
+
+def authenticate_user():
+    """Authenticate as regular user and return token"""
+    try:
+        print("\n🔐 AUTHENTICATING AS REGULAR USER")
+        
+        # Use customer phone from test_result.md
+        user_phone = "6666666666"
+        
+        # Step 1: Send OTP
+        print(f"   📱 Sending OTP to {user_phone}")
+        otp_response = requests.post(
+            f"{API_BASE}/auth/send-otp",
+            json={"phone": user_phone},
+            timeout=10
+        )
+        
+        if otp_response.status_code != 200:
+            print(f"   ❌ Failed to send OTP: {otp_response.status_code}")
+            print_error_details("Send OTP", otp_response)
+            return None
+        
+        otp_data = otp_response.json()
+        otp = otp_data.get('otp')
+        
+        if not otp:
+            print("   ❌ No OTP received in response")
+            return None
+        
+        print(f"   ✅ OTP sent successfully: {otp}")
+        
+        # Step 2: Verify OTP
+        print("   🔑 Verifying OTP")
+        verify_response = requests.post(
+            f"{API_BASE}/auth/verify-otp",
+            json={"phone": user_phone, "otp": otp},
+            timeout=10
+        )
+        
+        if verify_response.status_code != 200:
+            print(f"   ❌ Failed to verify OTP: {verify_response.status_code}")
+            print_error_details("Verify OTP", verify_response)
+            return None
+        
+        verify_data = verify_response.json()
+        token = verify_data.get('access_token')
+        user = verify_data.get('user', {})
+        
+        if not token:
+            print("   ❌ No access token received")
+            return None
+        
+        print(f"   ✅ Authentication successful!")
+        print(f"   👤 User: {user.get('name')} ({user.get('role')})")
+        print(f"   🏢 Tenant: {user.get('tenant_id')}")
+        
+        return token
+        
+    except Exception as e:
+        print(f"   ❌ Authentication failed: {str(e)}")
+        traceback.print_exc()
+        return None
+
+# ============ CMS DASHBOARD TESTS ============
+
+def test_admin_get_articles(auth_token):
+    """Test GET /api/admin/content/articles"""
+    if not auth_token:
+        results.add_fail("Admin Get Articles", "No auth token available")
+        return None
+        
+    try:
+        print("\n📚 TESTING: GET /api/admin/content/articles")
+        headers = {"Authorization": f"Bearer {auth_token}"}
+        response = requests.get(f"{API_BASE}/admin/content/articles", headers=headers, timeout=10)
+        
+        if response.status_code != 200:
+            results.add_fail("Admin Get Articles", f"Status code: {response.status_code}")
+            print_error_details("Admin Get Articles", response)
+            return None
+            
+        data = response.json()
+        
+        # Validate response structure
+        required_fields = ['success', 'articles', 'total', 'limit', 'skip']
+        missing_fields = [field for field in required_fields if field not in data]
+        
+        if missing_fields:
+            results.add_fail("Admin Get Articles", f"Missing fields: {missing_fields}")
+            return None
+        
+        if not data.get('success'):
+            results.add_fail("Admin Get Articles", "Response success is False")
+            return None
+        
+        articles = data.get('articles', [])
+        if not isinstance(articles, list):
+            results.add_fail("Admin Get Articles", "Articles is not a list")
+            return None
+        
+        results.add_pass("Admin Get Articles")
+        print(f"   ✅ Found {len(articles)} articles (Total: {data.get('total', 0)})")
+        
+        # Return first article for further tests
+        return articles[0] if articles else None
+        
+    except Exception as e:
+        results.add_fail("Admin Get Articles", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return None
+
+def test_admin_create_article(auth_token):
+    """Test POST /api/admin/content/articles"""
+    if not auth_token:
+        results.add_fail("Admin Create Article", "No auth token available")
+        return None
+        
+    try:
+        print("\n📝 TESTING: POST /api/admin/content/articles")
+        
+        # First create a category
+        category_data = {
+            "name": "Real Estate Technology",
+            "description": "Articles about real estate technology solutions",
+            "icon": "🏠",
+            "color": "#3B82F6"
+        }
+        
+        headers = {"Authorization": f"Bearer {auth_token}"}
+        category_response = requests.post(
+            f"{API_BASE}/admin/content/categories",
+            json=category_data,
+            headers=headers,
+            timeout=10
+        )
+        
+        category_id = None
+        if category_response.status_code == 200:
+            category_result = category_response.json()
+            category_id = category_result.get('category', {}).get('id')
+        
+        if not category_id:
+            results.add_fail("Admin Create Article", "Failed to create test category")
+            return None
+        
+        # Create article
+        article_data = {
+            "title": "How AI is Transforming Real Estate Management",
+            "excerpt": "Discover how artificial intelligence is revolutionizing property management and sales processes.",
+            "content": "# AI in Real Estate\n\nArtificial Intelligence is changing the way we manage properties...",
+            "featured_image": "https://images.unsplash.com/photo-1560472354-b33ff0c44a43",
+            "category_id": category_id,
+            "tags": ["AI", "PropTech", "Innovation"],
+            "problem_statement": "Traditional real estate processes are slow and inefficient",
+            "impact_analysis": "Manual processes lead to 40% revenue leakage and delayed closures",
+            "solution_description": "AI-powered automation streamlines operations and reduces manual work",
+            "roi_benefits": "40X faster processes, 0% leakage, increased customer satisfaction",
+            "success_metrics": "Reduced processing time by 90%, increased conversion by 60%",
+            "cta_text": "Start Free Trial",
+            "cta_link": "/register",
+            "status": "published",
+            "reading_time": 8
+        }
+        
+        response = requests.post(
+            f"{API_BASE}/admin/content/articles",
+            json=article_data,
+            headers=headers,
+            timeout=10
+        )
+        
+        if response.status_code != 200:
+            results.add_fail("Admin Create Article", f"Status code: {response.status_code}")
+            print_error_details("Admin Create Article", response)
+            return None
+            
+        data = response.json()
+        
+        # Validate response
+        if not data.get('success'):
+            results.add_fail("Admin Create Article", "Response success is False")
+            return None
+        
+        article_id = data.get('article_id')
+        if not article_id:
+            results.add_fail("Admin Create Article", "No article_id in response")
+            return None
+        
+        results.add_pass("Admin Create Article")
+        print(f"   ✅ Article created successfully: {article_id}")
+        print(f"   📄 Title: {article_data['title']}")
+        
+        return article_id
+        
+    except Exception as e:
+        results.add_fail("Admin Create Article", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return None
+
+def test_admin_get_single_article(auth_token, article_id):
+    """Test GET /api/admin/content/articles/{id}"""
+    if not auth_token or not article_id:
+        results.add_fail("Admin Get Single Article", "Missing auth token or article ID")
+        return False
+        
+    try:
+        print(f"\n📖 TESTING: GET /api/admin/content/articles/{article_id}")
+        headers = {"Authorization": f"Bearer {auth_token}"}
+        response = requests.get(f"{API_BASE}/admin/content/articles/{article_id}", headers=headers, timeout=10)
+        
+        if response.status_code != 200:
+            results.add_fail("Admin Get Single Article", f"Status code: {response.status_code}")
+            print_error_details("Admin Get Single Article", response)
+            return False
+            
+        article = response.json()
+        
+        # Validate article structure
+        required_fields = ['id', 'title', 'content', 'status', 'created_at']
+        missing_fields = [field for field in required_fields if field not in article]
+        
+        if missing_fields:
+            results.add_fail("Admin Get Single Article", f"Missing fields: {missing_fields}")
+            return False
+        
+        results.add_pass("Admin Get Single Article")
+        print(f"   ✅ Article retrieved: {article.get('title')}")
+        print(f"   📊 Status: {article.get('status')}")
+        return True
+        
+    except Exception as e:
+        results.add_fail("Admin Get Single Article", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+def test_admin_update_article(auth_token, article_id):
+    """Test PUT /api/admin/content/articles/{id}"""
+    if not auth_token or not article_id:
+        results.add_fail("Admin Update Article", "Missing auth token or article ID")
+        return False
+        
+    try:
+        print(f"\n✏️ TESTING: PUT /api/admin/content/articles/{article_id}")
+        
+        update_data = {
+            "title": "How AI is Revolutionizing Real Estate Management - Updated",
+            "excerpt": "Updated excerpt about AI transformation in real estate industry.",
+            "reading_time": 10
+        }
+        
+        headers = {"Authorization": f"Bearer {auth_token}"}
+        response = requests.put(
+            f"{API_BASE}/admin/content/articles/{article_id}",
+            json=update_data,
+            headers=headers,
+            timeout=10
+        )
+        
+        if response.status_code != 200:
+            results.add_fail("Admin Update Article", f"Status code: {response.status_code}")
+            print_error_details("Admin Update Article", response)
+            return False
+            
+        data = response.json()
+        
+        if not data.get('success'):
+            results.add_fail("Admin Update Article", "Response success is False")
+            return False
+        
+        updated_article = data.get('article', {})
+        if updated_article.get('title') != update_data['title']:
+            results.add_fail("Admin Update Article", "Title not updated correctly")
+            return False
+        
+        results.add_pass("Admin Update Article")
+        print(f"   ✅ Article updated successfully")
+        print(f"   📝 New title: {updated_article.get('title')}")
+        return True
+        
+    except Exception as e:
+        results.add_fail("Admin Update Article", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+def test_admin_publish_unpublish_article(auth_token, article_id):
+    """Test POST /api/admin/content/articles/{id}/publish and unpublish"""
+    if not auth_token or not article_id:
+        results.add_fail("Admin Publish/Unpublish Article", "Missing auth token or article ID")
+        return False
+        
+    try:
+        print(f"\n📢 TESTING: POST /api/admin/content/articles/{article_id}/unpublish")
+        headers = {"Authorization": f"Bearer {auth_token}"}
+        
+        # Test unpublish
+        unpublish_response = requests.post(
+            f"{API_BASE}/admin/content/articles/{article_id}/unpublish",
+            headers=headers,
+            timeout=10
+        )
+        
+        if unpublish_response.status_code != 200:
+            results.add_fail("Admin Publish/Unpublish Article", f"Unpublish failed: {unpublish_response.status_code}")
+            print_error_details("Admin Unpublish Article", unpublish_response)
+            return False
+        
+        # Test publish
+        print(f"\n📢 TESTING: POST /api/admin/content/articles/{article_id}/publish")
+        publish_response = requests.post(
+            f"{API_BASE}/admin/content/articles/{article_id}/publish",
+            headers=headers,
+            timeout=10
+        )
+        
+        if publish_response.status_code != 200:
+            results.add_fail("Admin Publish/Unpublish Article", f"Publish failed: {publish_response.status_code}")
+            print_error_details("Admin Publish Article", publish_response)
+            return False
+        
+        results.add_pass("Admin Publish/Unpublish Article")
+        print(f"   ✅ Article unpublish/publish operations successful")
+        return True
+        
+    except Exception as e:
+        results.add_fail("Admin Publish/Unpublish Article", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+def test_admin_get_categories(auth_token):
+    """Test GET /api/admin/content/categories"""
+    if not auth_token:
+        results.add_fail("Admin Get Categories", "No auth token available")
+        return None
+        
+    try:
+        print("\n📂 TESTING: GET /api/admin/content/categories")
+        headers = {"Authorization": f"Bearer {auth_token}"}
+        response = requests.get(f"{API_BASE}/admin/content/categories", headers=headers, timeout=10)
+        
+        if response.status_code != 200:
+            results.add_fail("Admin Get Categories", f"Status code: {response.status_code}")
+            print_error_details("Admin Get Categories", response)
+            return None
+            
+        data = response.json()
+        
+        if not data.get('success'):
+            results.add_fail("Admin Get Categories", "Response success is False")
+            return None
+        
+        categories = data.get('categories', [])
+        if not isinstance(categories, list):
+            results.add_fail("Admin Get Categories", "Categories is not a list")
+            return None
+        
+        results.add_pass("Admin Get Categories")
+        print(f"   ✅ Found {len(categories)} categories")
+        
+        return categories[0] if categories else None
+        
+    except Exception as e:
+        results.add_fail("Admin Get Categories", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return None
+
+def test_admin_content_analytics(auth_token):
+    """Test GET /api/admin/content/analytics"""
+    if not auth_token:
+        results.add_fail("Admin Content Analytics", "No auth token available")
+        return False
+        
+    try:
+        print("\n📊 TESTING: GET /api/admin/content/analytics")
+        headers = {"Authorization": f"Bearer {auth_token}"}
+        response = requests.get(f"{API_BASE}/admin/content/analytics", headers=headers, timeout=10)
+        
+        if response.status_code != 200:
+            results.add_fail("Admin Content Analytics", f"Status code: {response.status_code}")
+            print_error_details("Admin Content Analytics", response)
+            return False
+            
+        data = response.json()
+        
+        if not data.get('success'):
+            results.add_fail("Admin Content Analytics", "Response success is False")
+            return False
+        
+        analytics = data.get('analytics', {})
+        required_fields = ['total_articles', 'published_articles', 'total_views', 'total_shares', 'total_leads']
+        missing_fields = [field for field in required_fields if field not in analytics]
+        
+        if missing_fields:
+            results.add_fail("Admin Content Analytics", f"Missing analytics fields: {missing_fields}")
+            return False
+        
+        results.add_pass("Admin Content Analytics")
+        print(f"   ✅ Analytics retrieved successfully")
+        print(f"   📊 Total Articles: {analytics.get('total_articles', 0)}")
+        print(f"   📈 Published: {analytics.get('published_articles', 0)}")
+        print(f"   👀 Total Views: {analytics.get('total_views', 0)}")
+        return True
+        
+    except Exception as e:
+        results.add_fail("Admin Content Analytics", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+def test_non_admin_access(user_token):
+    """Test that non-admin users get 403 Forbidden"""
+    if not user_token:
+        results.add_fail("Non-Admin Access Test", "No user token available")
+        return False
+        
+    try:
+        print("\n🚫 TESTING: Non-admin access to admin endpoints")
+        headers = {"Authorization": f"Bearer {user_token}"}
+        
+        # Test access to admin articles endpoint
+        response = requests.get(f"{API_BASE}/admin/content/articles", headers=headers, timeout=10)
+        
+        if response.status_code != 403:
+            results.add_fail("Non-Admin Access Test", f"Expected 403, got {response.status_code}")
+            print_error_details("Non-Admin Access Test", response)
+            return False
+        
+        results.add_pass("Non-Admin Access Test")
+        print(f"   ✅ Non-admin user correctly denied access (403)")
+        return True
+        
+    except Exception as e:
+        results.add_fail("Non-Admin Access Test", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+# ============ SHARE-REFERRAL SYSTEM TESTS ============
+
+def test_create_share_link(user_token, article_id):
+    """Test POST /api/share-referral/create-share-link"""
+    if not user_token or not article_id:
+        results.add_fail("Create Share Link", "Missing user token or article ID")
+        return None
+        
+    try:
+        print(f"\n🔗 TESTING: POST /api/share-referral/create-share-link")
+        
+        share_data = {
+            "article_id": article_id,
+            "platform": "whatsapp"
+        }
+        
+        headers = {"Authorization": f"Bearer {user_token}"}
+        response = requests.post(
+            f"{API_BASE}/share-referral/create-share-link",
+            json=share_data,
+            headers=headers,
+            timeout=10
+        )
+        
+        if response.status_code != 200:
+            results.add_fail("Create Share Link", f"Status code: {response.status_code}")
+            print_error_details("Create Share Link", response)
+            return None
+            
+        data = response.json()
+        
+        # Validate response
+        required_fields = ['success', 'share_link', 'share_code', 'credits_earned', 'share_id']
+        missing_fields = [field for field in required_fields if field not in data]
+        
+        if missing_fields:
+            results.add_fail("Create Share Link", f"Missing fields: {missing_fields}")
+            return None
+        
+        if not data.get('success'):
+            results.add_fail("Create Share Link", "Response success is False")
+            return None
+        
+        share_code = data.get('share_code')
+        if not share_code:
+            results.add_fail("Create Share Link", "No share code generated")
+            return None
+        
+        results.add_pass("Create Share Link")
+        print(f"   ✅ Share link created successfully")
+        print(f"   🔗 Share Code: {share_code}")
+        print(f"   💰 Credits Earned: ₹{data.get('credits_earned', 0)}")
+        
+        return share_code
+        
+    except Exception as e:
+        results.add_fail("Create Share Link", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return None
+
+def test_track_share_activity(share_code):
+    """Test POST /api/share-referral/track-activity"""
+    if not share_code:
+        results.add_fail("Track Share Activity", "No share code available")
+        return False
+        
+    try:
+        print(f"\n📊 TESTING: POST /api/share-referral/track-activity")
+        
+        # Test different activity types
+        activities = [
+            {"activity_type": "view", "expected_credits": 1.0},
+            {"activity_type": "click", "expected_credits": 5.0},
+            {"activity_type": "share", "expected_credits": 10.0}
+        ]
+        
+        for activity in activities:
+            activity_data = {
+                "share_code": share_code,
+                "activity_type": activity["activity_type"]
+            }
+            
+            response = requests.post(
+                f"{API_BASE}/share-referral/track-activity",
+                json=activity_data,
+                timeout=10
+            )
+            
+            if response.status_code != 200:
+                results.add_fail("Track Share Activity", f"Failed for {activity['activity_type']}: {response.status_code}")
+                print_error_details(f"Track Activity - {activity['activity_type']}", response)
+                return False
+                
+            data = response.json()
+            
+            if not data.get('success'):
+                results.add_fail("Track Share Activity", f"Response success is False for {activity['activity_type']}")
+                return False
+            
+            credits_earned = data.get('credits_earned', 0)
+            if credits_earned != activity["expected_credits"]:
+                results.add_fail("Track Share Activity", f"Wrong credits for {activity['activity_type']}: expected {activity['expected_credits']}, got {credits_earned}")
+                return False
+            
+            print(f"   ✅ {activity['activity_type'].title()} tracked: ₹{credits_earned} credits")
+        
+        results.add_pass("Track Share Activity")
+        print(f"   ✅ All activity types tracked successfully")
+        return True
+        
+    except Exception as e:
+        results.add_fail("Track Share Activity", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+def test_capture_share_lead(share_code):
+    """Test POST /api/share-referral/capture-lead"""
+    if not share_code:
+        results.add_fail("Capture Share Lead", "No share code available")
+        return False
+        
+    try:
+        print(f"\n👤 TESTING: POST /api/share-referral/capture-lead")
+        
+        lead_data = {
+            "share_code": share_code,
+            "name": "Rajesh Kumar",
+            "email": "rajesh.kumar@example.com",
+            "phone": "9876543210",
+            "message": "Interested in learning more about your real estate solutions",
+            "referrer_url": "https://example.com/article",
+            "ip_address": "192.168.1.100"
+        }
+        
+        response = requests.post(
+            f"{API_BASE}/share-referral/capture-lead",
+            json=lead_data,
+            timeout=10
+        )
+        
+        if response.status_code != 200:
+            results.add_fail("Capture Share Lead", f"Status code: {response.status_code}")
+            print_error_details("Capture Share Lead", response)
+            return False
+            
+        data = response.json()
+        
+        if not data.get('success'):
+            results.add_fail("Capture Share Lead", "Response success is False")
+            return False
+        
+        lead_id = data.get('lead_id')
+        credit_awarded = data.get('credit_awarded', 0)
+        
+        if not lead_id:
+            results.add_fail("Capture Share Lead", "No lead_id in response")
+            return False
+        
+        results.add_pass("Capture Share Lead")
+        print(f"   ✅ Lead captured successfully: {lead_id}")
+        print(f"   💰 Credit Awarded: ₹{credit_awarded}")
+        print(f"   👤 Lead: {lead_data['name']} ({lead_data['email']})")
+        return True
+        
+    except Exception as e:
+        results.add_fail("Capture Share Lead", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+def test_my_share_analytics(user_token):
+    """Test GET /api/share-referral/my-analytics"""
+    if not user_token:
+        results.add_fail("My Share Analytics", "No user token available")
+        return False
+        
+    try:
+        print(f"\n📈 TESTING: GET /api/share-referral/my-analytics")
+        headers = {"Authorization": f"Bearer {user_token}"}
+        response = requests.get(f"{API_BASE}/share-referral/my-analytics", headers=headers, timeout=10)
+        
+        if response.status_code != 200:
+            results.add_fail("My Share Analytics", f"Status code: {response.status_code}")
+            print_error_details("My Share Analytics", response)
+            return False
+            
+        data = response.json()
+        
+        if not data.get('success'):
+            results.add_fail("My Share Analytics", "Response success is False")
+            return False
+        
+        analytics = data.get('analytics', {})
+        required_fields = ['total_shares', 'total_views', 'total_leads', 'total_credits_earned', 'platform_stats']
+        missing_fields = [field for field in required_fields if field not in analytics]
+        
+        if missing_fields:
+            results.add_fail("My Share Analytics", f"Missing analytics fields: {missing_fields}")
+            return False
+        
+        results.add_pass("My Share Analytics")
+        print(f"   ✅ Analytics retrieved successfully")
+        print(f"   📊 Total Shares: {analytics.get('total_shares', 0)}")
+        print(f"   👀 Total Views: {analytics.get('total_views', 0)}")
+        print(f"   👤 Total Leads: {analytics.get('total_leads', 0)}")
+        print(f"   💰 Total Credits: ₹{analytics.get('total_credits_earned', 0)}")
+        return True
+        
+    except Exception as e:
+        results.add_fail("My Share Analytics", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+def test_my_share_leads(user_token):
+    """Test GET /api/share-referral/my-leads"""
+    if not user_token:
+        results.add_fail("My Share Leads", "No user token available")
+        return False
+        
+    try:
+        print(f"\n👥 TESTING: GET /api/share-referral/my-leads")
+        headers = {"Authorization": f"Bearer {user_token}"}
+        response = requests.get(f"{API_BASE}/share-referral/my-leads", headers=headers, timeout=10)
+        
+        if response.status_code != 200:
+            results.add_fail("My Share Leads", f"Status code: {response.status_code}")
+            print_error_details("My Share Leads", response)
+            return False
+            
+        data = response.json()
+        
+        if not data.get('success'):
+            results.add_fail("My Share Leads", "Response success is False")
+            return False
+        
+        leads = data.get('leads', [])
+        total = data.get('total', 0)
+        
+        if not isinstance(leads, list):
+            results.add_fail("My Share Leads", "Leads is not a list")
+            return False
+        
+        results.add_pass("My Share Leads")
+        print(f"   ✅ Leads retrieved successfully")
+        print(f"   👥 Total Leads: {total}")
+        if leads:
+            print(f"   👤 First Lead: {leads[0].get('name', 'Unknown')} ({leads[0].get('status', 'Unknown')})")
+        return True
+        
+    except Exception as e:
+        results.add_fail("My Share Leads", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+def test_share_leaderboard(user_token):
+    """Test GET /api/share-referral/leaderboard"""
+    if not user_token:
+        results.add_fail("Share Leaderboard", "No user token available")
+        return False
+        
+    try:
+        print(f"\n🏆 TESTING: GET /api/share-referral/leaderboard")
+        headers = {"Authorization": f"Bearer {user_token}"}
+        response = requests.get(f"{API_BASE}/share-referral/leaderboard", headers=headers, timeout=10)
+        
+        if response.status_code != 200:
+            results.add_fail("Share Leaderboard", f"Status code: {response.status_code}")
+            print_error_details("Share Leaderboard", response)
+            return False
+            
+        data = response.json()
+        
+        if not data.get('success'):
+            results.add_fail("Share Leaderboard", "Response success is False")
+            return False
+        
+        leaderboard = data.get('leaderboard', [])
+        
+        if not isinstance(leaderboard, list):
+            results.add_fail("Share Leaderboard", "Leaderboard is not a list")
+            return False
+        
+        results.add_pass("Share Leaderboard")
+        print(f"   ✅ Leaderboard retrieved successfully")
+        print(f"   🏆 Top Sharers: {len(leaderboard)}")
+        if leaderboard:
+            top_sharer = leaderboard[0]
+            print(f"   🥇 #1: {top_sharer.get('sharer_name', 'Unknown')} (₹{top_sharer.get('total_credits', 0)} credits)")
+        return True
+        
+    except Exception as e:
+        results.add_fail("Share Leaderboard", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+def test_unauthenticated_access():
+    """Test that unauthenticated requests return 401"""
+    try:
+        print(f"\n🔒 TESTING: Unauthenticated access to protected endpoints")
+        
+        # Test share-referral endpoints without auth
+        endpoints = [
+            "/share-referral/create-share-link",
+            "/share-referral/my-analytics",
+            "/share-referral/my-leads",
+            "/share-referral/leaderboard"
+        ]
+        
+        for endpoint in endpoints:
+            response = requests.get(f"{API_BASE}{endpoint}", timeout=10)
+            
+            if response.status_code != 401:
+                results.add_fail("Unauthenticated Access Test", f"Expected 401 for {endpoint}, got {response.status_code}")
+                return False
+        
+        results.add_pass("Unauthenticated Access Test")
+        print(f"   ✅ All protected endpoints correctly return 401 for unauthenticated requests")
+        return True
+        
+    except Exception as e:
+        results.add_fail("Unauthenticated Access Test", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
 def main():
-    """Main test execution for translation API functionality"""
-    print("🚀 STARTING TRANSLATION API ENDPOINTS TESTING")
+    """Main test execution for CMS Dashboard and Share-Referral System"""
+    print("🚀 STARTING CMS DASHBOARD AND SHARE-REFERRAL SYSTEM TESTING")
     print("=" * 80)
     
     # Test API health first
@@ -989,34 +1807,66 @@ def main():
         print("❌ API is not healthy, stopping tests")
         return
     
-    print("\n🌐 TESTING TRANSLATION API ENDPOINTS")
+    # Authenticate users
+    admin_token = authenticate_admin()
+    user_token = authenticate_user()
+    
+    if not admin_token:
+        print("❌ Failed to authenticate admin user, stopping admin tests")
+        return
+    
+    print("\n📚 TESTING CMS DASHBOARD ADMIN ENDPOINTS")
     print("=" * 60)
     
-    # Test 1: Get supported languages (PUBLIC endpoint)
-    test_get_supported_languages()
+    # Test admin CMS endpoints
+    article_id = test_admin_create_article(admin_token)
+    test_admin_get_articles(admin_token)
     
-    # Test 2: Single text translation (PUBLIC endpoints)
-    test_translate_single_text_telugu()
-    test_translate_single_text_hindi()
-    test_translate_invalid_language()
-    test_translate_empty_text()
+    if article_id:
+        test_admin_get_single_article(admin_token, article_id)
+        test_admin_update_article(admin_token, article_id)
+        test_admin_publish_unpublish_article(admin_token, article_id)
     
-    # Test 3: Batch translation (PUBLIC endpoints)
-    test_translate_batch_telugu()
-    test_translate_batch_hindi()
-    test_translate_batch_invalid_language()
+    test_admin_get_categories(admin_token)
+    test_admin_content_analytics(admin_token)
+    
+    # Test non-admin access
+    if user_token:
+        test_non_admin_access(user_token)
+    
+    print("\n🔗 TESTING SHARE-REFERRAL SYSTEM ENDPOINTS")
+    print("=" * 60)
+    
+    if user_token and article_id:
+        # Test share-referral endpoints
+        share_code = test_create_share_link(user_token, article_id)
+        
+        if share_code:
+            test_track_share_activity(share_code)
+            test_capture_share_lead(share_code)
+        
+        test_my_share_analytics(user_token)
+        test_my_share_leads(user_token)
+        test_share_leaderboard(user_token)
+    
+    # Test unauthenticated access
+    test_unauthenticated_access()
     
     # Print final summary
     success = results.summary()
     
     if success:
-        print("\n🎉 ALL TRANSLATION API TESTS PASSED!")
-        print("✅ GET /api/translations/languages endpoint is working correctly")
-        print("✅ POST /api/translations/translate endpoint is functional")
-        print("✅ POST /api/translations/translate-batch endpoint is functional")
-        print("✅ Language validation is working")
-        print("✅ Error handling is operational")
-        print("✅ AI-powered translation via OpenAI GPT-5 is working")
+        print("\n🎉 ALL CMS DASHBOARD AND SHARE-REFERRAL TESTS PASSED!")
+        print("✅ Admin CMS Content Routes working correctly")
+        print("✅ Article CRUD operations functional")
+        print("✅ Category management operational")
+        print("✅ Content analytics working")
+        print("✅ Share link creation functional")
+        print("✅ Activity tracking operational")
+        print("✅ Lead capture working")
+        print("✅ Reward calculation accurate")
+        print("✅ Analytics endpoints functional")
+        print("✅ Authentication and authorization working")
     else:
         print("\n❌ SOME TESTS FAILED - CHECK DETAILS ABOVE")
 
