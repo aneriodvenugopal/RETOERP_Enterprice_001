@@ -483,7 +483,7 @@ async def get_share_leaderboard(request: Request, limit: int = 10):
 async def setup_reward_config(reward_data: dict, request: Request):
     """Setup reward configuration (Admin only)"""
     user = await get_current_user(request)
-    if not user or user.get('role_id') not in ['super_admin', 'admin']:
+    if not user or user.get('role') not in ['super_admin', 'admin']:
         raise HTTPException(status_code=403, detail="Admin access required")
     
     db = get_db(request)
@@ -524,7 +524,7 @@ async def setup_reward_config(reward_data: dict, request: Request):
 async def get_all_share_leads(request: Request, limit: int = 100, skip: int = 0):
     """Get all leads from shares (Admin only)"""
     user = await get_current_user(request)
-    if not user or user.get('role_id') not in ['super_admin', 'admin']:
+    if not user or user.get('role') not in ['super_admin', 'admin']:
         raise HTTPException(status_code=403, detail="Admin access required")
     
     db = get_db(request)
