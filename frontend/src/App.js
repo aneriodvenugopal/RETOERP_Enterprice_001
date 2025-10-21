@@ -48,6 +48,7 @@ import AdvisoryChat from "./pages/advisory/AdvisoryChat";
 
 // Admin Pages
 import ContentManagement from "./pages/admin/ContentManagement";
+import ResaleManagement from "./pages/admin/ResaleManagement";
 
 // PWA Components
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
