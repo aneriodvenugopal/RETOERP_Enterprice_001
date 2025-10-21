@@ -87,6 +87,22 @@ function App() {
                     </PrivateRoute>
                   } 
                 />
+                <Route 
+                  path="/admin/resale" 
+                  element={
+                    <PrivateRoute>
+                      <ResaleManagement />
+                    </PrivateRoute>
+                  } 
+                />
+                <Route 
+                  path="/resale" 
+                  element={
+                    <PrivateRoute>
+                      <ResaleRequests />
+                    </PrivateRoute>
+                  } 
+                />
                 
                 {/* PWA Routes */}
                 <Route path="/pwa/login" element={<PWALogin />} />
