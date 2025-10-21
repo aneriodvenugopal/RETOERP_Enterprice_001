@@ -13,6 +13,12 @@ export const authService = {
     return response.data;
   },
 
+  // Login with password (NEW)
+  loginWithPassword: async (credentials) => {
+    const response = await api.post('/auth/login', credentials);
+    return response.data;
+  },
+
   // Register new user
   register: async (userData) => {
     const response = await api.post('/auth/register', userData);
