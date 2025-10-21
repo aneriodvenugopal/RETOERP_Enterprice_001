@@ -1182,9 +1182,13 @@ def test_admin_create_article(auth_token):
         if category_response.status_code == 200:
             category_result = category_response.json()
             category_id = category_result.get('category', {}).get('id')
+            print(f"   ✅ Category created: {category_id}")
+        else:
+            print(f"   ❌ Category creation failed: {category_response.status_code}")
+            print_error_details("Category Creation", category_response)
         
         if not category_id:
-            results.add_fail("Admin Create Article", "Failed to create test category")
+            results.add_fail("Admin Create Article", f"Failed to create test category (Status: {category_response.status_code})")
             return None
         
         # Create article
