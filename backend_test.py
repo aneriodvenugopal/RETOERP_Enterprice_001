@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Backend API Testing for RETOERP - Translation API Endpoints Testing
-Tests the AI-powered translation service endpoints with comprehensive test cases.
+Backend API Testing for RETOERP - CMS Dashboard and Share-Referral System Testing
+Tests the newly implemented CMS Dashboard and Share-Referral System backend APIs.
 """
 
 import requests
