@@ -81,3 +81,4 @@ PyMuPDF==1.26.5
 pytesseract==0.3.13
 shapely==2.1.2
 emergentintegrations
+firebase_admin==7.1.0
