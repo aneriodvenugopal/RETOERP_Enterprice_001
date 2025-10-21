@@ -12,11 +12,14 @@ const Register = () => {
     name: '',
     email: '',
     phone: '',
+    password: '',
+    confirmPassword: '',
     role_id: ''
   });
   const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
+  const [passwordStrength, setPasswordStrength] = useState({ score: 0, text: '', color: '' });
   const navigate = useNavigate();
 
   useEffect(() => {
