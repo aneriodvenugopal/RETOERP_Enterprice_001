@@ -78,6 +78,38 @@ async def track_pwa_install(request: Request, platform: str = "unknown"):
     
     return {"success": True}
 
+# Firebase FCM Token Management
+@api_router.post("/notifications/save-fcm-token")
+async def save_fcm_token(request: Request):
+    """Save Firebase FCM token for user"""
+    try:
+        from middleware.auth import get_current_user
+        
+        current_user = await get_current_user(request)
+        db = request.app.state.db
+        
+        body = await request.json()
+        user_id = body.get('user_id')
+        fcm_token = body.get('fcm_token')
+        device_type = body.get('device_type', 'web')
+        
+        # Update user's FCM token
+        await db.users.update_one(
+            {"id": user_id},
+            {
+                "$set": {
+                    "fcm_token": fcm_token,
+                    "device_type": device_type,
+                    "fcm_updated_at": datetime.utcnow().isoformat()
+                }
+            }
+        )
+        
+        return {"success": True, "message": "FCM token saved"}
+    
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
 # Include the router in the main app
 app.include_router(api_router)
 
