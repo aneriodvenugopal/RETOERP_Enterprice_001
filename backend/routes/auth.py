@@ -168,3 +168,135 @@ async def get_all_roles(request: Request):
     roles = await db.roles.find({"deleted_at": None}, {"_id": 0}).to_list(length=None)
     
     return roles
+
+
+# ============ FORGOT PASSWORD ============
+
+@router.post("/forgot-password")
+async def forgot_password(login: UserLogin, request: Request):
+    """Send OTP for password reset"""
+    db = get_db(request)
+    
+    # Check if user exists
+    user = await db.users.find_one({'phone': login.phone}, {"_id": 0})
+    
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found with this phone number")
+    
+    # Generate OTP and reset token
+    otp = AuthService.generate_otp()
+    import uuid
+    reset_token = str(uuid.uuid4())
+    otp_expires_at = datetime.now(timezone.utc) + timedelta(minutes=10)
+    
+    # Update user with OTP and reset token
+    await db.users.update_one(
+        {'phone': login.phone},
+        {'$set': {
+            'reset_otp': otp,
+            'reset_token': reset_token,
+            'reset_otp_expires_at': otp_expires_at.isoformat()
+        }}
+    )
+    
+    # Send OTP via SMS
+    await AuthService.send_otp_sms(login.phone, otp)
+    
+    return {
+        "message": "Password reset OTP sent successfully",
+        "phone": login.phone,
+        "reset_token": reset_token,
+        "otp": otp  # TODO: Remove in production
+    }
+
+@router.post("/verify-reset-otp")
+async def verify_reset_otp(data: dict, request: Request):
+    """Verify OTP for password reset"""
+    db = get_db(request)
+    
+    phone = data.get('phone')
+    otp = data.get('otp')
+    reset_token = data.get('reset_token')
+    
+    if not phone or not otp or not reset_token:
+        raise HTTPException(status_code=400, detail="Phone, OTP and reset token are required")
+    
+    # Find user
+    user = await db.users.find_one({'phone': phone}, {"_id": 0})
+    
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Check OTP and token
+    if user.get('reset_otp') != otp:
+        raise HTTPException(status_code=400, detail="Invalid OTP")
+    
+    if user.get('reset_token') != reset_token:
+        raise HTTPException(status_code=400, detail="Invalid reset token")
+    
+    # Check if OTP expired
+    otp_expires_at = user.get('reset_otp_expires_at')
+    if otp_expires_at:
+        expires = datetime.fromisoformat(otp_expires_at)
+        if datetime.now(timezone.utc) > expires:
+            raise HTTPException(status_code=400, detail="OTP expired")
+    
+    return {
+        "message": "OTP verified successfully",
+        "phone": phone
+    }
+
+@router.post("/reset-password")
+async def reset_password(data: dict, request: Request):
+    """Reset password after OTP verification"""
+    db = get_db(request)
+    
+    phone = data.get('phone')
+    otp = data.get('otp')
+    reset_token = data.get('reset_token')
+    new_password = data.get('new_password')
+    
+    if not phone or not otp or not reset_token or not new_password:
+        raise HTTPException(status_code=400, detail="All fields are required")
+    
+    # Find user
+    user = await db.users.find_one({'phone': phone}, {"_id": 0})
+    
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Verify OTP and token again
+    if user.get('reset_otp') != otp or user.get('reset_token') != reset_token:
+        raise HTTPException(status_code=400, detail="Invalid OTP or reset token")
+    
+    # Check if OTP expired
+    otp_expires_at = user.get('reset_otp_expires_at')
+    if otp_expires_at:
+        expires = datetime.fromisoformat(otp_expires_at)
+        if datetime.now(timezone.utc) > expires:
+            raise HTTPException(status_code=400, detail="OTP expired. Please request a new one")
+    
+    # Hash new password
+    from passlib.context import CryptContext
+    pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+    hashed_password = pwd_context.hash(new_password)
+    
+    # Update password and clear reset fields
+    await db.users.update_one(
+        {'phone': phone},
+        {'$set': {
+            'password': hashed_password,
+            'updated_at': datetime.now(timezone.utc).isoformat()
+        },
+        '$unset': {
+            'reset_otp': '',
+            'reset_token': '',
+            'reset_otp_expires_at': ''
+        }}
+    )
+    
+    return {
+        "message": "Password reset successfully. Please login with your new password.",
+        "phone": phone
+    }
+
