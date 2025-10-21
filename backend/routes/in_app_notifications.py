@@ -112,8 +112,11 @@ async def get_unread_count(request: Request):
     if not user:
         raise HTTPException(status_code=401, detail="Not authenticated")
     
+    # Handle both 'user_id' and 'id' fields from JWT token
+    user_id = user.get('user_id') or user.get('id')
+    
     count = await db.in_app_notifications.count_documents({
-        'user_id': user['user_id'],
+        'user_id': user_id,
         'tenant_id': user['tenant_id'],
         'read': False
     })
