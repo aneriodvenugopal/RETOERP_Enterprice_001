@@ -3,14 +3,14 @@
 importScripts('https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging-compat.js');
 
-// Initialize Firebase in the service worker
+// Firebase config for RETOERP
 firebase.initializeApp({
-  apiKey: "AIzaSyC_REPLACE_WITH_YOUR_API_KEY",
-  authDomain: "retoerp-REPLACE.firebaseapp.com",
-  projectId: "retoerp-REPLACE",
-  storageBucket: "retoerp-REPLACE.appspot.com",
-  messagingSenderId: "123456789",
-  appId: "1:123456789:web:REPLACE"
+  apiKey: "AIzaSyBLdLj5EGwRxHbsCqEbngRWbEFn4RUHQdI",
+  authDomain: "retoerp-5ff78.firebaseapp.com",
+  projectId: "retoerp-5ff78",
+  storageBucket: "retoerp-5ff78.firebasestorage.app",
+  messagingSenderId: "999459364917",
+  appId: "1:999459364917:web:ab67804d48b20e288bd17c"
 });
 
 const messaging = firebase.messaging();
