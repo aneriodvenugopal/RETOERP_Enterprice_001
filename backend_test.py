@@ -2358,64 +2358,91 @@ def main():
     
     # Authenticate users
     admin_token = authenticate_admin()
-    user_token = authenticate_user()
+    customer_token = authenticate_user()  # This is actually a customer user
     
     if not admin_token:
         print("❌ Failed to authenticate admin user, stopping admin tests")
         return
     
-    print("\n📚 TESTING CMS DASHBOARD ADMIN ENDPOINTS")
+    if not customer_token:
+        print("❌ Failed to authenticate customer user, stopping customer tests")
+        return
+    
+    print("\n🏠 TESTING RESALE REQUEST SYSTEM")
     print("=" * 60)
     
-    # Test admin CMS endpoints
-    article_id = test_admin_create_article(admin_token)
-    test_admin_get_articles(admin_token)
+    # First get a project to use for testing
+    project = test_get_projects(admin_token)
+    project_id = project.get('id') if project else None
     
-    if article_id:
-        test_admin_get_single_article(admin_token, article_id)
-        test_admin_update_article(admin_token, article_id)
-        test_admin_publish_unpublish_article(admin_token, article_id)
+    if not project_id:
+        print("❌ No project available for testing, skipping resale tests")
+        return
     
-    test_admin_get_categories(admin_token)
-    test_admin_content_analytics(admin_token)
+    print(f"\n📋 Using project: {project.get('name', 'Unknown')} (ID: {project_id})")
     
-    # Test non-admin access
-    if user_token:
-        test_non_admin_access(user_token)
+    # Test customer endpoints
+    print("\n👤 TESTING CUSTOMER RESALE ENDPOINTS")
+    print("-" * 40)
     
-    print("\n🔗 TESTING SHARE-REFERRAL SYSTEM ENDPOINTS")
-    print("=" * 60)
+    request_id = test_customer_create_resale_request(customer_token, project_id)
+    test_customer_get_my_requests(customer_token)
     
-    if user_token and article_id:
-        # Test share-referral endpoints
-        share_code = test_create_share_link(user_token, article_id)
+    if request_id:
+        test_get_single_resale_request(customer_token, request_id)
+    
+    # Test admin endpoints
+    print("\n👨‍💼 TESTING ADMIN RESALE ENDPOINTS")
+    print("-" * 40)
+    
+    test_admin_get_all_requests(admin_token)
+    test_admin_filter_requests_by_status(admin_token)
+    
+    # Test admin approval/rejection
+    if request_id:
+        # Create another request for rejection test
+        request_id_2 = test_customer_create_resale_request(customer_token, project_id)
         
-        if share_code:
-            test_track_share_activity(share_code)
-            test_capture_share_lead(share_code)
+        # Test approval
+        test_admin_approve_request(admin_token, request_id)
         
-        test_my_share_analytics(user_token)
-        test_my_share_leads(user_token)
-        test_share_leaderboard(user_token)
+        # Test rejection
+        if request_id_2:
+            test_admin_reject_request(admin_token, request_id_2)
     
-    # Test unauthenticated access
-    test_unauthenticated_access()
+    # Test available resales (after approval)
+    print("\n🏪 TESTING AVAILABLE RESALES")
+    print("-" * 40)
+    
+    resale_id = test_get_available_resales(customer_token)
+    if resale_id:
+        test_get_resale_details(customer_token, resale_id)
+    
+    # Test access control
+    print("\n🔒 TESTING ACCESS CONTROL")
+    print("-" * 40)
+    
+    test_access_control_customer_to_admin(customer_token)
+    
+    # Test notifications
+    print("\n🔔 TESTING NOTIFICATIONS")
+    print("-" * 40)
+    
+    test_notifications_in_database(admin_token)
     
     # Print final summary
     success = results.summary()
     
     if success:
-        print("\n🎉 ALL CMS DASHBOARD AND SHARE-REFERRAL TESTS PASSED!")
-        print("✅ Admin CMS Content Routes working correctly")
-        print("✅ Article CRUD operations functional")
-        print("✅ Category management operational")
-        print("✅ Content analytics working")
-        print("✅ Share link creation functional")
-        print("✅ Activity tracking operational")
-        print("✅ Lead capture working")
-        print("✅ Reward calculation accurate")
-        print("✅ Analytics endpoints functional")
-        print("✅ Authentication and authorization working")
+        print("\n🎉 ALL RESALE REQUEST SYSTEM TESTS PASSED!")
+        print("✅ Customer resale request creation working")
+        print("✅ Customer request retrieval functional")
+        print("✅ Admin request management operational")
+        print("✅ Admin approval/rejection working")
+        print("✅ Available resales browsing functional")
+        print("✅ Access control properly enforced")
+        print("✅ Notifications saved to database")
+        print("✅ All CRUD operations working correctly")
     else:
         print("\n❌ SOME TESTS FAILED - CHECK DETAILS ABOVE")
 
