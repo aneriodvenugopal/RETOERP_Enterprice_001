@@ -30,6 +30,15 @@ export const AuthProvider = ({ children }) => {
       setUser(data.user);
       localStorage.setItem('token', data.access_token);
       localStorage.setItem('user', JSON.stringify(data.user));
+      localStorage.setItem('user_id', data.user.id);
+      
+      // Initialize Firebase notifications after successful login
+      if (data.user && data.user.id) {
+        setTimeout(() => {
+          notificationService.initialize(data.user.id);
+        }, 2000); // Wait 2 seconds after login
+      }
+      
       return data;
     } catch (error) {
       throw error;
