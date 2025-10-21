@@ -45,6 +45,9 @@ import ArticleDetail from "./pages/content/ArticleDetail";
 import AdvisoryHub from "./pages/advisory/AdvisoryHub";
 import AdvisoryChat from "./pages/advisory/AdvisoryChat";
 
+// PWA Components
+import PWAInstallPrompt from "./components/PWAInstallPrompt";
+
 function App() {
   return (
     <AuthProvider>
