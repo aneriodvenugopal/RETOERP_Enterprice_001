@@ -99,6 +99,76 @@ async def verify_otp(verify: OTPVerify, request: Request):
         }
     }
 
+
+@router.post("/login")
+async def login_with_password(data: dict, request: Request):
+    """Login with phone/email and password"""
+    db = get_db(request)
+    
+    phone = data.get('phone')
+    email = data.get('email')
+    password = data.get('password')
+    
+    if not password:
+        raise HTTPException(status_code=400, detail="Password is required")
+    
+    if not phone and not email:
+        raise HTTPException(status_code=400, detail="Phone or email is required")
+    
+    # Find user by phone or email
+    query = {}
+    if phone:
+        query = {'phone': phone}
+    elif email:
+        query = {'email': email}
+    
+    user_doc = await db.users.find_one(query, {"_id": 0})
+    
+    if not user_doc:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Check if user has password
+    if not user_doc.get('password'):
+        raise HTTPException(status_code=400, detail="No password set. Please use OTP login or reset password")
+    
+    # Verify password
+    from passlib.context import CryptContext
+    pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+    
+    if not pwd_context.verify(password, user_doc['password']):
+        raise HTTPException(status_code=401, detail="Invalid password")
+    
+    # Get user's role
+    role_doc = await db.roles.find_one({'id': user_doc['role_id']}, {"_id": 0})
+    role_slug = role_doc['slug'] if role_doc else 'user'
+    
+    # Generate JWT token
+    token = AuthService.create_access_token(
+        user_id=user_doc['id'],
+        tenant_id=user_doc['tenant_id'],
+        role=role_slug
+    )
+    
+    # Update last login
+    await db.users.update_one(
+        query,
+        {'$set': {'last_login': datetime.now(timezone.utc).isoformat()}}
+    )
+    
+    return {
+        "access_token": token,
+        "token_type": "bearer",
+        "user": {
+            "id": user_doc['id'],
+            "name": user_doc['name'],
+            "phone": user_doc.get('phone'),
+            "email": user_doc.get('email'),
+            "role_id": role_slug,
+            "tenant_id": user_doc['tenant_id']
+        }
+    }
+
+
 @router.post("/register")
 async def register(user_create: UserCreate, request: Request):
     """Register a new user"""
