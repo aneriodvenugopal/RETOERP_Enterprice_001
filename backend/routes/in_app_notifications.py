@@ -70,8 +70,11 @@ async def get_user_notifications(
     if not user:
         raise HTTPException(status_code=401, detail="Not authenticated")
     
+    # Handle both 'user_id' and 'id' fields from JWT token
+    user_id = user.get('user_id') or user.get('id')
+    
     query = {
-        'user_id': user['user_id'],
+        'user_id': user_id,
         'tenant_id': user['tenant_id']
     }
     
