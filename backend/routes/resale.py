@@ -55,7 +55,11 @@ async def create_resale_request(request_data: ResaleRequestCreate, request: Requ
         'updated_at': datetime.now(timezone.utc).isoformat()
     }
     
-    await db.resale_requests.insert_one(resale_request)
+    # Insert the resale request
+    result = await db.resale_requests.insert_one(resale_request)
+    
+    # Remove MongoDB ObjectId from response
+    resale_request.pop('_id', None)
     
     # Notify tenant admins
     admins = await db.users.find({
