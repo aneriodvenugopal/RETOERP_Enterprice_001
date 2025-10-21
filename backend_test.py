@@ -2301,17 +2301,17 @@ def test_access_control_customer_to_admin(customer_token):
         traceback.print_exc()
         return False
 
-def test_notifications_in_database(admin_token):
+def test_notifications_in_database(customer_token):
     """Test that notifications are saved to database"""
-    if not admin_token:
-        results.add_fail("Notifications in Database", "No admin token available")
+    if not customer_token:
+        results.add_fail("Notifications in Database", "No customer token available")
         return False
         
     try:
         print("\n🔔 TESTING: Notifications saved to database")
         
         # Get in-app notifications to verify they were created
-        headers = {"Authorization": f"Bearer {admin_token}"}
+        headers = {"Authorization": f"Bearer {customer_token}"}
         response = requests.get(f"{API_BASE}/in-app-notifications/", headers=headers, timeout=10)
         
         if response.status_code != 200:
