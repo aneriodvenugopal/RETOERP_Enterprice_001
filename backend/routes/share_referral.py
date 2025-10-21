@@ -312,27 +312,24 @@ async def capture_share_lead(lead_data: dict, request: Request):
         {'$inc': {'lead_count': 1}}
     )
     
-    # Create notification for sharer
-    notification_id = str(uuid.uuid4())
-    notification = {
-        'id': notification_id,
-        'user_id': share_ref['sharer_id'],
-        'tenant_id': share_ref['tenant_id'],
-        'title': '🎉 New Lead from Your Share!',
-        'message': f"Someone filled the form from your shared article! You earned ₹{lead_credit} credits.",
-        'type': 'success',
-        'priority': 'normal',
-        'read': False,
-        'action_url': '/share-rewards',
-        'action_label': 'View Rewards',
-        'metadata': {
+    # Send notification to sharer using Firebase service
+    from services.firebase_notification_service import send_notification_to_user
+    
+    await send_notification_to_user(
+        db=db,
+        user_id=share_ref['sharer_id'],
+        tenant_id=share_ref['tenant_id'],
+        title='🎉 New Lead from Your Share!',
+        message=f"Someone filled the form from your shared article! You earned ₹{lead_credit} credits.",
+        notification_type='success',
+        priority='normal',
+        action_url='/share-rewards',
+        action_label='View Rewards',
+        metadata={
             'lead_id': lead_id,
             'credits': lead_credit
-        },
-        'created_at': datetime.now(timezone.utc).isoformat(),
-        'read_at': None
-    }
-    await db.in_app_notifications.insert_one(notification)
+        }
+    )
     
     return {
         "success": True,
