@@ -153,6 +153,9 @@ async def create_article(article_data: ArticleCreateRequest, request: Request):
     
     await db.articles.insert_one(article)
     
+    # Remove _id field if it exists to avoid serialization issues
+    article.pop('_id', None)
+    
     return {
         "success": True,
         "message": "Article created successfully",
