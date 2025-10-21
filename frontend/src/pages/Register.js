@@ -30,7 +30,15 @@ const Register = () => {
     try {
       const data = await authService.getRoles();
       // Backend returns array directly, not wrapped in object
-      setRoles(Array.isArray(data) ? data : data.roles || []);
+      const allRoles = Array.isArray(data) ? data : data.roles || [];
+      
+      // For public registration, only show Tenant Admin role
+      // Super Admin and other roles should be created by admins only
+      const publicRoles = allRoles.filter(role => 
+        role.slug === 'tenant_admin' || role.slug === 'customer'
+      );
+      
+      setRoles(publicRoles);
     } catch (error) {
       console.error('Failed to load roles:', error);
       toast.error('Failed to load roles');
