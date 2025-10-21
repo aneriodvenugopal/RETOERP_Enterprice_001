@@ -13,7 +13,7 @@ import uuid
 import random
 import string
 
-router = APIRouter(prefix="/api/share-referral", tags=["share-referral"])
+router = APIRouter(prefix="/share-referral", tags=["share-referral"])
 
 def get_db(request: Request):
     return request.app.state.db
