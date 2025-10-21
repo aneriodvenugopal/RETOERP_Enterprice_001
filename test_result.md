@@ -927,6 +927,22 @@ frontend:
         agent: "main"
         comment: "Built comprehensive share rewards dashboard with: (1) Stats overview cards - total credits earned, total shares, total views, total leads with color-coded icons, (2) Three tabs (Overview, My Leads, Leaderboard), (3) Overview tab - platform breakdown (WhatsApp/Facebook/LinkedIn/Email/Twitter with stats), recent shares list (share code, views, clicks, leads, credits), 'How to Earn More' guide with 4 earning methods, (4) My Leads tab - leads from user's shares with contact info, source article, status badges (new/contacted/converted), credit amount, date, (5) Leaderboard tab - top sharers with rankings (🥇🥈🥉), sharer name, total shares/views/leads, total credits, (6) Empty states with call-to-action buttons. Route: /share-rewards (protected, all authenticated users). Integrated with share_referral backend routes. Modern gradient design (blue to purple)."
 
+backend:
+  - task: "Resale Request System backend routes"
+    implemented: true
+    working: true
+    file: "/app/backend/routes/resale.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Implemented comprehensive resale request system with 8 endpoints: (1) Customer endpoints: POST /resale/request (create resale request), GET /resale/my-requests (customer's requests), GET /resale/request/{id} (single request details), (2) Admin endpoints: GET /resale/admin/requests (all requests with filtering), POST /resale/admin/review/{id} (approve/reject), (3) Public endpoints: GET /resale/available (approved resales), GET /resale/available/{id} (resale details). Features: Project validation, urgent request flagging, admin notifications, customer notifications on approval/rejection, broadcast notifications to interested users (bookings/leads in same project), proper access control, status filtering, tenant isolation."
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: All Resale Request System backend APIs working perfectly! Comprehensive testing completed with 14/14 tests passed including: (1) Customer endpoints: POST /resale/request successfully creates requests with proper validation (project verification, urgent flagging, contact details), GET /resale/my-requests returns customer-specific requests, GET /resale/request/{id} retrieves single request with access control, (2) Admin endpoints: GET /resale/admin/requests returns all requests with status counts (pending/approved/rejected), status filtering working correctly, POST /resale/admin/review/{id} for both approval and rejection with review notes, (3) Available resales: GET /resale/available returns only approved listings, GET /resale/available/{id} provides detailed resale information, (4) Access control: customers properly denied access to admin endpoints (403), proper authentication enforcement, (5) Notifications: backend logs confirm notifications saved to database for admin alerts and customer updates, broadcast notifications triggered on approval to interested users. Fixed MongoDB ObjectId serialization issue in responses. All CRUD operations, validation, authorization, and notification features working correctly. System ready for production use."
+
 metadata:
   created_by: "main_agent"
   version: "7.0"
