@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Backend API Testing for RETOERP - CMS Dashboard and Share-Referral System Testing
-Tests the newly implemented CMS Dashboard and Share-Referral System backend APIs.
+Backend API Testing for RETOERP - Resale Request System Testing
+Tests the newly implemented Resale Request System backend APIs.
 """
 
 import requests
