@@ -23,6 +23,7 @@ import Bookings from "./pages/Bookings";
 import Reports from "./pages/Reports";
 import UsersManagement from "./pages/UsersManagement";
 import CustomerDashboard from "./pages/CustomerDashboard";
+import ShareRewards from "./pages/ShareRewards";
 import PrivateRoute from "./components/PrivateRoute";
 
 // PWA Pages
