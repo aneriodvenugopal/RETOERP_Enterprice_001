@@ -285,51 +285,43 @@ async def complete_referral(referral_id: str, request: Request):
         }
     )
     
-    # Create notifications for both referrer and referee
-    import uuid as uuid_lib
+    # Send notifications for both referrer and referee using Firebase service
+    from services.firebase_notification_service import send_notification_to_user
     
     # Notification for referrer
-    referrer_notification = {
-        'id': str(uuid_lib.uuid4()),
-        'user_id': referral['referrer_id'],
-        'tenant_id': referral['tenant_id'],
-        'title': '🎉 Referral Reward Earned!',
-        'message': f'Congratulations! {referral["referee_name"]} joined using your referral. You earned ₹{referral["referrer_reward"]}!',
-        'type': 'success',
-        'priority': 'high',
-        'read': False,
-        'action_url': '/referrals',
-        'action_label': 'View Referrals',
-        'metadata': {
+    await send_notification_to_user(
+        db=db,
+        user_id=referral['referrer_id'],
+        tenant_id=referral['tenant_id'],
+        title='🎉 Referral Reward Earned!',
+        message=f'Congratulations! {referral["referee_name"]} joined using your referral. You earned ₹{referral["referrer_reward"]}!',
+        notification_type='success',
+        priority='high',
+        action_url='/referrals',
+        action_label='View Referrals',
+        metadata={
             'referral_id': referral_id,
             'reward': referral['referrer_reward']
-        },
-        'created_at': datetime.now(timezone.utc).isoformat(),
-        'read_at': None
-    }
-    await db.in_app_notifications.insert_one(referrer_notification)
+        }
+    )
     
     # Notification for referee
     if referral['referee_id']:
-        referee_notification = {
-            'id': str(uuid_lib.uuid4()),
-            'user_id': referral['referee_id'],
-            'tenant_id': referral['tenant_id'],
-            'title': '🎁 Welcome Bonus!',
-            'message': f'Welcome to RETOERP! You received ₹{referral["referee_reward"]} bonus from your referral!',
-            'type': 'success',
-            'priority': 'normal',
-            'read': False,
-            'action_url': '/dashboard',
-            'action_label': 'View Dashboard',
-            'metadata': {
+        await send_notification_to_user(
+            db=db,
+            user_id=referral['referee_id'],
+            tenant_id=referral['tenant_id'],
+            title='🎁 Welcome Bonus!',
+            message=f'Welcome to RETOERP! You received ₹{referral["referee_reward"]} bonus from your referral!',
+            notification_type='success',
+            priority='normal',
+            action_url='/dashboard',
+            action_label='View Dashboard',
+            metadata={
                 'referral_id': referral_id,
                 'reward': referral['referee_reward']
-            },
-            'created_at': datetime.now(timezone.utc).isoformat(),
-            'read_at': None
-        }
-        await db.in_app_notifications.insert_one(referee_notification)
+            }
+        )
     
     return {
         "success": True,
