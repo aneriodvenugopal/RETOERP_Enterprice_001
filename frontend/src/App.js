@@ -171,6 +171,14 @@ function App() {
                 }
               />
               <Route
+                path="/share-rewards"
+                element={
+                  <PrivateRoute>
+                    <ShareRewards />
+                  </PrivateRoute>
+                }
+              />
+              <Route
                 path="/layouts"
                 element={
                   <PrivateRoute>
