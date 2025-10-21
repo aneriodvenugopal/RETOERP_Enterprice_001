@@ -248,17 +248,22 @@ const Login = () => {
                 )}
               </Button>
 
-              <div className="text-center">
-                <p className="text-sm text-gray-500">
-                  Forgot password?{' '}
-                  <button
-                    type="button"
-                    onClick={toggleLoginMode}
-                    className="text-blue-600 hover:text-blue-700 font-medium"
-                  >
-                    Login with OTP instead
-                  </button>
-                </p>
+              <div className="flex items-center justify-between text-sm">
+                <button
+                  type="button"
+                  onClick={() => navigate('/forgot-password')}
+                  className="flex items-center gap-1.5 text-blue-600 hover:text-blue-700 font-medium transition-colors"
+                >
+                  <KeyRound className="w-4 h-4" />
+                  Forgot Password?
+                </button>
+                <button
+                  type="button"
+                  onClick={toggleLoginMode}
+                  className="text-gray-600 hover:text-gray-800 font-medium transition-colors"
+                >
+                  Login with OTP →
+                </button>
               </div>
             </form>
           )}
