@@ -2,14 +2,14 @@
 import { initializeApp } from 'firebase/app';
 import { getMessaging, getToken, onMessage } from 'firebase/messaging';
 
-// Your Firebase config (replace with your actual config from Firebase Console)
+// Firebase config for RETOERP
 const firebaseConfig = {
-  apiKey: "AIzaSyC_REPLACE_WITH_YOUR_API_KEY",
-  authDomain: "retoerp-REPLACE.firebaseapp.com",
-  projectId: "retoerp-REPLACE",
-  storageBucket: "retoerp-REPLACE.appspot.com",
-  messagingSenderId: "123456789",
-  appId: "1:123456789:web:REPLACE"
+  apiKey: "AIzaSyBLdLj5EGwRxHbsCqEbngRWbEFn4RUHQdI",
+  authDomain: "retoerp-5ff78.firebaseapp.com",
+  projectId: "retoerp-5ff78",
+  storageBucket: "retoerp-5ff78.firebasestorage.app",
+  messagingSenderId: "999459364917",
+  appId: "1:999459364917:web:ab67804d48b20e288bd17c"
 };
 
 // Initialize Firebase
