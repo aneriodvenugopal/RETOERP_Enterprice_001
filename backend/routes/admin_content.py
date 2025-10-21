@@ -11,7 +11,7 @@ from datetime import datetime, timezone
 import uuid
 from typing import List, Optional
 
-router = APIRouter(prefix="/api/admin/content", tags=["admin-content"])
+router = APIRouter(prefix="/admin/content", tags=["admin-content"])
 
 def get_db(request: Request):
     return request.app.state.db
