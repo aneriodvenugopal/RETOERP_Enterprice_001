@@ -168,16 +168,260 @@ const Login = () => {
         </CardHeader>
 
         <CardContent className="space-y-6">
-          {!showOTP ? (
-            <div className="space-y-4">
+          {/* Login Mode Toggle */}
+          <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg border border-blue-200">
+            <div className="flex items-center gap-2">
+              {loginMode === 'password' ? (
+                <>
+                  <Lock className="w-5 h-5 text-blue-600" />
+                  <span className="text-sm font-medium text-gray-700">Password Login</span>
+                </>
+              ) : (
+                <>
+                  <KeyRound className="w-5 h-5 text-blue-600" />
+                  <span className="text-sm font-medium text-gray-700">OTP Login</span>
+                </>
+              )}
+            </div>
+            <button
+              onClick={toggleLoginMode}
+              className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-blue-600 hover:bg-blue-100 rounded-md transition-colors"
+              type="button"
+            >
+              <ArrowRightLeft className="w-4 h-4" />
+              {loginMode === 'password' ? 'Use OTP' : 'Use Password'}
+            </button>
+          </div>
+
+          {/* Password Login Form */}
+          {loginMode === 'password' && (
+            <form onSubmit={handlePasswordLogin} className="space-y-4">
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                  <Phone className="w-4 h-4 text-ocean-primary" />
+                  <Phone className="w-4 h-4 text-blue-600" />
+                  Phone Number or Email
+                </label>
+                <Input
+                  type="text"
+                  placeholder="Enter phone (10 digits) or email"
+                  value={identifier}
+                  onChange={(e) => setIdentifier(e.target.value)}
+                  className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                />
+                {errors.identifier && (
+                  <p className="text-sm text-red-500">{errors.identifier}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                  <Lock className="w-4 h-4 text-blue-600" />
+                  Password
+                </label>
+                <Input
+                  type="password"
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                />
+                {errors.password && (
+                  <p className="text-sm text-red-500">{errors.password}</p>
+                )}
+              </div>
+
+              <Button
+                type="submit"
+                className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-6 rounded-lg shadow-lg"
+                disabled={loading}
+              >
+                {loading ? (
+                  <div className="flex items-center justify-center gap-2">
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                    Logging in...
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center gap-2">
+                    <Lock className="w-5 h-5" />
+                    Login with Password
+                  </div>
+                )}
+              </Button>
+
+              <div className="text-center">
+                <p className="text-sm text-gray-500">
+                  Forgot password?{' '}
+                  <button
+                    type="button"
+                    onClick={toggleLoginMode}
+                    className="text-blue-600 hover:text-blue-700 font-medium"
+                  >
+                    Login with OTP instead
+                  </button>
+                </p>
+              </div>
+            </form>
+          )}
+
+          {/* OTP Login Form */}
+          {loginMode === 'otp' && !showOTP && (
+            <div className="space-y-4">
+              <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <p className="text-sm text-yellow-800">
+                  <strong>💡 Tip:</strong> Use password login to save SMS costs. OTP login is available if you forgot your password.
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                  <Phone className="w-4 h-4 text-blue-600" />
                   Phone Number
                 </label>
-                <div className="relative">
-                  <Input
-                    type="tel"
+                <Input
+                  type="tel"
+                  placeholder="Enter 10-digit phone number"
+                  value={identifier}
+                  onChange={(e) => setIdentifier(e.target.value)}
+                  maxLength={10}
+                  className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                />
+                {errors.identifier && (
+                  <p className="text-sm text-red-500">{errors.identifier}</p>
+                )}
+              </div>
+
+              <Button
+                onClick={handleSendOTP}
+                className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-6 rounded-lg shadow-lg"
+                disabled={loading}
+              >
+                {loading ? (
+                  <div className="flex items-center justify-center gap-2">
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                    Sending OTP...
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center gap-2">
+                    <Phone className="w-5 h-5" />
+                    Send OTP
+                  </div>
+                )}
+              </Button>
+            </div>
+          )}
+
+          {/* OTP Verification Form */}
+          {loginMode === 'otp' && showOTP && (
+            <form onSubmit={handleVerifyOTP} className="space-y-4">
+              <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                <p className="text-sm text-green-800 font-medium">
+                  ✓ OTP sent to {identifier}
+                </p>
+                <p className="text-xs text-green-600 mt-1">
+                  Development Mode: {generatedOTP}
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                  <KeyRound className="w-4 h-4 text-blue-600" />
+                  Enter OTP
+                </label>
+                <Input
+                  type="text"
+                  placeholder="Enter 6-digit OTP"
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value)}
+                  maxLength={6}
+                  className="border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-center text-2xl tracking-widest"
+                />
+                {errors.otp && (
+                  <p className="text-sm text-red-500">{errors.otp}</p>
+                )}
+              </div>
+
+              <Button
+                type="submit"
+                className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-6 rounded-lg shadow-lg"
+                disabled={loading}
+              >
+                {loading ? (
+                  <div className="flex items-center justify-center gap-2">
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                    Verifying...
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center gap-2">
+                    <KeyRound className="w-5 h-5" />
+                    Verify OTP
+                  </div>
+                )}
+              </Button>
+
+              <div className="text-center space-y-2">
+                <button
+                  type="button"
+                  onClick={handleSendOTP}
+                  className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                  disabled={loading}
+                >
+                  Resend OTP
+                </button>
+                <p className="text-sm text-gray-500">
+                  or{' '}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowOTP(false);
+                      setOtp('');
+                    }}
+                    className="text-blue-600 hover:text-blue-700 font-medium"
+                  >
+                    Change Phone Number
+                  </button>
+                </p>
+              </div>
+            </form>
+          )}
+
+          {/* Register Link */}
+          <div className="text-center pt-4 border-t border-gray-200">
+            <p className="text-sm text-gray-600">
+              Don't have an account?{' '}
+              <Link to="/register" className="text-blue-600 hover:text-blue-700 font-semibold">
+                Register here
+              </Link>
+            </p>
+          </div>
+
+          {/* Features */}
+          <div className="grid grid-cols-3 gap-3 pt-4">
+            <div className="text-center">
+              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                <Lock className="w-5 h-5 text-blue-600" />
+              </div>
+              <p className="text-xs text-gray-600 font-medium">Secure</p>
+            </div>
+            <div className="text-center">
+              <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                <Waves className="w-5 h-5 text-indigo-600" />
+              </div>
+              <p className="text-xs text-gray-600 font-medium">Fast</p>
+            </div>
+            <div className="text-center">
+              <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                <KeyRound className="w-5 h-5 text-purple-600" />
+              </div>
+              <p className="text-xs text-gray-600 font-medium">Flexible</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+export default Login;
                     placeholder="Enter 10-digit phone number"
                     value={phone}
                     onChange={(e) => {
