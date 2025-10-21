@@ -59,6 +59,8 @@ api_router.include_router(referrals.router)
 api_router.include_router(translations.router)
 api_router.include_router(content.router)
 api_router.include_router(advisory.router)
+api_router.include_router(admin_content.router)
+api_router.include_router(share_referral.router)
 
 # PWA Install tracking
 @api_router.post("/analytics/pwa-install")
