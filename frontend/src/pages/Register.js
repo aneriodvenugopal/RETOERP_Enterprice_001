@@ -232,6 +232,85 @@ const Register = () => {
               )}
             </div>
 
+            {/* Password Field */}
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                🔒 Password
+              </label>
+              <Input
+                type="password"
+                placeholder="Create a strong password"
+                value={formData.password}
+                onChange={(e) => handlePasswordChange(e.target.value)}
+                onBlur={() => {
+                  const error = validatePassword(formData.password);
+                  if (error) setErrors({ ...errors, password: error });
+                }}
+                className={`glass-input ${errors.password ? 'border-red-500' : 'border-ocean-primary/30'}`}
+              />
+              {formData.password && (
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                      <div 
+                        className={`h-full transition-all duration-300 ${
+                          passwordStrength.color === 'red' ? 'bg-red-500 w-1/3' :
+                          passwordStrength.color === 'yellow' ? 'bg-yellow-500 w-2/3' :
+                          'bg-green-500 w-full'
+                        }`}
+                      />
+                    </div>
+                    <span className={`text-xs font-medium ${
+                      passwordStrength.color === 'red' ? 'text-red-600' :
+                      passwordStrength.color === 'yellow' ? 'text-yellow-600' :
+                      'text-green-600'
+                    }`}>
+                      {passwordStrength.text}
+                    </span>
+                  </div>
+                </div>
+              )}
+              {errors.password && (
+                <p className="text-sm text-red-500 flex items-center gap-1">
+                  <span className="text-xs">⚠</span> {errors.password}
+                </p>
+              )}
+              <p className="text-xs text-gray-500">
+                Must be 8+ characters with uppercase, lowercase, number & special character
+              </p>
+            </div>
+
+            {/* Confirm Password Field */}
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                🔒 Confirm Password
+              </label>
+              <Input
+                type="password"
+                placeholder="Re-enter your password"
+                value={formData.confirmPassword}
+                onChange={(e) => {
+                  setFormData({ ...formData, confirmPassword: e.target.value });
+                  if (errors.confirmPassword) setErrors({ ...errors, confirmPassword: '' });
+                }}
+                onBlur={() => {
+                  const error = validateConfirmPassword(formData.confirmPassword);
+                  if (error) setErrors({ ...errors, confirmPassword: error });
+                }}
+                className={`glass-input ${errors.confirmPassword ? 'border-red-500' : 'border-ocean-primary/30'}`}
+              />
+              {errors.confirmPassword && (
+                <p className="text-sm text-red-500 flex items-center gap-1">
+                  <span className="text-xs">⚠</span> {errors.confirmPassword}
+                </p>
+              )}
+              {formData.confirmPassword && formData.password === formData.confirmPassword && (
+                <p className="text-sm text-green-600 flex items-center gap-1">
+                  <span className="text-xs">✓</span> Passwords match
+                </p>
+              )}
+            </div>
+
             <div className="space-y-2">
               <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
                 <Briefcase className="w-4 h-4 text-ocean-primary" />
