@@ -91,7 +91,7 @@ async def get_user_notifications(
     
     # Get unread count
     unread_count = await db.in_app_notifications.count_documents({
-        'user_id': user['user_id'],
+        'user_id': user_id,
         'tenant_id': user['tenant_id'],
         'read': False
     })
