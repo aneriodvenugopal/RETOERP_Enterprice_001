@@ -26,7 +26,7 @@
 
 **Step 2: Visit App URL**
 ```
-https://propmanage-28.preview.emergentagent.com/pwa/login
+https://realestate-erp-1.preview.emergentagent.com/pwa/login
 ```
 
 **Step 3: Login**
@@ -57,7 +57,7 @@ https://propmanage-28.preview.emergentagent.com/pwa/login
 
 **Step 2: Visit App URL**
 ```
-https://propmanage-28.preview.emergentagent.com/pwa/login
+https://realestate-erp-1.preview.emergentagent.com/pwa/login
 ```
 
 **Step 3: Login**
@@ -328,6 +328,6 @@ https://propmanage-28.preview.emergentagent.com/pwa/login
 8. ✅ Frontend restarted with all changes
 
 **Ready to Test:**
-🔗 **https://propmanage-28.preview.emergentagent.com/pwa/login**
+🔗 **https://realestate-erp-1.preview.emergentagent.com/pwa/login**
 
 Open this on your mobile and follow the steps above! 🎉
