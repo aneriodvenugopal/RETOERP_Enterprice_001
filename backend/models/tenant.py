@@ -55,7 +55,25 @@ class TenantCreate(BaseModel):
     country: str = "India"
     base_currency_id: str
     primary_language: str = "en"
+    package_id: str  # Required for SaaS
+    billing_cycle: str = Field(default="monthly", description="monthly or yearly")
+    auto_renew: bool = Field(default=True)
+
+
+class TenantUpdate(BaseModel):
+    """Update tenant"""
+    name: Optional[str] = None
+    company_name: Optional[str] = None
+    phone: Optional[str] = None
+    email: Optional[str] = None
+    address: Optional[str] = None
+    city: Optional[str] = None
+    state: Optional[str] = None
     package_id: Optional[str] = None
+    billing_cycle: Optional[str] = None
+    status: Optional[str] = None
+    is_active: Optional[bool] = None
+    auto_renew: Optional[bool] = None
 
 class Package(BaseModel):
     model_config = ConfigDict(extra="ignore")
