@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Backend API Testing for RETOERP - Resale Request System Testing
-Tests the newly implemented Resale Request System backend APIs.
+Backend API Testing for RETOERP - SaaS Admin Dashboard Testing
+Tests the SaaS Admin Dashboard backend APIs comprehensively.
 """
 
 import requests
