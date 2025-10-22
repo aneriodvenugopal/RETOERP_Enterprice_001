@@ -20,7 +20,7 @@ function SaaSDashboard() {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/api/saas-admin/dashboard');
+      const response = await api.get('/saas-admin/dashboard');
       
       if (response.data.success) {
         setDashboardData(response.data);
