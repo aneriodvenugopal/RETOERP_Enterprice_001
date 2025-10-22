@@ -44,7 +44,7 @@ function TenantManagement() {
 
   const fetchPackages = async () => {
     try {
-      const response = await api.get('/api/saas-admin/packages');
+      const response = await api.get('/saas-admin/packages');
       if (response.data.success) {
         setPackages(response.data.packages);
       }
@@ -115,7 +115,7 @@ function TenantManagement() {
         await api.put(`/api/saas-admin/tenants/${editingTenant.id}`, formData);
         alert('Tenant updated successfully!');
       } else {
-        await api.post('/api/saas-admin/tenants', formData);
+        await api.post('/saas-admin/tenants', formData);
         alert('Tenant created successfully!');
       }
       

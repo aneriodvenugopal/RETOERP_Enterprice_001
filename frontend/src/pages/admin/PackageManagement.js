@@ -48,7 +48,7 @@ function PackageManagement() {
   const fetchPackages = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/api/saas-admin/packages');
+      const response = await api.get('/saas-admin/packages');
       if (response.data.success) {
         setPackages(response.data.packages);
       }
@@ -103,7 +103,7 @@ function PackageManagement() {
         await api.put(`/api/saas-admin/packages/${editingPackage.id}`, payload);
         alert('Package updated successfully!');
       } else {
-        await api.post('/api/saas-admin/packages', payload);
+        await api.post('/saas-admin/packages', payload);
         alert('Package created successfully!');
       }
       
