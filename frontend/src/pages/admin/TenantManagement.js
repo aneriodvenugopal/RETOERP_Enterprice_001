@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../../services';
+import apiInstance from '../../services/api';
+const api = apiInstance;
 import { Users, Plus, Edit2, Eye, ToggleLeft, ToggleRight, DollarSign, Filter, X, Building, Mail, Phone, Package } from 'lucide-react';
 
 function TenantManagement() {
