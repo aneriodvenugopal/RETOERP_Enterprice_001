@@ -249,6 +249,32 @@ function App() {
                   </PrivateRoute>
                 }
               />
+              
+              {/* SaaS Admin Routes */}
+              <Route
+                path="/admin/saas-dashboard"
+                element={
+                  <PrivateRoute>
+                    <SaaSDashboard />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/admin/packages"
+                element={
+                  <PrivateRoute>
+                    <PackageManagement />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/admin/tenants"
+                element={
+                  <PrivateRoute>
+                    <TenantManagement />
+                  </PrivateRoute>
+                }
+              />
             </Routes>
           </BrowserRouter>
           <Toaster position="top-right" richColors />
