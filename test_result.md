@@ -1077,12 +1077,14 @@ backend:
 
 metadata:
   created_by: "main_agent"
-  version: "7.0"
-  test_sequence: 8
+  version: "8.0"
+  test_sequence: 9
   run_ui: false
 
 test_plan:
-  current_focus: []
+  current_focus:
+    - "SaaS Admin Dashboard backend APIs"
+    - "SaaS Admin frontend pages"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
