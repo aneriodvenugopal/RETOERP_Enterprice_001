@@ -54,6 +54,7 @@ import ResaleManagement from "./pages/admin/ResaleManagement";
 import SaaSDashboard from "./pages/admin/SaaSDashboard";
 import PackageManagement from "./pages/admin/PackageManagement";
 import TenantManagement from "./pages/admin/TenantManagement";
+import ChatManagement from "./pages/admin/ChatManagement";
 
 // PWA Components
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
