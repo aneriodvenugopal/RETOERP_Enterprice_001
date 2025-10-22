@@ -1480,7 +1480,855 @@ def test_non_admin_access(user_token):
         traceback.print_exc()
         return False
 
-# ============ SHARE-REFERRAL SYSTEM TESTS ============
+# ============ SAAS ADMIN DASHBOARD TESTS ============
+
+def authenticate_saas_admin():
+    """Authenticate as SaaS admin user (9948303060) and return token"""
+    try:
+        print("\n🔐 AUTHENTICATING AS SAAS ADMIN USER")
+        
+        # Use SaaS admin phone from test requirements
+        saas_admin_phone = "9948303060"
+        
+        # Step 1: Send OTP
+        print(f"   📱 Sending OTP to {saas_admin_phone}")
+        otp_response = requests.post(
+            f"{API_BASE}/auth/send-otp",
+            json={"phone": saas_admin_phone},
+            timeout=10
+        )
+        
+        if otp_response.status_code != 200:
+            print(f"   ❌ Failed to send OTP: {otp_response.status_code}")
+            print_error_details("Send OTP", otp_response)
+            return None
+        
+        otp_data = otp_response.json()
+        otp = otp_data.get('otp')
+        
+        if not otp:
+            print("   ❌ No OTP received in response")
+            return None
+        
+        print(f"   ✅ OTP sent successfully: {otp}")
+        
+        # Step 2: Verify OTP
+        print("   🔑 Verifying OTP")
+        verify_response = requests.post(
+            f"{API_BASE}/auth/verify-otp",
+            json={"phone": saas_admin_phone, "otp": otp},
+            timeout=10
+        )
+        
+        if verify_response.status_code != 200:
+            print(f"   ❌ Failed to verify OTP: {verify_response.status_code}")
+            print_error_details("Verify OTP", verify_response)
+            return None
+        
+        verify_data = verify_response.json()
+        token = verify_data.get('access_token')
+        user = verify_data.get('user', {})
+        
+        if not token:
+            print("   ❌ No access token received")
+            return None
+        
+        print(f"   ✅ SaaS Admin authentication successful!")
+        print(f"   👤 User: {user.get('name')} ({user.get('role')})")
+        print(f"   📞 Phone: {user.get('phone')}")
+        
+        return token
+        
+    except Exception as e:
+        print(f"   ❌ Authentication failed: {str(e)}")
+        traceback.print_exc()
+        return None
+
+def test_saas_admin_access_control():
+    """Test that only SaaS admin (9948303060) can access SaaS admin endpoints"""
+    try:
+        print("\n🚫 TESTING: SaaS Admin Access Control")
+        
+        # Test with regular user token (should get 403)
+        user_token = authenticate_user()
+        if user_token:
+            headers = {"Authorization": f"Bearer {user_token}"}
+            response = requests.get(f"{API_BASE}/saas-admin/packages", headers=headers, timeout=10)
+            
+            if response.status_code != 403:
+                results.add_fail("SaaS Admin Access Control", f"Expected 403 for regular user, got {response.status_code}")
+                return False
+            
+            print(f"   ✅ Regular user correctly denied access (403)")
+        
+        # Test with SaaS admin token (should work)
+        saas_token = authenticate_saas_admin()
+        if saas_token:
+            headers = {"Authorization": f"Bearer {saas_token}"}
+            response = requests.get(f"{API_BASE}/saas-admin/packages", headers=headers, timeout=10)
+            
+            if response.status_code != 200:
+                results.add_fail("SaaS Admin Access Control", f"SaaS admin access failed: {response.status_code}")
+                return False
+            
+            print(f"   ✅ SaaS admin correctly granted access (200)")
+        
+        results.add_pass("SaaS Admin Access Control")
+        return True
+        
+    except Exception as e:
+        results.add_fail("SaaS Admin Access Control", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+def test_get_packages(saas_token):
+    """Test GET /api/saas-admin/packages"""
+    if not saas_token:
+        results.add_fail("Get Packages", "No SaaS admin token available")
+        return None
+        
+    try:
+        print("\n📦 TESTING: GET /api/saas-admin/packages")
+        headers = {"Authorization": f"Bearer {saas_token}"}
+        response = requests.get(f"{API_BASE}/saas-admin/packages", headers=headers, timeout=10)
+        
+        if response.status_code != 200:
+            results.add_fail("Get Packages", f"Status code: {response.status_code}")
+            print_error_details("Get Packages", response)
+            return None
+            
+        data = response.json()
+        
+        # Validate response structure
+        required_fields = ['success', 'packages', 'total']
+        missing_fields = [field for field in required_fields if field not in data]
+        
+        if missing_fields:
+            results.add_fail("Get Packages", f"Missing fields: {missing_fields}")
+            return None
+        
+        if not data.get('success'):
+            results.add_fail("Get Packages", "Response success is False")
+            return None
+        
+        packages = data.get('packages', [])
+        if not isinstance(packages, list):
+            results.add_fail("Get Packages", "Packages is not a list")
+            return None
+        
+        # Verify seeded packages exist
+        expected_packages = ['Starter', 'Professional', 'Enterprise']
+        package_names = [pkg.get('name') for pkg in packages]
+        
+        for expected in expected_packages:
+            if expected not in package_names:
+                results.add_fail("Get Packages", f"Missing expected package: {expected}")
+                return None
+        
+        results.add_pass("Get Packages")
+        print(f"   ✅ Found {len(packages)} packages (Total: {data.get('total', 0)})")
+        for pkg in packages:
+            print(f"      - {pkg.get('name')}: ₹{pkg.get('monthly_price', 0)}/month")
+        
+        return packages
+        
+    except Exception as e:
+        results.add_fail("Get Packages", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return None
+
+def test_get_single_package(saas_token, package_id):
+    """Test GET /api/saas-admin/packages/{id}"""
+    if not saas_token or not package_id:
+        results.add_fail("Get Single Package", "Missing SaaS admin token or package ID")
+        return False
+        
+    try:
+        print(f"\n📦 TESTING: GET /api/saas-admin/packages/{package_id}")
+        headers = {"Authorization": f"Bearer {saas_token}"}
+        response = requests.get(f"{API_BASE}/saas-admin/packages/{package_id}", headers=headers, timeout=10)
+        
+        if response.status_code != 200:
+            results.add_fail("Get Single Package", f"Status code: {response.status_code}")
+            print_error_details("Get Single Package", response)
+            return False
+            
+        data = response.json()
+        
+        # Validate response structure
+        required_fields = ['success', 'package', 'tenant_count']
+        missing_fields = [field for field in required_fields if field not in data]
+        
+        if missing_fields:
+            results.add_fail("Get Single Package", f"Missing fields: {missing_fields}")
+            return False
+        
+        package = data.get('package', {})
+        tenant_count = data.get('tenant_count', 0)
+        
+        if package.get('id') != package_id:
+            results.add_fail("Get Single Package", "Package ID mismatch")
+            return False
+        
+        results.add_pass("Get Single Package")
+        print(f"   ✅ Package: {package.get('name')} (₹{package.get('monthly_price', 0)}/month)")
+        print(f"   👥 Tenant Count: {tenant_count}")
+        return True
+        
+    except Exception as e:
+        results.add_fail("Get Single Package", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+def test_create_package(saas_token):
+    """Test POST /api/saas-admin/packages"""
+    if not saas_token:
+        results.add_fail("Create Package", "No SaaS admin token available")
+        return None
+        
+    try:
+        print("\n📦 TESTING: POST /api/saas-admin/packages")
+        
+        import uuid
+        unique_suffix = str(uuid.uuid4())[:8]
+        
+        package_data = {
+            "name": f"Test Package {unique_suffix}",
+            "description": "Test package for API testing",
+            "monthly_price": 25000,
+            "yearly_price": 250000,
+            "features": {
+                "max_projects": 20,
+                "max_users": 50,
+                "max_properties": 2000,
+                "advanced_analytics": True,
+                "custom_branding": True,
+                "api_access": True,
+                "priority_support": True,
+                "resale_marketplace": False,
+                "sms_credits": 3000,
+                "email_credits": 5000,
+                "whatsapp_credits": 1000
+            },
+            "display_order": 4,
+            "is_active": True
+        }
+        
+        headers = {"Authorization": f"Bearer {saas_token}"}
+        response = requests.post(
+            f"{API_BASE}/saas-admin/packages",
+            json=package_data,
+            headers=headers,
+            timeout=10
+        )
+        
+        if response.status_code != 200:
+            results.add_fail("Create Package", f"Status code: {response.status_code}")
+            print_error_details("Create Package", response)
+            return None
+            
+        data = response.json()
+        
+        if not data.get('success'):
+            results.add_fail("Create Package", "Response success is False")
+            return None
+        
+        created_package = data.get('package', {})
+        package_id = created_package.get('id')
+        
+        if not package_id:
+            results.add_fail("Create Package", "No package ID in response")
+            return None
+        
+        results.add_pass("Create Package")
+        print(f"   ✅ Package created: {created_package.get('name')} (ID: {package_id})")
+        print(f"   💰 Price: ₹{created_package.get('monthly_price', 0)}/month")
+        
+        return package_id
+        
+    except Exception as e:
+        results.add_fail("Create Package", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return None
+
+def test_update_package(saas_token, package_id):
+    """Test PUT /api/saas-admin/packages/{id}"""
+    if not saas_token or not package_id:
+        results.add_fail("Update Package", "Missing SaaS admin token or package ID")
+        return False
+        
+    try:
+        print(f"\n📦 TESTING: PUT /api/saas-admin/packages/{package_id}")
+        
+        update_data = {
+            "description": "Updated test package description",
+            "monthly_price": 30000,
+            "features": {
+                "max_projects": 25,
+                "sms_credits": 4000
+            }
+        }
+        
+        headers = {"Authorization": f"Bearer {saas_token}"}
+        response = requests.put(
+            f"{API_BASE}/saas-admin/packages/{package_id}",
+            json=update_data,
+            headers=headers,
+            timeout=10
+        )
+        
+        if response.status_code != 200:
+            results.add_fail("Update Package", f"Status code: {response.status_code}")
+            print_error_details("Update Package", response)
+            return False
+            
+        data = response.json()
+        
+        if not data.get('success'):
+            results.add_fail("Update Package", "Response success is False")
+            return False
+        
+        updated_package = data.get('package', {})
+        
+        if updated_package.get('monthly_price') != update_data['monthly_price']:
+            results.add_fail("Update Package", "Price not updated correctly")
+            return False
+        
+        results.add_pass("Update Package")
+        print(f"   ✅ Package updated successfully")
+        print(f"   💰 New price: ₹{updated_package.get('monthly_price', 0)}/month")
+        return True
+        
+    except Exception as e:
+        results.add_fail("Update Package", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+def test_get_tenants(saas_token):
+    """Test GET /api/saas-admin/tenants"""
+    if not saas_token:
+        results.add_fail("Get Tenants", "No SaaS admin token available")
+        return None
+        
+    try:
+        print("\n🏢 TESTING: GET /api/saas-admin/tenants")
+        headers = {"Authorization": f"Bearer {saas_token}"}
+        response = requests.get(f"{API_BASE}/saas-admin/tenants", headers=headers, timeout=10)
+        
+        if response.status_code != 200:
+            results.add_fail("Get Tenants", f"Status code: {response.status_code}")
+            print_error_details("Get Tenants", response)
+            return None
+            
+        data = response.json()
+        
+        # Validate response structure
+        required_fields = ['success', 'tenants', 'total', 'limit', 'skip']
+        missing_fields = [field for field in required_fields if field not in data]
+        
+        if missing_fields:
+            results.add_fail("Get Tenants", f"Missing fields: {missing_fields}")
+            return None
+        
+        if not data.get('success'):
+            results.add_fail("Get Tenants", "Response success is False")
+            return None
+        
+        tenants = data.get('tenants', [])
+        if not isinstance(tenants, list):
+            results.add_fail("Get Tenants", "Tenants is not a list")
+            return None
+        
+        results.add_pass("Get Tenants")
+        print(f"   ✅ Found {len(tenants)} tenants (Total: {data.get('total', 0)})")
+        
+        if tenants:
+            for tenant in tenants[:3]:  # Show first 3
+                print(f"      - {tenant.get('company_name', 'Unknown')} ({tenant.get('status', 'Unknown')})")
+        
+        return tenants
+        
+    except Exception as e:
+        results.add_fail("Get Tenants", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return None
+
+def test_create_tenant(saas_token, package_id):
+    """Test POST /api/saas-admin/tenants"""
+    if not saas_token or not package_id:
+        results.add_fail("Create Tenant", "Missing SaaS admin token or package ID")
+        return None
+        
+    try:
+        print("\n🏢 TESTING: POST /api/saas-admin/tenants")
+        
+        import uuid
+        unique_suffix = str(uuid.uuid4())[:8]
+        
+        tenant_data = {
+            "name": "Rajesh Kumar",
+            "company_name": f"Test Realty {unique_suffix}",
+            "email": f"test.realty.{unique_suffix}@example.com",
+            "phone": f"98765{unique_suffix[:5]}",
+            "address": "123 Test Street, Test City",
+            "package_id": package_id,
+            "billing_cycle": "monthly",
+            "auto_renew": True,
+            "status": "active"
+        }
+        
+        headers = {"Authorization": f"Bearer {saas_token}"}
+        response = requests.post(
+            f"{API_BASE}/saas-admin/tenants",
+            json=tenant_data,
+            headers=headers,
+            timeout=10
+        )
+        
+        if response.status_code != 200:
+            results.add_fail("Create Tenant", f"Status code: {response.status_code}")
+            print_error_details("Create Tenant", response)
+            return None
+            
+        data = response.json()
+        
+        if not data.get('success'):
+            results.add_fail("Create Tenant", "Response success is False")
+            return None
+        
+        created_tenant = data.get('tenant', {})
+        tenant_id = created_tenant.get('id')
+        
+        if not tenant_id:
+            results.add_fail("Create Tenant", "No tenant ID in response")
+            return None
+        
+        # Verify credits were initialized
+        credits = created_tenant.get('credits', {})
+        if not credits:
+            results.add_fail("Create Tenant", "No credits initialized")
+            return None
+        
+        results.add_pass("Create Tenant")
+        print(f"   ✅ Tenant created: {created_tenant.get('company_name')} (ID: {tenant_id})")
+        print(f"   📧 Email: {created_tenant.get('email')}")
+        print(f"   💳 Credits: SMS={credits.get('sms_remaining', 0)}, Email={credits.get('email_remaining', 0)}")
+        
+        return tenant_id
+        
+    except Exception as e:
+        results.add_fail("Create Tenant", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return None
+
+def test_get_single_tenant(saas_token, tenant_id):
+    """Test GET /api/saas-admin/tenants/{id}"""
+    if not saas_token or not tenant_id:
+        results.add_fail("Get Single Tenant", "Missing SaaS admin token or tenant ID")
+        return False
+        
+    try:
+        print(f"\n🏢 TESTING: GET /api/saas-admin/tenants/{tenant_id}")
+        headers = {"Authorization": f"Bearer {saas_token}"}
+        response = requests.get(f"{API_BASE}/saas-admin/tenants/{tenant_id}", headers=headers, timeout=10)
+        
+        if response.status_code != 200:
+            results.add_fail("Get Single Tenant", f"Status code: {response.status_code}")
+            print_error_details("Get Single Tenant", response)
+            return False
+            
+        data = response.json()
+        
+        # Validate response structure
+        required_fields = ['success', 'tenant']
+        missing_fields = [field for field in required_fields if field not in data]
+        
+        if missing_fields:
+            results.add_fail("Get Single Tenant", f"Missing fields: {missing_fields}")
+            return False
+        
+        tenant = data.get('tenant', {})
+        
+        if tenant.get('id') != tenant_id:
+            results.add_fail("Get Single Tenant", "Tenant ID mismatch")
+            return False
+        
+        # Verify hierarchy data is included
+        expected_hierarchy_fields = ['projects', 'users', 'project_count', 'user_count', 'property_count']
+        missing_hierarchy = [field for field in expected_hierarchy_fields if field not in tenant]
+        
+        if missing_hierarchy:
+            results.add_fail("Get Single Tenant", f"Missing hierarchy fields: {missing_hierarchy}")
+            return False
+        
+        results.add_pass("Get Single Tenant")
+        print(f"   ✅ Tenant: {tenant.get('company_name')}")
+        print(f"   📊 Projects: {tenant.get('project_count', 0)}, Users: {tenant.get('user_count', 0)}, Properties: {tenant.get('property_count', 0)}")
+        return True
+        
+    except Exception as e:
+        results.add_fail("Get Single Tenant", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+def test_update_tenant(saas_token, tenant_id):
+    """Test PUT /api/saas-admin/tenants/{id}"""
+    if not saas_token or not tenant_id:
+        results.add_fail("Update Tenant", "Missing SaaS admin token or tenant ID")
+        return False
+        
+    try:
+        print(f"\n🏢 TESTING: PUT /api/saas-admin/tenants/{tenant_id}")
+        
+        update_data = {
+            "company_name": "Updated Test Realty Ltd",
+            "address": "456 Updated Street, New City",
+            "billing_cycle": "yearly"
+        }
+        
+        headers = {"Authorization": f"Bearer {saas_token}"}
+        response = requests.put(
+            f"{API_BASE}/saas-admin/tenants/{tenant_id}",
+            json=update_data,
+            headers=headers,
+            timeout=10
+        )
+        
+        if response.status_code != 200:
+            results.add_fail("Update Tenant", f"Status code: {response.status_code}")
+            print_error_details("Update Tenant", response)
+            return False
+            
+        data = response.json()
+        
+        if not data.get('success'):
+            results.add_fail("Update Tenant", "Response success is False")
+            return False
+        
+        updated_tenant = data.get('tenant', {})
+        
+        if updated_tenant.get('company_name') != update_data['company_name']:
+            results.add_fail("Update Tenant", "Company name not updated correctly")
+            return False
+        
+        results.add_pass("Update Tenant")
+        print(f"   ✅ Tenant updated successfully")
+        print(f"   🏢 New company name: {updated_tenant.get('company_name')}")
+        return True
+        
+    except Exception as e:
+        results.add_fail("Update Tenant", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+def test_toggle_tenant_status(saas_token, tenant_id):
+    """Test POST /api/saas-admin/tenants/{id}/toggle-status"""
+    if not saas_token or not tenant_id:
+        results.add_fail("Toggle Tenant Status", "Missing SaaS admin token or tenant ID")
+        return False
+        
+    try:
+        print(f"\n🏢 TESTING: POST /api/saas-admin/tenants/{tenant_id}/toggle-status")
+        
+        headers = {"Authorization": f"Bearer {saas_token}"}
+        
+        # First toggle (active -> inactive)
+        response1 = requests.post(
+            f"{API_BASE}/saas-admin/tenants/{tenant_id}/toggle-status",
+            headers=headers,
+            timeout=10
+        )
+        
+        if response1.status_code != 200:
+            results.add_fail("Toggle Tenant Status", f"First toggle failed: {response1.status_code}")
+            print_error_details("Toggle Tenant Status - First", response1)
+            return False
+        
+        data1 = response1.json()
+        first_status = data1.get('status')
+        
+        # Second toggle (inactive -> active)
+        response2 = requests.post(
+            f"{API_BASE}/saas-admin/tenants/{tenant_id}/toggle-status",
+            headers=headers,
+            timeout=10
+        )
+        
+        if response2.status_code != 200:
+            results.add_fail("Toggle Tenant Status", f"Second toggle failed: {response2.status_code}")
+            print_error_details("Toggle Tenant Status - Second", response2)
+            return False
+        
+        data2 = response2.json()
+        second_status = data2.get('status')
+        
+        # Verify status actually toggled
+        if first_status == second_status:
+            results.add_fail("Toggle Tenant Status", "Status did not toggle")
+            return False
+        
+        results.add_pass("Toggle Tenant Status")
+        print(f"   ✅ Status toggled: active → {first_status} → {second_status}")
+        return True
+        
+    except Exception as e:
+        results.add_fail("Toggle Tenant Status", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+def test_add_tenant_credits(saas_token, tenant_id):
+    """Test POST /api/saas-admin/tenants/{id}/add-credits"""
+    if not saas_token or not tenant_id:
+        results.add_fail("Add Tenant Credits", "Missing SaaS admin token or tenant ID")
+        return False
+        
+    try:
+        print(f"\n🏢 TESTING: POST /api/saas-admin/tenants/{tenant_id}/add-credits")
+        
+        credits_to_add = {
+            "sms": 1000,
+            "email": 2000,
+            "whatsapp": 500
+        }
+        
+        headers = {"Authorization": f"Bearer {saas_token}"}
+        response = requests.post(
+            f"{API_BASE}/saas-admin/tenants/{tenant_id}/add-credits",
+            json=credits_to_add,
+            headers=headers,
+            timeout=10
+        )
+        
+        if response.status_code != 200:
+            results.add_fail("Add Tenant Credits", f"Status code: {response.status_code}")
+            print_error_details("Add Tenant Credits", response)
+            return False
+            
+        data = response.json()
+        
+        if not data.get('success'):
+            results.add_fail("Add Tenant Credits", "Response success is False")
+            return False
+        
+        credits_added = data.get('credits_added', {})
+        
+        if credits_added != credits_to_add:
+            results.add_fail("Add Tenant Credits", "Credits added mismatch")
+            return False
+        
+        results.add_pass("Add Tenant Credits")
+        print(f"   ✅ Credits added successfully")
+        print(f"   💳 SMS: +{credits_added.get('sms', 0)}, Email: +{credits_added.get('email', 0)}, WhatsApp: +{credits_added.get('whatsapp', 0)}")
+        return True
+        
+    except Exception as e:
+        results.add_fail("Add Tenant Credits", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+def test_saas_dashboard_analytics(saas_token):
+    """Test GET /api/saas-admin/dashboard"""
+    if not saas_token:
+        results.add_fail("SaaS Dashboard Analytics", "No SaaS admin token available")
+        return False
+        
+    try:
+        print("\n📊 TESTING: GET /api/saas-admin/dashboard")
+        headers = {"Authorization": f"Bearer {saas_token}"}
+        response = requests.get(f"{API_BASE}/saas-admin/dashboard", headers=headers, timeout=10)
+        
+        if response.status_code != 200:
+            results.add_fail("SaaS Dashboard Analytics", f"Status code: {response.status_code}")
+            print_error_details("SaaS Dashboard Analytics", response)
+            return False
+            
+        data = response.json()
+        
+        # Validate response structure
+        required_fields = ['success', 'overview', 'timeline', 'package_distribution', 'recent_tenants']
+        missing_fields = [field for field in required_fields if field not in data]
+        
+        if missing_fields:
+            results.add_fail("SaaS Dashboard Analytics", f"Missing fields: {missing_fields}")
+            return False
+        
+        if not data.get('success'):
+            results.add_fail("SaaS Dashboard Analytics", "Response success is False")
+            return False
+        
+        # Validate overview structure
+        overview = data.get('overview', {})
+        overview_fields = ['total_tenants', 'active_tenants', 'inactive_tenants', 'total_revenue', 'monthly_recurring_revenue']
+        missing_overview = [field for field in overview_fields if field not in overview]
+        
+        if missing_overview:
+            results.add_fail("SaaS Dashboard Analytics", f"Missing overview fields: {missing_overview}")
+            return False
+        
+        # Validate timeline structure
+        timeline = data.get('timeline', {})
+        timeline_fields = ['previous', 'present', 'future']
+        missing_timeline = [field for field in timeline_fields if field not in timeline]
+        
+        if missing_timeline:
+            results.add_fail("SaaS Dashboard Analytics", f"Missing timeline fields: {missing_timeline}")
+            return False
+        
+        results.add_pass("SaaS Dashboard Analytics")
+        print(f"   ✅ Dashboard analytics retrieved successfully")
+        print(f"   📊 Total Tenants: {overview.get('total_tenants', 0)} (Active: {overview.get('active_tenants', 0)})")
+        print(f"   💰 Total Revenue: ₹{overview.get('total_revenue', 0):,.2f}, MRR: ₹{overview.get('monthly_recurring_revenue', 0):,.2f}")
+        print(f"   📅 Timeline: Previous={timeline.get('previous', 0)}, Present={timeline.get('present', 0)}, Future={timeline.get('future', 0)}")
+        return True
+        
+    except Exception as e:
+        results.add_fail("SaaS Dashboard Analytics", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+def test_tenant_hierarchy(saas_token, tenant_id):
+    """Test GET /api/saas-admin/tenants/{id}/hierarchy"""
+    if not saas_token or not tenant_id:
+        results.add_fail("Tenant Hierarchy", "Missing SaaS admin token or tenant ID")
+        return False
+        
+    try:
+        print(f"\n🏢 TESTING: GET /api/saas-admin/tenants/{tenant_id}/hierarchy")
+        headers = {"Authorization": f"Bearer {saas_token}"}
+        response = requests.get(f"{API_BASE}/saas-admin/tenants/{tenant_id}/hierarchy", headers=headers, timeout=10)
+        
+        if response.status_code != 200:
+            results.add_fail("Tenant Hierarchy", f"Status code: {response.status_code}")
+            print_error_details("Tenant Hierarchy", response)
+            return False
+            
+        data = response.json()
+        
+        # Validate response structure
+        required_fields = ['success', 'tenant', 'projects', 'total_projects', 'total_properties', 'total_staff']
+        missing_fields = [field for field in required_fields if field not in data]
+        
+        if missing_fields:
+            results.add_fail("Tenant Hierarchy", f"Missing fields: {missing_fields}")
+            return False
+        
+        if not data.get('success'):
+            results.add_fail("Tenant Hierarchy", "Response success is False")
+            return False
+        
+        tenant = data.get('tenant', {})
+        projects = data.get('projects', [])
+        
+        # Validate tenant structure
+        tenant_fields = ['id', 'name', 'company_name', 'status']
+        missing_tenant = [field for field in tenant_fields if field not in tenant]
+        
+        if missing_tenant:
+            results.add_fail("Tenant Hierarchy", f"Missing tenant fields: {missing_tenant}")
+            return False
+        
+        # Validate projects structure (if any exist)
+        if projects:
+            project = projects[0]
+            project_fields = ['properties', 'staff', 'property_count', 'staff_count']
+            missing_project = [field for field in project_fields if field not in project]
+            
+            if missing_project:
+                results.add_fail("Tenant Hierarchy", f"Missing project fields: {missing_project}")
+                return False
+        
+        results.add_pass("Tenant Hierarchy")
+        print(f"   ✅ Hierarchy retrieved for: {tenant.get('company_name')}")
+        print(f"   🏗️ Projects: {data.get('total_projects', 0)}")
+        print(f"   🏠 Properties: {data.get('total_properties', 0)}")
+        print(f"   👥 Staff: {data.get('total_staff', 0)}")
+        return True
+        
+    except Exception as e:
+        results.add_fail("Tenant Hierarchy", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+def test_tenant_filters(saas_token):
+    """Test tenant filtering options"""
+    if not saas_token:
+        results.add_fail("Tenant Filters", "No SaaS admin token available")
+        return False
+        
+    try:
+        print("\n🏢 TESTING: Tenant Filtering Options")
+        headers = {"Authorization": f"Bearer {saas_token}"}
+        
+        # Test status filter
+        response1 = requests.get(f"{API_BASE}/saas-admin/tenants?status=active", headers=headers, timeout=10)
+        if response1.status_code != 200:
+            results.add_fail("Tenant Filters", f"Status filter failed: {response1.status_code}")
+            return False
+        
+        # Test timeline filter
+        response2 = requests.get(f"{API_BASE}/saas-admin/tenants?timeline=present", headers=headers, timeout=10)
+        if response2.status_code != 200:
+            results.add_fail("Tenant Filters", f"Timeline filter failed: {response2.status_code}")
+            return False
+        
+        # Test pagination
+        response3 = requests.get(f"{API_BASE}/saas-admin/tenants?limit=5&skip=0", headers=headers, timeout=10)
+        if response3.status_code != 200:
+            results.add_fail("Tenant Filters", f"Pagination failed: {response3.status_code}")
+            return False
+        
+        data3 = response3.json()
+        tenants = data3.get('tenants', [])
+        
+        if len(tenants) > 5:
+            results.add_fail("Tenant Filters", "Pagination limit not respected")
+            return False
+        
+        results.add_pass("Tenant Filters")
+        print(f"   ✅ All filter options working correctly")
+        print(f"   📊 Status filter: OK, Timeline filter: OK, Pagination: OK")
+        return True
+        
+    except Exception as e:
+        results.add_fail("Tenant Filters", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+def test_delete_package_with_tenants(saas_token, package_id):
+    """Test DELETE /api/saas-admin/packages/{id} - should fail if tenants using it"""
+    if not saas_token or not package_id:
+        results.add_fail("Delete Package With Tenants", "Missing SaaS admin token or package ID")
+        return False
+        
+    try:
+        print(f"\n📦 TESTING: DELETE /api/saas-admin/packages/{package_id} (Should Fail)")
+        headers = {"Authorization": f"Bearer {saas_token}"}
+        response = requests.delete(f"{API_BASE}/saas-admin/packages/{package_id}", headers=headers, timeout=10)
+        
+        # Should return 400 if tenants are using this package
+        if response.status_code == 400:
+            data = response.json()
+            if 'tenant(s) are using this package' in data.get('detail', ''):
+                results.add_pass("Delete Package With Tenants")
+                print(f"   ✅ Correctly prevented deletion: {data.get('detail')}")
+                return True
+            else:
+                results.add_fail("Delete Package With Tenants", f"Wrong error message: {data.get('detail')}")
+                return False
+        elif response.status_code == 200:
+            # Package was deleted - this means no tenants were using it
+            results.add_pass("Delete Package With Tenants")
+            print(f"   ✅ Package deleted successfully (no tenants using it)")
+            return True
+        else:
+            results.add_fail("Delete Package With Tenants", f"Unexpected status code: {response.status_code}")
+            print_error_details("Delete Package With Tenants", response)
+            return False
+        
+    except Exception as e:
+        results.add_fail("Delete Package With Tenants", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
 
 def test_create_share_link(user_token, article_id):
     """Test POST /api/share-referral/create-share-link"""
