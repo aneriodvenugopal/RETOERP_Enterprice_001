@@ -270,12 +270,12 @@ const StatCard = ({ icon: Icon, title, value, gradient, onClick }) => {
 };
 
 // Action Card Component
-const ActionCard = ({ icon: Icon, title, description, onClick }) => {
+const ActionCard = ({ icon: Icon, title, description, onClick, gradient = "from-ocean-primary to-ocean-secondary" }) => {
   return (
     <Card className="glass-card hover-lift cursor-pointer" onClick={onClick}>
       <CardContent className="pt-6">
         <div className="flex items-start gap-4">
-          <div className="p-3 rounded-xl bg-gradient-to-br from-ocean-primary to-ocean-secondary shadow-lg">
+          <div className={`p-3 rounded-xl bg-gradient-to-br ${gradient} shadow-lg`}>
             <Icon className="w-6 h-6 text-white" />
           </div>
           <div className="flex-1">
