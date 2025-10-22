@@ -1,7 +1,7 @@
-import api from './api';
+import apiInstance from './api';
 
 // Export api for direct use in admin pages
-export { default as api } from './api';
+export const api = apiInstance;
 
 export const authService = {
   // Send OTP to phone
