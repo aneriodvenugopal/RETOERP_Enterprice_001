@@ -164,15 +164,18 @@ backend:
   
   - task: "Register SaaS admin router"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Imported saas_admin routes and registered saas_admin.router in api_router. Backend restarted successfully without errors."
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: SaaS admin router properly registered and accessible. All /api/saas-admin/* endpoints responding correctly with proper routing and middleware integration. Authentication middleware working correctly to restrict access to SaaS admin user only."
   
   - task: "Create AI-powered translation service using OpenAI GPT-5"
     implemented: true
