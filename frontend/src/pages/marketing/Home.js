@@ -331,6 +331,9 @@ const Home = () => {
           </div>
         </div>
       </footer>
+      
+      {/* Chat Widget */}
+      <ChatWidget />
     </div>
   );
 };
