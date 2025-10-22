@@ -163,7 +163,7 @@ async def login_with_password(data: dict, request: Request):
             "name": user_doc['name'],
             "phone": user_doc.get('phone'),
             "email": user_doc.get('email'),
-            "role_id": role_slug,
+            "role": role_slug,
             "tenant_id": user_doc['tenant_id']
         }
     }
