@@ -276,6 +276,14 @@ function App() {
                   </PrivateRoute>
                 }
               />
+              <Route
+                path="/admin/chats"
+                element={
+                  <PrivateRoute>
+                    <ChatManagement />
+                  </PrivateRoute>
+                }
+              />
             </Routes>
           </BrowserRouter>
           <Toaster position="top-right" richColors />
