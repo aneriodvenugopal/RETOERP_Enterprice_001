@@ -20,7 +20,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [generatedOTP, setGeneratedOTP] = useState('');
   
-  const { login } = useAuth();
+  const { login, loginWithPassword } = useAuth();
   const navigate = useNavigate();
 
   // Form validation errors
