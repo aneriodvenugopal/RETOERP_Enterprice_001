@@ -45,6 +45,27 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const loginWithPassword = async (token, user) => {
+    try {
+      setToken(token);
+      setUser(user);
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(user));
+      localStorage.setItem('user_id', user.id);
+      
+      // Initialize Firebase notifications after successful login
+      if (user && user.id) {
+        setTimeout(() => {
+          notificationService.initialize(user.id);
+        }, 2000);
+      }
+      
+      return { access_token: token, user };
+    } catch (error) {
+      throw error;
+    }
+  };
+
   const logout = () => {
     setToken(null);
     setUser(null);
