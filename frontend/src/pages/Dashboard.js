@@ -82,6 +82,10 @@ const Dashboard = () => {
 // Super Admin Dashboard
 const SuperAdminDashboard = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  
+  // Check if user is SaaS admin (phone: 9948303060)
+  const isSaaSAdmin = user?.phone === '9948303060';
   
   return (
     <div className="space-y-6">
@@ -94,6 +98,15 @@ const SuperAdminDashboard = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {isSaaSAdmin && (
+          <ActionCard
+            icon={Building2}
+            title="SaaS Admin Dashboard"
+            description="Manage tenants, packages & analytics"
+            onClick={() => navigate('/admin/saas-dashboard')}
+            gradient="from-purple-500 to-pink-500"
+          />
+        )}
         <ActionCard
           icon={Home}
           title="Customer Portal"
