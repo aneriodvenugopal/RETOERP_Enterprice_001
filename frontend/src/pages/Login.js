@@ -69,7 +69,7 @@ const Login = () => {
         : { email: identifier, password };
 
       const response = await authService.loginWithPassword(loginData);
-      await login(response.access_token, response.user);
+      await loginWithPassword(response.access_token, response.user);
       toast.success(`Welcome back, ${response.user.name}!`);
       navigate('/dashboard');
     } catch (error) {
