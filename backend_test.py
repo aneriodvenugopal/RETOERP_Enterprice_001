@@ -1871,6 +1871,33 @@ def test_create_tenant(saas_token, package_id):
     try:
         print("\n🏢 TESTING: POST /api/saas-admin/tenants")
         
+        # First get currencies to use a valid currency_id
+        headers = {"Authorization": f"Bearer {saas_token}"}
+        currencies_response = requests.get(f"{API_BASE}/currencies/", headers=headers, timeout=10)
+        
+        currency_id = None
+        if currencies_response.status_code == 200:
+            currencies = currencies_response.json()
+            if currencies and len(currencies) > 0:
+                currency_id = currencies[0].get('id')
+        
+        if not currency_id:
+            # Create a default currency if none exists
+            currency_data = {
+                "code": "INR",
+                "name": "Indian Rupee",
+                "symbol": "₹",
+                "exchange_rate": 1.0
+            }
+            create_currency_response = requests.post(f"{API_BASE}/currencies/", json=currency_data, headers=headers, timeout=10)
+            if create_currency_response.status_code == 200:
+                currency_result = create_currency_response.json()
+                currency_id = currency_result.get('id')
+        
+        if not currency_id:
+            results.add_fail("Create Tenant", "Could not get or create currency")
+            return None
+        
         import uuid
         unique_suffix = str(uuid.uuid4())[:8]
         
@@ -1880,10 +1907,10 @@ def test_create_tenant(saas_token, package_id):
             "email": f"test.realty.{unique_suffix}@example.com",
             "phone": f"98765{unique_suffix[:5]}",
             "address": "123 Test Street, Test City",
+            "base_currency_id": currency_id,
             "package_id": package_id,
             "billing_cycle": "monthly",
-            "auto_renew": True,
-            "status": "active"
+            "auto_renew": True
         }
         
         headers = {"Authorization": f"Bearer {saas_token}"}
