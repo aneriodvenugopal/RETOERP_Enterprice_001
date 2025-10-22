@@ -1,5 +1,8 @@
 import api from './api';
 
+// Export api for direct use in admin pages
+export { default as api } from './api';
+
 export const authService = {
   // Send OTP to phone
   sendOTP: async (phone) => {
