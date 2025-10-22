@@ -1765,7 +1765,16 @@ def test_update_package(saas_token, package_id):
             "monthly_price": 30000,
             "features": {
                 "max_projects": 25,
-                "sms_credits": 4000
+                "max_users": 60,
+                "max_properties": 2500,
+                "advanced_analytics": True,
+                "custom_branding": True,
+                "api_access": True,
+                "priority_support": True,
+                "resale_marketplace": False,
+                "sms_credits": 4000,
+                "email_credits": 6000,
+                "whatsapp_credits": 1500
             }
         }
         
