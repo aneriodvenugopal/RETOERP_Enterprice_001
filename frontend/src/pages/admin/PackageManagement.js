@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../../services';
+import apiInstance from '../../services/api';
+const api = apiInstance;
 import { Package, Edit2, Trash2, Plus, X, Check, DollarSign, Users, Building, Zap } from 'lucide-react';
 
 function PackageManagement() {
