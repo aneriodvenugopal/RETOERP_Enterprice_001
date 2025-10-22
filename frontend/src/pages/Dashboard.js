@@ -108,6 +108,13 @@ const SuperAdminDashboard = () => {
           />
         )}
         <ActionCard
+          icon={MessageSquare}
+          title="Chat Management"
+          description="View conversations & manage leads"
+          onClick={() => navigate('/admin/chats')}
+          gradient="from-blue-500 to-cyan-500"
+        />
+        <ActionCard
           icon={Home}
           title="Customer Portal"
           description="Preview customer experience"
