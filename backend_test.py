@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Backend API Testing for RETOERP - SaaS Admin Dashboard Testing
-Tests the SaaS Admin Dashboard backend APIs comprehensively.
+Backend API Testing for RETOERP - AI Chatbot System Testing
+Tests the AI Chatbot System backend APIs comprehensively.
 """
 
 import requests
