@@ -190,7 +190,7 @@ const PWADashboard = () => {
             </div>
             <div>
               <h1 className="text-xl font-bold">{user?.name}</h1>
-              <p className="text-white/80 text-sm capitalize">{user?.role?.replace('_', ' ')}</p>
+              <p className="text-white/80 text-sm capitalize">{typeof user?.role === 'string' ? user.role.replace('_', ' ') : 'User'}</p>
             </div>
           </div>
           
