@@ -3201,8 +3201,8 @@ def test_notifications_in_database(customer_token):
         return False
 
 def main():
-    """Main test execution for Resale Request System"""
-    print("🚀 STARTING RESALE REQUEST SYSTEM TESTING")
+    """Main test execution for SaaS Admin Dashboard"""
+    print("🚀 STARTING SAAS ADMIN DASHBOARD TESTING")
     print("=" * 80)
     
     # Test API health first
@@ -3210,93 +3210,132 @@ def main():
         print("❌ API is not healthy, stopping tests")
         return
     
-    # Authenticate users
-    admin_token = authenticate_admin()
-    customer_token = authenticate_user()  # This is actually a customer user
+    # Test access control first
+    print("\n🔒 TESTING ACCESS CONTROL")
+    print("=" * 60)
+    test_saas_admin_access_control()
     
-    if not admin_token:
-        print("❌ Failed to authenticate admin user, stopping admin tests")
+    # Authenticate SaaS admin
+    saas_token = authenticate_saas_admin()
+    
+    if not saas_token:
+        print("❌ Failed to authenticate SaaS admin user, stopping tests")
         return
     
-    if not customer_token:
-        print("❌ Failed to authenticate customer user, stopping customer tests")
-        return
-    
-    print("\n🏠 TESTING RESALE REQUEST SYSTEM")
+    print("\n📦 TESTING PACKAGE MANAGEMENT APIs")
     print("=" * 60)
     
-    # First get a project to use for testing
-    project = test_get_projects(admin_token)
-    project_id = project.get('id') if project else None
+    # Test package endpoints
+    packages = test_get_packages(saas_token)
     
-    if not project_id:
-        print("❌ No project available for testing, skipping resale tests")
-        return
-    
-    print(f"\n📋 Using project: {project.get('name', 'Unknown')} (ID: {project_id})")
-    
-    # Test customer endpoints
-    print("\n👤 TESTING CUSTOMER RESALE ENDPOINTS")
-    print("-" * 40)
-    
-    request_id = test_customer_create_resale_request(customer_token, project_id)
-    test_customer_get_my_requests(customer_token)
-    
-    if request_id:
-        test_get_single_resale_request(customer_token, request_id)
-    
-    # Test admin endpoints
-    print("\n👨‍💼 TESTING ADMIN RESALE ENDPOINTS")
-    print("-" * 40)
-    
-    test_admin_get_all_requests(admin_token)
-    test_admin_filter_requests_by_status(admin_token)
-    
-    # Test admin approval/rejection
-    if request_id:
-        # Create another request for rejection test
-        request_id_2 = test_customer_create_resale_request(customer_token, project_id)
+    if packages:
+        # Test single package retrieval with first package
+        first_package = packages[0]
+        package_id = first_package.get('id')
         
-        # Test approval
-        test_admin_approve_request(admin_token, request_id)
+        if package_id:
+            test_get_single_package(saas_token, package_id)
+    
+    # Test package creation
+    new_package_id = test_create_package(saas_token)
+    
+    if new_package_id:
+        # Test package update
+        test_update_package(saas_token, new_package_id)
+    
+    print("\n🏢 TESTING TENANT MANAGEMENT APIs")
+    print("=" * 60)
+    
+    # Test tenant endpoints
+    tenants = test_get_tenants(saas_token)
+    
+    # Test tenant creation (use Professional package if available)
+    professional_package_id = None
+    if packages:
+        for pkg in packages:
+            if pkg.get('name') == 'Professional':
+                professional_package_id = pkg.get('id')
+                break
+    
+    if not professional_package_id and new_package_id:
+        professional_package_id = new_package_id
+    
+    new_tenant_id = None
+    if professional_package_id:
+        new_tenant_id = test_create_tenant(saas_token, professional_package_id)
+    
+    if new_tenant_id:
+        # Test single tenant retrieval
+        test_get_single_tenant(saas_token, new_tenant_id)
         
-        # Test rejection
-        if request_id_2:
-            test_admin_reject_request(admin_token, request_id_2)
+        # Test tenant update
+        test_update_tenant(saas_token, new_tenant_id)
+        
+        # Test status toggle
+        test_toggle_tenant_status(saas_token, new_tenant_id)
+        
+        # Test adding credits
+        test_add_tenant_credits(saas_token, new_tenant_id)
+        
+        # Test tenant hierarchy
+        test_tenant_hierarchy(saas_token, new_tenant_id)
     
-    # Test available resales (after approval)
-    print("\n🏪 TESTING AVAILABLE RESALES")
-    print("-" * 40)
+    # Test tenant filtering
+    test_tenant_filters(saas_token)
     
-    resale_id = test_get_available_resales(customer_token)
-    if resale_id:
-        test_get_resale_details(customer_token, resale_id)
+    print("\n📊 TESTING DASHBOARD ANALYTICS API")
+    print("=" * 60)
     
-    # Test access control
-    print("\n🔒 TESTING ACCESS CONTROL")
-    print("-" * 40)
+    # Test dashboard analytics
+    test_saas_dashboard_analytics(saas_token)
     
-    test_access_control_customer_to_admin(customer_token)
+    print("\n🗑️ TESTING PACKAGE DELETION PROTECTION")
+    print("=" * 60)
     
-    # Test notifications
-    print("\n🔔 TESTING NOTIFICATIONS")
-    print("-" * 40)
-    
-    test_notifications_in_database(customer_token)
+    # Test package deletion (should fail if tenants using it)
+    if professional_package_id:
+        test_delete_package_with_tenants(saas_token, professional_package_id)
     
     # Print final summary
     success = results.summary()
     
     if success:
-        print("\n🎉 ALL RESALE REQUEST SYSTEM TESTS PASSED!")
-        print("✅ Customer resale request creation working")
-        print("✅ Customer request retrieval functional")
-        print("✅ Admin request management operational")
-        print("✅ Admin approval/rejection working")
-        print("✅ Available resales browsing functional")
-        print("✅ Access control properly enforced")
-        print("✅ Notifications saved to database")
-        print("✅ All CRUD operations working correctly")
+        print("\n🎉 ALL SAAS ADMIN DASHBOARD TESTS PASSED!")
+        print("✅ Package Management APIs working correctly")
+        print("   - List all packages ✓")
+        print("   - Get single package with tenant count ✓")
+        print("   - Create new package ✓")
+        print("   - Update package ✓")
+        print("   - Delete protection when tenants using package ✓")
+        print("✅ Tenant Management APIs working correctly")
+        print("   - List tenants with filters ✓")
+        print("   - Get single tenant with hierarchy ✓")
+        print("   - Create new tenant with package assignment ✓")
+        print("   - Update tenant ✓")
+        print("   - Toggle active/inactive status ✓")
+        print("   - Add SMS/Email/WhatsApp credits ✓")
+        print("✅ Dashboard Analytics API working correctly")
+        print("   - Overview with KPIs ✓")
+        print("   - Timeline breakdown ✓")
+        print("   - Package distribution ✓")
+        print("   - Recent tenants ✓")
+        print("✅ Hierarchy API working correctly")
+        print("   - Complete tenant hierarchy (Tenant → Projects → Properties → Staff) ✓")
+        print("✅ Access Control working correctly")
+        print("   - Only phone 9948303060 can access SaaS admin endpoints ✓")
+        print("   - 403 Forbidden for other users ✓")
+        print("✅ All test scenarios completed successfully")
+        print("   - 3 seeded packages verified ✓")
+        print("   - Test tenant creation with Professional package ✓")
+        print("   - Tenant details update ✓")
+        print("   - Status toggle active → inactive → active ✓")
+        print("   - Credits addition ✓")
+        print("   - Dashboard stats verification ✓")
+        print("   - Timeline filters (previous, present, future) ✓")
+        print("   - Package filters ✓")
+        print("   - Custom package creation ✓")
+        print("   - Package deletion protection ✓")
+        print("   - Tenant hierarchy with nested data ✓")
     else:
         print("\n❌ SOME TESTS FAILED - CHECK DETAILS ABOVE")
 
