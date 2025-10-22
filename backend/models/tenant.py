@@ -3,6 +3,16 @@ from typing import Optional, List
 from datetime import datetime, timezone
 import uuid
 
+class TenantCredits(BaseModel):
+    """Tenant communication credits"""
+    sms_remaining: int = 0
+    email_remaining: int = 0
+    whatsapp_remaining: int = 0
+    sms_used: int = 0
+    email_used: int = 0
+    whatsapp_used: int = 0
+
+
 class Tenant(BaseModel):
     model_config = ConfigDict(extra="ignore")
     
@@ -22,6 +32,14 @@ class Tenant(BaseModel):
     subscription_start: Optional[datetime] = None
     subscription_end: Optional[datetime] = None
     package_id: Optional[str] = None
+    
+    # SaaS Admin fields
+    status: str = Field(default="active", description="active, inactive, suspended")
+    billing_cycle: str = Field(default="monthly", description="monthly or yearly")
+    next_billing_date: Optional[datetime] = None
+    auto_renew: bool = Field(default=True, description="Automatic subscription renewal")
+    credits: TenantCredits = Field(default_factory=TenantCredits)
+    
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     deleted_at: Optional[datetime] = None
