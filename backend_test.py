@@ -3236,144 +3236,683 @@ def test_notifications_in_database(customer_token):
         traceback.print_exc()
         return False
 
+def authenticate_admin():
+    """Authenticate as admin user and return token"""
+    try:
+        print("\n🔐 AUTHENTICATING AS ADMIN USER")
+        
+        # Use test user phone from review request
+        admin_phone = "9948303060"
+        admin_password = "9948303060"
+        
+        # Step 1: Send OTP
+        print(f"   📱 Sending OTP to {admin_phone}")
+        otp_response = requests.post(
+            f"{API_BASE}/auth/send-otp",
+            json={"phone": admin_phone},
+            timeout=10
+        )
+        
+        if otp_response.status_code != 200:
+            print(f"   ❌ Failed to send OTP: {otp_response.status_code}")
+            print_error_details("Send OTP", otp_response)
+            return None
+        
+        otp_data = otp_response.json()
+        otp = otp_data.get('otp')
+        
+        if not otp:
+            print("   ❌ No OTP received in response")
+            return None
+        
+        print(f"   ✅ OTP sent successfully: {otp}")
+        
+        # Step 2: Verify OTP
+        print("   🔑 Verifying OTP")
+        verify_response = requests.post(
+            f"{API_BASE}/auth/verify-otp",
+            json={"phone": admin_phone, "otp": otp},
+            timeout=10
+        )
+        
+        if verify_response.status_code != 200:
+            print(f"   ❌ Failed to verify OTP: {verify_response.status_code}")
+            print_error_details("Verify OTP", verify_response)
+            return None
+        
+        verify_data = verify_response.json()
+        token = verify_data.get('access_token')
+        user = verify_data.get('user', {})
+        
+        if not token:
+            print("   ❌ No access token received")
+            return None
+        
+        print(f"   ✅ Authentication successful!")
+        print(f"   👤 User: {user.get('name')} ({user.get('role')})")
+        print(f"   🏢 Tenant: {user.get('tenant_id')}")
+        
+        return token
+        
+    except Exception as e:
+        print(f"   ❌ Authentication failed: {str(e)}")
+        traceback.print_exc()
+        return None
+
+# ============ AI CHATBOT SYSTEM TESTS ============
+
+def test_get_chatbot_config_default():
+    """Test GET /api/chatbot/config - Get default config (no tenant)"""
+    try:
+        print("\n🤖 TESTING: GET /api/chatbot/config (Default Config)")
+        
+        response = requests.get(f"{API_BASE}/chatbot/config", timeout=10)
+        
+        if response.status_code != 200:
+            results.add_fail("Get Default Chatbot Config", f"Status code: {response.status_code}")
+            print_error_details("Get Default Chatbot Config", response)
+            return False
+            
+        data = response.json()
+        
+        # Validate response structure
+        required_fields = ['success', 'config', 'is_default']
+        missing_fields = [field for field in required_fields if field not in data]
+        
+        if missing_fields:
+            results.add_fail("Get Default Chatbot Config", f"Missing fields: {missing_fields}")
+            return False
+        
+        if not data.get('success'):
+            results.add_fail("Get Default Chatbot Config", "Response success is False")
+            return False
+        
+        config = data.get('config', {})
+        if not config.get('bot_name'):
+            results.add_fail("Get Default Chatbot Config", "No bot_name in config")
+            return False
+        
+        results.add_pass("Get Default Chatbot Config")
+        print(f"   ✅ Bot Name: {config.get('bot_name')}")
+        print(f"   ✅ Is Default: {data.get('is_default')}")
+        print(f"   ✅ Languages: {config.get('languages', [])}")
+        return True
+        
+    except Exception as e:
+        results.add_fail("Get Default Chatbot Config", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+
+def test_get_chatbot_config_tenant():
+    """Test GET /api/chatbot/config?tenant_id=test - Get tenant-specific config"""
+    try:
+        print("\n🤖 TESTING: GET /api/chatbot/config?tenant_id=test (Tenant Config)")
+        
+        response = requests.get(f"{API_BASE}/chatbot/config?tenant_id=test", timeout=10)
+        
+        if response.status_code != 200:
+            results.add_fail("Get Tenant Chatbot Config", f"Status code: {response.status_code}")
+            print_error_details("Get Tenant Chatbot Config", response)
+            return False
+            
+        data = response.json()
+        
+        # Validate response structure
+        required_fields = ['success', 'config', 'is_default']
+        missing_fields = [field for field in required_fields if field not in data]
+        
+        if missing_fields:
+            results.add_fail("Get Tenant Chatbot Config", f"Missing fields: {missing_fields}")
+            return False
+        
+        if not data.get('success'):
+            results.add_fail("Get Tenant Chatbot Config", "Response success is False")
+            return False
+        
+        results.add_pass("Get Tenant Chatbot Config")
+        print(f"   ✅ Config retrieved for tenant: test")
+        print(f"   ✅ Is Default: {data.get('is_default')}")
+        return True
+        
+    except Exception as e:
+        results.add_fail("Get Tenant Chatbot Config", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+
+def test_send_first_chat_message():
+    """Test POST /api/chatbot/message - Send first message (creates conversation + gets AI response)"""
+    try:
+        print("\n💬 TESTING: POST /api/chatbot/message (First Message)")
+        
+        test_data = {
+            "visitor_id": "test_visitor_123",
+            "content": "Hello! I'm looking for a 3BHK apartment in Hyderabad",
+            "language": "en"
+        }
+        
+        response = requests.post(
+            f"{API_BASE}/chatbot/message",
+            json=test_data,
+            headers={"Content-Type": "application/json"},
+            timeout=30  # AI response may take time
+        )
+        
+        if response.status_code != 200:
+            results.add_fail("Send First Chat Message", f"Status code: {response.status_code}")
+            print_error_details("Send First Chat Message", response)
+            return None
+            
+        data = response.json()
+        
+        # Validate response structure
+        required_fields = ['success', 'conversation_id', 'user_message', 'assistant_message']
+        missing_fields = [field for field in required_fields if field not in data]
+        
+        if missing_fields:
+            results.add_fail("Send First Chat Message", f"Missing fields: {missing_fields}")
+            return None
+        
+        if not data.get('success'):
+            results.add_fail("Send First Chat Message", "Response success is False")
+            return None
+        
+        conversation_id = data.get('conversation_id')
+        user_msg = data.get('user_message', {})
+        assistant_msg = data.get('assistant_message', {})
+        
+        # Validate messages
+        if user_msg.get('content') != test_data['content']:
+            results.add_fail("Send First Chat Message", "User message content mismatch")
+            return None
+        
+        if not assistant_msg.get('content'):
+            results.add_fail("Send First Chat Message", "No assistant response content")
+            return None
+        
+        # Check if it's a real AI response (not fallback)
+        ai_response = assistant_msg.get('content', '')
+        if "having trouble processing" in ai_response.lower() or "try again" in ai_response.lower():
+            results.add_fail("Send First Chat Message", "Received fallback error response instead of AI response")
+            return None
+        
+        results.add_pass("Send First Chat Message")
+        print(f"   ✅ Conversation created: {conversation_id}")
+        print(f"   ✅ User message: {user_msg.get('content')}")
+        print(f"   ✅ AI response: {ai_response[:100]}...")
+        print(f"   ✅ Should capture lead: {data.get('should_capture_lead', False)}")
+        
+        return conversation_id
+        
+    except Exception as e:
+        results.add_fail("Send First Chat Message", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return None
+
+
+def test_send_followup_message(conversation_id):
+    """Test POST /api/chatbot/message - Send follow-up message with conversation_id"""
+    if not conversation_id:
+        results.add_fail("Send Follow-up Message", "No conversation ID available")
+        return False
+        
+    try:
+        print(f"\n💬 TESTING: POST /api/chatbot/message (Follow-up in {conversation_id})")
+        
+        test_data = {
+            "conversation_id": conversation_id,
+            "visitor_id": "test_visitor_123",
+            "content": "What's the price range for 3BHK apartments? My budget is around 80 lakhs.",
+            "language": "en"
+        }
+        
+        response = requests.post(
+            f"{API_BASE}/chatbot/message",
+            json=test_data,
+            headers={"Content-Type": "application/json"},
+            timeout=30
+        )
+        
+        if response.status_code != 200:
+            results.add_fail("Send Follow-up Message", f"Status code: {response.status_code}")
+            print_error_details("Send Follow-up Message", response)
+            return False
+            
+        data = response.json()
+        
+        if not data.get('success'):
+            results.add_fail("Send Follow-up Message", "Response success is False")
+            return False
+        
+        # Validate conversation continuity
+        if data.get('conversation_id') != conversation_id:
+            results.add_fail("Send Follow-up Message", "Conversation ID mismatch")
+            return False
+        
+        assistant_msg = data.get('assistant_message', {})
+        ai_response = assistant_msg.get('content', '')
+        
+        if not ai_response:
+            results.add_fail("Send Follow-up Message", "No assistant response")
+            return False
+        
+        # Check if it's a real AI response
+        if "having trouble processing" in ai_response.lower():
+            results.add_fail("Send Follow-up Message", "Received fallback error response")
+            return False
+        
+        results.add_pass("Send Follow-up Message")
+        print(f"   ✅ Follow-up message sent successfully")
+        print(f"   ✅ AI response: {ai_response[:100]}...")
+        return True
+        
+    except Exception as e:
+        results.add_fail("Send Follow-up Message", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+
+def test_capture_lead(conversation_id):
+    """Test POST /api/chatbot/capture-lead - Capture lead info"""
+    if not conversation_id:
+        results.add_fail("Capture Lead", "No conversation ID available")
+        return False
+        
+    try:
+        print(f"\n📋 TESTING: POST /api/chatbot/capture-lead")
+        
+        test_data = {
+            "conversation_id": conversation_id,
+            "name": "Test User",
+            "phone": "9876543210",
+            "email": "test@example.com",
+            "interest": "3BHK"
+        }
+        
+        response = requests.post(
+            f"{API_BASE}/chatbot/capture-lead",
+            json=test_data,
+            headers={"Content-Type": "application/json"},
+            timeout=10
+        )
+        
+        if response.status_code != 200:
+            results.add_fail("Capture Lead", f"Status code: {response.status_code}")
+            print_error_details("Capture Lead", response)
+            return False
+            
+        data = response.json()
+        
+        if not data.get('success'):
+            results.add_fail("Capture Lead", "Response success is False")
+            return False
+        
+        results.add_pass("Capture Lead")
+        print(f"   ✅ Lead captured successfully")
+        print(f"   ✅ Name: {test_data['name']}")
+        print(f"   ✅ Phone: {test_data['phone']}")
+        print(f"   ✅ Interest: {test_data['interest']}")
+        return True
+        
+    except Exception as e:
+        results.add_fail("Capture Lead", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+
+def test_get_conversation_history(conversation_id):
+    """Test GET /api/chatbot/history/{conversation_id} - Get conversation history"""
+    if not conversation_id:
+        results.add_fail("Get Conversation History", "No conversation ID available")
+        return False
+        
+    try:
+        print(f"\n📜 TESTING: GET /api/chatbot/history/{conversation_id}")
+        
+        response = requests.get(f"{API_BASE}/chatbot/history/{conversation_id}", timeout=10)
+        
+        if response.status_code != 200:
+            results.add_fail("Get Conversation History", f"Status code: {response.status_code}")
+            print_error_details("Get Conversation History", response)
+            return False
+            
+        data = response.json()
+        
+        # Validate response structure
+        required_fields = ['success', 'conversation', 'messages']
+        missing_fields = [field for field in required_fields if field not in data]
+        
+        if missing_fields:
+            results.add_fail("Get Conversation History", f"Missing fields: {missing_fields}")
+            return False
+        
+        if not data.get('success'):
+            results.add_fail("Get Conversation History", "Response success is False")
+            return False
+        
+        conversation = data.get('conversation', {})
+        messages = data.get('messages', [])
+        
+        # Validate conversation has lead info
+        if not conversation.get('is_lead'):
+            results.add_fail("Get Conversation History", "Conversation not marked as lead")
+            return False
+        
+        if conversation.get('visitor_name') != "Test User":
+            results.add_fail("Get Conversation History", "Lead name not saved correctly")
+            return False
+        
+        # Validate messages
+        if len(messages) < 2:
+            results.add_fail("Get Conversation History", f"Expected at least 2 messages, got {len(messages)}")
+            return False
+        
+        results.add_pass("Get Conversation History")
+        print(f"   ✅ Conversation retrieved with {len(messages)} messages")
+        print(f"   ✅ Lead status: {conversation.get('is_lead')}")
+        print(f"   ✅ Lead name: {conversation.get('visitor_name')}")
+        print(f"   ✅ Lead phone: {conversation.get('visitor_phone')}")
+        return True
+        
+    except Exception as e:
+        results.add_fail("Get Conversation History", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+
+def test_admin_get_conversations(auth_token):
+    """Test GET /api/chatbot/admin/conversations - List all conversations"""
+    if not auth_token:
+        results.add_fail("Admin Get Conversations", "No auth token available")
+        return False
+        
+    try:
+        print("\n👥 TESTING: GET /api/chatbot/admin/conversations")
+        headers = {"Authorization": f"Bearer {auth_token}"}
+        response = requests.get(f"{API_BASE}/chatbot/admin/conversations", headers=headers, timeout=10)
+        
+        if response.status_code != 200:
+            results.add_fail("Admin Get Conversations", f"Status code: {response.status_code}")
+            print_error_details("Admin Get Conversations", response)
+            return False
+            
+        data = response.json()
+        
+        # Validate response structure
+        required_fields = ['success', 'conversations', 'total', 'limit', 'skip']
+        missing_fields = [field for field in required_fields if field not in data]
+        
+        if missing_fields:
+            results.add_fail("Admin Get Conversations", f"Missing fields: {missing_fields}")
+            return False
+        
+        if not data.get('success'):
+            results.add_fail("Admin Get Conversations", "Response success is False")
+            return False
+        
+        conversations = data.get('conversations', [])
+        total = data.get('total', 0)
+        
+        results.add_pass("Admin Get Conversations")
+        print(f"   ✅ Found {len(conversations)} conversations (Total: {total})")
+        return True
+        
+    except Exception as e:
+        results.add_fail("Admin Get Conversations", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+
+def test_admin_get_leads_only(auth_token):
+    """Test GET /api/chatbot/admin/conversations?is_lead=true - Filter leads only"""
+    if not auth_token:
+        results.add_fail("Admin Get Leads Only", "No auth token available")
+        return False
+        
+    try:
+        print("\n🎯 TESTING: GET /api/chatbot/admin/conversations?is_lead=true")
+        headers = {"Authorization": f"Bearer {auth_token}"}
+        response = requests.get(f"{API_BASE}/chatbot/admin/conversations?is_lead=true", headers=headers, timeout=10)
+        
+        if response.status_code != 200:
+            results.add_fail("Admin Get Leads Only", f"Status code: {response.status_code}")
+            print_error_details("Admin Get Leads Only", response)
+            return False
+            
+        data = response.json()
+        
+        if not data.get('success'):
+            results.add_fail("Admin Get Leads Only", "Response success is False")
+            return False
+        
+        conversations = data.get('conversations', [])
+        
+        # Validate all conversations are leads
+        for conv in conversations:
+            if not conv.get('is_lead'):
+                results.add_fail("Admin Get Leads Only", "Non-lead conversation in leads filter")
+                return False
+        
+        results.add_pass("Admin Get Leads Only")
+        print(f"   ✅ Found {len(conversations)} lead conversations")
+        return True
+        
+    except Exception as e:
+        results.add_fail("Admin Get Leads Only", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+
+def test_admin_get_conversation_detail(auth_token, conversation_id):
+    """Test GET /api/chatbot/admin/conversation/{id} - Get conversation detail with messages"""
+    if not auth_token or not conversation_id:
+        results.add_fail("Admin Get Conversation Detail", "Missing auth token or conversation ID")
+        return False
+        
+    try:
+        print(f"\n📋 TESTING: GET /api/chatbot/admin/conversation/{conversation_id}")
+        headers = {"Authorization": f"Bearer {auth_token}"}
+        response = requests.get(f"{API_BASE}/chatbot/admin/conversation/{conversation_id}", headers=headers, timeout=10)
+        
+        if response.status_code != 200:
+            results.add_fail("Admin Get Conversation Detail", f"Status code: {response.status_code}")
+            print_error_details("Admin Get Conversation Detail", response)
+            return False
+            
+        data = response.json()
+        
+        # Validate response structure
+        required_fields = ['success', 'conversation', 'messages']
+        missing_fields = [field for field in required_fields if field not in data]
+        
+        if missing_fields:
+            results.add_fail("Admin Get Conversation Detail", f"Missing fields: {missing_fields}")
+            return False
+        
+        if not data.get('success'):
+            results.add_fail("Admin Get Conversation Detail", "Response success is False")
+            return False
+        
+        conversation = data.get('conversation', {})
+        messages = data.get('messages', [])
+        
+        if conversation.get('id') != conversation_id:
+            results.add_fail("Admin Get Conversation Detail", "Conversation ID mismatch")
+            return False
+        
+        results.add_pass("Admin Get Conversation Detail")
+        print(f"   ✅ Conversation detail retrieved")
+        print(f"   ✅ Messages: {len(messages)}")
+        print(f"   ✅ Is Lead: {conversation.get('is_lead')}")
+        return True
+        
+    except Exception as e:
+        results.add_fail("Admin Get Conversation Detail", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+
+def test_admin_get_analytics(auth_token):
+    """Test GET /api/chatbot/admin/analytics - Get analytics (conversion rate, avg messages)"""
+    if not auth_token:
+        results.add_fail("Admin Get Analytics", "No auth token available")
+        return False
+        
+    try:
+        print("\n📊 TESTING: GET /api/chatbot/admin/analytics")
+        headers = {"Authorization": f"Bearer {auth_token}"}
+        response = requests.get(f"{API_BASE}/chatbot/admin/analytics", headers=headers, timeout=10)
+        
+        if response.status_code != 200:
+            results.add_fail("Admin Get Analytics", f"Status code: {response.status_code}")
+            print_error_details("Admin Get Analytics", response)
+            return False
+            
+        data = response.json()
+        
+        # Validate response structure
+        required_fields = ['success', 'analytics']
+        missing_fields = [field for field in required_fields if field not in data]
+        
+        if missing_fields:
+            results.add_fail("Admin Get Analytics", f"Missing fields: {missing_fields}")
+            return False
+        
+        if not data.get('success'):
+            results.add_fail("Admin Get Analytics", "Response success is False")
+            return False
+        
+        analytics = data.get('analytics', {})
+        required_analytics = ['total_conversations', 'total_messages', 'total_leads', 'lead_conversion_rate', 'avg_messages_per_conversation']
+        missing_analytics = [field for field in required_analytics if field not in analytics]
+        
+        if missing_analytics:
+            results.add_fail("Admin Get Analytics", f"Missing analytics fields: {missing_analytics}")
+            return False
+        
+        results.add_pass("Admin Get Analytics")
+        print(f"   ✅ Total Conversations: {analytics.get('total_conversations')}")
+        print(f"   ✅ Total Messages: {analytics.get('total_messages')}")
+        print(f"   ✅ Total Leads: {analytics.get('total_leads')}")
+        print(f"   ✅ Conversion Rate: {analytics.get('lead_conversion_rate')}%")
+        print(f"   ✅ Avg Messages/Conversation: {analytics.get('avg_messages_per_conversation')}")
+        return True
+        
+    except Exception as e:
+        results.add_fail("Admin Get Analytics", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+
+def test_telugu_language_detection():
+    """Test Telugu language detection if possible"""
+    try:
+        print("\n🌐 TESTING: Telugu Language Support")
+        
+        test_data = {
+            "visitor_id": "test_visitor_telugu",
+            "content": "నమస్కారం! నాకు హైదరాబాద్‌లో ఒక ఇల్లు కావాలి",
+            "language": "te"
+        }
+        
+        response = requests.post(
+            f"{API_BASE}/chatbot/message",
+            json=test_data,
+            headers={"Content-Type": "application/json"},
+            timeout=30
+        )
+        
+        if response.status_code != 200:
+            results.add_fail("Telugu Language Detection", f"Status code: {response.status_code}")
+            print_error_details("Telugu Language Detection", response)
+            return False
+            
+        data = response.json()
+        
+        if not data.get('success'):
+            results.add_fail("Telugu Language Detection", "Response success is False")
+            return False
+        
+        assistant_msg = data.get('assistant_message', {})
+        ai_response = assistant_msg.get('content', '')
+        
+        if not ai_response:
+            results.add_fail("Telugu Language Detection", "No assistant response")
+            return False
+        
+        # Check if response contains Telugu characters (basic check)
+        telugu_chars = sum(1 for char in ai_response if '\u0C00' <= char <= '\u0C7F')
+        
+        results.add_pass("Telugu Language Detection")
+        print(f"   ✅ Telugu message processed successfully")
+        print(f"   ✅ AI response: {ai_response[:100]}...")
+        print(f"   ✅ Telugu characters in response: {telugu_chars}")
+        return True
+        
+    except Exception as e:
+        results.add_fail("Telugu Language Detection", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+
+# ============ MAIN TEST EXECUTION ============
+
 def main():
-    """Main test execution for SaaS Admin Dashboard"""
-    print("🚀 STARTING SAAS ADMIN DASHBOARD TESTING")
+    """Main test execution"""
+    print("🚀 Starting RETOERP Backend API Testing - AI Chatbot System")
+    print(f"Backend URL: {API_BASE}")
     print("=" * 80)
     
-    # Test API health first
+    # Test 1: Health Check
     if not test_health_check():
-        print("❌ API is not healthy, stopping tests")
-        return
+        print("❌ Backend is not healthy. Stopping tests.")
+        return False
     
-    # Test access control first
-    print("\n🔒 TESTING ACCESS CONTROL")
-    print("=" * 60)
-    test_saas_admin_access_control()
+    # Test 2: Authentication
+    admin_token = authenticate_admin()
     
-    # Authenticate SaaS admin
-    saas_token = authenticate_saas_admin()
+    if not admin_token:
+        print("❌ Admin authentication failed. Stopping tests.")
+        return False
     
-    if not saas_token:
-        print("❌ Failed to authenticate SaaS admin user, stopping tests")
-        return
+    # Test 3: AI Chatbot System Tests
+    print("\n" + "=" * 80)
+    print("🤖 TESTING AI CHATBOT SYSTEM - PHASE 2")
+    print("=" * 80)
     
-    print("\n📦 TESTING PACKAGE MANAGEMENT APIs")
-    print("=" * 60)
+    # Configuration APIs
+    test_get_chatbot_config_default()
+    test_get_chatbot_config_tenant()
     
-    # Test package endpoints
-    packages = test_get_packages(saas_token)
-    
-    if packages:
-        # Test single package retrieval with first package
-        first_package = packages[0]
-        package_id = first_package.get('id')
+    # Public Chat APIs (NO AUTH REQUIRED)
+    conversation_id = test_send_first_chat_message()
+    if conversation_id:
+        test_send_followup_message(conversation_id)
+        test_capture_lead(conversation_id)
+        test_get_conversation_history(conversation_id)
         
-        if package_id:
-            test_get_single_package(saas_token, package_id)
+        # Admin APIs (REQUIRES AUTH)
+        test_admin_get_conversations(admin_token)
+        test_admin_get_leads_only(admin_token)
+        test_admin_get_conversation_detail(admin_token, conversation_id)
+        test_admin_get_analytics(admin_token)
     
-    # Test package creation
-    new_package_id = test_create_package(saas_token)
+    # Language Support Test
+    test_telugu_language_detection()
     
-    if new_package_id:
-        # Test package update
-        test_update_package(saas_token, new_package_id)
-    
-    print("\n🏢 TESTING TENANT MANAGEMENT APIs")
-    print("=" * 60)
-    
-    # Test tenant endpoints
-    tenants = test_get_tenants(saas_token)
-    
-    # Test tenant creation (use Professional package if available)
-    professional_package_id = None
-    if packages:
-        for pkg in packages:
-            if pkg.get('name') == 'Professional':
-                professional_package_id = pkg.get('id')
-                break
-    
-    if not professional_package_id and new_package_id:
-        professional_package_id = new_package_id
-    
-    new_tenant_id = None
-    if professional_package_id:
-        new_tenant_id = test_create_tenant(saas_token, professional_package_id)
-    
-    if new_tenant_id:
-        # Test single tenant retrieval
-        test_get_single_tenant(saas_token, new_tenant_id)
-        
-        # Test tenant update
-        test_update_tenant(saas_token, new_tenant_id)
-        
-        # Test status toggle
-        test_toggle_tenant_status(saas_token, new_tenant_id)
-        
-        # Test adding credits
-        test_add_tenant_credits(saas_token, new_tenant_id)
-        
-        # Test tenant hierarchy
-        test_tenant_hierarchy(saas_token, new_tenant_id)
-    
-    # Test tenant filtering
-    test_tenant_filters(saas_token)
-    
-    print("\n📊 TESTING DASHBOARD ANALYTICS API")
-    print("=" * 60)
-    
-    # Test dashboard analytics
-    test_saas_dashboard_analytics(saas_token)
-    
-    print("\n🗑️ TESTING PACKAGE DELETION PROTECTION")
-    print("=" * 60)
-    
-    # Test package deletion (should fail if tenants using it)
-    if professional_package_id:
-        test_delete_package_with_tenants(saas_token, professional_package_id)
-    
-    # Print final summary
+    # Final Results
+    print("\n" + "=" * 80)
     success = results.summary()
     
     if success:
-        print("\n🎉 ALL SAAS ADMIN DASHBOARD TESTS PASSED!")
-        print("✅ Package Management APIs working correctly")
-        print("   - List all packages ✓")
-        print("   - Get single package with tenant count ✓")
-        print("   - Create new package ✓")
-        print("   - Update package ✓")
-        print("   - Delete protection when tenants using package ✓")
-        print("✅ Tenant Management APIs working correctly")
-        print("   - List tenants with filters ✓")
-        print("   - Get single tenant with hierarchy ✓")
-        print("   - Create new tenant with package assignment ✓")
-        print("   - Update tenant ✓")
-        print("   - Toggle active/inactive status ✓")
-        print("   - Add SMS/Email/WhatsApp credits ✓")
-        print("✅ Dashboard Analytics API working correctly")
-        print("   - Overview with KPIs ✓")
-        print("   - Timeline breakdown ✓")
-        print("   - Package distribution ✓")
-        print("   - Recent tenants ✓")
-        print("✅ Hierarchy API working correctly")
-        print("   - Complete tenant hierarchy (Tenant → Projects → Properties → Staff) ✓")
-        print("✅ Access Control working correctly")
-        print("   - Only phone 9948303060 can access SaaS admin endpoints ✓")
-        print("   - 403 Forbidden for other users ✓")
-        print("✅ All test scenarios completed successfully")
-        print("   - 3 seeded packages verified ✓")
-        print("   - Test tenant creation with Professional package ✓")
-        print("   - Tenant details update ✓")
-        print("   - Status toggle active → inactive → active ✓")
-        print("   - Credits addition ✓")
-        print("   - Dashboard stats verification ✓")
-        print("   - Timeline filters (previous, present, future) ✓")
-        print("   - Package filters ✓")
-        print("   - Custom package creation ✓")
-        print("   - Package deletion protection ✓")
-        print("   - Tenant hierarchy with nested data ✓")
+        print("🎉 All tests passed! AI Chatbot System is working correctly.")
     else:
-        print("\n❌ SOME TESTS FAILED - CHECK DETAILS ABOVE")
+        print("⚠️  Some tests failed. Please check the errors above.")
+    
+    return success
+
 
 if __name__ == "__main__":
-    main()
+    success = main()
+    exit(0 if success else 1)
