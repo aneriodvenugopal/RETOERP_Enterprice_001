@@ -51,6 +51,9 @@ import AdvisoryChat from "./pages/advisory/AdvisoryChat";
 // Admin Pages
 import ContentManagement from "./pages/admin/ContentManagement";
 import ResaleManagement from "./pages/admin/ResaleManagement";
+import SaaSDashboard from "./pages/admin/SaaSDashboard";
+import PackageManagement from "./pages/admin/PackageManagement";
+import TenantManagement from "./pages/admin/TenantManagement";
 
 // PWA Components
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
