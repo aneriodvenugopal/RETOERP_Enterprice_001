@@ -80,15 +80,19 @@ const Home = () => {
               to="/register" 
               className="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-lg transition-all"
             >
-              Get Started Free
+              {t.get_started} →
             </Link>
             <Link 
               to="/login" 
               className="px-8 py-4 bg-white hover:bg-gray-50 text-blue-600 font-semibold rounded-lg border-2 border-blue-200 transition-all"
             >
-              Sign In
+              {t.learn_more}
             </Link>
           </div>
+          
+          <p className="text-gray-500 text-sm">
+            ✨ {t.trusted_by}
+          </p>
 
           {/* Stats */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16 max-w-4xl mx-auto">
