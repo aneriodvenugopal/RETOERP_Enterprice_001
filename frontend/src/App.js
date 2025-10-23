@@ -56,6 +56,10 @@ import PackageManagement from "./pages/admin/PackageManagement";
 import TenantManagement from "./pages/admin/TenantManagement";
 import ChatManagement from "./pages/admin/ChatManagement";
 
+// Public Landing Pages
+import TenantLandingPage from "./pages/public/TenantLandingPage";
+import ProjectLandingPage from "./pages/public/ProjectLandingPage";
+
 // PWA Components
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
 
