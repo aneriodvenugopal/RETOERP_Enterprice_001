@@ -296,6 +296,102 @@ const Home = () => {
         </div>
       </section>
 
+      {/* Featured Partners Section */}
+      <section className="py-20 bg-gradient-to-br from-blue-50 to-cyan-50">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+              Trusted by Leading Real Estate Companies
+            </h2>
+            <p className="text-xl text-gray-600">
+              Discover companies powered by RETOERP across India
+            </p>
+          </div>
+
+          {featuredTenants.length > 0 ? (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
+                {featuredTenants.slice(0, 6).map((tenant) => (
+                  <div
+                    key={tenant.id}
+                    onClick={() => navigate(`/public/tenant/${tenant.id}`)}
+                    className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all cursor-pointer transform hover:scale-105 border-2 border-transparent hover:border-blue-500"
+                  >
+                    {/* Company Header */}
+                    <div className="bg-gradient-to-br from-blue-600 to-cyan-600 p-6 text-white">
+                      <div className="flex items-center gap-4">
+                        {tenant.logo_url ? (
+                          <img
+                            src={tenant.logo_url}
+                            alt={tenant.company_name}
+                            className="h-14 w-14 bg-white rounded-full object-contain p-2"
+                          />
+                        ) : (
+                          <div className="h-14 w-14 bg-white rounded-full flex items-center justify-center">
+                            <span className="text-blue-600 font-bold text-xl">
+                              {tenant.company_name.charAt(0)}
+                            </span>
+                          </div>
+                        )}
+                        <div className="flex-1">
+                          <h3 className="text-lg font-bold truncate">{tenant.company_name}</h3>
+                          {(tenant.city || tenant.state) && (
+                            <div className="flex items-center gap-1 text-sm text-blue-100 mt-1">
+                              <MapPin size={14} />
+                              <span className="truncate">
+                                {tenant.city}{tenant.city && tenant.state && ', '}{tenant.state}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Company Stats */}
+                    <div className="p-6">
+                      <div className="grid grid-cols-3 gap-3 mb-4">
+                        <div className="text-center">
+                          <p className="text-xl font-bold text-blue-600">{tenant.project_count || 0}</p>
+                          <p className="text-xs text-gray-600">Projects</p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-xl font-bold text-green-600">{tenant.property_count || 0}</p>
+                          <p className="text-xs text-gray-600">Properties</p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-xl font-bold text-purple-600">{tenant.booking_count || 0}</p>
+                          <p className="text-xs text-gray-600">Bookings</p>
+                        </div>
+                      </div>
+
+                      <button className="w-full py-2 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-lg hover:shadow-lg transition font-semibold text-sm flex items-center justify-center gap-2">
+                        View Company <ArrowRight size={16} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="text-center">
+                <button
+                  onClick={() => navigate('/tenants')}
+                  className="px-8 py-4 bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-semibold rounded-lg hover:shadow-xl transition-all inline-flex items-center gap-2"
+                >
+                  <Building2 size={20} />
+                  View All Companies
+                  <ArrowRight size={20} />
+                </button>
+              </div>
+            </>
+          ) : (
+            <div className="text-center py-12">
+              <Building2 size={64} className="mx-auto text-gray-400 mb-4" />
+              <p className="text-gray-600">Featured companies will appear here</p>
+            </div>
+          )}
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="py-20 bg-white">
         <div className="container mx-auto px-6">
