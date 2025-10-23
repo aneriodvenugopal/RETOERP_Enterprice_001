@@ -104,16 +104,59 @@ function TenantLandingPage() {
             </div>
 
             {/* Navigation */}
-            <div className="flex items-center gap-4">
-              <a href="#projects" className="text-gray-700 hover:text-blue-600 transition">Projects</a>
-              <a href="#contact" className="text-gray-700 hover:text-blue-600 transition">Contact</a>
+            <div className="hidden md:flex items-center gap-6">
+              <button
+                onClick={() => scrollToSection('home')}
+                className={`text-sm font-medium transition ${
+                  activeSection === 'home' ? 'text-blue-600' : 'text-gray-700 hover:text-blue-600'
+                }`}
+              >
+                Home
+              </button>
+              <button
+                onClick={() => scrollToSection('projects')}
+                className={`text-sm font-medium transition ${
+                  activeSection === 'projects' ? 'text-blue-600' : 'text-gray-700 hover:text-blue-600'
+                }`}
+              >
+                Projects
+              </button>
+              <button
+                onClick={() => scrollToSection('about')}
+                className={`text-sm font-medium transition ${
+                  activeSection === 'about' ? 'text-blue-600' : 'text-gray-700 hover:text-blue-600'
+                }`}
+              >
+                About
+              </button>
+              <button
+                onClick={() => scrollToSection('contact')}
+                className={`text-sm font-medium transition ${
+                  activeSection === 'contact' ? 'text-blue-600' : 'text-gray-700 hover:text-blue-600'
+                }`}
+              >
+                Contact
+              </button>
+              <button
+                onClick={() => scrollToSection('enquiry')}
+                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium"
+              >
+                Enquire Now
+              </button>
               <button
                 onClick={() => navigate(`/login?tenant=${tenantId}`)}
-                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2"
+                className="px-4 py-2 border-2 border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition flex items-center gap-2"
               >
                 Login <ExternalLink size={16} />
               </button>
             </div>
+
+            {/* Mobile Menu Button */}
+            <button className="md:hidden p-2 text-gray-600">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
           </div>
         </div>
       </header>
