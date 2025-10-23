@@ -162,7 +162,7 @@ function TenantLandingPage() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-blue-600 via-blue-700 to-cyan-600 text-white py-20">
+      <section id="home" className="relative bg-gradient-to-br from-blue-600 via-blue-700 to-cyan-600 text-white py-20">
         {tenant.banner_url && (
           <div className="absolute inset-0 opacity-20">
             <img src={tenant.banner_url} alt="Banner" className="w-full h-full object-cover" />
