@@ -40,6 +40,14 @@ class Tenant(BaseModel):
     auto_renew: bool = Field(default=True, description="Automatic subscription renewal")
     credits: TenantCredits = Field(default_factory=TenantCredits)
     
+    # Landing Page / Custom Domain fields
+    custom_domain: Optional[str] = Field(None, description="Custom domain for tenant (e.g., abc.com)")
+    subdomain: Optional[str] = Field(None, description="Subdomain slug (e.g., 'abc' for abc.retoerp.com)")
+    logo_url: Optional[str] = Field(None, description="Company logo URL")
+    banner_url: Optional[str] = Field(None, description="Banner image URL for landing page")
+    tagline: Optional[str] = Field(None, description="Company tagline/slogan")
+    description: Optional[str] = Field(None, description="Company description for landing page")
+    
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     deleted_at: Optional[datetime] = None
