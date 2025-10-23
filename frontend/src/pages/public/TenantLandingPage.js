@@ -36,6 +36,21 @@ function TenantLandingPage() {
     }
   };
 
+  const scrollToSection = (sectionId) => {
+    setActiveSection(sectionId);
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  const handleEnquirySubmit = (e) => {
+    e.preventDefault();
+    // TODO: Submit enquiry via API
+    alert('Thank you! We will contact you soon.');
+    setEnquiryForm({ name: '', email: '', phone: '', message: '' });
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white flex items-center justify-center">
