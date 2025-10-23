@@ -116,6 +116,9 @@ backend:
       - working: true
         agent: "main"
         comment: "Backend APIs already implemented: GET /public/tenant/{tenant_id} returns tenant info, projects, statistics. GET /public/project/{project_id} returns project info, tenant info, layout, properties, statistics, price range. Both APIs are public (no authentication required)."
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: Public Landing Pages APIs working perfectly! Comprehensive testing completed with 6/6 tests passed: (1) GET /api/public/tenant/{tenant_id} - returns complete tenant landing page data with proper structure including success, tenant, projects, projects_by_category, statistics (total_projects, total_properties, total_bookings, total_leads, years_in_business), (2) Projects array includes property_count and available_count for each project as required, (3) GET /api/public/project/{project_id} - returns complete project landing page data with proper structure including success, project, tenant, layout, properties, properties_by_status, statistics (total_properties, available, booked, reserved, sold), price_range (min, max), (4) Properties_by_status correctly groups properties by available/booked/reserved/sold status, (5) Both endpoints are PUBLIC (no authentication required) as designed, (6) Error handling working correctly - returns 404 for invalid tenant/project IDs with proper error messages, (7) Empty data handling graceful - statistics show default values, years_in_business minimum 1 year. Test data: Default tenant (f18f7bd6-3a1f-472d-acf9-c2fb181787e7) with 31 projects and 534 properties, test project (42941e3b-03ee-4fa1-b676-a17c734dcc54) 'Oberoi Plaza Pune' with 22 properties, price range ₹6.5M-₹605M. All response structures validated and data accuracy confirmed."
 
 frontend:
   - task: "Create PublicLayoutViewer component"
