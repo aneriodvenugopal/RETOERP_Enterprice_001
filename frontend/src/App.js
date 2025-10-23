@@ -89,6 +89,7 @@ function App() {
                 <Route path="/advisory/:category" element={<AdvisoryChat />} />
                 
                 {/* Public Landing Pages */}
+                <Route path="/tenants" element={<TenantsDirectory />} />
                 <Route path="/public/tenant/:tenantId" element={<TenantLandingPage />} />
                 <Route path="/public/project/:projectId" element={<ProjectLandingPage />} />
                 
