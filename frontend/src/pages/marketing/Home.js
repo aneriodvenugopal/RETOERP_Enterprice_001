@@ -68,12 +68,11 @@ const Home = () => {
       <section className="bg-gradient-to-br from-blue-50 to-cyan-50 py-20">
         <div className="container mx-auto px-6 text-center">
           <h1 className="text-5xl md:text-7xl font-bold text-gray-900 mb-6">
-            Real Estate, <span className="text-blue-600">40X Faster</span>
+            {t.hero_title}, <span className="text-blue-600">{t.hero_subtitle}</span>
           </h1>
           
           <p className="text-xl md:text-2xl text-gray-600 mb-8 max-w-3xl mx-auto">
-            Transform your real estate business with AI-powered automation. 
-            Zero leakage, maximum profits.
+            {t.hero_description}
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
