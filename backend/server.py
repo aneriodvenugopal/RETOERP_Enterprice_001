@@ -64,6 +64,7 @@ api_router.include_router(share_referral.router)
 api_router.include_router(resale.router)
 api_router.include_router(saas_admin.router)
 api_router.include_router(chatbot.router)
+api_router.include_router(public_pages.router)
 
 # PWA Install tracking
 @api_router.post("/analytics/pwa-install")
