@@ -59,6 +59,7 @@ import ChatManagement from "./pages/admin/ChatManagement";
 // Public Landing Pages
 import TenantLandingPage from "./pages/public/TenantLandingPage";
 import ProjectLandingPage from "./pages/public/ProjectLandingPage";
+import TenantsDirectory from "./pages/public/TenantsDirectory";
 
 // PWA Components
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
