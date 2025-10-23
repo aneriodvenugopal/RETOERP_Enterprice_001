@@ -303,6 +303,86 @@ function TenantLandingPage() {
         </div>
       </section>
 
+      {/* About Section */}
+      <section id="about" className="py-16 bg-gradient-to-br from-blue-50 to-cyan-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">About {tenant.company_name}</h2>
+            <p className="text-xl text-gray-600">Building dreams, creating legacies</p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8">
+            {/* Company Story */}
+            <div className="bg-white rounded-2xl shadow-lg p-8">
+              <div className="flex items-center gap-4 mb-4">
+                <div className="bg-blue-100 p-3 rounded-full">
+                  <Building2 className="text-blue-600" size={32} />
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900">Our Story</h3>
+              </div>
+              <p className="text-gray-700 leading-relaxed">
+                {tenant.description || `${tenant.company_name} is a leading real estate developer committed to creating exceptional living spaces. With ${statistics.years_in_business}+ years of experience, we've delivered ${statistics.total_projects} premium projects across the region.`}
+              </p>
+              <div className="grid grid-cols-2 gap-4 mt-6">
+                <div className="bg-blue-50 rounded-lg p-4 text-center">
+                  <p className="text-3xl font-bold text-blue-600">{statistics.years_in_business}+</p>
+                  <p className="text-gray-600 text-sm mt-1">Years of Excellence</p>
+                </div>
+                <div className="bg-green-50 rounded-lg p-4 text-center">
+                  <p className="text-3xl font-bold text-green-600">{statistics.total_projects}</p>
+                  <p className="text-gray-600 text-sm mt-1">Completed Projects</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Our Values */}
+            <div className="space-y-4">
+              <div className="bg-white rounded-xl shadow-md p-6">
+                <div className="flex items-start gap-4">
+                  <div className="bg-blue-100 p-3 rounded-full">
+                    <TrendingUp className="text-blue-600" size={24} />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-gray-900 text-lg mb-2">Quality First</h4>
+                    <p className="text-gray-600 text-sm">
+                      We never compromise on quality. Every project is built with the finest materials and craftsmanship.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-xl shadow-md p-6">
+                <div className="flex items-start gap-4">
+                  <div className="bg-green-100 p-3 rounded-full">
+                    <Users className="text-green-600" size={24} />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-gray-900 text-lg mb-2">Customer Satisfaction</h4>
+                    <p className="text-gray-600 text-sm">
+                      Our customers are our priority. We ensure transparent dealings and timely project delivery.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-xl shadow-md p-6">
+                <div className="flex items-start gap-4">
+                  <div className="bg-purple-100 p-3 rounded-full">
+                    <Home className="text-purple-600" size={24} />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-gray-900 text-lg mb-2">Innovation</h4>
+                    <p className="text-gray-600 text-sm">
+                      We embrace modern technology and innovative designs to create future-ready spaces.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Contact Section */}
       <section id="contact" className="py-16 bg-gray-50">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
