@@ -184,17 +184,17 @@ function TenantLandingPage() {
           )}
           <div className="flex flex-wrap justify-center gap-4">
             <button
-              onClick={() => navigate(`/register?tenant=${tenantId}`)}
+              onClick={() => scrollToSection('enquiry')}
               className="px-8 py-4 bg-white text-blue-600 rounded-xl hover:bg-gray-100 transition text-lg font-semibold shadow-lg flex items-center gap-2"
             >
               Get Started <ArrowRight size={20} />
             </button>
-            <a
-              href="#projects"
+            <button
+              onClick={() => scrollToSection('projects')}
               className="px-8 py-4 bg-blue-500 bg-opacity-30 backdrop-blur text-white rounded-xl hover:bg-opacity-40 transition text-lg font-semibold border-2 border-white"
             >
               Explore Projects
-            </a>
+            </button>
           </div>
         </div>
       </section>
