@@ -1103,6 +1103,342 @@ def authenticate_user():
         traceback.print_exc()
         return None
 
+# ============ PUBLIC LANDING PAGES TESTS ============
+
+def get_valid_tenant_id():
+    """Get a valid tenant_id from database"""
+    try:
+        print("\n🔍 FINDING VALID TENANT ID FROM DATABASE")
+        
+        # First try to get tenants via API (requires auth)
+        admin_token = authenticate_admin()
+        if admin_token:
+            headers = {"Authorization": f"Bearer {admin_token}"}
+            response = requests.get(f"{API_BASE}/tenants/", headers=headers, timeout=10)
+            
+            if response.status_code == 200:
+                tenants = response.json()
+                if tenants and len(tenants) > 0:
+                    tenant_id = tenants[0].get('id')
+                    print(f"   ✅ Found tenant via API: {tenant_id}")
+                    return tenant_id
+        
+        # If no tenants found, use the default tenant from test_result.md
+        default_tenant_id = "f18f7bd6-3a1f-472d-acf9-c2fb181787e7"
+        print(f"   📋 Using default tenant ID: {default_tenant_id}")
+        return default_tenant_id
+        
+    except Exception as e:
+        print(f"   ❌ Error getting tenant ID: {str(e)}")
+        # Fallback to default tenant
+        return "f18f7bd6-3a1f-472d-acf9-c2fb181787e7"
+
+def get_valid_project_id():
+    """Get a valid project_id from database"""
+    try:
+        print("\n🔍 FINDING VALID PROJECT ID FROM DATABASE")
+        
+        # Try to get projects via API (requires auth)
+        admin_token = authenticate_admin()
+        if admin_token:
+            headers = {"Authorization": f"Bearer {admin_token}"}
+            response = requests.get(f"{API_BASE}/projects/", headers=headers, timeout=10)
+            
+            if response.status_code == 200:
+                projects = response.json()
+                if projects and len(projects) > 0:
+                    project_id = projects[0].get('id')
+                    print(f"   ✅ Found project via API: {project_id}")
+                    return project_id
+        
+        print(f"   ❌ No projects found in database")
+        return None
+        
+    except Exception as e:
+        print(f"   ❌ Error getting project ID: {str(e)}")
+        return None
+
+def test_public_tenant_landing_page():
+    """Test GET /api/public/tenant/{tenant_id} - PUBLIC endpoint (no auth required)"""
+    try:
+        print("\n🏢 TESTING: GET /api/public/tenant/{tenant_id} (PUBLIC)")
+        
+        # Get valid tenant ID
+        tenant_id = get_valid_tenant_id()
+        if not tenant_id:
+            results.add_fail("Public Tenant Landing Page", "No valid tenant ID available")
+            return False
+        
+        # Make request without authentication (public endpoint)
+        response = requests.get(f"{API_BASE}/public/tenant/{tenant_id}", timeout=15)
+        
+        if response.status_code != 200:
+            results.add_fail("Public Tenant Landing Page", f"Status code: {response.status_code}")
+            print_error_details("Public Tenant Landing Page", response)
+            return False
+            
+        data = response.json()
+        
+        # Validate response structure
+        required_fields = ['success', 'tenant', 'projects', 'projects_by_category', 'statistics']
+        missing_fields = [field for field in required_fields if field not in data]
+        
+        if missing_fields:
+            results.add_fail("Public Tenant Landing Page", f"Missing fields: {missing_fields}")
+            return False
+        
+        if not data.get('success'):
+            results.add_fail("Public Tenant Landing Page", "Response success is False")
+            return False
+        
+        # Validate tenant object
+        tenant = data.get('tenant', {})
+        if not isinstance(tenant, dict) or 'id' not in tenant:
+            results.add_fail("Public Tenant Landing Page", "Invalid tenant object")
+            return False
+        
+        # Validate projects array
+        projects = data.get('projects', [])
+        if not isinstance(projects, list):
+            results.add_fail("Public Tenant Landing Page", "Projects is not a list")
+            return False
+        
+        # Validate projects have required fields
+        for project in projects:
+            required_project_fields = ['property_count', 'available_count']
+            missing_project_fields = [field for field in required_project_fields if field not in project]
+            if missing_project_fields:
+                results.add_fail("Public Tenant Landing Page", f"Project missing fields: {missing_project_fields}")
+                return False
+        
+        # Validate projects_by_category
+        projects_by_category = data.get('projects_by_category', {})
+        if not isinstance(projects_by_category, dict):
+            results.add_fail("Public Tenant Landing Page", "projects_by_category is not a dict")
+            return False
+        
+        # Validate statistics
+        statistics = data.get('statistics', {})
+        required_stats = ['total_projects', 'total_properties', 'total_bookings', 'total_leads', 'years_in_business']
+        missing_stats = [field for field in required_stats if field not in statistics]
+        
+        if missing_stats:
+            results.add_fail("Public Tenant Landing Page", f"Missing statistics: {missing_stats}")
+            return False
+        
+        results.add_pass("Public Tenant Landing Page")
+        print(f"   ✅ Tenant: {tenant.get('company_name', 'Unknown')} (ID: {tenant.get('id')})")
+        print(f"   📊 Statistics: {statistics.get('total_projects', 0)} projects, {statistics.get('total_properties', 0)} properties")
+        print(f"   📈 Business: {statistics.get('years_in_business', 0)} years, {statistics.get('total_bookings', 0)} bookings")
+        print(f"   📋 Projects by category: {len(projects_by_category)} categories")
+        
+        return True
+        
+    except Exception as e:
+        results.add_fail("Public Tenant Landing Page", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+def test_public_project_landing_page():
+    """Test GET /api/public/project/{project_id} - PUBLIC endpoint (no auth required)"""
+    try:
+        print("\n🏗️ TESTING: GET /api/public/project/{project_id} (PUBLIC)")
+        
+        # Get valid project ID
+        project_id = get_valid_project_id()
+        if not project_id:
+            results.add_fail("Public Project Landing Page", "No valid project ID available - need to create test project first")
+            return False
+        
+        # Make request without authentication (public endpoint)
+        response = requests.get(f"{API_BASE}/public/project/{project_id}", timeout=15)
+        
+        if response.status_code != 200:
+            results.add_fail("Public Project Landing Page", f"Status code: {response.status_code}")
+            print_error_details("Public Project Landing Page", response)
+            return False
+            
+        data = response.json()
+        
+        # Validate response structure
+        required_fields = ['success', 'project', 'tenant', 'layout', 'properties', 'properties_by_status', 'statistics', 'price_range']
+        missing_fields = [field for field in required_fields if field not in data]
+        
+        if missing_fields:
+            results.add_fail("Public Project Landing Page", f"Missing fields: {missing_fields}")
+            return False
+        
+        if not data.get('success'):
+            results.add_fail("Public Project Landing Page", "Response success is False")
+            return False
+        
+        # Validate project object
+        project = data.get('project', {})
+        if not isinstance(project, dict) or 'id' not in project:
+            results.add_fail("Public Project Landing Page", "Invalid project object")
+            return False
+        
+        # Validate tenant object
+        tenant = data.get('tenant', {})
+        if not isinstance(tenant, dict):
+            results.add_fail("Public Project Landing Page", "Invalid tenant object")
+            return False
+        
+        # Validate layout (can be None)
+        layout = data.get('layout')
+        if layout is not None and not isinstance(layout, dict):
+            results.add_fail("Public Project Landing Page", "Invalid layout object")
+            return False
+        
+        # Validate properties array
+        properties = data.get('properties', [])
+        if not isinstance(properties, list):
+            results.add_fail("Public Project Landing Page", "Properties is not a list")
+            return False
+        
+        # Validate properties_by_status
+        properties_by_status = data.get('properties_by_status', {})
+        if not isinstance(properties_by_status, dict):
+            results.add_fail("Public Project Landing Page", "properties_by_status is not a dict")
+            return False
+        
+        required_status_keys = ['available', 'booked', 'reserved', 'sold']
+        missing_status_keys = [key for key in required_status_keys if key not in properties_by_status]
+        
+        if missing_status_keys:
+            results.add_fail("Public Project Landing Page", f"Missing status keys: {missing_status_keys}")
+            return False
+        
+        # Validate statistics
+        statistics = data.get('statistics', {})
+        required_stats = ['total_properties', 'available', 'booked', 'reserved', 'sold']
+        missing_stats = [field for field in required_stats if field not in statistics]
+        
+        if missing_stats:
+            results.add_fail("Public Project Landing Page", f"Missing statistics: {missing_stats}")
+            return False
+        
+        # Validate price_range
+        price_range = data.get('price_range', {})
+        if not isinstance(price_range, dict) or 'min' not in price_range or 'max' not in price_range:
+            results.add_fail("Public Project Landing Page", "Invalid price_range object")
+            return False
+        
+        results.add_pass("Public Project Landing Page")
+        print(f"   ✅ Project: {project.get('name', 'Unknown')} (ID: {project.get('id')})")
+        print(f"   🏢 Tenant: {tenant.get('company_name', 'Unknown')}")
+        print(f"   📊 Statistics: {statistics.get('total_properties', 0)} total, {statistics.get('available', 0)} available")
+        print(f"   💰 Price Range: ₹{price_range.get('min', 0):,} - ₹{price_range.get('max', 0):,}")
+        print(f"   📋 Properties by status: Available({len(properties_by_status['available'])}), Booked({len(properties_by_status['booked'])})")
+        
+        return True
+        
+    except Exception as e:
+        results.add_fail("Public Project Landing Page", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+def test_public_tenant_not_found():
+    """Test GET /api/public/tenant/{invalid_id} - should return 404"""
+    try:
+        print("\n❌ TESTING: GET /api/public/tenant/{invalid_id} (404 Test)")
+        
+        invalid_tenant_id = "invalid-tenant-id-12345"
+        
+        # Make request without authentication (public endpoint)
+        response = requests.get(f"{API_BASE}/public/tenant/{invalid_tenant_id}", timeout=10)
+        
+        if response.status_code != 404:
+            results.add_fail("Public Tenant Not Found", f"Expected 404, got {response.status_code}")
+            print_error_details("Public Tenant Not Found", response)
+            return False
+        
+        error_data = response.json()
+        if 'detail' not in error_data:
+            results.add_fail("Public Tenant Not Found", "No error detail in response")
+            return False
+        
+        results.add_pass("Public Tenant Not Found")
+        print(f"   ✅ Correctly returned 404 for invalid tenant ID: {error_data['detail']}")
+        return True
+        
+    except Exception as e:
+        results.add_fail("Public Tenant Not Found", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+def test_public_project_not_found():
+    """Test GET /api/public/project/{invalid_id} - should return 404"""
+    try:
+        print("\n❌ TESTING: GET /api/public/project/{invalid_id} (404 Test)")
+        
+        invalid_project_id = "invalid-project-id-12345"
+        
+        # Make request without authentication (public endpoint)
+        response = requests.get(f"{API_BASE}/public/project/{invalid_project_id}", timeout=10)
+        
+        if response.status_code != 404:
+            results.add_fail("Public Project Not Found", f"Expected 404, got {response.status_code}")
+            print_error_details("Public Project Not Found", response)
+            return False
+        
+        error_data = response.json()
+        if 'detail' not in error_data:
+            results.add_fail("Public Project Not Found", "No error detail in response")
+            return False
+        
+        results.add_pass("Public Project Not Found")
+        print(f"   ✅ Correctly returned 404 for invalid project ID: {error_data['detail']}")
+        return True
+        
+    except Exception as e:
+        results.add_fail("Public Project Not Found", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+def test_public_tenant_empty_data_handling():
+    """Test how tenant landing page handles empty data gracefully"""
+    try:
+        print("\n📊 TESTING: Public Tenant Landing Page - Empty Data Handling")
+        
+        # Get valid tenant ID
+        tenant_id = get_valid_tenant_id()
+        if not tenant_id:
+            results.add_fail("Public Tenant Empty Data", "No valid tenant ID available")
+            return False
+        
+        # Make request
+        response = requests.get(f"{API_BASE}/public/tenant/{tenant_id}", timeout=15)
+        
+        if response.status_code != 200:
+            results.add_fail("Public Tenant Empty Data", f"Status code: {response.status_code}")
+            return False
+            
+        data = response.json()
+        
+        # Check that empty data is handled gracefully
+        projects = data.get('projects', [])
+        statistics = data.get('statistics', {})
+        
+        # Even with no projects, statistics should have default values
+        if statistics.get('total_projects') is None:
+            results.add_fail("Public Tenant Empty Data", "total_projects should not be None")
+            return False
+        
+        if statistics.get('years_in_business', 0) < 1:
+            results.add_fail("Public Tenant Empty Data", "years_in_business should be at least 1")
+            return False
+        
+        results.add_pass("Public Tenant Empty Data")
+        print(f"   ✅ Empty data handled gracefully")
+        print(f"   📊 Projects: {len(projects)}, Years in business: {statistics.get('years_in_business', 0)}")
+        return True
+        
+    except Exception as e:
+        results.add_fail("Public Tenant Empty Data", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
 # ============ CMS DASHBOARD TESTS ============
 
 def test_admin_get_articles(auth_token):
