@@ -443,6 +443,82 @@ function TenantLandingPage() {
         </div>
       </section>
 
+      {/* Enquiry Form Section */}
+      <section id="enquiry" className="py-16 bg-gradient-to-br from-blue-600 to-cyan-600">
+        <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold text-white mb-4">Get In Touch</h2>
+            <p className="text-xl text-blue-100">Have questions? We're here to help!</p>
+          </div>
+
+          <form onSubmit={handleEnquirySubmit} className="bg-white rounded-2xl shadow-2xl p-8">
+            <div className="space-y-6">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Full Name *</label>
+                <input
+                  type="text"
+                  required
+                  value={enquiryForm.name}
+                  onChange={(e) => setEnquiryForm({ ...enquiryForm, name: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+                  placeholder="Enter your name"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Email *</label>
+                <input
+                  type="email"
+                  required
+                  value={enquiryForm.email}
+                  onChange={(e) => setEnquiryForm({ ...enquiryForm, email: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+                  placeholder="your@email.com"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Phone Number *</label>
+                <input
+                  type="tel"
+                  required
+                  value={enquiryForm.phone}
+                  onChange={(e) => setEnquiryForm({ ...enquiryForm, phone: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+                  placeholder="10-digit mobile number"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Message</label>
+                <textarea
+                  value={enquiryForm.message}
+                  onChange={(e) => setEnquiryForm({ ...enquiryForm, message: e.target.value })}
+                  rows={4}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+                  placeholder="Tell us about your requirements..."
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="w-full py-4 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-lg hover:shadow-lg transition text-lg font-semibold flex items-center justify-center gap-2"
+              >
+                <Mail size={20} />
+                Submit Enquiry
+              </button>
+
+              <p className="text-center text-sm text-gray-600 mt-4">
+                Or call us directly at{' '}
+                <a href={`tel:${tenant.phone}`} className="text-blue-600 font-semibold hover:underline">
+                  {tenant.phone}
+                </a>
+              </p>
+            </div>
+          </form>
+        </div>
+      </section>
+
       {/* Footer */}
       <footer className="bg-gray-900 text-white py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
