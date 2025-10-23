@@ -10,6 +10,13 @@ function TenantLandingPage() {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [activeSection, setActiveSection] = useState('home');
+  const [enquiryForm, setEnquiryForm] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    message: ''
+  });
 
   useEffect(() => {
     fetchTenantData();
