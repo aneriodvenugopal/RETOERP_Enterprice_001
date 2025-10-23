@@ -10,6 +10,23 @@ const Home = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
+  const [featuredTenants, setFeaturedTenants] = useState([]);
+
+  // Fetch featured tenants on component mount
+  useEffect(() => {
+    fetchFeaturedTenants();
+  }, []);
+
+  const fetchFeaturedTenants = async () => {
+    try {
+      const response = await apiInstance.get('/public/tenants?limit=6');
+      if (response.data.success) {
+        setFeaturedTenants(response.data.tenants);
+      }
+    } catch (error) {
+      console.error('Failed to load featured tenants:', error);
+    }
+  };
 
   // Translation content
   const t = usePageTranslation({
