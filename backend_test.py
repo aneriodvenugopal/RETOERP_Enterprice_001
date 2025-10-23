@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Backend API Testing for RETOERP - AI Chatbot System Testing
-Tests the AI Chatbot System backend APIs comprehensively.
+Backend API Testing for RETOERP - Public Landing Pages APIs Testing
+Tests the Public Landing Pages APIs for tenant and project pages comprehensively.
 """
 
 import requests
