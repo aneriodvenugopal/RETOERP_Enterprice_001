@@ -180,6 +180,33 @@ frontend:
       - working: true
         agent: "main"
         comment: "Updated App.js to: (1) Import TenantLandingPage and ProjectLandingPage, (2) Add public routes /public/tenant/:tenantId and /public/project/:projectId (no authentication required). Frontend restarted successfully with no errors."
+      - working: true
+        agent: "main"
+        comment: "Updated App.js again to: (1) Import TenantsDirectory component, (2) Add public route /tenants for full tenants directory page. All routes working correctly."
+
+  - task: "Create TenantsDirectory page"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/public/TenantsDirectory.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Created comprehensive TenantsDirectory page with: (1) Header with RETOERP branding and 'Back to Home' button, (2) Hero section showing total stats (companies count, total projects, total properties), (3) Search bar with real-time filtering by company name, city, or state, (4) Tenant cards grid (3 columns on desktop) showing: company logo/initial, company name, tagline, location (city, state), stats (projects/properties/bookings), 'View Company' button, (5) Click on card navigates to /public/tenant/{id}, (6) Empty state handling, (7) Responsive design, (8) Footer with navigation links. Fetches tenants from GET /api/public/tenants on mount."
+
+  - task: "Add Featured Partners section to Home page"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/marketing/Home.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Enhanced Home.js marketing page with Featured Partners section: (1) Added useEffect to fetch featured tenants on mount via GET /api/public/tenants?limit=6, (2) New section positioned between Ecosystem and CTA sections with gradient background, (3) Displays 6 tenant cards in 3-column grid with: company logo/initial, name, location, stats (projects/properties/bookings), 'View Company' button, (4) Click on card navigates to tenant landing page, (5) 'View All Companies' button navigates to /tenants directory, (6) Empty state handling if no tenants available, (7) Imported Building2, MapPin, ArrowRight icons and apiInstance. Section title: 'Trusted by Leading Real Estate Companies'."
 
 metadata:
   created_by: "main_agent"
