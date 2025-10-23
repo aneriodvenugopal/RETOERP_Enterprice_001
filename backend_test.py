@@ -4196,7 +4196,7 @@ def test_telugu_language_detection():
 
 def main():
     """Main test execution"""
-    print("🚀 Starting RETOERP Backend API Testing - AI Chatbot System")
+    print("🚀 Starting RETOERP Backend API Testing - Public Landing Pages APIs")
     print(f"Backend URL: {API_BASE}")
     print("=" * 80)
     
@@ -4205,44 +4205,30 @@ def main():
         print("❌ Backend is not healthy. Stopping tests.")
         return False
     
-    # Test 2: Authentication
-    admin_token = authenticate_admin()
-    
-    if not admin_token:
-        print("❌ Admin authentication failed. Stopping tests.")
-        return False
-    
-    # Test 3: AI Chatbot System Tests
+    # Test 2: Public Landing Pages APIs (NO AUTH REQUIRED)
     print("\n" + "=" * 80)
-    print("🤖 TESTING AI CHATBOT SYSTEM - PHASE 2")
+    print("🌐 TESTING PUBLIC LANDING PAGES APIs")
     print("=" * 80)
     
-    # Configuration APIs
-    test_get_chatbot_config_default()
-    test_get_chatbot_config_tenant()
+    # Test public tenant landing page
+    test_public_tenant_landing_page()
     
-    # Public Chat APIs (NO AUTH REQUIRED)
-    conversation_id = test_send_first_chat_message()
-    if conversation_id:
-        test_send_followup_message(conversation_id)
-        test_capture_lead(conversation_id)
-        test_get_conversation_history(conversation_id)
-        
-        # Admin APIs (REQUIRES AUTH)
-        test_admin_get_conversations(admin_token)
-        test_admin_get_leads_only(admin_token)
-        test_admin_get_conversation_detail(admin_token, conversation_id)
-        test_admin_get_analytics(admin_token)
+    # Test public project landing page
+    test_public_project_landing_page()
     
-    # Language Support Test
-    test_telugu_language_detection()
+    # Test error handling
+    test_public_tenant_not_found()
+    test_public_project_not_found()
+    
+    # Test empty data handling
+    test_public_tenant_empty_data_handling()
     
     # Final Results
     print("\n" + "=" * 80)
     success = results.summary()
     
     if success:
-        print("🎉 All tests passed! AI Chatbot System is working correctly.")
+        print("🎉 All tests passed! Public Landing Pages APIs are working correctly.")
     else:
         print("⚠️  Some tests failed. Please check the errors above.")
     
