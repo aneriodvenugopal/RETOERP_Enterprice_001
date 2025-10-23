@@ -3,11 +3,52 @@ import { Link, useNavigate } from 'react-router-dom';
 import { MessageSquare } from 'lucide-react';
 import LanguageSelector from '../../components/LanguageSelector';
 import ChatWidget from '../../components/ChatWidget';
+import { usePageTranslation } from '../../hooks/usePageTranslation';
 
 const Home = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
+
+  // Translation content
+  const t = usePageTranslation({
+    hero_title: "Real Estate",
+    hero_subtitle: "40X Faster",
+    hero_description: "Streamline your real estate business with our comprehensive ERP solution. Manage leads, properties, payments, and teams all in one place.",
+    get_started: "Get Started Free",
+    learn_more: "Learn More",
+    trusted_by: "Trusted by 500+ Real Estate Professionals",
+    features_title: "Everything You Need to Grow Your Real Estate Business",
+    features_subtitle: "Powerful features designed for modern real estate professionals",
+    // Features
+    lead_management: "Lead Management",
+    lead_desc: "Never lose a lead. Capture, track, and convert with intelligent workflows.",
+    property_management: "Property Management",
+    property_desc: "Manage unlimited properties with interactive layouts and virtual tours.",
+    payment_tracking: "Payment Tracking",
+    payment_desc: "Automated payment tracking, invoicing, and commission calculations.",
+    team_collaboration: "Team Collaboration",
+    team_desc: "Role-based access, task management, and real-time notifications.",
+    analytics: "Analytics & Reports",
+    analytics_desc: "Comprehensive insights into your business performance.",
+    mobile_app: "Mobile App",
+    mobile_desc: "Manage your business on-the-go with our PWA mobile app.",
+    // Stats
+    stat_properties: "Properties Managed",
+    stat_leads: "Leads Tracked",
+    stat_revenue: "Revenue Processed",
+    stat_clients: "Happy Clients",
+    // CTA
+    cta_title: "Ready to Transform Your Real Estate Business?",
+    cta_subtitle: "Join thousands of real estate professionals using RETOERP",
+    cta_button: "Start Your Free Trial",
+    // Footer
+    footer_subscribe: "Subscribe to our newsletter",
+    footer_email_placeholder: "Enter your email",
+    footer_subscribe_button: "Subscribe",
+    footer_subscribed: "Thank you for subscribing!",
+    all_rights: "All rights reserved"
+  });
 
   const handleEmailSubscribe = async (e) => {
     e.preventDefault();
