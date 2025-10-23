@@ -208,3 +208,71 @@ async def get_project_by_domain(domain: str, request: Request):
         "project_id": project['id'],
         "project": project
     }
+
+
+@router.get("/tenants")
+async def get_all_tenants(
+    request: Request,
+    search: Optional[str] = None,
+    limit: int = 100,
+    skip: int = 0
+):
+    """
+    Get all active tenants for directory/discovery
+    Used on marketing pages and tenants directory
+    """
+    db = get_db(request)
+    
+    # Build query
+    query = {'deleted_at': None, 'status': 'active'}
+    
+    # Add search filter if provided
+    if search:
+        query['$or'] = [
+            {'company_name': {'$regex': search, '$options': 'i'}},
+            {'city': {'$regex': search, '$options': 'i'}},
+            {'state': {'$regex': search, '$options': 'i'}}
+        ]
+    
+    # Get tenants
+    tenants = await db.tenants.find(
+        query,
+        {"_id": 0}
+    ).skip(skip).limit(limit).to_list(length=limit)
+    
+    # Enrich with statistics for each tenant
+    for tenant in tenants:
+        # Get project count
+        project_count = await db.projects.count_documents({
+            'tenant_id': tenant['id'],
+            'deleted_at': None
+        })
+        tenant['project_count'] = project_count
+        
+        # Get total properties count
+        projects = await db.projects.find(
+            {'tenant_id': tenant['id'], 'deleted_at': None},
+            {"id": 1}
+        ).to_list(length=100)
+        
+        project_ids = [p['id'] for p in projects]
+        property_count = await db.properties.count_documents({
+            'project_id': {'$in': project_ids},
+            'deleted_at': None
+        })
+        tenant['property_count'] = property_count
+        
+        # Get bookings count
+        booking_count = await db.bookings.count_documents({'tenant_id': tenant['id']})
+        tenant['booking_count'] = booking_count
+    
+    # Get total count for pagination
+    total = await db.tenants.count_documents(query)
+    
+    return {
+        "success": True,
+        "tenants": tenants,
+        "total": total,
+        "limit": limit,
+        "skip": skip
+    }
