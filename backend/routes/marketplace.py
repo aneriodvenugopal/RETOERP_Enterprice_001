@@ -49,7 +49,7 @@ async def get_property_count(project_id: str, status_filter: Optional[str] = Non
     query = {"project_id": project_id, "deleted_at": None}
     if status_filter:
         # Get status category ID
-        status_cat = await db.master_categories.find_one({"slug": status_filter})
+        status_cat = await db.master_categories.find_one({"slug": status_filter}), {"_id": 0}
         if status_cat:
             query["status_id"] = status_cat["id"]
     return await db.properties.count_documents(query)
@@ -294,13 +294,13 @@ async def search_marketplace_properties(
     
     # Status filter
     if status:
-        status_cat = await db.master_categories.find_one({"slug": status, "type": "property_status"})
+        status_cat = await db.master_categories.find_one({"slug": status, "type": "property_status"}), {"_id": 0}
         if status_cat:
             property_query["status_id"] = status_cat["id"]
     
     # Property type filter
     if property_type:
-        type_cat = await db.master_categories.find_one({"slug": property_type, "type": "property_type"})
+        type_cat = await db.master_categories.find_one({"slug": property_type, "type": "property_type"}), {"_id": 0}
         if type_cat:
             property_query["property_type_id"] = type_cat["id"]
     
@@ -329,7 +329,7 @@ async def search_marketplace_properties(
     enriched_properties = []
     for prop in properties:
         # Get project
-        project = await db.projects.find_one({"id": prop["project_id"]})
+        project = await db.projects.find_one({"id": prop["project_id"]}), {"_id": 0}
         if not project:
             continue
         
@@ -347,7 +347,7 @@ async def search_marketplace_properties(
                 continue
         
         # Get tenant
-        tenant = await db.tenants.find_one({"id": prop["tenant_id"]})
+        tenant = await db.tenants.find_one({"id": prop["tenant_id"]}), {"_id": 0}
         
         enriched_prop = {
             **prop,
@@ -380,7 +380,7 @@ async def unlock_developer_contact(unlock_data: PropertyContactUnlockCreate):
     Returns actual phone and email of developer
     """
     # Verify agent exists
-    agent = await db.marketplace_agents.find_one({"id": unlock_data.agent_id})
+    agent = await db.marketplace_agents.find_one({"id": unlock_data.agent_id}), {"_id": 0}
     if not agent:
         raise HTTPException(status_code=404, detail="Agent not found")
     
@@ -393,7 +393,7 @@ async def unlock_developer_contact(unlock_data: PropertyContactUnlockCreate):
     
     if existing_unlock:
         # Already unlocked, return existing
-        tenant = await db.tenants.find_one({"id": unlock_data.tenant_id})
+        tenant = await db.tenants.find_one({"id": unlock_data.tenant_id}), {"_id": 0}
         return {
             "success": True,
             "message": "Already unlocked",
@@ -403,7 +403,7 @@ async def unlock_developer_contact(unlock_data: PropertyContactUnlockCreate):
         }
     
     # Get tenant/developer info
-    tenant = await db.tenants.find_one({"id": unlock_data.tenant_id})
+    tenant = await db.tenants.find_one({"id": unlock_data.tenant_id}), {"_id": 0}
     if not tenant:
         raise HTTPException(status_code=404, detail="Developer not found")
     
@@ -443,12 +443,12 @@ async def submit_marketplace_lead(lead_data: MarketplaceLeadCreate):
     This creates a lead in marketplace and optionally in RETOERP leads table
     """
     # Verify agent
-    agent = await db.marketplace_agents.find_one({"id": lead_data.agent_id})
+    agent = await db.marketplace_agents.find_one({"id": lead_data.agent_id}), {"_id": 0}
     if not agent:
         raise HTTPException(status_code=404, detail="Agent not found")
     
     # Verify project exists
-    project = await db.projects.find_one({"id": lead_data.project_id})
+    project = await db.projects.find_one({"id": lead_data.project_id}), {"_id": 0}
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
     
@@ -458,8 +458,8 @@ async def submit_marketplace_lead(lead_data: MarketplaceLeadCreate):
     
     # Also create in RETOERP leads table for developer to see
     # Get lead status category (new)
-    lead_status = await db.master_categories.find_one({"slug": "new", "type": "lead_status"})
-    lead_source = await db.master_categories.find_one({"slug": "incomelands", "type": "lead_source"})
+    lead_status = await db.master_categories.find_one({"slug": "new", "type": "lead_status"}), {"_id": 0}
+    lead_source = await db.master_categories.find_one({"slug": "incomelands", "type": "lead_source"}), {"_id": 0}
     
     # Create RETOERP lead
     from models.lead import Lead
@@ -512,7 +512,7 @@ async def get_agent_leads(
     
     # Enrich with project names
     for lead in leads:
-        project = await db.projects.find_one({"id": lead["project_id"]})
+        project = await db.projects.find_one({"id": lead["project_id"]}), {"_id": 0}
         if project:
             lead["project_name"] = project.get("name")
     
@@ -528,7 +528,7 @@ async def get_agent_leads(
 @router.patch("/leads/{lead_id}")
 async def update_lead_status(lead_id: str, update_data: MarketplaceLeadUpdate):
     """Update marketplace lead status (by developer or system)"""
-    lead = await db.marketplace_leads.find_one({"id": lead_id})
+    lead = await db.marketplace_leads.find_one({"id": lead_id}), {"_id": 0}
     if not lead:
         raise HTTPException(status_code=404, detail="Lead not found")
     
@@ -611,7 +611,7 @@ async def get_requirement_matches(requirement_id: str, limit: int = Query(20)):
     Get matched properties for a buyer requirement
     Uses AI matching engine
     """
-    requirement = await db.buyer_requirements.find_one({"id": requirement_id})
+    requirement = await db.buyer_requirements.find_one({"id": requirement_id}), {"_id": 0}
     if not requirement:
         raise HTTPException(status_code=404, detail="Requirement not found")
     
@@ -642,7 +642,7 @@ async def get_requirement_matches(requirement_id: str, limit: int = Query(20)):
             property_query["area"] = {"$lte": requirement["max_area"]}
     
     # Get available properties
-    status_cat = await db.master_categories.find_one({"slug": "available"})
+    status_cat = await db.master_categories.find_one({"slug": "available"}), {"_id": 0}
     if status_cat:
         property_query["status_id"] = status_cat["id"]
     
@@ -651,7 +651,7 @@ async def get_requirement_matches(requirement_id: str, limit: int = Query(20)):
     # Enrich and score matches
     matched_properties = []
     for prop in properties:
-        project = await db.projects.find_one({"id": prop["project_id"]})
+        project = await db.projects.find_one({"id": prop["project_id"]}), {"_id": 0}
         if not project:
             continue
         
@@ -692,7 +692,7 @@ async def get_requirement_matches(requirement_id: str, limit: int = Query(20)):
                 score += 10
         
         # Get tenant
-        tenant = await db.tenants.find_one({"id": prop["tenant_id"]})
+        tenant = await db.tenants.find_one({"id": prop["tenant_id"]}), {"_id": 0}
         
         matched_properties.append({
             **prop,
@@ -723,17 +723,17 @@ async def calculate_agent_commission(commission_data: AgentCommissionCreate):
     Called by RETOERP when booking is created
     """
     # Get marketplace lead
-    lead = await db.marketplace_leads.find_one({"id": commission_data.marketplace_lead_id})
+    lead = await db.marketplace_leads.find_one({"id": commission_data.marketplace_lead_id}), {"_id": 0}
     if not lead:
         raise HTTPException(status_code=404, detail="Marketplace lead not found")
     
     # Get booking details
-    booking = await db.bookings.find_one({"id": commission_data.booking_id})
+    booking = await db.bookings.find_one({"id": commission_data.booking_id}), {"_id": 0}
     if not booking:
         raise HTTPException(status_code=404, detail="Booking not found")
     
     # Get property to determine value
-    property = await db.properties.find_one({"id": booking["property_id"]})
+    property = await db.properties.find_one({"id": booking["property_id"]}), {"_id": 0}
     if not property:
         raise HTTPException(status_code=404, detail="Property not found")
     
@@ -845,7 +845,7 @@ async def get_agent_commissions(
 @router.patch("/commissions/{commission_id}")
 async def update_commission_status(commission_id: str, update_data: AgentCommissionUpdate):
     """Update commission status (approval, payment)"""
-    commission = await db.agent_commissions.find_one({"id": commission_id})
+    commission = await db.agent_commissions.find_one({"id": commission_id}), {"_id": 0}
     if not commission:
         raise HTTPException(status_code=404, detail="Commission not found")
     
