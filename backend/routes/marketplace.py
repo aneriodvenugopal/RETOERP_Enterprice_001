@@ -651,7 +651,7 @@ async def get_requirement_matches(requirement_id: str, limit: int = Query(20)):
     # Enrich and score matches
     matched_properties = []
     for prop in properties:
-        project = await db.projects.find_one({"id": prop["project_id"]}, {"_id": 0}
+        project = await db.projects.find_one({"id": prop["project_id"]}, {"_id": 0})
         if not project:
             continue
         
