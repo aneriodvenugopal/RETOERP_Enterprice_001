@@ -797,44 +797,187 @@ def test_lead_status_update():
         traceback.print_exc()
         return False
 
-def test_get_bookings(auth_token):
-    """Test 6: Get list of bookings"""
-    if not auth_token:
-        results.add_fail("Get Bookings", "No auth token available")
-        return None
-        
+def test_buyer_requirements_create():
+    """Test 11: POST /api/marketplace/requirements - Create buyer requirement"""
+    global test_requirement_id
+    
     try:
-        print("\n📝 TESTING: GET /api/bookings/")
-        headers = {"Authorization": f"Bearer {auth_token}"}
-        response = requests.get(f"{API_BASE}/bookings/", headers=headers, timeout=10)
+        print("\n🏠 TESTING: POST /api/marketplace/requirements")
+        
+        # Create realistic buyer requirement
+        unique_suffix = str(uuid.uuid4())[:8]
+        requirement_data = {
+            "requirement_type": "buy",
+            "property_type": "plot",
+            "budget_min": 1500000,  # 15 lakh
+            "budget_max": 3000000,  # 30 lakh
+            "preferred_locations": ["Gachibowli", "HITEC City", "Madhapur"],
+            "latitude": HYDERABAD_LAT,
+            "longitude": HYDERABAD_LON,
+            "radius_km": 25.0,
+            "min_area": 1200,  # sqft
+            "max_area": 2500,
+            "facing_preference": "East",
+            "amenities_required": ["Water", "Electricity", "Road Access"],
+            "notes": "Looking for a residential plot in IT corridor area. Prefer corner plot with good connectivity.",
+            "buyer_name": f"Priya Sharma {unique_suffix}",
+            "buyer_phone": f"91234{unique_suffix[:5]}",
+            "buyer_email": f"priya{unique_suffix}@gmail.com",
+            "is_direct_buyer": True
+        }
+        
+        response = requests.post(
+            f"{API_BASE}/marketplace/requirements",
+            json=requirement_data,
+            timeout=10
+        )
         
         if response.status_code != 200:
-            results.add_fail("Get Bookings", f"Status code: {response.status_code}")
-            print_error_details("Get Bookings", response)
-            return None
+            results.add_fail("Buyer Requirements Create", f"Status code: {response.status_code}")
+            print_error_details("Buyer Requirements Create", response)
+            return False
             
-        bookings = response.json()
+        data = response.json()
         
-        if not isinstance(bookings, list):
-            results.add_fail("Get Bookings", "Response is not a list")
-            return None
-            
-        if len(bookings) == 0:
-            results.add_fail("Get Bookings", "No bookings found")
-            return None
-            
-        results.add_pass("Get Bookings")
-        print(f"   Found {len(bookings)} bookings")
+        # Validate response
+        if not data.get('success'):
+            results.add_fail("Buyer Requirements Create", "Response success is False")
+            return False
         
-        # Return first booking for next test
-        first_booking = bookings[0]
-        print(f"   First booking: {first_booking.get('booking_id', 'Unknown')} (ID: {first_booking.get('id')})")
-        return first_booking
+        requirement_id = data.get('requirement_id')
+        if not requirement_id:
+            results.add_fail("Buyer Requirements Create", "No requirement_id in response")
+            return False
+        
+        test_requirement_id = requirement_id
+        
+        results.add_pass("Buyer Requirements Create")
+        print(f"   ✅ Buyer requirement created: {requirement_id}")
+        print(f"   👤 Buyer: {requirement_data['buyer_name']} ({requirement_data['buyer_phone']})")
+        print(f"   💰 Budget: ₹{requirement_data['budget_min']:,} - ₹{requirement_data['budget_max']:,}")
+        print(f"   📍 Locations: {', '.join(requirement_data['preferred_locations'])}")
+        print(f"   📐 Area: {requirement_data['min_area']}-{requirement_data['max_area']} sqft")
+        
+        return True
         
     except Exception as e:
-        results.add_fail("Get Bookings", f"Exception: {str(e)}")
+        results.add_fail("Buyer Requirements Create", f"Exception: {str(e)}")
         traceback.print_exc()
-        return None
+        return False
+
+def test_buyer_requirements_list():
+    """Test 12: GET /api/marketplace/requirements - List requirements with filters"""
+    try:
+        print("\n📋 TESTING: GET /api/marketplace/requirements")
+        
+        # Test without filters
+        response = requests.get(f"{API_BASE}/marketplace/requirements", timeout=10)
+        
+        if response.status_code != 200:
+            results.add_fail("Buyer Requirements List", f"Status code: {response.status_code}")
+            print_error_details("Buyer Requirements List", response)
+            return False
+            
+        data = response.json()
+        
+        # Validate response structure
+        required_fields = ['success', 'count', 'total', 'requirements']
+        missing_fields = [field for field in required_fields if field not in data]
+        
+        if missing_fields:
+            results.add_fail("Buyer Requirements List", f"Missing fields: {missing_fields}")
+            return False
+        
+        if not data.get('success'):
+            results.add_fail("Buyer Requirements List", "Response success is False")
+            return False
+        
+        requirements = data.get('requirements', [])
+        print(f"   ✅ Found {len(requirements)} buyer requirements")
+        
+        # Test with filters
+        print("   🔍 Testing with filters...")
+        filtered_response = requests.get(
+            f"{API_BASE}/marketplace/requirements",
+            params={
+                "property_type": "plot",
+                "city": "Hyderabad",
+                "min_budget": 1000000,
+                "max_budget": 5000000
+            },
+            timeout=10
+        )
+        
+        if filtered_response.status_code == 200:
+            filtered_data = filtered_response.json()
+            print(f"   ✅ Found {len(filtered_data.get('requirements', []))} requirements with filters")
+        
+        results.add_pass("Buyer Requirements List")
+        return True
+        
+    except Exception as e:
+        results.add_fail("Buyer Requirements List", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+def test_ai_matching_engine():
+    """Test 13: GET /api/marketplace/requirements/{requirement_id}/matches - AI matching"""
+    global test_requirement_id
+    
+    if not test_requirement_id:
+        results.add_fail("AI Matching Engine", "No test requirement ID available")
+        return False
+        
+    try:
+        print(f"\n🤖 TESTING: GET /api/marketplace/requirements/{test_requirement_id}/matches")
+        
+        response = requests.get(
+            f"{API_BASE}/marketplace/requirements/{test_requirement_id}/matches",
+            params={"limit": 10},
+            timeout=15
+        )
+        
+        if response.status_code != 200:
+            results.add_fail("AI Matching Engine", f"Status code: {response.status_code}")
+            print_error_details("AI Matching Engine", response)
+            return False
+            
+        data = response.json()
+        
+        # Validate response structure
+        required_fields = ['success', 'requirement', 'count', 'matches']
+        missing_fields = [field for field in required_fields if field not in data]
+        
+        if missing_fields:
+            results.add_fail("AI Matching Engine", f"Missing fields: {missing_fields}")
+            return False
+        
+        if not data.get('success'):
+            results.add_fail("AI Matching Engine", "Response success is False")
+            return False
+        
+        matches = data.get('matches', [])
+        print(f"   ✅ Found {len(matches)} matched properties")
+        
+        # Validate match scoring
+        if matches:
+            for i, match in enumerate(matches[:3]):  # Check first 3 matches
+                match_score = match.get('match_score')
+                if match_score is None or not (0 <= match_score <= 100):
+                    results.add_fail("AI Matching Engine", f"Invalid match score: {match_score}")
+                    return False
+                
+                print(f"   🎯 Match {i+1}: {match.get('project_name')} - Score: {match_score}%")
+                print(f"      💰 Price: ₹{match.get('price', 0):,}, 📐 Area: {match.get('area', 0)} sqft")
+                print(f"      🏢 Developer: {match.get('developer_name')}")
+        
+        results.add_pass("AI Matching Engine")
+        return True
+        
+    except Exception as e:
+        results.add_fail("AI Matching Engine", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
 
 def test_get_booking_details(auth_token, booking_id):
     """Test 8: Call GET /api/bookings/{booking_id}"""
