@@ -642,7 +642,7 @@ async def get_requirement_matches(requirement_id: str, limit: int = Query(20)):
             property_query["area"] = {"$lte": requirement["max_area"]}
     
     # Get available properties
-    status_cat = await db.master_categories.find_one({"slug": "available"}), {"_id": 0}
+    status_cat = await db.master_categories.find_one({"slug": "available"}, {"_id": 0})
     if status_cat:
         property_query["status_id"] = status_cat["id"]
     
