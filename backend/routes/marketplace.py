@@ -845,7 +845,7 @@ async def get_agent_commissions(
 @router.patch("/commissions/{commission_id}")
 async def update_commission_status(commission_id: str, update_data: AgentCommissionUpdate):
     """Update commission status (approval, payment)"""
-    commission = await db.agent_commissions.find_one({"id": commission_id}, {"_id": 0}
+    commission = await db.agent_commissions.find_one({"id": commission_id}, {"_id": 0})
     if not commission:
         raise HTTPException(status_code=404, detail="Commission not found")
     
