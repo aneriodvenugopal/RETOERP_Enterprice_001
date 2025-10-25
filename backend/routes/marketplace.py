@@ -174,7 +174,7 @@ async def get_marketplace_projects(
         price_range = await get_project_price_range(project["id"])
         
         # Get tenant/developer info
-        tenant = await db.tenants.find_one({"id": project["tenant_id"]})
+        tenant = await db.tenants.find_one({"id": project["tenant_id"]}, {"_id": 0})
         
         # Calculate distance if coordinates provided
         distance_km = None
