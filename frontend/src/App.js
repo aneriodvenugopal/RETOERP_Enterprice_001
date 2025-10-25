@@ -295,6 +295,14 @@ function App() {
                   </PrivateRoute>
                 }
               />
+              <Route
+                path="/admin/incomelands"
+                element={
+                  <PrivateRoute>
+                    <IncomeLandsAdminDashboard />
+                  </PrivateRoute>
+                }
+              />
             </Routes>
           </BrowserRouter>
           <Toaster position="top-right" richColors />
