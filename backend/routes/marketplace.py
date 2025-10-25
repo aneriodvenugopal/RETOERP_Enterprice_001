@@ -219,7 +219,7 @@ async def get_marketplace_project_details(project_id: str):
         raise HTTPException(status_code=404, detail="Project not found")
     
     # Get tenant info
-    tenant = await db.tenants.find_one({"id": project["tenant_id"]})
+    tenant = await db.tenants.find_one({"id": project["tenant_id"]}, {"_id": 0})
     
     # Get property statistics
     total_properties = await get_property_count(project_id)
