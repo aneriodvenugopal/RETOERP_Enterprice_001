@@ -329,7 +329,7 @@ async def search_marketplace_properties(
     enriched_properties = []
     for prop in properties:
         # Get project
-        project = await db.projects.find_one({"id": prop["project_id"]}, {"_id": 0}
+        project = await db.projects.find_one({"id": prop["project_id"]}, {"_id": 0})
         if not project:
             continue
         
