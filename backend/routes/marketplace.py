@@ -120,7 +120,7 @@ async def get_agent_profile(agent_id: str):
 @router.get("/agents/phone/{phone}")
 async def get_agent_by_phone(phone: str):
     """Get agent by phone number (for login/lookup)"""
-    agent = await db.marketplace_agents.find_one({"phone": phone})
+    agent = await db.marketplace_agents.find_one({"phone": phone}, {"_id": 0})
     if not agent:
         raise HTTPException(status_code=404, detail="Agent not found")
     
