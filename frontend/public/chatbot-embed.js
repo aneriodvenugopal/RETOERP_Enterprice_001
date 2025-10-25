@@ -47,7 +47,7 @@
         tenantId: tenantId,
         position: position,
         primaryColor: primaryColor,
-        backendUrl: 'https://property-tech-2.preview.emergentagent.com/api'
+        backendUrl: 'https://realfusion-1.preview.emergentagent.com/api'
       };
       
       // Load chat widget bundle
