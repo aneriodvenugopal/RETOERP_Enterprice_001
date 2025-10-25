@@ -380,7 +380,7 @@ async def unlock_developer_contact(unlock_data: PropertyContactUnlockCreate):
     Returns actual phone and email of developer
     """
     # Verify agent exists
-    agent = await db.marketplace_agents.find_one({"id": unlock_data.agent_id}, {"_id": 0}
+    agent = await db.marketplace_agents.find_one({"id": unlock_data.agent_id}, {"_id": 0})
     if not agent:
         raise HTTPException(status_code=404, detail="Agent not found")
     
@@ -393,7 +393,7 @@ async def unlock_developer_contact(unlock_data: PropertyContactUnlockCreate):
     
     if existing_unlock:
         # Already unlocked, return existing
-        tenant = await db.tenants.find_one({"id": unlock_data.tenant_id}, {"_id": 0}
+        tenant = await db.tenants.find_one({"id": unlock_data.tenant_id}, {"_id": 0})
         return {
             "success": True,
             "message": "Already unlocked",
@@ -403,7 +403,7 @@ async def unlock_developer_contact(unlock_data: PropertyContactUnlockCreate):
         }
     
     # Get tenant/developer info
-    tenant = await db.tenants.find_one({"id": unlock_data.tenant_id}, {"_id": 0}
+    tenant = await db.tenants.find_one({"id": unlock_data.tenant_id}, {"_id": 0})
     if not tenant:
         raise HTTPException(status_code=404, detail="Developer not found")
     
