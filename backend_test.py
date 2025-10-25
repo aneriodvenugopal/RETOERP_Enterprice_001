@@ -609,6 +609,194 @@ def test_contact_unlock():
         traceback.print_exc()
         return False
 
+def test_lead_submission():
+    """Test 8: POST /api/marketplace/leads/submit - Submit lead to developer"""
+    global test_agent_id, test_project_id, test_lead_id
+    
+    if not test_agent_id or not test_project_id:
+        results.add_fail("Lead Submission", "Missing test agent ID or project ID")
+        return False
+        
+    try:
+        print("\n📝 TESTING: POST /api/marketplace/leads/submit")
+        
+        # Get project details for tenant_id
+        project_response = requests.get(f"{API_BASE}/marketplace/projects/{test_project_id}", timeout=10)
+        if project_response.status_code != 200:
+            results.add_fail("Lead Submission", "Could not get project details")
+            return False
+        
+        project_data = project_response.json()
+        tenant_id = project_data['project']['tenant_id']
+        
+        # Get agent details
+        agent_response = requests.get(f"{API_BASE}/marketplace/agents/{test_agent_id}", timeout=10)
+        if agent_response.status_code != 200:
+            results.add_fail("Lead Submission", "Could not get agent details")
+            return False
+        
+        agent_data = agent_response.json()
+        agent = agent_data['agent']
+        
+        # Create realistic lead data
+        unique_suffix = str(uuid.uuid4())[:8]
+        lead_data = {
+            "agent_id": test_agent_id,
+            "agent_name": agent['name'],
+            "agent_phone": agent['phone'],
+            "tenant_id": tenant_id,
+            "project_id": test_project_id,
+            "buyer_name": f"Rajesh Kumar {unique_suffix}",
+            "buyer_phone": f"98765{unique_suffix[:5]}",
+            "buyer_email": f"rajesh{unique_suffix}@gmail.com",
+            "budget": 2500000,  # 25 lakh
+            "property_type": "plot",
+            "notes": "Looking for a good plot for investment in Hyderabad. Prefer corner plot if available."
+        }
+        
+        response = requests.post(
+            f"{API_BASE}/marketplace/leads/submit",
+            json=lead_data,
+            timeout=10
+        )
+        
+        if response.status_code != 200:
+            results.add_fail("Lead Submission", f"Status code: {response.status_code}")
+            print_error_details("Lead Submission", response)
+            return False
+            
+        data = response.json()
+        
+        # Validate response
+        if not data.get('success'):
+            results.add_fail("Lead Submission", "Response success is False")
+            return False
+        
+        # Check both lead IDs are returned
+        marketplace_lead_id = data.get('marketplace_lead_id')
+        retoerp_lead_id = data.get('retoerp_lead_id')
+        
+        if not marketplace_lead_id or not retoerp_lead_id:
+            results.add_fail("Lead Submission", "Missing lead IDs in response")
+            return False
+        
+        test_lead_id = marketplace_lead_id
+        
+        results.add_pass("Lead Submission")
+        print(f"   ✅ Lead submitted successfully")
+        print(f"   📋 Marketplace lead ID: {marketplace_lead_id}")
+        print(f"   🏢 RETOERP lead ID: {retoerp_lead_id}")
+        print(f"   👤 Buyer: {lead_data['buyer_name']} ({lead_data['buyer_phone']})")
+        print(f"   💰 Budget: ₹{lead_data['budget']:,}")
+        
+        return True
+        
+    except Exception as e:
+        results.add_fail("Lead Submission", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+def test_agent_leads():
+    """Test 9: GET /api/marketplace/leads/agent/{agent_id} - Get agent's leads"""
+    global test_agent_id
+    
+    if not test_agent_id:
+        results.add_fail("Agent Leads", "No test agent ID available")
+        return False
+        
+    try:
+        print(f"\n📋 TESTING: GET /api/marketplace/leads/agent/{test_agent_id}")
+        
+        response = requests.get(f"{API_BASE}/marketplace/leads/agent/{test_agent_id}", timeout=10)
+        
+        if response.status_code != 200:
+            results.add_fail("Agent Leads", f"Status code: {response.status_code}")
+            print_error_details("Agent Leads", response)
+            return False
+            
+        data = response.json()
+        
+        # Validate response structure
+        required_fields = ['success', 'count', 'total', 'leads']
+        missing_fields = [field for field in required_fields if field not in data]
+        
+        if missing_fields:
+            results.add_fail("Agent Leads", f"Missing fields: {missing_fields}")
+            return False
+        
+        if not data.get('success'):
+            results.add_fail("Agent Leads", "Response success is False")
+            return False
+        
+        leads = data.get('leads', [])
+        if not isinstance(leads, list):
+            results.add_fail("Agent Leads", "Leads is not a list")
+            return False
+        
+        results.add_pass("Agent Leads")
+        print(f"   ✅ Found {len(leads)} leads for agent")
+        print(f"   📊 Total leads: {data.get('total', 0)}")
+        
+        # Show lead details if available
+        if leads:
+            lead = leads[0]
+            print(f"   📝 Latest lead: {lead.get('buyer_name')} for {lead.get('project_name', 'Unknown Project')}")
+            print(f"   📅 Status: {lead.get('status', 'Unknown')}")
+        
+        return True
+        
+    except Exception as e:
+        results.add_fail("Agent Leads", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+def test_lead_status_update():
+    """Test 10: PATCH /api/marketplace/leads/{lead_id} - Update lead status"""
+    global test_lead_id
+    
+    if not test_lead_id:
+        results.add_fail("Lead Status Update", "No test lead ID available")
+        return False
+        
+    try:
+        print(f"\n✏️ TESTING: PATCH /api/marketplace/leads/{test_lead_id}")
+        
+        update_data = {
+            "status": "contacted",
+            "contacted_by_developer": True,
+            "developer_notes": "Called the buyer, very interested. Scheduled site visit for tomorrow."
+        }
+        
+        response = requests.patch(
+            f"{API_BASE}/marketplace/leads/{test_lead_id}",
+            json=update_data,
+            timeout=10
+        )
+        
+        if response.status_code != 200:
+            results.add_fail("Lead Status Update", f"Status code: {response.status_code}")
+            print_error_details("Lead Status Update", response)
+            return False
+            
+        data = response.json()
+        
+        # Validate response
+        if not data.get('success'):
+            results.add_fail("Lead Status Update", "Response success is False")
+            return False
+        
+        results.add_pass("Lead Status Update")
+        print(f"   ✅ Lead status updated successfully")
+        print(f"   📝 New status: {update_data['status']}")
+        print(f"   💬 Developer notes: {update_data['developer_notes']}")
+        
+        return True
+        
+    except Exception as e:
+        results.add_fail("Lead Status Update", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
 def test_get_bookings(auth_token):
     """Test 6: Get list of bookings"""
     if not auth_token:
