@@ -19,7 +19,7 @@ const IncomeLandsAdminDashboard = () => {
       setLoading(true);
       
       // Fetch marketplace stats
-      const statsRes = await apiInstance.get('/marketplace/stats/overview');
+      const statsRes = await api.get('/marketplace/stats/overview');
       setStats(statsRes.data.stats);
       
       // Fetch top agents
