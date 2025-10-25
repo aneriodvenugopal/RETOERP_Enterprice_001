@@ -2,6 +2,7 @@
 """
 Backend API Testing for RETOERP - IncomeLands Marketplace API Integration Testing
 Tests the comprehensive IncomeLands Marketplace API system with 25+ endpoints across 7 functional areas.
+Focus: Retesting after syntax fixes in marketplace.py
 """
 
 import requests
@@ -30,7 +31,7 @@ if not BACKEND_URL:
 
 API_BASE = f"{BACKEND_URL}/api"
 
-print(f"Testing IncomeLands Marketplace API at: {API_BASE}")
+print(f"🔄 RETESTING IncomeLands Marketplace API after syntax fixes at: {API_BASE}")
 print("=" * 80)
 
 class TestResults:
