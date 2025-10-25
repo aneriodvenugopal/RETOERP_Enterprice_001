@@ -646,7 +646,7 @@ async def get_requirement_matches(requirement_id: str, limit: int = Query(20)):
     if status_cat:
         property_query["status_id"] = status_cat["id"]
     
-    properties = await db.properties.find(property_query).limit(limit).to_list(limit)
+    properties = await db.properties.find(property_query, {"_id": 0}).limit(limit).to_list(limit)
     
     # Enrich and score matches
     matched_properties = []
