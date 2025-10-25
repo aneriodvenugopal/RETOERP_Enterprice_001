@@ -214,7 +214,7 @@ async def get_marketplace_projects(
 @router.get("/projects/{project_id}")
 async def get_marketplace_project_details(project_id: str):
     """Get detailed project information for IncomeLands agents"""
-    project = await db.projects.find_one({"id": project_id, "deleted_at": None})
+    project = await db.projects.find_one({"id": project_id, "deleted_at": None}, {"_id": 0})
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
     
