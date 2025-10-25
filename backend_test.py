@@ -171,6 +171,272 @@ def test_agent_register():
         traceback.print_exc()
         return None
 
+def test_agent_get_profile():
+    """Test 2: GET /api/marketplace/agents/{agent_id} - Get agent profile"""
+    global test_agent_id
+    
+    if not test_agent_id:
+        results.add_fail("Agent Get Profile", "No test agent ID available")
+        return False
+        
+    try:
+        print(f"\n👤 TESTING: GET /api/marketplace/agents/{test_agent_id}")
+        
+        response = requests.get(f"{API_BASE}/marketplace/agents/{test_agent_id}", timeout=10)
+        
+        if response.status_code != 200:
+            results.add_fail("Agent Get Profile", f"Status code: {response.status_code}")
+            print_error_details("Agent Get Profile", response)
+            return False
+            
+        data = response.json()
+        
+        # Validate response structure
+        required_fields = ['success', 'agent', 'recent_leads', 'commission_summary']
+        missing_fields = [field for field in required_fields if field not in data]
+        
+        if missing_fields:
+            results.add_fail("Agent Get Profile", f"Missing fields: {missing_fields}")
+            return False
+        
+        if not data.get('success'):
+            results.add_fail("Agent Get Profile", "Response success is False")
+            return False
+        
+        agent = data.get('agent', {})
+        if agent.get('id') != test_agent_id:
+            results.add_fail("Agent Get Profile", "Agent ID mismatch")
+            return False
+        
+        results.add_pass("Agent Get Profile")
+        print(f"   ✅ Agent profile retrieved: {agent.get('name')}")
+        print(f"   📊 Performance: {agent.get('total_leads_submitted', 0)} leads, {agent.get('converted_leads', 0)} conversions")
+        print(f"   💰 Commission earned: ₹{agent.get('total_commission_earned', 0):,.2f}")
+        
+        return True
+        
+    except Exception as e:
+        results.add_fail("Agent Get Profile", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+def test_agent_lookup_by_phone():
+    """Test 3: GET /api/marketplace/agents/phone/{phone} - Lookup agent by phone"""
+    global test_agent_id
+    
+    if not test_agent_id:
+        results.add_fail("Agent Lookup by Phone", "No test agent available")
+        return False
+        
+    try:
+        print("\n📱 TESTING: GET /api/marketplace/agents/phone/{phone}")
+        
+        # First get the agent to get their phone number
+        agent_response = requests.get(f"{API_BASE}/marketplace/agents/{test_agent_id}", timeout=10)
+        if agent_response.status_code != 200:
+            results.add_fail("Agent Lookup by Phone", "Could not get agent phone number")
+            return False
+        
+        agent_data = agent_response.json()
+        phone = agent_data['agent']['phone']
+        
+        # Now lookup by phone
+        response = requests.get(f"{API_BASE}/marketplace/agents/phone/{phone}", timeout=10)
+        
+        if response.status_code != 200:
+            results.add_fail("Agent Lookup by Phone", f"Status code: {response.status_code}")
+            print_error_details("Agent Lookup by Phone", response)
+            return False
+            
+        data = response.json()
+        
+        # Validate response
+        if not data.get('success'):
+            results.add_fail("Agent Lookup by Phone", "Response success is False")
+            return False
+        
+        agent = data.get('agent', {})
+        if agent.get('id') != test_agent_id:
+            results.add_fail("Agent Lookup by Phone", "Agent ID mismatch")
+            return False
+        
+        results.add_pass("Agent Lookup by Phone")
+        print(f"   ✅ Agent found by phone: {agent.get('name')} ({phone})")
+        
+        return True
+        
+    except Exception as e:
+        results.add_fail("Agent Lookup by Phone", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+def test_marketplace_projects_list():
+    """Test 4: GET /api/marketplace/projects - List projects with filters"""
+    global test_project_id
+    
+    try:
+        print("\n🏗️ TESTING: GET /api/marketplace/projects")
+        
+        # Test 1: Get all projects without filters
+        print("   📋 Testing without filters...")
+        response = requests.get(f"{API_BASE}/marketplace/projects", timeout=15)
+        
+        if response.status_code != 200:
+            results.add_fail("Marketplace Projects List", f"Status code: {response.status_code}")
+            print_error_details("Marketplace Projects List", response)
+            return False
+            
+        data = response.json()
+        
+        # Validate response structure
+        required_fields = ['success', 'count', 'projects']
+        missing_fields = [field for field in required_fields if field not in data]
+        
+        if missing_fields:
+            results.add_fail("Marketplace Projects List", f"Missing fields: {missing_fields}")
+            return False
+        
+        if not data.get('success'):
+            results.add_fail("Marketplace Projects List", "Response success is False")
+            return False
+        
+        projects = data.get('projects', [])
+        if not isinstance(projects, list):
+            results.add_fail("Marketplace Projects List", "Projects is not a list")
+            return False
+        
+        print(f"   ✅ Found {len(projects)} projects without filters")
+        
+        # Store first project for later tests
+        if projects:
+            test_project_id = projects[0]['id']
+            project = projects[0]
+            
+            # Validate project structure
+            required_project_fields = ['developer_name', 'total_properties', 'available_properties', 'price_range']
+            missing_project_fields = [field for field in required_project_fields if field not in project]
+            
+            if missing_project_fields:
+                results.add_fail("Marketplace Projects List", f"Missing project fields: {missing_project_fields}")
+                return False
+            
+            print(f"   🏢 Sample project: {project.get('name')} by {project.get('developer_name')}")
+            print(f"   📊 Properties: {project.get('total_properties')} total, {project.get('available_properties')} available")
+            print(f"   💰 Price range: ₹{project['price_range'].get('min', 0):,} - ₹{project['price_range'].get('max', 0):,}")
+        
+        # Test 2: Filter by city
+        print("   🏙️ Testing with city filter (Hyderabad)...")
+        city_response = requests.get(
+            f"{API_BASE}/marketplace/projects",
+            params={"city": "Hyderabad"},
+            timeout=15
+        )
+        
+        if city_response.status_code == 200:
+            city_data = city_response.json()
+            print(f"   ✅ Found {len(city_data.get('projects', []))} projects in Hyderabad")
+        
+        # Test 3: Geo-location filter
+        print("   📍 Testing with geo-location filter...")
+        geo_response = requests.get(
+            f"{API_BASE}/marketplace/projects",
+            params={
+                "latitude": HYDERABAD_LAT,
+                "longitude": HYDERABAD_LON,
+                "radius_km": 20
+            },
+            timeout=15
+        )
+        
+        if geo_response.status_code == 200:
+            geo_data = geo_response.json()
+            geo_projects = geo_data.get('projects', [])
+            print(f"   ✅ Found {len(geo_projects)} projects within 20km of Hyderabad")
+            
+            # Validate distance calculation
+            for project in geo_projects[:3]:  # Check first 3
+                if project.get('distance_km') is not None:
+                    print(f"      - {project.get('name')}: {project.get('distance_km')}km away")
+        
+        results.add_pass("Marketplace Projects List")
+        return True
+        
+    except Exception as e:
+        results.add_fail("Marketplace Projects List", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+def test_marketplace_project_details():
+    """Test 5: GET /api/marketplace/projects/{project_id} - Get project details"""
+    global test_project_id
+    
+    if not test_project_id:
+        results.add_fail("Marketplace Project Details", "No test project ID available")
+        return False
+        
+    try:
+        print(f"\n🏗️ TESTING: GET /api/marketplace/projects/{test_project_id}")
+        
+        response = requests.get(f"{API_BASE}/marketplace/projects/{test_project_id}", timeout=15)
+        
+        if response.status_code != 200:
+            results.add_fail("Marketplace Project Details", f"Status code: {response.status_code}")
+            print_error_details("Marketplace Project Details", response)
+            return False
+            
+        data = response.json()
+        
+        # Validate response structure
+        required_fields = ['success', 'project', 'developer', 'statistics', 'sample_properties']
+        missing_fields = [field for field in required_fields if field not in data]
+        
+        if missing_fields:
+            results.add_fail("Marketplace Project Details", f"Missing fields: {missing_fields}")
+            return False
+        
+        if not data.get('success'):
+            results.add_fail("Marketplace Project Details", "Response success is False")
+            return False
+        
+        # Validate developer contacts are LOCKED
+        developer = data.get('developer', {})
+        if developer.get('phone') != "LOCKED" or developer.get('email') != "LOCKED":
+            results.add_fail("Marketplace Project Details", "Developer contacts should be LOCKED")
+            return False
+        
+        if not developer.get('is_locked'):
+            results.add_fail("Marketplace Project Details", "Developer is_locked should be True")
+            return False
+        
+        # Validate statistics
+        statistics = data.get('statistics', {})
+        required_stats = ['total_properties', 'available', 'booked', 'sold', 'price_range']
+        missing_stats = [field for field in required_stats if field not in statistics]
+        
+        if missing_stats:
+            results.add_fail("Marketplace Project Details", f"Missing statistics: {missing_stats}")
+            return False
+        
+        # Validate sample properties
+        sample_properties = data.get('sample_properties', [])
+        if not isinstance(sample_properties, list):
+            results.add_fail("Marketplace Project Details", "sample_properties is not a list")
+            return False
+        
+        project = data.get('project', {})
+        results.add_pass("Marketplace Project Details")
+        print(f"   ✅ Project details: {project.get('name')}")
+        print(f"   🔒 Developer contacts LOCKED: {developer.get('name')} (Phone: {developer.get('phone')}, Email: {developer.get('email')})")
+        print(f"   📊 Statistics: {statistics.get('total_properties')} total, {statistics.get('available')} available, {statistics.get('booked')} booked, {statistics.get('sold')} sold")
+        print(f"   🏠 Sample properties: {len(sample_properties)} returned")
+        
+        return True
+        
+    except Exception as e:
+        results.add_fail("Marketplace Project Details", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
 def test_get_project_details(auth_token, project_id):
     """Test 4: Call GET /api/projects/{project_id}"""
     if not auth_token:
