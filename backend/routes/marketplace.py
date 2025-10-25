@@ -77,7 +77,7 @@ async def get_project_price_range(project_id: str) -> dict:
 async def register_agent(agent_data: AgentProfileCreate):
     """Register a new IncomeLands agent in RETOERP marketplace"""
     # Check if agent already exists
-    existing = await db.marketplace_agents.find_one({"phone": agent_data.phone})
+    existing = await db.marketplace_agents.find_one({"phone": agent_data.phone}, {"_id": 0})
     if existing:
         return {"success": True, "message": "Agent already registered", "agent": existing}
     
