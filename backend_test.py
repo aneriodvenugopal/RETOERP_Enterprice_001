@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Backend API Testing for RETOERP - Public Landing Pages APIs Testing
-Tests the Public Landing Pages APIs for tenant and project pages comprehensively.
+Backend API Testing for RETOERP - IncomeLands Marketplace API Integration Testing
+Tests the comprehensive IncomeLands Marketplace API system with 25+ endpoints across 7 functional areas.
 """
 
 import requests
@@ -10,6 +10,7 @@ import sys
 import os
 import traceback
 from datetime import datetime
+import uuid
 
 # Get backend URL from frontend .env file
 def get_backend_url():
@@ -29,7 +30,7 @@ if not BACKEND_URL:
 
 API_BASE = f"{BACKEND_URL}/api"
 
-print(f"Testing backend at: {API_BASE}")
+print(f"Testing IncomeLands Marketplace API at: {API_BASE}")
 print("=" * 80)
 
 class TestResults:
