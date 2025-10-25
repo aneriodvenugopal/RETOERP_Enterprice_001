@@ -723,17 +723,17 @@ async def calculate_agent_commission(commission_data: AgentCommissionCreate):
     Called by RETOERP when booking is created
     """
     # Get marketplace lead
-    lead = await db.marketplace_leads.find_one({"id": commission_data.marketplace_lead_id}, {"_id": 0}
+    lead = await db.marketplace_leads.find_one({"id": commission_data.marketplace_lead_id}, {"_id": 0})
     if not lead:
         raise HTTPException(status_code=404, detail="Marketplace lead not found")
     
     # Get booking details
-    booking = await db.bookings.find_one({"id": commission_data.booking_id}, {"_id": 0}
+    booking = await db.bookings.find_one({"id": commission_data.booking_id}, {"_id": 0})
     if not booking:
         raise HTTPException(status_code=404, detail="Booking not found")
     
     # Get property to determine value
-    property = await db.properties.find_one({"id": booking["property_id"]}, {"_id": 0}
+    property = await db.properties.find_one({"id": booking["property_id"]}, {"_id": 0})
     if not property:
         raise HTTPException(status_code=404, detail="Property not found")
     
