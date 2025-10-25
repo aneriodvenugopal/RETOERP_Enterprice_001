@@ -595,7 +595,7 @@ async def get_buyer_requirements(
     if max_budget:
         query["budget_min"] = {"$lte": max_budget}
     
-    requirements = await db.buyer_requirements.find(query).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+    requirements = await db.buyer_requirements.find(query, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
     total_count = await db.buyer_requirements.count_documents(query)
     
     return {
