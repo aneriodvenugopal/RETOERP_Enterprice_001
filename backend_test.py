@@ -5184,44 +5184,112 @@ def test_telugu_language_detection():
 # ============ MAIN TEST EXECUTION ============
 
 def main():
-    """Main test execution"""
-    print("🚀 Starting RETOERP Backend API Testing - Public Landing Pages APIs")
+    """Main test execution for IncomeLands Marketplace API"""
+    print("🚀 Starting IncomeLands Marketplace API Tests")
+    print(f"📅 Test run: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"🎯 Testing comprehensive marketplace integration with 25+ endpoints")
     print(f"Backend URL: {API_BASE}")
-    print("=" * 80)
     
-    # Test 1: Health Check
+    # Test 1: Health check
     if not test_health_check():
-        print("❌ Backend is not healthy. Stopping tests.")
+        print("\n❌ API is not healthy. Stopping tests.")
         return False
     
-    # Test 2: Public Landing Pages APIs (NO AUTH REQUIRED)
-    print("\n" + "=" * 80)
-    print("🌐 TESTING PUBLIC LANDING PAGES APIs")
-    print("=" * 80)
+    print("\n" + "="*80)
+    print("🏪 INCOMELANDS MARKETPLACE API TESTING")
+    print("="*80)
     
-    # Test public tenant landing page
-    test_public_tenant_landing_page()
+    # ============================================
+    # 1. AGENT MANAGEMENT APIs
+    # ============================================
+    print("\n👥 SECTION 1: AGENT MANAGEMENT APIs")
+    print("-" * 50)
     
-    # Test public project landing page
-    test_public_project_landing_page()
+    test_agent_register()
+    test_agent_get_profile()
+    test_agent_lookup_by_phone()
     
-    # Test error handling
-    test_public_tenant_not_found()
-    test_public_project_not_found()
+    # ============================================
+    # 2. PROJECTS & PROPERTIES APIs
+    # ============================================
+    print("\n🏗️ SECTION 2: PROJECTS & PROPERTIES APIs")
+    print("-" * 50)
     
-    # Test empty data handling
-    test_public_tenant_empty_data_handling()
+    test_marketplace_projects_list()
+    test_marketplace_project_details()
+    test_marketplace_properties_search()
     
-    # Final Results
-    print("\n" + "=" * 80)
+    # ============================================
+    # 3. CONTACT UNLOCK SYSTEM
+    # ============================================
+    print("\n🔓 SECTION 3: CONTACT UNLOCK SYSTEM")
+    print("-" * 50)
+    
+    test_contact_unlock()
+    
+    # ============================================
+    # 4. LEAD SUBMISSION APIs
+    # ============================================
+    print("\n📝 SECTION 4: LEAD SUBMISSION APIs")
+    print("-" * 50)
+    
+    test_lead_submission()
+    test_agent_leads()
+    test_lead_status_update()
+    
+    # ============================================
+    # 5. BUYER REQUIREMENTS APIs
+    # ============================================
+    print("\n🏠 SECTION 5: BUYER REQUIREMENTS APIs")
+    print("-" * 50)
+    
+    test_buyer_requirements_create()
+    test_buyer_requirements_list()
+    test_ai_matching_engine()
+    
+    # ============================================
+    # 6. COMMISSION SYSTEM
+    # ============================================
+    print("\n💰 SECTION 6: COMMISSION SYSTEM")
+    print("-" * 50)
+    
+    test_commission_calculation()
+    test_agent_commissions()
+    
+    # ============================================
+    # 7. ANALYTICS & STATISTICS
+    # ============================================
+    print("\n📊 SECTION 7: ANALYTICS & STATISTICS")
+    print("-" * 50)
+    
+    test_marketplace_stats_overview()
+    test_developer_marketplace_stats()
+    
+    # ============================================
+    # FINAL SUMMARY
+    # ============================================
+    print("\n" + "="*80)
+    print("📋 INCOMELANDS MARKETPLACE API TEST SUMMARY")
+    print("="*80)
+    
     success = results.summary()
     
     if success:
-        print("🎉 All tests passed! Public Landing Pages APIs are working correctly.")
+        print("\n🎉 ALL INCOMELANDS MARKETPLACE API TESTS PASSED!")
+        print("✅ The marketplace integration is ready for production use!")
+        print("\n📈 Key Features Validated:")
+        print("   • Agent registration and management")
+        print("   • Geo-location based project search")
+        print("   • Contact unlock revenue model (₹10 per unlock)")
+        print("   • Lead submission to RETOERP developers")
+        print("   • AI-powered property matching (0-100 scoring)")
+        print("   • Commission automation (1% agent, 10% platform fee)")
+        print("   • Comprehensive analytics and statistics")
+        return True
     else:
-        print("⚠️  Some tests failed. Please check the errors above.")
-    
-    return success
+        print(f"\n💥 {results.failed} MARKETPLACE API TESTS FAILED!")
+        print("❌ Please review and fix the issues before production deployment.")
+        return False
 
 
 if __name__ == "__main__":
