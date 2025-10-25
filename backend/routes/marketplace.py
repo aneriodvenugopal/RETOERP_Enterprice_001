@@ -911,7 +911,7 @@ async def get_marketplace_stats():
     unlock_revenue = total_unlocks * 10  # ₹10 per unlock
     
     # Top performing agents
-    top_agents = await db.marketplace_agents.find({}).sort("total_commission_earned", -1).limit(5).to_list(5)
+    top_agents = await db.marketplace_agents.find({}, {"_id": 0}).sort("total_commission_earned", -1).limit(5).to_list(5)
     
     return {
         "success": True,
