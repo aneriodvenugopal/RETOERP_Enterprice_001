@@ -49,7 +49,7 @@ async def get_property_count(project_id: str, status_filter: Optional[str] = Non
     query = {"project_id": project_id, "deleted_at": None}
     if status_filter:
         # Get status category ID
-        status_cat = await db.master_categories.find_one({"slug": status_filter}, {"_id": 0}
+        status_cat = await db.master_categories.find_one({"slug": status_filter}, {"_id": 0})
         if status_cat:
             query["status_id"] = status_cat["id"]
     return await db.properties.count_documents(query)
