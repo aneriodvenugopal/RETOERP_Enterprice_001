@@ -611,7 +611,7 @@ async def get_requirement_matches(requirement_id: str, limit: int = Query(20)):
     Get matched properties for a buyer requirement
     Uses AI matching engine
     """
-    requirement = await db.buyer_requirements.find_one({"id": requirement_id}), {"_id": 0}
+    requirement = await db.buyer_requirements.find_one({"id": requirement_id}, {"_id": 0})
     if not requirement:
         raise HTTPException(status_code=404, detail="Requirement not found")
     
