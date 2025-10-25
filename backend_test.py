@@ -107,41 +107,67 @@ test_requirement_id = None
 # ============================================
 
 def test_agent_register():
-    """Test 2: Get list of projects"""
-    if not auth_token:
-        results.add_fail("Get Projects", "No auth token available")
-        return None
-        
+    """Test 1: POST /api/marketplace/agents/register - Register new agent"""
+    global test_agent_id
+    
     try:
-        print("\n📋 TESTING: GET /api/projects/")
-        headers = {"Authorization": f"Bearer {auth_token}"}
-        response = requests.get(f"{API_BASE}/projects/", headers=headers, timeout=10)
+        print("\n👤 TESTING: POST /api/marketplace/agents/register")
+        
+        # Create unique agent data
+        unique_suffix = str(uuid.uuid4())[:8]
+        agent_data = {
+            "name": f"Test Agent {unique_suffix}",
+            "phone": f"987654{unique_suffix[:4]}",
+            "email": f"agent{unique_suffix}@incomelands.com",
+            "city": "Hyderabad",
+            "state": "Telangana",
+            "areas_covered": ["Gachibowli", "HITEC City", "Madhapur"],
+            "latitude": HYDERABAD_LAT,
+            "longitude": HYDERABAD_LON,
+            "experience_years": 5
+        }
+        
+        response = requests.post(
+            f"{API_BASE}/marketplace/agents/register",
+            json=agent_data,
+            timeout=10
+        )
         
         if response.status_code != 200:
-            results.add_fail("Get Projects", f"Status code: {response.status_code}")
-            print_error_details("Get Projects", response)
+            results.add_fail("Agent Register", f"Status code: {response.status_code}")
+            print_error_details("Agent Register", response)
             return None
             
-        projects = response.json()
+        data = response.json()
         
-        if not isinstance(projects, list):
-            results.add_fail("Get Projects", "Response is not a list")
-            return None
-            
-        if len(projects) == 0:
-            results.add_fail("Get Projects", "No projects found")
-            return None
-            
-        results.add_pass("Get Projects")
-        print(f"   Found {len(projects)} projects")
+        # Validate response structure
+        required_fields = ['success', 'message', 'agent']
+        missing_fields = [field for field in required_fields if field not in data]
         
-        # Return first project for next test
-        first_project = projects[0]
-        print(f"   First project: {first_project.get('name', 'Unknown')} (ID: {first_project.get('id')})")
-        return first_project
+        if missing_fields:
+            results.add_fail("Agent Register", f"Missing fields: {missing_fields}")
+            return None
+        
+        if not data.get('success'):
+            results.add_fail("Agent Register", "Response success is False")
+            return None
+        
+        agent = data.get('agent', {})
+        if 'id' not in agent:
+            results.add_fail("Agent Register", "No agent ID in response")
+            return None
+        
+        test_agent_id = agent['id']
+        
+        results.add_pass("Agent Register")
+        print(f"   ✅ Agent registered: {agent.get('name')} (ID: {test_agent_id})")
+        print(f"   📱 Phone: {agent.get('phone')}")
+        print(f"   📍 Location: {agent.get('city')}, {agent.get('state')}")
+        
+        return test_agent_id
         
     except Exception as e:
-        results.add_fail("Get Projects", f"Exception: {str(e)}")
+        results.add_fail("Agent Register", f"Exception: {str(e)}")
         traceback.print_exc()
         return None
 
