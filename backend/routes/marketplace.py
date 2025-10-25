@@ -24,7 +24,7 @@ if not MONGO_URL:
     raise Exception("MONGO_URL environment variable not set")
 
 client = AsyncIOMotorClient(MONGO_URL)
-db = client.retoerp
+db = client[os.environ.get('DB_NAME', 'test_database')]
 
 # ============================================
 # Helper Functions
