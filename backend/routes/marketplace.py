@@ -323,7 +323,7 @@ async def search_marketplace_properties(
             property_query["area"] = {"$lte": max_area}
     
     # Get properties
-    properties = await db.properties.find(property_query).skip(skip).limit(limit).to_list(limit)
+    properties = await db.properties.find(property_query, {"_id": 0}).skip(skip).limit(limit).to_list(limit)
     
     # Enrich with project and developer info
     enriched_properties = []
