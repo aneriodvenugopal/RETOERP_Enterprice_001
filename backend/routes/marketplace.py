@@ -90,7 +90,7 @@ async def register_agent(agent_data: AgentProfileCreate):
 @router.get("/agents/{agent_id}")
 async def get_agent_profile(agent_id: str):
     """Get agent profile with performance metrics"""
-    agent = await db.marketplace_agents.find_one({"id": agent_id})
+    agent = await db.marketplace_agents.find_one({"id": agent_id}, {"_id": 0})
     if not agent:
         raise HTTPException(status_code=404, detail="Agent not found")
     
