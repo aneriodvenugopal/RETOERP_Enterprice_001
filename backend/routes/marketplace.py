@@ -692,7 +692,7 @@ async def get_requirement_matches(requirement_id: str, limit: int = Query(20)):
                 score += 10
         
         # Get tenant
-        tenant = await db.tenants.find_one({"id": prop["tenant_id"]}, {"_id": 0}
+        tenant = await db.tenants.find_one({"id": prop["tenant_id"]}, {"_id": 0})
         
         matched_properties.append({
             **prop,
