@@ -437,44 +437,175 @@ def test_marketplace_project_details():
         traceback.print_exc()
         return False
 
-def test_get_project_details(auth_token, project_id):
-    """Test 4: Call GET /api/projects/{project_id}"""
-    if not auth_token:
-        results.add_fail("Get Project Details", "No auth token available")
-        return False
-        
-    if not project_id:
-        results.add_fail("Get Project Details", "No project ID available")
-        return False
-        
+def test_marketplace_properties_search():
+    """Test 6: GET /api/marketplace/properties/search - Advanced property search"""
     try:
-        print(f"\n🏗️ TESTING: GET /api/projects/{project_id}")
-        headers = {"Authorization": f"Bearer {auth_token}"}
-        response = requests.get(f"{API_BASE}/projects/{project_id}", headers=headers, timeout=10)
+        print("\n🏠 TESTING: GET /api/marketplace/properties/search")
         
-        if response.status_code != 200:
-            results.add_fail("Get Project Details", f"Status code: {response.status_code}")
-            print_error_details("Get Project Details", response)
-            return False
-            
-        project = response.json()
+        # Test 1: Search with price range
+        print("   💰 Testing with price range filter...")
+        price_response = requests.get(
+            f"{API_BASE}/marketplace/properties/search",
+            params={
+                "min_price": 1000000,  # 10 lakh
+                "max_price": 5000000,  # 50 lakh
+                "status": "available"
+            },
+            timeout=15
+        )
         
-        # Validate basic structure
-        if not isinstance(project, dict):
-            results.add_fail("Get Project Details", "Response is not a dictionary")
+        if price_response.status_code != 200:
+            results.add_fail("Marketplace Properties Search", f"Status code: {price_response.status_code}")
+            print_error_details("Marketplace Properties Search", price_response)
             return False
             
-        if 'id' not in project:
-            results.add_fail("Get Project Details", "No 'id' field in response")
+        price_data = price_response.json()
+        
+        # Validate response structure
+        required_fields = ['success', 'count', 'properties']
+        missing_fields = [field for field in required_fields if field not in price_data]
+        
+        if missing_fields:
+            results.add_fail("Marketplace Properties Search", f"Missing fields: {missing_fields}")
             return False
+        
+        if not price_data.get('success'):
+            results.add_fail("Marketplace Properties Search", "Response success is False")
+            return False
+        
+        properties = price_data.get('properties', [])
+        print(f"   ✅ Found {len(properties)} properties in price range ₹10L-₹50L")
+        
+        # Test 2: Search with area range
+        print("   📐 Testing with area range filter...")
+        area_response = requests.get(
+            f"{API_BASE}/marketplace/properties/search",
+            params={
+                "min_area": 1000,  # 1000 sqft
+                "max_area": 3000,  # 3000 sqft
+                "status": "available"
+            },
+            timeout=15
+        )
+        
+        if area_response.status_code == 200:
+            area_data = area_response.json()
+            print(f"   ✅ Found {len(area_data.get('properties', []))} properties in area range 1000-3000 sqft")
+        
+        # Test 3: Geo-location + radius search
+        print("   📍 Testing with geo-location + radius...")
+        geo_response = requests.get(
+            f"{API_BASE}/marketplace/properties/search",
+            params={
+                "latitude": HYDERABAD_LAT,
+                "longitude": HYDERABAD_LON,
+                "radius_km": 15,
+                "status": "available"
+            },
+            timeout=15
+        )
+        
+        if geo_response.status_code == 200:
+            geo_data = geo_response.json()
+            geo_properties = geo_data.get('properties', [])
+            print(f"   ✅ Found {len(geo_properties)} properties within 15km of Hyderabad")
             
-        results.add_pass("Get Project Details")
-        print(f"   Project: {project.get('name', 'Unknown')} (ID: {project.get('id')})")
-        print(f"   Status: {project.get('status', 'Unknown')}")
+            # Validate enrichment with project and developer data
+            if geo_properties:
+                prop = geo_properties[0]
+                required_enrichment = ['project_name', 'developer_name', 'distance_km']
+                missing_enrichment = [field for field in required_enrichment if field not in prop]
+                
+                if missing_enrichment:
+                    results.add_fail("Marketplace Properties Search", f"Missing enrichment fields: {missing_enrichment}")
+                    return False
+                
+                print(f"   🏢 Sample property: {prop.get('project_name')} by {prop.get('developer_name')}")
+                print(f"   📍 Distance: {prop.get('distance_km')}km from search center")
+        
+        results.add_pass("Marketplace Properties Search")
         return True
         
     except Exception as e:
-        results.add_fail("Get Project Details", f"Exception: {str(e)}")
+        results.add_fail("Marketplace Properties Search", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+def test_contact_unlock():
+    """Test 7: POST /api/marketplace/unlock-contact - Unlock developer contact"""
+    global test_agent_id, test_project_id
+    
+    if not test_agent_id or not test_project_id:
+        results.add_fail("Contact Unlock", "Missing test agent ID or project ID")
+        return False
+        
+    try:
+        print("\n🔓 TESTING: POST /api/marketplace/unlock-contact")
+        
+        # First get project details to get tenant_id
+        project_response = requests.get(f"{API_BASE}/marketplace/projects/{test_project_id}", timeout=10)
+        if project_response.status_code != 200:
+            results.add_fail("Contact Unlock", "Could not get project details")
+            return False
+        
+        project_data = project_response.json()
+        tenant_id = project_data['project']['tenant_id']
+        
+        unlock_data = {
+            "agent_id": test_agent_id,
+            "tenant_id": tenant_id,
+            "project_id": test_project_id,
+            "unlock_reason": "Interested buyer for this project"
+        }
+        
+        response = requests.post(
+            f"{API_BASE}/marketplace/unlock-contact",
+            json=unlock_data,
+            timeout=10
+        )
+        
+        if response.status_code != 200:
+            results.add_fail("Contact Unlock", f"Status code: {response.status_code}")
+            print_error_details("Contact Unlock", response)
+            return False
+            
+        data = response.json()
+        
+        # Validate response
+        if not data.get('success'):
+            results.add_fail("Contact Unlock", "Response success is False")
+            return False
+        
+        # Check if actual phone/email returned
+        if 'developer_phone' not in data or 'developer_email' not in data:
+            results.add_fail("Contact Unlock", "Developer contact details not returned")
+            return False
+        
+        results.add_pass("Contact Unlock")
+        print(f"   ✅ Contact unlocked successfully")
+        print(f"   📱 Developer phone: {data.get('developer_phone')}")
+        print(f"   📧 Developer email: {data.get('developer_email')}")
+        print(f"   💰 Unlock fee: ₹{data.get('unlock_fee', 10)}")
+        
+        # Test duplicate unlock
+        print("   🔄 Testing duplicate unlock...")
+        duplicate_response = requests.post(
+            f"{API_BASE}/marketplace/unlock-contact",
+            json=unlock_data,
+            timeout=10
+        )
+        
+        if duplicate_response.status_code == 200:
+            duplicate_data = duplicate_response.json()
+            if duplicate_data.get('already_unlocked'):
+                print("   ✅ Duplicate unlock handled correctly - returned existing unlock")
+            else:
+                print("   ⚠️ Duplicate unlock created new record (should return existing)")
+        
+        return True
+        
+    except Exception as e:
+        results.add_fail("Contact Unlock", f"Exception: {str(e)}")
         traceback.print_exc()
         return False
 
