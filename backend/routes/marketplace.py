@@ -347,7 +347,7 @@ async def search_marketplace_properties(
                 continue
         
         # Get tenant
-        tenant = await db.tenants.find_one({"id": prop["tenant_id"]}, {"_id": 0}
+        tenant = await db.tenants.find_one({"id": prop["tenant_id"]}, {"_id": 0})
         
         enriched_prop = {
             **prop,
