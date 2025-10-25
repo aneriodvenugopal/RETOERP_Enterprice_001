@@ -294,13 +294,13 @@ async def search_marketplace_properties(
     
     # Status filter
     if status:
-        status_cat = await db.master_categories.find_one({"slug": status, "type": "property_status"}, {"_id": 0}
+        status_cat = await db.master_categories.find_one({"slug": status, "type": "property_status"}, {"_id": 0})
         if status_cat:
             property_query["status_id"] = status_cat["id"]
     
     # Property type filter
     if property_type:
-        type_cat = await db.master_categories.find_one({"slug": property_type, "type": "property_type"}, {"_id": 0}
+        type_cat = await db.master_categories.find_one({"slug": property_type, "type": "property_type"}, {"_id": 0})
         if type_cat:
             property_query["property_type_id"] = type_cat["id"]
     
