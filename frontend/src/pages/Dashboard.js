@@ -99,13 +99,22 @@ const SuperAdminDashboard = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {isSaaSAdmin && (
-          <ActionCard
-            icon={Building2}
-            title="SaaS Admin Dashboard"
-            description="Manage tenants, packages & analytics"
-            onClick={() => navigate('/admin/saas-dashboard')}
-            gradient="from-purple-500 to-pink-500"
-          />
+          <>
+            <ActionCard
+              icon={Building2}
+              title="SaaS Admin Dashboard"
+              description="Manage tenants, packages & analytics"
+              onClick={() => navigate('/admin/saas-dashboard')}
+              gradient="from-purple-500 to-pink-500"
+            />
+            <ActionCard
+              icon={MapPin}
+              title="IncomeLands Marketplace"
+              description="Monitor agents, leads & commissions"
+              onClick={() => navigate('/admin/incomelands')}
+              gradient="from-blue-500 to-purple-500"
+            />
+          </>
         )}
         <ActionCard
           icon={MessageSquare}
