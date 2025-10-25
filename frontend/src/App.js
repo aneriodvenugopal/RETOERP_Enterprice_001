@@ -55,6 +55,7 @@ import SaaSDashboard from "./pages/admin/SaaSDashboard";
 import PackageManagement from "./pages/admin/PackageManagement";
 import TenantManagement from "./pages/admin/TenantManagement";
 import ChatManagement from "./pages/admin/ChatManagement";
+import IncomeLandsAdminDashboard from "./pages/admin/IncomeLandsAdminDashboard";
 
 // Public Landing Pages
 import TenantLandingPage from "./pages/public/TenantLandingPage";
