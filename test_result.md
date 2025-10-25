@@ -132,6 +132,42 @@ backend:
         agent: "main"
         comment: "Created new public API GET /public/tenants with: (1) Pagination support (limit, skip parameters), (2) Search functionality (searches company_name, city, state with regex), (3) Filters only active tenants with deleted_at=None, (4) Enriches each tenant with statistics: project_count (total projects), property_count (total properties across all projects), booking_count (total bookings), (5) Returns total count for pagination. Default limit=100. No authentication required (public endpoint)."
 
+  - task: "IncomeLands Marketplace Models"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/models/marketplace.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Created comprehensive marketplace models: (1) AgentProfile - IncomeLands agent profiles with location, performance metrics, verification status, (2) BuyerRequirement - buyer requirements posted in IncomeLands with budget, location preferences, property specs, matching status, (3) MarketplaceLead - leads submitted by agents with buyer info, commission tracking, conversion tracking, (4) AgentCommission - transparent commission tracking with multi-level splits, platform fees, approval workflow, payment tracking, (5) PropertyContactUnlock - ₹10 contact unlock revenue model tracking. All models support full lifecycle tracking with status management and timestamps."
+
+  - task: "IncomeLands Marketplace API Routes"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/routes/marketplace.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Implemented comprehensive marketplace API with 25+ endpoints organized in 7 sections: (1) Agent Management - POST /agents/register, GET /agents/{id}, GET /agents/phone/{phone} for agent profiles and performance, (2) Projects & Properties - GET /marketplace/projects with geo-location filtering (radius, distance calculation), GET /marketplace/projects/{id} with detailed stats and locked developer contacts, GET /marketplace/properties/search with advanced filtering (type, price, area, location, geo-radius), (3) Contact Unlock - POST /marketplace/unlock-contact for ₹10 developer contact unlocks with duplicate prevention, (4) Lead Submission - POST /marketplace/leads/submit creates leads in both marketplace and RETOERP tables, GET /marketplace/leads/agent/{id} for agent's lead history, PATCH /marketplace/leads/{id} for status updates, (5) Buyer Requirements - POST /marketplace/requirements for posting buyer needs, GET /marketplace/requirements with filters, GET /marketplace/requirements/{id}/matches with AI matching engine (scores properties 0-100 based on location, budget, area, distance), (6) Commission System - POST /marketplace/commissions/calculate for automatic commission calculation (1% to agent, 10% platform fee), GET /marketplace/commissions/agent/{id} with totals by status, PATCH /marketplace/commissions/{id} for approval workflow with dual approval (developer + platform), (7) Analytics - GET /marketplace/stats/overview for platform-wide metrics (agents, leads, conversion rates, revenue), GET /marketplace/stats/developer/{id} for developer-specific marketplace performance. Features: Haversine distance calculation, price range queries, property enrichment with project/developer info, commission automation, transparent tracking."
+
+  - task: "Register marketplace router and seed categories"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py, /app/backend/scripts/seed_incomelands_categories.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Successfully registered marketplace router in server.py with /api/marketplace prefix. Created and executed seed script to add IncomeLands lead source categories: 'IncomeLands', 'Marketplace Agent', 'Direct Buyer'. Backend restarted successfully without errors. All marketplace endpoints now accessible."
+
 frontend:
   - task: "Create PublicLayoutViewer component"
     implemented: true
