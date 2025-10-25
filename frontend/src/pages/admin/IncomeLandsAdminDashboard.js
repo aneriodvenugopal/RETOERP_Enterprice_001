@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { apiInstance } from '../services';
+import { apiInstance } from '../../services';
 import { Users, TrendingUp, DollarSign, MapPin, PhoneCall, Target } from 'lucide-react';
 
 const IncomeLandsAdminDashboard = () => {
