@@ -622,7 +622,7 @@ async def get_requirement_matches(requirement_id: str, limit: int = Query(20)):
     type_cat = await db.master_categories.find_one({
         "slug": requirement["property_type"],
         "type": "property_type"
-    })
+    }, {"_id": 0})
     if type_cat:
         property_query["property_type_id"] = type_cat["id"]
     
