@@ -96,7 +96,7 @@ async def get_agent_profile(agent_id: str):
     
     # Get recent leads
     recent_leads = await db.marketplace_leads.find(
-        {"agent_id": agent_id}
+        {"agent_id": agent_id}, {"_id": 0}
     ).sort("created_at", -1).limit(10).to_list(10)
     
     # Get commission summary
