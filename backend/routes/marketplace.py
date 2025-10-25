@@ -443,12 +443,12 @@ async def submit_marketplace_lead(lead_data: MarketplaceLeadCreate):
     This creates a lead in marketplace and optionally in RETOERP leads table
     """
     # Verify agent
-    agent = await db.marketplace_agents.find_one({"id": lead_data.agent_id}, {"_id": 0}
+    agent = await db.marketplace_agents.find_one({"id": lead_data.agent_id}, {"_id": 0})
     if not agent:
         raise HTTPException(status_code=404, detail="Agent not found")
     
     # Verify project exists
-    project = await db.projects.find_one({"id": lead_data.project_id}, {"_id": 0}
+    project = await db.projects.find_one({"id": lead_data.project_id}, {"_id": 0})
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
     
@@ -458,8 +458,8 @@ async def submit_marketplace_lead(lead_data: MarketplaceLeadCreate):
     
     # Also create in RETOERP leads table for developer to see
     # Get lead status category (new)
-    lead_status = await db.master_categories.find_one({"slug": "new", "type": "lead_status"}, {"_id": 0}
-    lead_source = await db.master_categories.find_one({"slug": "incomelands", "type": "lead_source"}, {"_id": 0}
+    lead_status = await db.master_categories.find_one({"slug": "new", "type": "lead_status"}, {"_id": 0})
+    lead_source = await db.master_categories.find_one({"slug": "incomelands", "type": "lead_source"}, {"_id": 0})
     
     # Create RETOERP lead
     from models.lead import Lead
