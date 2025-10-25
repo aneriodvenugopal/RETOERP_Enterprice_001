@@ -512,7 +512,7 @@ async def get_agent_leads(
     
     # Enrich with project names
     for lead in leads:
-        project = await db.projects.find_one({"id": lead["project_id"]}, {"_id": 0}
+        project = await db.projects.find_one({"id": lead["project_id"]}, {"_id": 0})
         if project:
             lead["project_name"] = project.get("name")
     
@@ -528,7 +528,7 @@ async def get_agent_leads(
 @router.patch("/leads/{lead_id}")
 async def update_lead_status(lead_id: str, update_data: MarketplaceLeadUpdate):
     """Update marketplace lead status (by developer or system)"""
-    lead = await db.marketplace_leads.find_one({"id": lead_id}, {"_id": 0}
+    lead = await db.marketplace_leads.find_one({"id": lead_id}, {"_id": 0})
     if not lead:
         raise HTTPException(status_code=404, detail="Lead not found")
     
