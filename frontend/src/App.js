@@ -97,6 +97,9 @@ function App() {
                 <Route path="/public/tenant/:tenantId" element={<TenantLandingPage />} />
                 <Route path="/public/project/:projectId" element={<ProjectLandingPage />} />
                 
+                {/* IncomeLands Mobile App */}
+                <Route path="/incomelands" element={<IncomeLandsApp />} />
+                
                 {/* Admin Routes - Protected */}
                 <Route 
                   path="/admin/content" 
