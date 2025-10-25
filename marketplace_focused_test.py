@@ -533,8 +533,10 @@ def test_contact_unlock():
         
         unlock_data = {
             "agent_id": test_agent_id,
+            "agent_phone": AGENT_PHONE,
             "tenant_id": DEFAULT_TENANT_ID,
             "project_id": str(uuid.uuid4()),  # Mock project ID
+            "payment_method": "incomelands_credits",
             "unlock_reason": "Interested buyer for this project"
         }
         
