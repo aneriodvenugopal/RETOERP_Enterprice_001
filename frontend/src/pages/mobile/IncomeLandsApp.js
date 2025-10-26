@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { MapPin, Camera, Mic, Phone, Plus, Users, Home as HomeIcon, FileText, Navigation2, CheckCircle, Wallet, X, Lock, Unlock } from 'lucide-react';
+import { MapPin, Camera, Mic, Phone, Plus, Users, Home as HomeIcon, FileText, Navigation2, CheckCircle, Wallet, X, Lock, Unlock, Map as MapIcon } from 'lucide-react';
 import { api } from '../../services';
+import GoogleMapView from '../../components/GoogleMapView';
 import './IncomeLandsApp.css';
 
 const IncomeLandsApp = () => {
