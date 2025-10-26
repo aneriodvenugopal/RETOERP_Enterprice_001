@@ -208,6 +208,8 @@ const IncomeLandsApp = () => {
 
 // Map View Screen
 const MapViewScreen = ({ mapView, setMapView, projects, requirements, myProperties, onItemClick, userLocation }) => {
+  const [viewMode, setViewMode] = useState('list'); // 'list' or 'map'
+
   return (
     <div className="map-view-screen">
       {/* Tabs */}
@@ -238,8 +240,26 @@ const MapViewScreen = ({ mapView, setMapView, projects, requirements, myProperti
         </button>
       </div>
 
+      {/* View Mode Toggle */}
+      <div className="view-mode-toggle">
+        <button 
+          className={viewMode === 'list' ? 'active' : ''}
+          onClick={() => setViewMode('list')}
+        >
+          <FileText size={16} />
+          <span>List</span>
+        </button>
+        <button 
+          className={viewMode === 'map' ? 'active' : ''}
+          onClick={() => setViewMode('map')}
+        >
+          <MapIcon size={16} />
+          <span>Map</span>
+        </button>
+      </div>
+
       {/* Location Indicator */}
-      {userLocation && (
+      {userLocation && viewMode === 'list' && (
         <div className="location-bar">
           <Navigation2 size={14} />
           <span>మీ లొకేషన్ track అవుతోంది</span>
@@ -247,17 +267,27 @@ const MapViewScreen = ({ mapView, setMapView, projects, requirements, myProperti
       )}
 
       {/* Content */}
-      <div className="map-content">
-        {mapView === 'properties' && (
-          <PropertiesView properties={myProperties} onItemClick={onItemClick} />
-        )}
-        {mapView === 'projects' && (
-          <ProjectsView projects={projects} onItemClick={onItemClick} />
-        )}
-        {mapView === 'requirements' && (
-          <RequirementsView requirements={requirements} onItemClick={onItemClick} />
-        )}
-      </div>
+      {viewMode === 'map' ? (
+        <GoogleMapView
+          myProperties={myProperties}
+          projects={projects}
+          requirements={requirements}
+          userLocation={userLocation}
+          onMarkerClick={onItemClick}
+        />
+      ) : (
+        <div className="map-content">
+          {mapView === 'properties' && (
+            <PropertiesView properties={myProperties} onItemClick={onItemClick} />
+          )}
+          {mapView === 'projects' && (
+            <ProjectsView projects={projects} onItemClick={onItemClick} />
+          )}
+          {mapView === 'requirements' && (
+            <RequirementsView requirements={requirements} onItemClick={onItemClick} />
+          )}
+        </div>
+      )}
     </div>
   );
 };
