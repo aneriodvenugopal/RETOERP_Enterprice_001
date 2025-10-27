@@ -1,17 +1,9 @@
 /* eslint-disable no-restricted-globals */
 
-const CACHE_NAME = 'retoerp-pwa-v1';
+const CACHE_NAME = 'retoerp-pwa-v2';
 const urlsToCache = [
   '/',
-  '/pwa/login',
-  '/pwa/dashboard',
-  '/pwa/notifications',
-  '/pwa/profile',
-  '/static/css/main.css',
-  '/static/js/main.js',
-  '/manifest.json',
-  '/icons/icon-192x192.png',
-  '/icons/icon-512x512.png'
+  '/manifest.json'
 ];
 
 // Install Service Worker
@@ -22,7 +14,15 @@ self.addEventListener('install', (event) => {
     caches.open(CACHE_NAME)
       .then((cache) => {
         console.log('[Service Worker] Caching app shell');
-        return cache.addAll(urlsToCache);
+        // Cache files individually to avoid blocking installation
+        return Promise.allSettled(
+          urlsToCache.map(url => 
+            cache.add(url).catch(err => {
+              console.warn('[Service Worker] Failed to cache:', url, err);
+              return null;
+            })
+          )
+        );
       })
       .catch((error) => {
         console.error('[Service Worker] Cache failed:', error);
