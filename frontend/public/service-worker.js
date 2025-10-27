@@ -54,17 +54,26 @@ self.addEventListener('activate', (event) => {
 
 // Fetch Strategy: Network First, fallback to Cache
 self.addEventListener('fetch', (event) => {
+  // Skip caching for API calls and chrome-extension
+  if (event.request.url.includes('/api/') || 
+      event.request.url.startsWith('chrome-extension://') ||
+      event.request.method !== 'GET') {
+    return;
+  }
+  
   event.respondWith(
     fetch(event.request)
       .then((response) => {
-        // Clone the response
-        const responseToCache = response.clone();
-        
-        // Cache the fetched response
-        caches.open(CACHE_NAME)
-          .then((cache) => {
-            cache.put(event.request, responseToCache);
-          });
+        // Only cache successful responses
+        if (response && response.status === 200 && response.type === 'basic') {
+          const responseToCache = response.clone();
+          
+          caches.open(CACHE_NAME)
+            .then((cache) => {
+              cache.put(event.request, responseToCache);
+            })
+            .catch(err => console.warn('[Service Worker] Cache put failed:', err));
+        }
         
         return response;
       })
@@ -72,12 +81,7 @@ self.addEventListener('fetch', (event) => {
         // Network failed, try cache
         return caches.match(event.request)
           .then((response) => {
-            if (response) {
-              return response;
-            }
-            
-            // Return offline page if available
-            return caches.match('/pwa/offline');
+            return response || new Response('Offline', { status: 503 });
           });
       })
   );
