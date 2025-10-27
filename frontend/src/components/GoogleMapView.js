@@ -313,6 +313,78 @@ const GoogleMapView = ({
 
   return (
     <div className="google-map-container">
+      {/* Error Display */}
+      {mapError && (
+        <div className="map-error" style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(255, 255, 255, 0.95)',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '20px',
+          zIndex: 1000,
+          textAlign: 'center'
+        }}>
+          <div style={{ maxWidth: '400px' }}>
+            <div style={{ fontSize: '48px', marginBottom: '16px' }}>🗺️</div>
+            <h3 style={{ color: '#d32f2f', marginBottom: '12px' }}>Google Maps Error</h3>
+            <p style={{ color: '#666', marginBottom: '16px', fontSize: '14px' }}>{mapError}</p>
+            
+            {mapError.includes('authentication') || mapError.includes('billing') ? (
+              <div style={{ background: '#fff3e0', padding: '16px', borderRadius: '8px', textAlign: 'left', fontSize: '13px' }}>
+                <p style={{ marginBottom: '8px', fontWeight: 'bold', color: '#f57c00' }}>⚠️ Action Required:</p>
+                <ol style={{ margin: '8px 0', paddingLeft: '20px', color: '#666' }}>
+                  <li>Go to Google Cloud Console</li>
+                  <li>Enable <strong>Billing</strong> for your project</li>
+                  <li>Add domain to API restrictions</li>
+                  <li>Refresh this page</li>
+                </ol>
+                <a 
+                  href="https://console.cloud.google.com/billing" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  style={{
+                    display: 'inline-block',
+                    marginTop: '12px',
+                    padding: '8px 16px',
+                    background: '#2196F3',
+                    color: 'white',
+                    textDecoration: 'none',
+                    borderRadius: '4px',
+                    fontSize: '13px'
+                  }}
+                >
+                  Open Google Cloud Console →
+                </a>
+                <p style={{ marginTop: '12px', fontSize: '12px', color: '#999' }}>
+                  Don't worry: Free tier includes ₹5.7L credits/month!
+                </p>
+              </div>
+            ) : (
+              <button 
+                onClick={() => window.location.reload()}
+                style={{
+                  padding: '10px 24px',
+                  background: '#4CAF50',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontSize: '14px'
+                }}
+              >
+                Retry
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Map Controls */}
       <div className="map-controls">
         <button className="map-control-btn" onClick={centerOnUser} title="మీ లొకేషన్">
@@ -343,7 +415,7 @@ const GoogleMapView = ({
       <div ref={mapRef} className="google-map" />
 
       {/* Loading State */}
-      {!map && (
+      {isLoading && !mapError && (
         <div className="map-loading">
           <MapPin size={48} color="#666" className="map-loading-icon" />
           <p>Loading map...</p>
