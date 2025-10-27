@@ -14,17 +14,46 @@ const GoogleMapView = ({
   const [markers, setMarkers] = useState([]);
   const [mapType, setMapType] = useState('roadmap'); // roadmap, satellite, hybrid
 
+  const [mapError, setMapError] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
     // Load Google Maps Script
     if (!window.google) {
       const script = document.createElement('script');
       const apiKey = process.env.REACT_APP_GOOGLE_MAPS_KEY || 'YOUR_GOOGLE_MAPS_API_KEY';
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
+      
+      if (apiKey === 'YOUR_GOOGLE_MAPS_API_KEY') {
+        setMapError('API key not configured');
+        setIsLoading(false);
+        return;
+      }
+      
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&callback=initGoogleMaps`;
       script.async = true;
       script.defer = true;
-      script.onload = initializeMap;
+      
+      // Success callback
+      window.initGoogleMaps = () => {
+        setIsLoading(false);
+        initializeMap();
+      };
+      
+      // Error callback
+      script.onerror = () => {
+        setMapError('Failed to load Google Maps. Please check your internet connection.');
+        setIsLoading(false);
+      };
+      
+      // Handle Google Maps API errors
+      window.gm_authFailure = () => {
+        setMapError('Google Maps authentication failed. Please check API key and billing settings.');
+        setIsLoading(false);
+      };
+      
       document.head.appendChild(script);
     } else {
+      setIsLoading(false);
       initializeMap();
     }
   }, []);
