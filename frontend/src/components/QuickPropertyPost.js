@@ -294,7 +294,24 @@ const QuickPropertyPost = ({ onComplete, onCancel }) => {
               <MapPin size={20} />
               <span>Share Live Location</span>
             </button>
-            <p className="location-hint">Tap to share your current location</p>
+            <button
+              className="skip-location-btn"
+              onClick={() => {
+                const defaultLocation = {
+                  latitude: null,
+                  longitude: null,
+                  address: 'To be added later'
+                };
+                setPropertyData(prev => ({ ...prev, location: defaultLocation }));
+                addUserMessage('Will add location later');
+                setTimeout(() => {
+                  completeQuickPost();
+                }, 500);
+              }}
+            >
+              Skip for now
+            </button>
+            <p className="location-hint">📍 Tap to share your current location</p>
           </div>
         );
 
