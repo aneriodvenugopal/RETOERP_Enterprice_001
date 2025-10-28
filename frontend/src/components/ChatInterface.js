@@ -351,6 +351,39 @@ const ChatInterface = ({ propertyType, transactionType, onComplete, onCancel }) 
           </div>
         );
       
+      case 'text':
+        return (
+          <div className="text-input-container">
+            <textarea
+              placeholder={step.placeholder || t('typeOrSpeak')}
+              className="text-area-input"
+              rows="4"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+            />
+            <div className="button-group">
+              {step.optional && (
+                <button
+                  className="skip-btn"
+                  onClick={() => {
+                    addUserMessage(t('skip'));
+                    handleTextInput('');
+                  }}
+                >
+                  {t('skip')}
+                </button>
+              )}
+              <button
+                className="continue-btn"
+                onClick={() => handleTextInput(inputValue)}
+                disabled={!step.optional && !inputValue.trim()}
+              >
+                {t('next')} →
+              </button>
+            </div>
+          </div>
+        );
+      
       case 'owner_contact':
         return (
           <div className="owner-contact-container">
