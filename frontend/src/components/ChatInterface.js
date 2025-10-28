@@ -166,6 +166,25 @@ const ChatInterface = ({ propertyType, transactionType, onComplete, onCancel }) 
     proceedToNextStep();
   };
 
+  const handleTextInput = (text) => {
+    const step = conversationFlow[currentStep];
+    const field = step.field;
+    
+    if (field.includes('.')) {
+      const [parent, child] = field.split('.');
+      setPropertyData(prev => ({
+        ...prev,
+        [parent]: { ...prev[parent], [child]: text }
+      }));
+    } else {
+      setPropertyData(prev => ({ ...prev, [field]: text }));
+    }
+    
+    addUserMessage(text || 'Skipped', text);
+    setInputValue('');
+    proceedToNextStep();
+  };
+
   const handleOwnerContact = (contact) => {
     setPropertyData(prev => ({ ...prev, owner_contact: contact }));
     addUserMessage(contact.name ? `Owner: ${contact.name}` : 'Skipped');
