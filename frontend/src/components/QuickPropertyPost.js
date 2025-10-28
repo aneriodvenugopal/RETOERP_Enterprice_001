@@ -137,22 +137,61 @@ const QuickPropertyPost = ({ onComplete, onCancel }) => {
 
   const handleLocationShare = () => {
     if (navigator.geolocation) {
+      addBotMessage('📍 Getting your location...');
+      
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const location = {
             latitude: position.coords.latitude,
             longitude: position.coords.longitude,
-            address: `${position.coords.latitude.toFixed(6)}, ${position.coords.longitude.toFixed(6)}`
+            address: `Lat: ${position.coords.latitude.toFixed(6)}, Lng: ${position.coords.longitude.toFixed(6)}`
           };
           
           setPropertyData(prev => ({ ...prev, location }));
-          addUserMessage(`📍 Location shared`);
-          proceedToNextStep();
+          addUserMessage(`📍 Location shared: ${location.address}`);
+          
+          // Complete after location
+          setTimeout(() => {
+            completeQuickPost();
+          }, 500);
         },
         (error) => {
-          alert('Please enable location access to continue');
+          console.error('Location error:', error);
+          addBotMessage('⚠️ Could not get location. You can add it later.');
+          
+          // Allow proceeding without location
+          const defaultLocation = {
+            latitude: null,
+            longitude: null,
+            address: 'Location not shared'
+          };
+          setPropertyData(prev => ({ ...prev, location: defaultLocation }));
+          addUserMessage('Skipped location');
+          
+          setTimeout(() => {
+            completeQuickPost();
+          }, 500);
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
         }
       );
+    } else {
+      alert('Geolocation is not supported by your browser');
+      // Allow skip
+      const defaultLocation = {
+        latitude: null,
+        longitude: null,
+        address: 'Location not available'
+      };
+      setPropertyData(prev => ({ ...prev, location: defaultLocation }));
+      addUserMessage('Location not available');
+      
+      setTimeout(() => {
+        completeQuickPost();
+      }, 500);
     }
   };
 
