@@ -173,7 +173,7 @@ const IncomeLandsApp = () => {
   // Handle property save after edit
   const handlePropertySave = async (updatedProperty) => {
     setLoading(true);
-    try => {
+    try {
       // TODO: Call backend API to update property
       const response = await fetch(`${API_URL}/api/incomelands/properties/${updatedProperty.id}`, {
         method: 'PUT',
