@@ -1,66 +1,89 @@
 <analysis>
-The trajectory details the AI engineer's work on integrating RETOERP with the IncomeLands Android app. Initially, the focus was on building a robust backend marketplace API for IncomeLands, which involved creating new models, routes, seeding data, and extensive bug fixing for syntax errors. Once the APIs were stable, the AI provided testing tools (shell script, interactive HTML, guide). The user then requested an IncomeLands Admin Dashboard within RETOERP, which the AI developed, fixing several frontend import and export issues along the way. A key pivot occurred when the user expressed interest in an Instagram-like mobile app. The AI clarified environment limitations (only React Web/PWA, not React Native) and, after an initial misstep focusing on Instagram features, reverted to building a mobile-first web app simulation of IncomeLands with its core functionalities. The conversation also extensively covered the potential to sell implemented modules on CodeCanyon, including detailed revenue projections and strategies. The latest tasks involve completing pending IncomeLands app features and integrating Google Maps for property display.
+The trajectory details the AI engineer's work across the RETOERP and IncomeLands applications. It began with an environment setup and initial project context. The first task addressed was a critical ServiceWorker error on the frontend, which was successfully debugged and resolved by updating caching strategies in . Concurrently, efforts were made to integrate Google Maps into the IncomeLands mobile-first web app, including researching API costs and enabling guides in multiple languages. The Google Maps API key was added, but the IncomeLands app itself failed to render correctly, often displaying the main RETOERP homepage or an outdated version, leading to user frustration about wasted credits.
+
+Parallel to this, the engineer gathered credentials for MSG91 integration, successfully added the Auth Key, and provided whitelisting information. Despite significant efforts to build the IncomeLands app's frontend components (chat interface, multi-language, authentication, property posting UI) and backend APIs (, ), the core issue of the app not loading or showing the correct state persisted, primarily attributed to caching problems. The user expressed disappointment, leading to a pivot. The latest explicit requests from the user are now focused on enhancing the RETOERP Free AI Advisory system, including renaming, adding location-based analysis, improving price input, addressing loading times, and enhancing form fields.
 </analysis>
 
 <product_requirements>
-RETOERP is a multi-tenant Real Estate Automation Software for the Indian market, designed to prevent lead leakage and manage real estate operations. Key features include password-first login, role-based permissions, CRM, booking, commission rules, multi-language/currency support, and a referral system. Recent additions encompassed a SaaS Admin Dashboard for tenant/package management, an AI-Powered Chatbot for lead capture, and a multi-domain strategy for public tenant/project pages.
+RETOERP is a multi-tenant Real Estate Automation Software for the Indian market, aiming to prevent lead leakage and manage real estate operations. It features password-first login, role-based permissions, CRM, booking, commission rules, multi-language/currency support, a referral system, a SaaS Admin Dashboard, and an AI-Powered Chatbot. The primary goal is integrating RETOERP with the IncomeLands Android app, an ecosystem for village agents to view verified projects, post properties, and for direct customers to post requirements. Monetization is a freemium model.
 
-The primary goal is integrating RETOERP with the existing IncomeLands Android app, a pocket diary for village agents. The unified vision creates an ecosystem where RETOERP developers list projects for IncomeLands agents (50,000+ network), agents view verified projects, and direct customers post requirements. Monetization involves a freemium model (6 months free, credits, ₹99/month, ₹10/contact unlock) and transparent commission automation. The latest focus is on developing the IncomeLands app, initially as a mobile-first web app (PWA) simulation, with features like map view, property listings, camera, voice notes, credits system, and AI matching.
+The current focus is on developing the IncomeLands mobile-first web app (PWA) simulation. Key features include:
+- WhatsApp-style property posting with step-by-step bot questions and voice input for descriptions.
+- Location auto-suggest with interactive Google Maps, adjustable pins, and distance filters.
+- Tri-lingual support (Telugu, Hindi, English).
+- Property types: Lands (default, with Acres+Guntas units), Plot (Sq.Yards), Flat/Villa (Sq.Feet), Farm Plot, Farm Lands.
+- Authentication: OTP/password-based, persistent session, profile updates.
+- Contact unlock system: 20 free credits, 10 per unlock; RETOERP venture properties are free but tracked.
+- Property display: Properties for Sale, New Projects, and Requirements tabs on the map.
+- Offline capability, performance optimization, UI/UX improvements.
+- AI-powered features: Voice Assistant, Buyer-Seller Matcher, Price Prediction, Document Scanner, Follow-up Assistant.
+
+New requirements for RETOERP's AI Advisory:
+- Rename Free AI Advisory to Free 24 x 7 Expert Advisory.
+- Add location-wise real estate analysis with description and minimum fields.
+- Improve price input fields to use thousand, lakhs, crores instead of many zeros.
+- Enhance loading time, show Our Expert team working on it message, and capture user details during loading.
+- Fix advisory boxes not loading consistently after a back click.
+- Ensure 24 x 7 Expert Advisory mention throughout the website.
+- Add optional requirement description fields to advisory forms.
 </product_requirements>
 
 <key_technical_concepts>
--   **Full-stack**: React (Frontend), FastAPI (Python Backend), MongoDB (Database).
--   **Mobile Integration**: REST APIs for IncomeLands (Laravel/MySQL backend).
--   **AI/LLM**: OpenAI GPT-5 (via Emergent LLM Key) for Chatbot.
--   **Authentication**: JWT, OTP, password-based login, role-based access control.
--   **UI/UX**: Tailwind CSS, Google Maps API, mobile-first design, PWA features.
--   **Data Handling**: Pydantic, UUIDs for MongoDB IDs.
+- **Full-stack**: React (Frontend), FastAPI (Python Backend), MongoDB (Database).
+- **Mobile Integration**: REST APIs, PWA, mobile-first design.
+- **AI/LLM**: OpenAI GPT-5 (via Emergent LLM Key) for Chatbot, voice input.
+- **Authentication**: JWT, OTP, password-based login.
+- **UI/UX**: Tailwind CSS, Google Maps API, multi-language (i18n), WhatsApp-style chat UI.
+- **Cloud Infrastructure**: Kubernetes container environment, supervisor for service control.
 </key_technical_concepts>
 
 <code_architecture>
-api/app/backend/models/marketplace.pyAgentProfileBuyerRequirementMarketplaceLeadAgentCommissionPropertyContactUnlock/app/backend/routes/marketplace.py/app/backend/server.pymarketplace.router/app/backend/scripts/seed_incomelands_categories.py/app/frontend/public/incomelands-tester.html/app/test_incomelands_apis.sh/app/INCOMELANDS_TESTING_GUIDE.md/app/frontend/src/pages/admin/IncomeLandsAdminDashboard.js/app/frontend/src/App.js/admin/incomelands/incomelands/app/frontend/src/pages/Dashboard.jsIncomeLandsAdminDashboard/app/frontend/src/services/index.jsapi/app/INCOMELANDS_TELUGU_GUIDE.md/app/frontend/src/pages/mobile/IncomeLandsApp.js/app/frontend/src/pages/mobile/IncomeLandsApp.cssIncomeLandsApp.js/app/INCOMELANDS_IMPLEMENTATION_STATUS.md/app/frontend/src/components/Toast.js/app/frontend/src/components/Toast.css/app/frontend/src/components/GoogleMapView.js/app/frontend/src/components/GoogleMapView.css/app/GOOGLE_MAPS_SETUP.md/app/INCOMELANDS_PENDING_FEATURES.md
+
+
+- ****: Critical for PWA capabilities. Modified to handle pre-caching errors more robustly and avoid caching API calls.
+- ****: Stores environment variables. Modified to include .
+- ****: Stores backend environment variables. Modified to include .
+- ****: Defines Pydantic models for the new IncomeLands property data structure.
+- ****: Contains FastAPI endpoints for managing IncomeLands properties.
+- ****: Main FastAPI app, modified to register the new .
+- ****: Main routing file. Updated to include the  route for the mobile app.
+- ****: Component for integrating Google Maps. Modified to use the API key from environment variables and include improved error handling.
+- ****: The core IncomeLands mobile web app component. Underwent multiple iterations for feature implementation (map view, multi-language, auth state) and debugging of rendering issues.
+- ****: New file for managing multi-language translations within the frontend.
+- ****: New utility for handling diverse Indian real estate unit conversions.
+- **New  files**: , , , ,  were created to implement specific UI elements and feature flows for the IncomeLands app.
 </code_architecture>
 
 <pending_tasks>
--   Provide VAPID Key for Firebase Web Push Certificates.
--   Provide Firebase Service Account JSON file for backend Firebase Admin SDK.
--   Configure MSG91 credentials (Auth Key, Sender ID, KYC) for SMS notifications.
--   Implement dynamic website on tenant's domain / plugin integration.
--   Complete Free AI Advisory System.
--   Complete Content Viral Sharing & Rewards System.
--   Implement full ERP modules (Finance, HR, Payroll, Procurement, Asset Management).
--   Advanced Chatbot Features (Video sharing, scheduling, WhatsApp integration).
--   Complete IncomeLands Credits System development.
--   Enhance offline capability for IncomeLands.
--   Performance optimization for IncomeLands.
--   Implement robust onboarding and improve UI/UX for IncomeLands.
--   AI-powered features for IncomeLands (Voice Assistant, Buyer-Seller Matcher, Price Prediction, Document Scanner, Follow-up Assistant, AI Matching Engine).
--   Implement Dual Map View with Properties for Sale, New Projects, and Requirements tabs in IncomeLands.
--   Implement Escrow or Smart Contract system for commission automation.
--   Migrate IncomeLands backend to cloud.
--   Develop RETOERP API endpoints for marketplace (remaining portions).
--   Build IncomeLands backend integration layer (remaining portions).
--   Develop new features in IncomeLands app (remaining portions, including camera, voice notes, credits).
--   Implement real-time sync (WebSockets) and push notifications for new projects/matches.
--   Add Google Maps API key.
+- Complete Free AI Advisory System.
+- Complete Content Viral Sharing & Rewards System.
+- Implement full ERP modules (Finance, HR, Payroll, Procurement, Asset Management).
+- Advanced Chatbot Features (Video sharing, scheduling, WhatsApp integration).
+- Enhance offline capability for IncomeLands.
+- Performance optimization for IncomeLands.
+- Implement robust onboarding and improve UI/UX for IncomeLands.
+- AI-powered features for IncomeLands (Voice Assistant, Buyer-Seller Matcher, Price Prediction, Document Scanner, Follow-up Assistant, AI Matching Engine).
+- Implement Dual Map View with Properties for Sale, New Projects, and Requirements tabs in IncomeLands.
+- Implement Escrow or Smart Contract system for commission automation.
+- Migrate IncomeLands backend to cloud.
+- Develop RETOERP API endpoints for marketplace (remaining portions).
+- Build IncomeLands backend integration layer (remaining portions).
+- Implement real-time sync (WebSockets) and push notifications for new projects/matches.
+- Integrate MSG91 Sender IDs and DLT Template IDs.
+- Fix IncomeLands mobile app not rendering the correct login screen or latest version.
+- Implement RETOERP AI Advisory improvements (rename, location-wise analysis, price field, loading time, form fields).
 </pending_tasks>
 
 <current_work>
-Immediately before this summary, the AI engineer was actively developing the **IncomeLands Partner by RETOERP mobile-first web app (PWA)** in React. This was a response to the user's request to complete it and inform me I want to see incomelands app with all improvements after discussions about the technical feasibility of directly modifying the Android app.
+Immediately before this summary request, the AI engineer was actively working on the **IncomeLands Partner by RETOERP mobile-first web app (PWA)**, focusing on building its core features as per the user's detailed requirements (WhatsApp-style chat interface, multi-language support, authentication flows, property posting, map integration).
 
-The AI acknowledged an initial misdirection towards Instagram features and pivoted to building out the actual IncomeLands features for village agents. The current work involves implementing the core functionalities of the IncomeLands app within this PWA.
+Despite numerous code modifications to , , and the creation of several new frontend components (e.g., , , , , ), the IncomeLands app was consistently failing to render correctly. The user reported it showing the main RETOERP home page, or an outdated cached version of the IncomeLands app, instead of the intended login screen or the latest changes. Troubleshooting efforts pointed towards browser caching issues and initial authentication state defaulting to 'logged in' in .
 
-Specific recent actions include:
-1.  **Re-creating and refining  and ** to correctly focus on IncomeLands features like map view and navigation.
-2.  **Creating ** to track remaining features for the IncomeLands app.
-3.  **Developing reusable UI components**:  and  for notifications.
-4.  **Integrating Google Maps**: Creating  and  components and updating  to utilize them for displaying properties, projects, and requirements.
-5.  **Documenting Google Maps setup**:  for API key instructions.
+The Google Maps API key was successfully integrated into  and , but its functionality within the  could not be fully verified due to the persistent rendering problems.
 
-The product is currently in a state where the core structure of the IncomeLands mobile web app is built, with map view integration underway. The immediate next requirement is to populate the map with buying/selling properties.
+Due to the continuous issues with the IncomeLands app's display and user dissatisfaction, the user has now pivoted to a new set of tasks: improving the existing **RETOERP Free AI Advisory system**. The AI engineer has just acknowledged these new requests and created a document () to plan for these changes.
 </current_work>
 
 <optional_next_step>
-Integrate the Google Maps API key and populate the map in  with properties, projects, and requirements.
+Address the requested improvements for the RETOERP Free AI Advisory system as outlined in .
 </optional_next_step>
-

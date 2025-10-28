@@ -184,7 +184,7 @@
 
    **మొదటి referrer:**
    ```
-   https://realfusion-1.preview.emergentagent.com/*
+   https://retoerp-advisory.preview.emergentagent.com/*
    ```
    - Paste చేసి Enter నొక్కండి
 
