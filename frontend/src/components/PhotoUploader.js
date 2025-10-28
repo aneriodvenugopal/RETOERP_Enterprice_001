@@ -125,7 +125,7 @@ const PhotoUploader = ({ onPhotosChange, maxPhotos = 10 }) => {
           className="upload-btn gallery-btn"
           disabled={uploading || photos.length >= maxPhotos}
         >
-          <Image size={20} />
+          <ImageIcon size={20} />
           <span>Gallery</span>
         </button>
       </div>
