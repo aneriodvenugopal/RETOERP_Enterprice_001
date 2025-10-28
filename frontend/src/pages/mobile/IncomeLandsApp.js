@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { MapPin, Plus, Heart, User, Search, Filter, X } from 'lucide-react';
 import AuthScreen from '../../components/AuthScreen';
 import ChatInterface from '../../components/ChatInterface';
+import PropertySuccessScreen from '../../components/PropertySuccessScreen';
 import GoogleMapView from '../../components/GoogleMapView';
 import { useLanguage } from '../../i18n/translations';
 import './IncomeLandsApp.css';
@@ -32,6 +33,8 @@ const IncomeLandsApp = () => {
   // Navigation state
   const [activeTab, setActiveTab] = useState('home');
   const [showChat, setShowChat] = useState(false);
+  const [showSuccessScreen, setShowSuccessScreen] = useState(false);
+  const [newlyCreatedProperty, setNewlyCreatedProperty] = useState(null);
   const [selectedProperty, setSelectedProperty] = useState(null);
   const [showPropertyDetail, setShowPropertyDetail] = useState(false);
   
