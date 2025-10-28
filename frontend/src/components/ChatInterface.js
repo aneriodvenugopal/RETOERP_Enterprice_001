@@ -77,6 +77,14 @@ const ChatInterface = ({ propertyType, transactionType, onComplete, onCancel }) 
       field: 'details.facing'
     },
     {
+      id: 'additional_info',
+      bot: t('additionalInfo'),
+      type: 'text',
+      field: 'details.additional_info',
+      placeholder: t('additionalInfoPlaceholder'),
+      optional: true
+    },
+    {
       id: 'photos',
       bot: t('addPhotos'),
       type: 'photos',
