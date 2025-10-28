@@ -246,6 +246,24 @@
   transform: scale(0.98);
 }
 
+.skip-location-btn {
+  width: 100%;
+  padding: 12px;
+  background: white;
+  color: #666;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.skip-location-btn:active {
+  transform: scale(0.98);
+  background: #f5f5f5;
+}
+
 .location-hint {
   text-align: center;
   font-size: 13px;
