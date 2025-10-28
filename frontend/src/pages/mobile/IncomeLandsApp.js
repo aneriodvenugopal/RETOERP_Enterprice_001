@@ -44,9 +44,6 @@ const IncomeLandsApp = () => {
   const [followupContacts, setFollowupContacts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [credits, setCredits] = useState(20);
-  const [favorites, setFavorites] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [credits, setCredits] = useState(20);
   
   // Filter state
   const [showFilters, setShowFilters] = useState(false);
