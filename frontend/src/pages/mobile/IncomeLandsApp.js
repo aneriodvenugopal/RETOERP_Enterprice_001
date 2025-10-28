@@ -461,6 +461,8 @@ const IncomeLandsApp = () => {
               <button>Language: {language}</button>
               <button>Settings</button>
               <button onClick={() => {
+                localStorage.removeItem('incomelands_user');
+                localStorage.removeItem('incomelands_token');
                 setIsAuthenticated(false);
                 setUser(null);
                 setToken(null);
