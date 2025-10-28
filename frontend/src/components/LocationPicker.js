@@ -235,8 +235,178 @@ const LocationPicker = ({ onLocationSelect, initialLocation = null }) => {
     }
   };
 
+  const handleManualLocationSubmit = () => {
+    const lat = parseFloat(manualCoords.lat);
+    const lng = parseFloat(manualCoords.lng);
+
+    if (isNaN(lat) || isNaN(lng)) {
+      alert('Please enter valid coordinates');
+      return;
+    }
+
+    if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+      alert('Invalid coordinates range');
+      return;
+    }
+
+    setMapCenter({ lat, lng });
+    setShowMap(true);
+    setShowManualEntry(false);
+
+    // Reverse geocode if possible
+    if (geocoder.current) {
+      geocoder.current.geocode(
+        { location: { lat, lng } },
+        (results, status) => {
+          if (status === 'OK' && results[0]) {
+            const locationData = {
+              address: results[0].formatted_address,
+              latitude: lat,
+              longitude: lng,
+              placeId: results[0].place_id
+            };
+            setQuery(results[0].formatted_address);
+            setSelectedLocation(locationData);
+          } else {
+            // Fallback without address
+            const locationData = {
+              address: `${lat.toFixed(6)}, ${lng.toFixed(6)}`,
+              latitude: lat,
+              longitude: lng,
+              placeId: null
+            };
+            setQuery(locationData.address);
+            setSelectedLocation(locationData);
+          }
+        }
+      );
+    } else {
+      const locationData = {
+        address: `${lat.toFixed(6)}, ${lng.toFixed(6)}`,
+        latitude: lat,
+        longitude: lng,
+        placeId: null
+      };
+      setQuery(locationData.address);
+      setSelectedLocation(locationData);
+    }
+  };
+
   return (
     <div className="location-picker">
+      {/* Google Maps Error Display */}
+      {googleMapsError && (
+        <div style={{
+          background: '#fff3cd',
+          border: '1px solid #ffc107',
+          borderRadius: '8px',
+          padding: '12px',
+          marginBottom: '12px',
+          fontSize: '13px'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
+            <AlertCircle size={18} color="#f57c00" style={{ marginRight: '8px' }} />
+            <strong style={{ color: '#f57c00' }}>Google Maps Error</strong>
+          </div>
+          <p style={{ margin: '4px 0', color: '#666' }}>{googleMapsError}</p>
+          {googleMapsError.includes('Billing') || googleMapsError.includes('authentication') ? (
+            <div style={{ marginTop: '8px', fontSize: '12px', color: '#666' }}>
+              <p><strong>Action Required:</strong></p>
+              <ol style={{ margin: '8px 0', paddingLeft: '20px' }}>
+                <li>Go to <a href="https://console.cloud.google.com/billing" target="_blank" rel="noopener noreferrer" style={{ color: '#2196F3' }}>Google Cloud Console</a></li>
+                <li>Enable Billing for your project</li>
+                <li>Enable Places API & Maps JavaScript API</li>
+                <li>Refresh this page</li>
+              </ol>
+            </div>
+          ) : null}
+          <button
+            onClick={() => setShowManualEntry(!showManualEntry)}
+            style={{
+              marginTop: '8px',
+              padding: '6px 12px',
+              background: '#4CAF50',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontSize: '12px'
+            }}
+          >
+            {showManualEntry ? 'Hide Manual Entry' : 'Enter Coordinates Manually'}
+          </button>
+        </div>
+      )}
+
+      {/* Loading State */}
+      {isLoadingMaps && (
+        <div style={{ textAlign: 'center', padding: '20px', color: '#666' }}>
+          <div style={{ fontSize: '24px', marginBottom: '8px' }}>🗺️</div>
+          <p>Loading Google Maps...</p>
+        </div>
+      )}
+
+      {/* Manual Coordinates Entry */}
+      {showManualEntry && (
+        <div style={{
+          background: '#f5f5f5',
+          border: '1px solid #ddd',
+          borderRadius: '8px',
+          padding: '12px',
+          marginBottom: '12px'
+        }}>
+          <h4 style={{ margin: '0 0 8px', fontSize: '14px' }}>Enter Coordinates Manually</h4>
+          <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+            <input
+              type="number"
+              step="0.000001"
+              placeholder="Latitude (e.g., 17.385)"
+              value={manualCoords.lat}
+              onChange={(e) => setManualCoords(prev => ({ ...prev, lat: e.target.value }))}
+              style={{
+                flex: 1,
+                padding: '8px',
+                border: '1px solid #ddd',
+                borderRadius: '4px',
+                fontSize: '13px'
+              }}
+            />
+            <input
+              type="number"
+              step="0.000001"
+              placeholder="Longitude (e.g., 78.486)"
+              value={manualCoords.lng}
+              onChange={(e) => setManualCoords(prev => ({ ...prev, lng: e.target.value }))}
+              style={{
+                flex: 1,
+                padding: '8px',
+                border: '1px solid #ddd',
+                borderRadius: '4px',
+                fontSize: '13px'
+              }}
+            />
+          </div>
+          <button
+            onClick={handleManualLocationSubmit}
+            style={{
+              width: '100%',
+              padding: '8px',
+              background: '#4CAF50',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontSize: '13px'
+            }}
+          >
+            Set Location
+          </button>
+          <p style={{ margin: '8px 0 0', fontSize: '11px', color: '#666' }}>
+            💡 Tip: You can get coordinates from Google Maps by right-clicking on a location
+          </p>
+        </div>
+      )}
+
       <div className="location-search">
         <div className="search-input-container">
           <Search size={18} className="search-icon" />
@@ -246,16 +416,24 @@ const LocationPicker = ({ onLocationSelect, initialLocation = null }) => {
             onChange={handleQueryChange}
             placeholder="Search location..."
             className="location-input"
+            disabled={!isGoogleMapsLoaded || isLoadingMaps}
           />
           <button
             type="button"
             onClick={handleGetCurrentLocation}
             className="current-location-btn"
             title="Use current location"
+            disabled={isLoadingMaps}
           >
             <Navigation size={18} />
           </button>
         </div>
+
+        {!isGoogleMapsLoaded && !googleMapsError && !isLoadingMaps && (
+          <div style={{ padding: '8px', fontSize: '12px', color: '#999', textAlign: 'center' }}>
+            Search will be available once Google Maps loads
+          </div>
+        )}
 
         {suggestions.length > 0 && (
           <div className="location-suggestions">
