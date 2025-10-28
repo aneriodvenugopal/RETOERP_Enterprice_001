@@ -11,10 +11,17 @@ const API_URL = process.env.REACT_APP_BACKEND_URL || '';
 const IncomeLandsApp = () => {
   const { t, language } = useLanguage();
   
-  // Auth state
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState(null);
-  const [token, setToken] = useState(null);
+  // Auth state - Check localStorage for existing session
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return localStorage.getItem('incomelands_token') ? true : false;
+  });
+  const [user, setUser] = useState(() => {
+    const savedUser = localStorage.getItem('incomelands_user');
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
+  const [token, setToken] = useState(() => {
+    return localStorage.getItem('incomelands_token') || null;
+  });
   
   // Navigation state
   const [activeTab, setActiveTab] = useState('home');
