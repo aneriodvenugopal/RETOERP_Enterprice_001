@@ -81,7 +81,16 @@ export const translations = {
     submit: 'సమర్పించు',
     next: 'తదుపరి',
     back: 'వెనుకకు',
-    done: 'పూర్తయింది'
+    done: 'పూర్తయింది',
+    additionalInfo: 'అదనపు సమాచారం (ఐచ్ఛికం)',
+    additionalInfoPlaceholder: 'ఉదా: రోడ్డు, నీరు, కరెంటు, దగ్గరలో పాఠశాలలు, అభివృద్ధి, మొదలైనవి...',
+    propertyPostedSuccess: '🎉 మీ ప్రాపర్టీ విజయవంతంగా పోస్ట్ చేయబడింది!',
+    yourPropertyIsLive: 'మీ ప్రాపర్టీ ఇప్పుడు లైవ్‌గా ఉంది',
+    viewProperty: 'ప్రాపర్టీ చూడండి',
+    editProperty: 'సవరించండి',
+    addMoreDetails: 'మరిన్ని వివరాలు జోడించండి',
+    upgradeToAddMore: '📄 డాక్యుమెంట్స్, వీడియోలు, ఆడియో జోడించడానికి అప్‌గ్రేడ్ చేయండి',
+    premiumFeatures: 'ప్రీమియం ఫీచర్లు'
   },
   
   hindi: {
