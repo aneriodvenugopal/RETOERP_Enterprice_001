@@ -464,7 +464,44 @@ const IncomeLandsApp = () => {
             
             <div className="profile-menu">
               <button onClick={fetchMyProperties}>My Properties</button>
-              <button>Language: {language}</button>
+              
+              {/* Language Selector */}
+              <div style={{ 
+                padding: '12px 16px', 
+                background: '#f5f5f5', 
+                borderRadius: '8px', 
+                marginBottom: '8px' 
+              }}>
+                <div style={{ fontSize: '14px', color: '#666', marginBottom: '8px' }}>
+                  Language / భాష / भाषा
+                </div>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  {['telugu', 'hindi', 'english'].map((lang) => (
+                    <button
+                      key={lang}
+                      onClick={() => {
+                        const { changeLanguage } = useLanguage();
+                        changeLanguage(lang);
+                        window.location.reload(); // Reload to apply language changes
+                      }}
+                      style={{
+                        flex: 1,
+                        padding: '8px',
+                        background: language === lang ? '#4CAF50' : 'white',
+                        color: language === lang ? 'white' : '#333',
+                        border: '1px solid #ddd',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        fontSize: '13px',
+                        fontWeight: language === lang ? '600' : '400'
+                      }}
+                    >
+                      {lang === 'telugu' ? 'తెలుగు' : lang === 'hindi' ? 'हिंदी' : 'English'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              
               <button>Settings</button>
               <button onClick={() => {
                 localStorage.removeItem('incomelands_user');
