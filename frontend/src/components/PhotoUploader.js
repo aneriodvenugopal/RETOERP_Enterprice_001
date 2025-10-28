@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Camera, Image, X, Loader } from 'lucide-react';
+import { Camera, Image as ImageIcon, X, Loader } from 'lucide-react';
 import './PhotoUploader.css';
 
 const PhotoUploader = ({ onPhotosChange, maxPhotos = 10 }) => {
@@ -12,7 +12,7 @@ const PhotoUploader = ({ onPhotosChange, maxPhotos = 10 }) => {
     return new Promise((resolve) => {
       const reader = new FileReader();
       reader.onload = (e) => {
-        const img = new Image();
+        const img = new window.Image();
         img.onload = () => {
           const canvas = document.createElement('canvas');
           let width = img.width;
