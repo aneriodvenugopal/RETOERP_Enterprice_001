@@ -173,7 +173,15 @@ export const translations = {
     submit: 'जमा करें',
     next: 'अगला',
     back: 'पीछे',
-    done: 'पूर्ण'
+    done: 'पूर्ण',
+    additionalInfo: 'अतिरिक्त जानकारी (वैकल्पिक)',
+    additionalInfoPlaceholder: 'उदा: सड़क, पानी, बिजली, पास के स्कूल, विकास, आदि...',
+    propertyPostedSuccess: '🎉 आपकी संपत्ति सफलतापूर्वक पोस्ट की गई!',
+    yourPropertyIsLive: 'आपकी संपत्ति अब लाइव है',
+    editProperty: 'संपत्ति संपादित करें',
+    addMoreDetails: 'अधिक विवरण जोड़ें',
+    upgradeToAddMore: '📄 दस्तावेज़, वीडियो, ऑडियो जोड़ने के लिए अपग्रेड करें',
+    premiumFeatures: 'प्रीमियम सुविधाएं'
   },
   
   english: {
