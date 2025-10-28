@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { MapPin, Plus, Heart, User, Search, Filter, X } from 'lucide-react';
 import AuthScreen from '../../components/AuthScreen';
+import IncomeLandsDashboard from '../../components/IncomeLandsDashboard';
+import QuickPropertyPost from '../../components/QuickPropertyPost';
 import ChatInterface from '../../components/ChatInterface';
 import PropertySuccessScreen from '../../components/PropertySuccessScreen';
 import GoogleMapView from '../../components/GoogleMapView';
@@ -31,16 +33,17 @@ const IncomeLandsApp = () => {
   }, []);
   
   // Navigation state
-  const [activeTab, setActiveTab] = useState('home');
-  const [showChat, setShowChat] = useState(false);
+  const [currentView, setCurrentView] = useState('dashboard'); // dashboard, quick-post, post-property, search, etc.
   const [showSuccessScreen, setShowSuccessScreen] = useState(false);
   const [newlyCreatedProperty, setNewlyCreatedProperty] = useState(null);
-  const [selectedProperty, setSelectedProperty] = useState(null);
-  const [showPropertyDetail, setShowPropertyDetail] = useState(false);
   
   // Data state
   const [properties, setProperties] = useState([]);
   const [myProperties, setMyProperties] = useState([]);
+  const [favourites, setFavourites] = useState([]);
+  const [followupContacts, setFollowupContacts] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [credits, setCredits] = useState(20);
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(false);
   const [credits, setCredits] = useState(20);
