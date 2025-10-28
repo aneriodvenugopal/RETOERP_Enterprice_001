@@ -34,9 +34,10 @@ const IncomeLandsApp = () => {
   }, []);
   
   // Navigation state
-  const [currentView, setCurrentView] = useState('dashboard'); // dashboard, quick-post, post-property, search, etc.
+  const [currentView, setCurrentView] = useState('dashboard'); // dashboard, quick-post, edit-property, etc.
   const [showSuccessScreen, setShowSuccessScreen] = useState(false);
   const [newlyCreatedProperty, setNewlyCreatedProperty] = useState(null);
+  const [propertyToEdit, setPropertyToEdit] = useState(null);
   
   // Data state
   const [properties, setProperties] = useState([]);
