@@ -335,7 +335,7 @@ const IncomeLandsApp = () => {
         property={newlyCreatedProperty}
         onEdit={() => {
           setShowSuccessScreen(false);
-          setCurrentView('my-properties');
+          handlePropertyEdit(newlyCreatedProperty);
         }}
         onViewProperty={() => {
           setShowSuccessScreen(false);
@@ -352,6 +352,21 @@ const IncomeLandsApp = () => {
           setNewlyCreatedProperty(null);
           setCurrentView('dashboard');
         }}
+      />
+    );
+  }
+
+  // Show Property Edit screen
+  if (currentView === 'edit-property' && propertyToEdit) {
+    return (
+      <PropertyEdit
+        property={propertyToEdit}
+        onSave={handlePropertySave}
+        onCancel={() => {
+          setCurrentView('dashboard');
+          setPropertyToEdit(null);
+        }}
+        isPremium={false} // TODO: Check if user has premium
       />
     );
   }
