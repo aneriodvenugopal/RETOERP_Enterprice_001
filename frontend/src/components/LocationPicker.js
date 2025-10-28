@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { MapPin, Search, Navigation } from 'lucide-react';
+import { MapPin, Search, Navigation, AlertCircle } from 'lucide-react';
 import './LocationPicker.css';
 
 const LocationPicker = ({ onLocationSelect, initialLocation = null }) => {
@@ -8,19 +8,73 @@ const LocationPicker = ({ onLocationSelect, initialLocation = null }) => {
   const [selectedLocation, setSelectedLocation] = useState(initialLocation);
   const [showMap, setShowMap] = useState(false);
   const [mapCenter, setMapCenter] = useState({ lat: 17.385, lng: 78.486 }); // Default: Hyderabad
+  const [isGoogleMapsLoaded, setIsGoogleMapsLoaded] = useState(false);
+  const [googleMapsError, setGoogleMapsError] = useState(null);
+  const [isLoadingMaps, setIsLoadingMaps] = useState(false);
   const mapRef = useRef(null);
   const markerRef = useRef(null);
   const autocompleteService = useRef(null);
   const geocoder = useRef(null);
   const debounceTimer = useRef(null);
+  const [showManualEntry, setShowManualEntry] = useState(false);
+  const [manualCoords, setManualCoords] = useState({ lat: '', lng: '' });
 
   useEffect(() => {
-    // Initialize Google services
-    if (window.google) {
-      autocompleteService.current = new window.google.maps.places.AutocompleteService();
-      geocoder.current = new window.google.maps.Geocoder();
+    // Load Google Maps if not already loaded
+    if (!window.google) {
+      loadGoogleMaps();
+    } else {
+      initializeGoogleServices();
     }
   }, []);
+
+  const loadGoogleMaps = () => {
+    setIsLoadingMaps(true);
+    const apiKey = process.env.REACT_APP_GOOGLE_MAPS_KEY;
+    
+    if (!apiKey || apiKey === 'YOUR_GOOGLE_MAPS_API_KEY') {
+      setGoogleMapsError('Google Maps API key not configured');
+      setIsLoadingMaps(false);
+      return;
+    }
+
+    const script = document.createElement('script');
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places,geocoding&callback=initGoogleMapsCallback`;
+    script.async = true;
+    script.defer = true;
+
+    window.initGoogleMapsCallback = () => {
+      setIsLoadingMaps(false);
+      setIsGoogleMapsLoaded(true);
+      initializeGoogleServices();
+    };
+
+    script.onerror = () => {
+      setIsLoadingMaps(false);
+      setGoogleMapsError('Failed to load Google Maps. Please check your internet connection.');
+    };
+
+    window.gm_authFailure = () => {
+      setIsLoadingMaps(false);
+      setGoogleMapsError('Google Maps authentication failed. Billing may not be enabled.');
+    };
+
+    document.head.appendChild(script);
+  };
+
+  const initializeGoogleServices = () => {
+    if (window.google) {
+      try {
+        autocompleteService.current = new window.google.maps.places.AutocompleteService();
+        geocoder.current = new window.google.maps.Geocoder();
+        setIsGoogleMapsLoaded(true);
+        setGoogleMapsError(null);
+      } catch (error) {
+        setGoogleMapsError('Failed to initialize Google Maps services');
+        console.error('Google Maps initialization error:', error);
+      }
+    }
+  };
 
   const handleQueryChange = (e) => {
     const value = e.target.value;
