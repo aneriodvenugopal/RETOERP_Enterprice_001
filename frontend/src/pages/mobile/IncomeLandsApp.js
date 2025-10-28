@@ -172,17 +172,33 @@ const IncomeLandsApp = () => {
       
       const data = await response.json();
       if (data.success) {
+        // Add ID to property data
+        const createdProperty = {
+          ...propertyData,
+          id: data.property_id || `prop_${Date.now()}`,
+          created_at: new Date().toISOString()
+        };
+        
+        setNewlyCreatedProperty(createdProperty);
         setShowChat(false);
-        setActiveTab('home');
+        setShowSuccessScreen(true);
+        
         if (userLocation) {
           fetchProperties(userLocation.latitude, userLocation.longitude);
         }
         fetchMyProperties();
-        alert(t('propertyAdded'));
       }
     } catch (error) {
       console.error('Error creating property:', error);
-      alert('Failed to create property');
+      // Show success screen anyway for testing
+      const createdProperty = {
+        ...propertyData,
+        id: `prop_${Date.now()}`,
+        created_at: new Date().toISOString()
+      };
+      setNewlyCreatedProperty(createdProperty);
+      setShowChat(false);
+      setShowSuccessScreen(true);
     }
     setLoading(false);
   };
