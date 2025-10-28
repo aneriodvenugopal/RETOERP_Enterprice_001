@@ -142,6 +142,10 @@ const IncomeLandsApp = () => {
     setIsAuthenticated(true);
     setToken(userData.token || 'mock_token');
     setCredits(userData.free_credits || 20);
+    
+    // Save to localStorage
+    localStorage.setItem('incomelands_user', JSON.stringify(userData));
+    localStorage.setItem('incomelands_token', userData.token || 'mock_token');
   };
 
   // Handle property creation
