@@ -263,6 +263,35 @@ const IncomeLandsApp = () => {
     return <AuthScreen onAuthSuccess={handleAuthSuccess} />;
   }
 
+  // Show success screen after property creation
+  if (showSuccessScreen && newlyCreatedProperty) {
+    return (
+      <PropertySuccessScreen
+        property={newlyCreatedProperty}
+        onEdit={() => {
+          // TODO: Implement edit functionality
+          setShowSuccessScreen(false);
+          setActiveTab('profile');
+        }}
+        onViewProperty={() => {
+          setShowSuccessScreen(false);
+          setSelectedProperty(newlyCreatedProperty);
+          setActiveTab('home');
+        }}
+        onAddAnother={() => {
+          setShowSuccessScreen(false);
+          setNewlyCreatedProperty(null);
+          setShowChat(true);
+        }}
+        onClose={() => {
+          setShowSuccessScreen(false);
+          setNewlyCreatedProperty(null);
+          setActiveTab('home');
+        }}
+      />
+    );
+  }
+
   // Show chat interface for posting property
   if (showChat) {
     return (
