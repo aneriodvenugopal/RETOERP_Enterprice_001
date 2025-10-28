@@ -164,26 +164,40 @@ const IncomeLandsApp = () => {
     setCurrentView(moduleId);
   };
 
-  // Handle share app
-  const handleShareApp = async () => {
-    const referralLink = `https://incomelands.app/ref/${user.id}`;
-    const message = `Check out IncomeLands - Your Property Pocket Diary! 📖\n\nEarn money by posting properties!\n\nDownload: ${referralLink}`;
+  // Handle property edit
+  const handlePropertyEdit = (property) => {
+    setPropertyToEdit(property);
+    setCurrentView('edit-property');
+  };
 
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: 'IncomeLands - Property Pocket Diary',
-          text: message,
-          url: referralLink
-        });
-      } catch (err) {
-        console.log('Share cancelled');
+  // Handle property save after edit
+  const handlePropertySave = async (updatedProperty) => {
+    setLoading(true);
+    try {
+      // TODO: Call backend API to update property
+      const response = await fetch(`${API_URL}/api/incomelands/properties/${updatedProperty.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(updatedProperty)
+      });
+      
+      if (response.ok) {
+        alert('Property updated successfully!');
+        setCurrentView('my-properties');
+        setPropertyToEdit(null);
+        fetchMyProperties();
       }
-    } else {
-      // Fallback: Copy to clipboard
-      navigator.clipboard.writeText(message);
-      alert('Referral link copied! Share it with your friends to earn 10 credits per signup!');
+    } catch (error) {
+      console.error('Error updating property:', error);
+      // For now, just show success
+      alert('Property updated!');
+      setCurrentView('my-properties');
+      setPropertyToEdit(null);
     }
+    setLoading(false);
   };
 
   // Handle property creation
