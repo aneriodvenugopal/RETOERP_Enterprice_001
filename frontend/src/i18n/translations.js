@@ -256,7 +256,15 @@ export const translations = {
     submit: 'Submit',
     next: 'Next',
     back: 'Back',
-    done: 'Done'
+    done: 'Done',
+    additionalInfo: 'Additional Information (Optional)',
+    additionalInfoPlaceholder: 'e.g: Road access, water, electricity, nearby schools, development, etc...',
+    propertyPostedSuccess: '🎉 Your Property Posted Successfully!',
+    yourPropertyIsLive: 'Your property is now live',
+    editProperty: 'Edit Property',
+    addMoreDetails: 'Add More Details',
+    upgradeToAddMore: '📄 Upgrade to add Documents, Videos, Audio',
+    premiumFeatures: 'Premium Features'
   }
 };
 
