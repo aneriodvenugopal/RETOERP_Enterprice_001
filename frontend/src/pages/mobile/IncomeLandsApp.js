@@ -299,40 +299,47 @@ const IncomeLandsApp = () => {
       <PropertySuccessScreen
         property={newlyCreatedProperty}
         onEdit={() => {
-          // TODO: Implement edit functionality
           setShowSuccessScreen(false);
-          setActiveTab('profile');
+          setCurrentView('my-properties');
         }}
         onViewProperty={() => {
           setShowSuccessScreen(false);
-          setSelectedProperty(newlyCreatedProperty);
-          setActiveTab('home');
+          setNewlyCreatedProperty(null);
+          setCurrentView('my-properties');
         }}
         onAddAnother={() => {
           setShowSuccessScreen(false);
           setNewlyCreatedProperty(null);
-          setShowChat(true);
+          setCurrentView('quick-post');
         }}
         onClose={() => {
           setShowSuccessScreen(false);
           setNewlyCreatedProperty(null);
-          setActiveTab('home');
+          setCurrentView('dashboard');
         }}
       />
     );
   }
 
-  // Show chat interface for posting property
-  if (showChat) {
+  // Show Quick Property Post
+  if (currentView === 'quick-post') {
     return (
-      <ChatInterface
-        propertyType="lands"
-        transactionType="sell"
+      <QuickPropertyPost
         onComplete={handlePropertyComplete}
-        onCancel={() => setShowChat(false)}
+        onCancel={() => setCurrentView('dashboard')}
       />
     );
   }
+
+  // Show main dashboard
+  return (
+    <IncomeLandsDashboard
+      user={user}
+      credits={credits}
+      onModuleClick={handleModuleClick}
+      onShareApp={handleShareApp}
+    />
+  );
 
   // Render property card
   const PropertyCard = ({ property }) => {
