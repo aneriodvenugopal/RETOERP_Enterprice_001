@@ -3,7 +3,7 @@ import {
   Zap, Home, Search, Mic, ShoppingCart, List, 
   Heart, Share2, UserPlus, HelpCircle, X 
 } from 'lucide-react';
-import { useLanguage } from '../../i18n/translations';
+import { useLanguage } from '../i18n/translations';
 import './IncomeLandsDashboard.css';
 
 const IncomeLandsDashboard = ({ user, credits, onModuleClick, onShareApp }) => {
