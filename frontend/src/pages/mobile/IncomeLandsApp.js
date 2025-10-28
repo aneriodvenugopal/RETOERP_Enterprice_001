@@ -160,6 +160,33 @@ const IncomeLandsApp = () => {
     localStorage.setItem('incomelands_token', userData.token || 'mock_token');
   };
 
+  // Handle module click from dashboard
+  const handleModuleClick = (moduleId) => {
+    setCurrentView(moduleId);
+  };
+
+  // Handle share app
+  const handleShareApp = async () => {
+    const referralLink = `https://incomelands.app/ref/${user.id}`;
+    const message = `Check out IncomeLands - Your Property Pocket Diary! 📖\n\nEarn money by posting properties!\n\nDownload: ${referralLink}`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'IncomeLands - Property Pocket Diary',
+          text: message,
+          url: referralLink
+        });
+      } catch (err) {
+        console.log('Share cancelled');
+      }
+    } else {
+      // Fallback: Copy to clipboard
+      navigator.clipboard.writeText(message);
+      alert('Referral link copied! Share it with your friends to earn 10 credits per signup!');
+    }
+  };
+
   // Handle property creation
   const handlePropertyComplete = async (propertyData) => {
     setLoading(true);
