@@ -116,6 +116,7 @@
 .area-input-container,
 .price-input-container,
 .photos-container,
+.text-input-container,
 .owner-contact-container {
   display: flex;
   flex-direction: column;
