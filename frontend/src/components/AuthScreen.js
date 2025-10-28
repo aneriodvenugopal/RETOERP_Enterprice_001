@@ -205,6 +205,28 @@ const AuthScreen = ({ onAuthSuccess }) => {
             >
               Login with OTP
             </button>
+            
+            {/* Quick Test Mode */}
+            <button
+              className="auth-btn"
+              onClick={() => {
+                onAuthSuccess({
+                  id: 'test_' + Date.now(),
+                  mobile: '9876543210',
+                  name: 'Test User',
+                  free_credits: 20,
+                  token: 'test_token_' + Date.now()
+                });
+              }}
+              style={{
+                marginTop: '16px',
+                background: '#FFA500',
+                fontSize: '13px',
+                padding: '10px'
+              }}
+            >
+              🚀 Quick Test (Skip Login)
+            </button>
           </div>
         )}
 
