@@ -3,6 +3,7 @@ import { MapPin, Plus, Heart, User, Search, Filter, X } from 'lucide-react';
 import AuthScreen from '../../components/AuthScreen';
 import IncomeLandsDashboard from '../../components/IncomeLandsDashboard';
 import QuickPropertyPost from '../../components/QuickPropertyPost';
+import PropertyEdit from '../../components/PropertyEdit';
 import ChatInterface from '../../components/ChatInterface';
 import PropertySuccessScreen from '../../components/PropertySuccessScreen';
 import GoogleMapView from '../../components/GoogleMapView';
