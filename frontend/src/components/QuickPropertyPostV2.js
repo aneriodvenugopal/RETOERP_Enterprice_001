@@ -26,41 +26,79 @@ const QuickPropertyPostV2 = ({ onComplete, onCancel }) => {
 
   const propertyTypes = getEnabledPropertyTypes();
 
-  const quickFlow = [
-    {
-      id: 'type',
-      bot: '🏠 What type of property do you want to sell?',
-      type: 'icon-grid',
-      options: propertyTypes
-    },
-    {
+  // Dynamic flow generation based on property type
+  const generateFlow = (propertyType) => {
+    const baseFlow = [
+      {
+        id: 'type',
+        bot: '🏠 What type of property do you want to sell?',
+        type: 'icon-grid',
+        options: propertyTypes
+      }
+    ];
+
+    if (!propertyType) return baseFlow;
+
+    const typeConfig = propertyTypes.find(t => t.id === propertyType);
+    if (!typeConfig) return baseFlow;
+
+    const dynamicSteps = [];
+
+    // Add BHK selection for Flat, Independent House, Villa
+    if (['flat', 'independent_house', 'villa'].includes(propertyType)) {
+      dynamicSteps.push({
+        id: 'bhk',
+        bot: '🛏️ How many bedrooms?',
+        type: 'icon-buttons',
+        options: BHK_OPTIONS
+      });
+    }
+
+    // Always add cost
+    dynamicSteps.push({
       id: 'cost',
       bot: '💰 What is the total cost?',
       type: 'cost-mobile'
-    },
-    {
+    });
+
+    // Always add size with property-specific units
+    dynamicSteps.push({
       id: 'size',
       bot: '📏 What is the property size?',
-      type: 'size-mobile'
-    },
-    {
+      type: 'size-mobile',
+      units: typeConfig.units,
+      defaultUnit: typeConfig.defaultUnit
+    });
+
+    // Always add negotiable
+    dynamicSteps.push({
       id: 'negotiable',
       bot: '🤝 Is the price negotiable?',
       type: 'icon-buttons',
       options: NEGOTIABLE_OPTIONS
-    },
-    {
-      id: 'facing',
-      bot: '🧭 Which direction does it face?',
-      type: 'icon-buttons',
-      options: FACING_OPTIONS
-    },
-    {
+    });
+
+    // Add facing (relevant for most types)
+    if (['land', 'plot', 'flat', 'independent_house', 'villa'].includes(propertyType)) {
+      dynamicSteps.push({
+        id: 'facing',
+        bot: '🧭 Which direction does it face?',
+        type: 'icon-buttons',
+        options: FACING_OPTIONS
+      });
+    }
+
+    // Always add location
+    dynamicSteps.push({
       id: 'location',
       bot: '📍 Share the property location',
       type: 'location-mobile'
-    }
-  ];
+    });
+
+    return [...baseFlow, ...dynamicSteps];
+  };
+
+  const [quickFlow, setQuickFlow] = useState(generateFlow(null));
 
   useEffect(() => {
     setTimeout(() => {
