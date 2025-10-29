@@ -383,6 +383,50 @@ const IncomeLandsApp = () => {
     );
   }
 
+  // Show Map View (Search)
+  if (currentView === 'search') {
+    return (
+      <MapViewWithProperties
+        properties={properties}
+        userLocation={userLocation}
+        onPropertyClick={(property) => {
+          setSelectedProperty(property);
+          // TODO: Show property detail modal
+          alert(`Property: ${property.type} - ${property.cost?.amount} ${property.cost?.unit}`);
+        }}
+        onDistanceChange={(distance) => {
+          // Update user preference
+          console.log('Distance changed to:', distance);
+        }}
+      />
+    );
+  }
+
+  // Show My Properties
+  if (currentView === 'my-properties') {
+    return (
+      <MyPropertiesList
+        properties={myProperties}
+        onBack={() => setCurrentView('dashboard')}
+        onEdit={handlePropertyEdit}
+        onDelete={async (id) => {
+          try {
+            // TODO: Call backend API
+            // await fetch(`${API_URL}/api/incomelands/properties/${id}`, { method: 'DELETE' });
+            setMyProperties(prev => prev.filter(p => p.id !== id));
+            alert('Property deleted successfully!');
+          } catch (error) {
+            console.error('Error deleting property:', error);
+          }
+        }}
+        onView={(property) => {
+          // TODO: Show property detail
+          alert(`Viewing: ${property.type}`);
+        }}
+      />
+    );
+  }
+
   // Show main dashboard
   return (
     <IncomeLandsDashboard
