@@ -4,6 +4,7 @@ import {
   getEnabledPropertyTypes, 
   NEGOTIABLE_OPTIONS, 
   FACING_OPTIONS,
+  BHK_OPTIONS,
   getUnitsForPropertyType,
   COLORS 
 } from '../config/propertyConfig';
