@@ -187,67 +187,8 @@ async def delete_property(property_id: str):
         "success": True,
         "message": "Property deleted successfully"
     }
-        agent_phone=current_user.get("mobile"),
-        **property_data.dict()
-    )
-    
-    # Insert into database
-    result = await db.incomelands_properties.insert_one(property_doc.dict())
-    
-    if result.inserted_id:
-        return {
-            "success": True,
-            "message": "Property created successfully",
-            "property_id": property_doc.id
-        }
-    
-    raise HTTPException(
-        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        detail="Failed to create property"
-    )
 
-@router.get("/properties/{property_id}")
-async def get_property(property_id: str, current_user: dict = Depends(get_current_user)):
-    """Get property details by ID"""
-    
-    property_doc = await db.incomelands_properties.find_one({"id": property_id})
-    
-    if not property_doc:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Property not found"
-        )
-    
-    # Increment view count
-    await db.incomelands_properties.update_one(
-        {"id": property_id},
-        {"$inc": {"views": 1}}
-    )
-    
-    # Hide owner contact unless it's the agent who posted or contact is unlocked
-    if property_doc.get("agent_id") != current_user["id"]:
-        # Check if user has unlocked contact
-        has_unlocked = any(
-            unlock["user_id"] == current_user["id"]
-            for unlock in property_doc.get("contact_unlocks", [])
-        )
-        
-        if not has_unlocked and not property_doc.get("is_retoerp_property", False):
-            # Hide agent contact
-            property_doc["agent_phone"] = None
-            property_doc["contact_locked"] = True
-        
-        # Always hide owner contact
-        if "owner_contact" in property_doc:
-            property_doc["owner_contact"] = None
-    
-    return property_doc
-
-@router.post("/properties/search")
-async def search_properties(
-    query: PropertySearchQuery,
-    current_user: dict = Depends(get_current_user)
-):
+# End of IncomeLands routes
     """Search properties based on filters"""
     
     filter_query = {"status": "active"}
