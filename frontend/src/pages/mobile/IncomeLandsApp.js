@@ -247,8 +247,8 @@ const IncomeLandsApp = () => {
         };
         
         setNewlyCreatedProperty(createdProperty);
-        setShowChat(false);
         setShowSuccessScreen(true);
+        setCurrentView('success');
         
         if (userLocation) {
           fetchProperties(userLocation.latitude, userLocation.longitude);
@@ -264,8 +264,8 @@ const IncomeLandsApp = () => {
         created_at: new Date().toISOString()
       };
       setNewlyCreatedProperty(createdProperty);
-      setShowChat(false);
       setShowSuccessScreen(true);
+      setCurrentView('success');
     }
     setLoading(false);
   };
