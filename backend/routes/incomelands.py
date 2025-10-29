@@ -38,16 +38,155 @@ def calculate_distance(lat1, lon1, lat2, lon2):
     return distance
 
 @router.post("/properties", status_code=status.HTTP_201_CREATED)
-async def create_property(
-    property_data: PropertyCreateRequest,
-    current_user: dict = Depends(get_current_user)
-):
+async def create_property(property_data: dict):
     """Create a new property listing"""
+    import uuid
+    from datetime import datetime, timezone
     
-    # Create property document
-    property_doc = IncomeLandsProperty(
-        agent_id=current_user["id"],
-        agent_name=current_user.get("name"),
+    # Generate property ID
+    property_id = str(uuid.uuid4())
+    
+    # Prepare property document
+    property_doc = {
+        "id": property_id,
+        "type": property_data.get("type"),
+        "cost": property_data.get("cost"),
+        "size": property_data.get("size"),
+        "negotiable": property_data.get("negotiable", False),
+        "facing": property_data.get("facing"),
+        "bhk": property_data.get("bhk"),
+        "location": property_data.get("location"),
+        "status": "active",
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "updated_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    # Insert into database
+    result = await db.incomelands_properties.insert_one(property_doc)
+    
+    return {
+        "success": True,
+        "message": "Property created successfully",
+        "property_id": property_id
+    }
+
+@router.get("/properties")
+async def get_properties(
+    latitude: Optional[float] = None,
+    longitude: Optional[float] = None,
+    distance: Optional[float] = None,
+    property_type: Optional[str] = None
+):
+    """Get all properties with optional filters"""
+    
+    query = {"status": "active"}
+    
+    if property_type:
+        query["type"] = property_type
+    
+    properties = await db.incomelands_properties.find(query).to_list(length=1000)
+    
+    # Filter by distance if location provided
+    if latitude and longitude and distance:
+        filtered_properties = []
+        for prop in properties:
+            if prop.get("location", {}).get("latitude") and prop.get("location", {}).get("longitude"):
+                dist = calculate_distance(
+                    latitude, longitude,
+                    prop["location"]["latitude"],
+                    prop["location"]["longitude"]
+                )
+                if dist <= distance:
+                    prop["_distance"] = dist
+                    filtered_properties.append(prop)
+        properties = filtered_properties
+    
+    # Remove MongoDB _id
+    for prop in properties:
+        prop.pop("_id", None)
+    
+    return {
+        "success": True,
+        "count": len(properties),
+        "properties": properties
+    }
+
+@router.get("/properties/{property_id}")
+async def get_property(property_id: str):
+    """Get a single property by ID"""
+    
+    property_doc = await db.incomelands_properties.find_one({"id": property_id})
+    
+    if not property_doc:
+        raise HTTPException(status_code=404, detail="Property not found")
+    
+    property_doc.pop("_id", None)
+    
+    return {
+        "success": True,
+        "property": property_doc
+    }
+
+@router.get("/my-properties")
+async def get_my_properties(user_id: str):
+    """Get all properties for a specific user"""
+    
+    properties = await db.incomelands_properties.find({"agent_id": user_id}).to_list(length=1000)
+    
+    for prop in properties:
+        prop.pop("_id", None)
+    
+    return {
+        "success": True,
+        "count": len(properties),
+        "properties": properties
+    }
+
+@router.put("/properties/{property_id}")
+async def update_property(property_id: str, property_data: dict):
+    """Update a property"""
+    from datetime import datetime, timezone
+    
+    # Check if property exists
+    existing = await db.incomelands_properties.find_one({"id": property_id})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Property not found")
+    
+    # Update fields
+    update_data = {**property_data}
+    update_data["updated_at"] = datetime.now(timezone.utc).isoformat()
+    
+    # Perform update
+    result = await db.incomelands_properties.update_one(
+        {"id": property_id},
+        {"$set": update_data}
+    )
+    
+    return {
+        "success": True,
+        "message": "Property updated successfully"
+    }
+
+@router.delete("/properties/{property_id}")
+async def delete_property(property_id: str):
+    """Delete a property (soft delete by setting status to inactive)"""
+    from datetime import datetime, timezone
+    
+    result = await db.incomelands_properties.update_one(
+        {"id": property_id},
+        {"$set": {
+            "status": "deleted",
+            "deleted_at": datetime.now(timezone.utc).isoformat()
+        }}
+    )
+    
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="Property not found")
+    
+    return {
+        "success": True,
+        "message": "Property deleted successfully"
+    }
         agent_phone=current_user.get("mobile"),
         **property_data.dict()
     )
