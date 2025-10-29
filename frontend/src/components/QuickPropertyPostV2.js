@@ -333,8 +333,8 @@ const QuickPropertyPostV2 = ({ onComplete, onCancel }) => {
         );
 
       case 'size-mobile':
-        const step = quickFlow[currentStep];
-        const units = step.units || getUnitsForPropertyType(propertyData.type);
+        const sizeStep = quickFlow[currentStep];
+        const units = sizeStep.units || getUnitsForPropertyType(propertyData.type);
         return (
           <div className="mobile-input-container">
             <div className="amount-input-wrapper">
