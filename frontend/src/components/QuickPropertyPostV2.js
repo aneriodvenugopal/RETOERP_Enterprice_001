@@ -160,16 +160,29 @@ const QuickPropertyPostV2 = ({ onComplete, onCancel }) => {
         size: { ...prev.size, unit: option.defaultUnit }
       }));
       addUserMessage(`${option.icon} ${option.label}`);
+      
+      // Regenerate flow based on selected type
+      const newFlow = generateFlow(option.id);
+      setQuickFlow(newFlow);
+      
+      setShowOptions(false);
+      proceedToNextStep();
+    } else if (step.id === 'bhk') {
+      setPropertyData(prev => ({ ...prev, bhk: option.value }));
+      addUserMessage(`${option.icon} ${option.label}`);
+      setShowOptions(false);
+      proceedToNextStep();
     } else if (step.id === 'negotiable') {
       setPropertyData(prev => ({ ...prev, negotiable: option.value }));
       addUserMessage(`${option.icon} ${option.label}`);
+      setShowOptions(false);
+      proceedToNextStep();
     } else if (step.id === 'facing') {
       setPropertyData(prev => ({ ...prev, facing: option.value }));
       addUserMessage(`${option.icon} ${option.label}`);
+      setShowOptions(false);
+      proceedToNextStep();
     }
-    
-    setShowOptions(false);
-    proceedToNextStep();
   };
 
   const handleCostSubmit = () => {
