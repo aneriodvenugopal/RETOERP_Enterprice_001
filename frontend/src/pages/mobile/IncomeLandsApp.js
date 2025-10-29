@@ -5,6 +5,8 @@ import IncomeLandsDashboard from '../../components/IncomeLandsDashboard';
 import QuickPropertyPostV2 from '../../components/QuickPropertyPostV2';
 import PropertyEdit from '../../components/PropertyEdit';
 import PropertySuccessV2 from '../../components/PropertySuccessV2';
+import MapViewWithProperties from '../../components/MapViewWithProperties';
+import MyPropertiesList from '../../components/MyPropertiesList';
 import ChatInterface from '../../components/ChatInterface';
 import GoogleMapView from '../../components/GoogleMapView';
 import { useLanguage } from '../../i18n/translations';
