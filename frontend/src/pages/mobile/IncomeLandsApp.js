@@ -331,7 +331,7 @@ const IncomeLandsApp = () => {
   // Show success screen after property creation
   if (showSuccessScreen && newlyCreatedProperty) {
     return (
-      <PropertySuccessScreen
+      <PropertySuccessV2
         property={newlyCreatedProperty}
         onEdit={() => {
           setShowSuccessScreen(false);
@@ -374,7 +374,7 @@ const IncomeLandsApp = () => {
   // Show Quick Property Post
   if (currentView === 'quick-post') {
     return (
-      <QuickPropertyPost
+      <QuickPropertyPostV2
         onComplete={handlePropertyComplete}
         onCancel={() => setCurrentView('dashboard')}
       />
