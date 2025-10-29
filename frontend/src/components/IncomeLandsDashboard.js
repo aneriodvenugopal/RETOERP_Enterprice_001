@@ -25,81 +25,81 @@ const IncomeLandsDashboard = ({ user, credits, onModuleClick, onShareApp }) => {
       icon: Zap,
       title: 'Quick Property Post',
       subtitle: 'Post in 5 simple questions',
-      color: '#FF6B35',
+      color: '#1E88E5',
       description: 'Fastest way to add property - just answer 5 questions and done!',
-      gradient: 'linear-gradient(135deg, #FF6B35 0%, #F7931E 100%)'
+      gradient: 'linear-gradient(135deg, #1E88E5 0%, #42A5F5 100%)'
     },
     {
       id: 'post-property',
       icon: Home,
       title: 'Post Your Property',
       subtitle: 'Plot, Flat, Land',
-      color: '#4CAF50',
+      color: '#43A047',
       description: 'Choose property type and add detailed information',
-      gradient: 'linear-gradient(135deg, #4CAF50 0%, #8BC34A 100%)'
+      gradient: 'linear-gradient(135deg, #43A047 0%, #66BB6A 100%)'
     },
     {
       id: 'search',
       icon: Search,
       title: 'Search Property',
       subtitle: 'Find what you need',
-      color: '#2196F3',
+      color: '#00ACC1',
       description: 'Search from thousands of properties by location, price, size',
-      gradient: 'linear-gradient(135deg, #2196F3 0%, #03A9F4 100%)'
+      gradient: 'linear-gradient(135deg, #00ACC1 0%, #26C6DA 100%)'
     },
     {
       id: 'voice-post',
       icon: Mic,
       title: 'Voice Property Post',
       subtitle: 'Speak to add property',
-      color: '#9C27B0',
+      color: '#7E57C2',
       description: 'Just speak and AI will create property listing for you',
-      gradient: 'linear-gradient(135deg, #9C27B0 0%, #E91E63 100%)'
+      gradient: 'linear-gradient(135deg, #7E57C2 0%, #9575CD 100%)'
     },
     {
       id: 'buy-rent',
       icon: ShoppingCart,
       title: 'Want to Buy/Rent',
       subtitle: 'Client requirements',
-      color: '#FF9800',
+      color: '#FFA726',
       description: 'Save your client requirements for easy followup',
-      gradient: 'linear-gradient(135deg, #FF9800 0%, #FF5722 100%)'
+      gradient: 'linear-gradient(135deg, #FFA726 0%, #FFB74D 100%)'
     },
     {
       id: 'my-properties',
       icon: List,
       title: 'My Properties',
       subtitle: 'Your listings',
-      color: '#00BCD4',
+      color: '#26A69A',
       description: 'View, edit, delete all your posted properties',
-      gradient: 'linear-gradient(135deg, #00BCD4 0%, #009688 100%)'
+      gradient: 'linear-gradient(135deg, #26A69A 0%, #4DB6AC 100%)'
     },
     {
       id: 'followup',
       icon: UserPlus,
       title: 'Followup',
       subtitle: 'Manage contacts',
-      color: '#795548',
+      color: '#8D6E63',
       description: 'Import 10 priority contacts for focused followup',
-      gradient: 'linear-gradient(135deg, #795548 0%, #8D6E63 100%)'
+      gradient: 'linear-gradient(135deg, #8D6E63 0%, #A1887F 100%)'
     },
     {
       id: 'favourites',
       icon: Heart,
       title: 'Favourite Properties',
       subtitle: 'Your wishlist',
-      color: '#E91E63',
+      color: '#EF5350',
       description: 'Properties you liked and want to revisit',
-      gradient: 'linear-gradient(135deg, #E91E63 0%, #F06292 100%)'
+      gradient: 'linear-gradient(135deg, #EF5350 0%, #E57373 100%)'
     },
     {
       id: 'share-app',
       icon: Share2,
       title: 'Share App',
       subtitle: 'Earn 10 credits per friend',
-      color: '#673AB7',
+      color: '#5C6BC0',
       description: 'Share with all your contacts at once and earn credits!',
-      gradient: 'linear-gradient(135deg, #673AB7 0%, #9C27B0 100%)'
+      gradient: 'linear-gradient(135deg, #5C6BC0 0%, #7986CB 100%)'
     }
   ];
 
