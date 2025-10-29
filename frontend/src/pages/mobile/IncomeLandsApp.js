@@ -436,9 +436,9 @@ const IncomeLandsApp = () => {
       onShareApp={handleShareApp}
     />
   );
+};
 
-  // Render property card
-  const PropertyCard = ({ property }) => {
+export default IncomeLandsApp;
     const isLiked = property.likes?.includes(user.id);
     
     return (
