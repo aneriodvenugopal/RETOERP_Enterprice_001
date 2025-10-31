@@ -184,7 +184,7 @@
 
    **మొదటి referrer:**
    ```
-   https://retoerp-advisory.preview.emergentagent.com/*
+   https://incomelands-app.preview.emergentagent.com/*
    ```
    - Paste చేసి Enter నొక్కండి
 

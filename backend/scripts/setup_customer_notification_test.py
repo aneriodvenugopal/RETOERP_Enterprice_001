@@ -161,9 +161,9 @@ async def setup_customer_test():
     print("      → '🏠 Resale Request from Ramesh Kumar'")
     
     print("\n🔗 URLs:")
-    print("   Login: https://retoerp-advisory.preview.emergentagent.com/login")
-    print("   Properties: https://retoerp-advisory.preview.emergentagent.com/properties")
-    print("   Customer Dashboard: https://retoerp-advisory.preview.emergentagent.com/customer-dashboard")
+    print("   Login: https://incomelands-app.preview.emergentagent.com/login")
+    print("   Properties: https://incomelands-app.preview.emergentagent.com/properties")
+    print("   Customer Dashboard: https://incomelands-app.preview.emergentagent.com/customer-dashboard")
     
     print("\n💡 TIP: Keep both browsers open side-by-side to see")
     print("   notifications appear in real-time (refreshes every 30 seconds)")
