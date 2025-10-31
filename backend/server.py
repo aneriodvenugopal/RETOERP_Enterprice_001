@@ -67,6 +67,7 @@ api_router.include_router(chatbot.router)
 api_router.include_router(public_pages.router)
 api_router.include_router(marketplace.router)
 api_router.include_router(incomelands.router)
+api_router.include_router(incomelands_auth.router)
 
 # PWA Install tracking
 @api_router.post("/analytics/pwa-install")
