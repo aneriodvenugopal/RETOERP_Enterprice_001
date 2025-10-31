@@ -142,6 +142,25 @@ async def get_my_properties(user_id: str):
         "properties": properties
     }
 
+@router.get("/properties/my/list")
+async def get_my_properties_list(current_user: dict = Depends(get_current_user)):
+    """Get all properties for the current authenticated user"""
+    
+    # Get user_id from current_user
+    user_id = current_user.get("id") or current_user.get("user_id")
+    
+    properties = await db.incomelands_properties.find({"agent_id": user_id}).to_list(length=1000)
+    
+    for prop in properties:
+        prop.pop("_id", None)
+    
+    return {
+        "success": True,
+        "count": len(properties),
+        "properties": properties
+    }
+
+
 @router.put("/properties/{property_id}")
 async def update_property(property_id: str, property_data: dict):
     """Update a property"""
