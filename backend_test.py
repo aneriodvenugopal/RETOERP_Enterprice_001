@@ -423,97 +423,65 @@ def test_login_with_password():
         traceback.print_exc()
         return False
 
-def test_marketplace_properties_search():
-    """Test 6: GET /api/marketplace/properties/search - Advanced property search"""
-    try:
-        print("\n🏠 TESTING: GET /api/marketplace/properties/search")
+def test_send_otp_existing_user():
+    """Test 6: POST /api/incomelands/auth/send-otp - Send OTP to existing user"""
+    global test_user_mobile, test_otp
+    
+    if not test_user_mobile:
+        results.add_fail("Send OTP Existing User", "No test user mobile available")
+        return False
         
-        # Test 1: Search with price range
-        print("   💰 Testing with price range filter...")
-        price_response = requests.get(
-            f"{API_BASE}/marketplace/properties/search",
-            params={
-                "min_price": 1000000,  # 10 lakh
-                "max_price": 5000000,  # 50 lakh
-                "status": "available"
-            },
-            timeout=15
+    try:
+        print("\n📱 TESTING: POST /api/incomelands/auth/send-otp (Existing User)")
+        
+        otp_data = {
+            "mobile": test_user_mobile
+        }
+        
+        response = requests.post(
+            f"{API_BASE}/incomelands/auth/send-otp",
+            json=otp_data,
+            timeout=10
         )
         
-        if price_response.status_code != 200:
-            results.add_fail("Marketplace Properties Search", f"Status code: {price_response.status_code}")
-            print_error_details("Marketplace Properties Search", price_response)
+        if response.status_code != 200:
+            results.add_fail("Send OTP Existing User", f"Status code: {response.status_code}")
+            print_error_details("Send OTP Existing User", response)
             return False
             
-        price_data = price_response.json()
+        data = response.json()
         
         # Validate response structure
-        required_fields = ['success', 'count', 'properties']
-        missing_fields = [field for field in required_fields if field not in price_data]
+        required_fields = ['success', 'message', 'is_new_user']
+        missing_fields = [field for field in required_fields if field not in data]
         
         if missing_fields:
-            results.add_fail("Marketplace Properties Search", f"Missing fields: {missing_fields}")
+            results.add_fail("Send OTP Existing User", f"Missing fields: {missing_fields}")
             return False
         
-        if not price_data.get('success'):
-            results.add_fail("Marketplace Properties Search", "Response success is False")
+        if not data.get('success'):
+            results.add_fail("Send OTP Existing User", "Response success is False")
             return False
         
-        properties = price_data.get('properties', [])
-        print(f"   ✅ Found {len(properties)} properties in price range ₹10L-₹50L")
+        if data.get('is_new_user'):
+            results.add_fail("Send OTP Existing User", "Expected is_new_user=false for existing user")
+            return False
         
-        # Test 2: Search with area range
-        print("   📐 Testing with area range filter...")
-        area_response = requests.get(
-            f"{API_BASE}/marketplace/properties/search",
-            params={
-                "min_area": 1000,  # 1000 sqft
-                "max_area": 3000,  # 3000 sqft
-                "status": "available"
-            },
-            timeout=15
-        )
+        # In dev mode, OTP should be returned in response
+        test_otp = data.get('otp')
+        if not test_otp:
+            results.add_fail("Send OTP Existing User", "No OTP in response (dev mode)")
+            return False
         
-        if area_response.status_code == 200:
-            area_data = area_response.json()
-            print(f"   ✅ Found {len(area_data.get('properties', []))} properties in area range 1000-3000 sqft")
+        results.add_pass("Send OTP Existing User")
+        print(f"   ✅ OTP sent to existing user: {test_user_mobile}")
+        print(f"   🆕 Is new user: {data.get('is_new_user')}")
+        print(f"   🔢 OTP (dev mode): {test_otp}")
         
-        # Test 3: Geo-location + radius search
-        print("   📍 Testing with geo-location + radius...")
-        geo_response = requests.get(
-            f"{API_BASE}/marketplace/properties/search",
-            params={
-                "latitude": HYDERABAD_LAT,
-                "longitude": HYDERABAD_LON,
-                "radius_km": 15,
-                "status": "available"
-            },
-            timeout=15
-        )
-        
-        if geo_response.status_code == 200:
-            geo_data = geo_response.json()
-            geo_properties = geo_data.get('properties', [])
-            print(f"   ✅ Found {len(geo_properties)} properties within 15km of Hyderabad")
-            
-            # Validate enrichment with project and developer data
-            if geo_properties:
-                prop = geo_properties[0]
-                required_enrichment = ['project_name', 'developer_name', 'distance_km']
-                missing_enrichment = [field for field in required_enrichment if field not in prop]
-                
-                if missing_enrichment:
-                    results.add_fail("Marketplace Properties Search", f"Missing enrichment fields: {missing_enrichment}")
-                    return False
-                
-                print(f"   🏢 Sample property: {prop.get('project_name')} by {prop.get('developer_name')}")
-                print(f"   📍 Distance: {prop.get('distance_km')}km from search center")
-        
-        results.add_pass("Marketplace Properties Search")
         return True
         
     except Exception as e:
-        results.add_fail("Marketplace Properties Search", f"Exception: {str(e)}")
+        results.add_fail("Send OTP Existing User", f"Exception: {str(e)}")
         traceback.print_exc()
         return False
 
