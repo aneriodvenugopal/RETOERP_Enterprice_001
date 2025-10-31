@@ -17,6 +17,7 @@ from models.incomelands_user import (
     IncomeLandsSetPassword
 )
 from services.auth_service import AuthService
+from middleware.auth import get_current_user
 
 router = APIRouter(prefix="/incomelands/auth", tags=["IncomeLands Authentication"])
 
