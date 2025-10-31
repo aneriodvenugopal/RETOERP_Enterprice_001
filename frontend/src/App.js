@@ -20,6 +20,7 @@ import AdvancedLayoutViewer from "./pages/AdvancedLayoutViewer";
 import LayoutEditor from "./pages/LayoutEditor";
 import PublicLayoutView from "./pages/PublicLayoutView";
 import Leads from "./pages/Leads";
+import CalendarPage from "./pages/CalendarPage";
 import Bookings from "./pages/Bookings";
 import Reports from "./pages/Reports";
 import UsersManagement from "./pages/UsersManagement";
