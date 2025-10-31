@@ -327,7 +327,7 @@ async def set_password(password_data: IncomeLandsSetPassword):
     }
 
 @router.get("/profile")
-async def get_profile(current_user: dict = Depends(AuthService.get_current_user)):
+async def get_profile(current_user: dict = Depends(get_current_user)):
     """Get current user profile"""
     
     user = await db.incomelands_users.find_one({"id": current_user["user_id"]})
