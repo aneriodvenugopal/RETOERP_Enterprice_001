@@ -20,7 +20,6 @@ const Leads = () => {
   const [showDetailsDialog, setShowDetailsDialog] = useState(false);
   const [selectedLead, setSelectedLead] = useState(null);
   const [leadDetails, setLeadDetails] = useState(null);
-  const [viewMode, setViewMode] = useState('list'); // 'list' or 'calendar'
   
   const [leadStatuses, setLeadStatuses] = useState([]);
   const [leadSources, setLeadSources] = useState([]);
