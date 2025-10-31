@@ -66,27 +66,39 @@ const AuthScreen = ({ onAuthSuccess }) => {
     setError('');
     
     try {
-      // TODO: Call backend API to verify OTP
-      // Check if user is new
-      const isNew = true; // Simulate - check from backend
+      const response = await fetch(`${API_URL}/api/incomelands/auth/verify-otp`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ mobile, otp })
+      });
       
-      setTimeout(() => {
-        if (isNew) {
+      const data = await response.json();
+      
+      if (!response.ok) {
+        setError(data.detail || 'Invalid OTP');
+        setLoading(false);
+        return;
+      }
+      
+      if (data.success) {
+        if (data.requires_password) {
+          // New user - needs to set password
           setMode('setPassword');
           setIsFirstTime(true);
+          setLoading(false);
         } else {
-          // User exists, login successful
+          // Existing user - login successful
           onAuthSuccess({
-            id: '123',
-            mobile: mobile,
-            name: 'Test User',
-            free_credits: 20
+            ...data.user,
+            token: data.token
           });
         }
-        setLoading(false);
-      }, 1000);
+      }
     } catch (err) {
-      setError('Invalid OTP');
+      console.error('OTP verification error:', err);
+      setError('Failed to verify OTP. Please try again.');
       setLoading(false);
     }
   };
