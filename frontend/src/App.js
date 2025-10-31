@@ -181,6 +181,14 @@ function App() {
                 }
               />
               <Route
+                path="/calendar"
+                element={
+                  <PrivateRoute>
+                    <CalendarPage />
+                  </PrivateRoute>
+                }
+              />
+              <Route
                 path="/bookings"
                 element={
                   <PrivateRoute>
