@@ -152,18 +152,31 @@ const AuthScreen = ({ onAuthSuccess }) => {
     setError('');
     
     try {
-      // TODO: Call backend API for password login
-      setTimeout(() => {
-        onAuthSuccess({
-          id: '123',
-          mobile: mobile,
-          name: 'Test User',
-          free_credits: 20
-        });
+      const response = await fetch(`${API_URL}/api/incomelands/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ mobile, password })
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        setError(data.detail || 'Invalid credentials');
         setLoading(false);
-      }, 1000);
+        return;
+      }
+      
+      if (data.success) {
+        onAuthSuccess({
+          ...data.user,
+          token: data.token
+        });
+      }
     } catch (err) {
-      setError('Invalid credentials');
+      console.error('Login error:', err);
+      setError('Login failed. Please try again.');
       setLoading(false);
     }
   };
