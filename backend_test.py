@@ -115,69 +115,66 @@ new_user_mobile = None
 new_user_otp = None
 
 def test_register_new_user():
-    """Test 1: POST /api/marketplace/agents/register - Register new agent"""
-    global test_agent_id
+    """Test 1: POST /api/incomelands/auth/register - Register new user"""
+    global test_user_mobile, test_token
     
     try:
-        print("\n👤 TESTING: POST /api/marketplace/agents/register")
+        print("\n👤 TESTING: POST /api/incomelands/auth/register")
         
-        # Create unique agent data
+        # Create unique user data
         unique_suffix = str(uuid.uuid4())[:8]
-        agent_data = {
-            "name": f"Test Agent {unique_suffix}",
-            "phone": f"987654{unique_suffix[:4]}",
-            "email": f"agent{unique_suffix}@incomelands.com",
-            "city": "Hyderabad",
-            "state": "Telangana",
-            "areas_covered": ["Gachibowli", "HITEC City", "Madhapur"],
-            "latitude": HYDERABAD_LAT,
-            "longitude": HYDERABAD_LON,
-            "experience_years": 5
+        test_user_mobile = f"9123456789"  # Use the mobile from test case
+        
+        user_data = {
+            "mobile": test_user_mobile,
+            "name": "Test Agent",
+            "password": "test123"
         }
         
         response = requests.post(
-            f"{API_BASE}/marketplace/agents/register",
-            json=agent_data,
+            f"{API_BASE}/incomelands/auth/register",
+            json=user_data,
             timeout=10
         )
         
-        if response.status_code != 200:
-            results.add_fail("Agent Register", f"Status code: {response.status_code}")
-            print_error_details("Agent Register", response)
-            return None
+        if response.status_code != 201:
+            results.add_fail("Register New User", f"Status code: {response.status_code}")
+            print_error_details("Register New User", response)
+            return False
             
         data = response.json()
         
         # Validate response structure
-        required_fields = ['success', 'message', 'agent']
+        required_fields = ['success', 'message', 'token', 'user']
         missing_fields = [field for field in required_fields if field not in data]
         
         if missing_fields:
-            results.add_fail("Agent Register", f"Missing fields: {missing_fields}")
-            return None
+            results.add_fail("Register New User", f"Missing fields: {missing_fields}")
+            return False
         
         if not data.get('success'):
-            results.add_fail("Agent Register", "Response success is False")
-            return None
+            results.add_fail("Register New User", "Response success is False")
+            return False
         
-        agent = data.get('agent', {})
-        if 'id' not in agent:
-            results.add_fail("Agent Register", "No agent ID in response")
-            return None
+        user = data.get('user', {})
+        if 'id' not in user:
+            results.add_fail("Register New User", "No user ID in response")
+            return False
         
-        test_agent_id = agent['id']
+        test_token = data.get('token')
         
-        results.add_pass("Agent Register")
-        print(f"   ✅ Agent registered: {agent.get('name')} (ID: {test_agent_id})")
-        print(f"   📱 Phone: {agent.get('phone')}")
-        print(f"   📍 Location: {agent.get('city')}, {agent.get('state')}")
+        results.add_pass("Register New User")
+        print(f"   ✅ User registered: {user.get('name')} (ID: {user.get('id')})")
+        print(f"   📱 Mobile: {user.get('mobile')}")
+        print(f"   🎁 Free credits: {user.get('free_credits', 0)}")
+        print(f"   🔑 Token received: {test_token[:20]}...")
         
-        return test_agent_id
+        return True
         
     except Exception as e:
-        results.add_fail("Agent Register", f"Exception: {str(e)}")
+        results.add_fail("Register New User", f"Exception: {str(e)}")
         traceback.print_exc()
-        return None
+        return False
 
 def test_agent_get_profile():
     """Test 2: GET /api/marketplace/agents/{agent_id} - Get agent profile"""
