@@ -485,81 +485,68 @@ def test_send_otp_existing_user():
         traceback.print_exc()
         return False
 
-def test_contact_unlock():
-    """Test 7: POST /api/marketplace/unlock-contact - Unlock developer contact"""
-    global test_agent_id, test_project_id
+def test_verify_otp_existing_user():
+    """Test 7: POST /api/incomelands/auth/verify-otp - Verify OTP for existing user"""
+    global test_user_mobile, test_otp
     
-    if not test_agent_id or not test_project_id:
-        results.add_fail("Contact Unlock", "Missing test agent ID or project ID")
+    if not test_user_mobile or not test_otp:
+        results.add_fail("Verify OTP Existing User", "No test user mobile or OTP available")
         return False
         
     try:
-        print("\n🔓 TESTING: POST /api/marketplace/unlock-contact")
+        print("\n🔐 TESTING: POST /api/incomelands/auth/verify-otp (Existing User)")
         
-        # First get project details to get tenant_id
-        project_response = requests.get(f"{API_BASE}/marketplace/projects/{test_project_id}", timeout=10)
-        if project_response.status_code != 200:
-            results.add_fail("Contact Unlock", "Could not get project details")
-            return False
-        
-        project_data = project_response.json()
-        tenant_id = project_data['project']['tenant_id']
-        
-        unlock_data = {
-            "agent_id": test_agent_id,
-            "tenant_id": tenant_id,
-            "project_id": test_project_id,
-            "unlock_reason": "Interested buyer for this project"
+        verify_data = {
+            "mobile": test_user_mobile,
+            "otp": test_otp
         }
         
         response = requests.post(
-            f"{API_BASE}/marketplace/unlock-contact",
-            json=unlock_data,
+            f"{API_BASE}/incomelands/auth/verify-otp",
+            json=verify_data,
             timeout=10
         )
         
         if response.status_code != 200:
-            results.add_fail("Contact Unlock", f"Status code: {response.status_code}")
-            print_error_details("Contact Unlock", response)
+            results.add_fail("Verify OTP Existing User", f"Status code: {response.status_code}")
+            print_error_details("Verify OTP Existing User", response)
             return False
             
         data = response.json()
         
-        # Validate response
+        # Validate response structure
+        required_fields = ['success', 'message', 'is_new_user', 'token']
+        missing_fields = [field for field in required_fields if field not in data]
+        
+        if missing_fields:
+            results.add_fail("Verify OTP Existing User", f"Missing fields: {missing_fields}")
+            return False
+        
         if not data.get('success'):
-            results.add_fail("Contact Unlock", "Response success is False")
+            results.add_fail("Verify OTP Existing User", "Response success is False")
             return False
         
-        # Check if actual phone/email returned
-        if 'developer_phone' not in data or 'developer_email' not in data:
-            results.add_fail("Contact Unlock", "Developer contact details not returned")
+        if data.get('is_new_user'):
+            results.add_fail("Verify OTP Existing User", "Expected is_new_user=false")
             return False
         
-        results.add_pass("Contact Unlock")
-        print(f"   ✅ Contact unlocked successfully")
-        print(f"   📱 Developer phone: {data.get('developer_phone')}")
-        print(f"   📧 Developer email: {data.get('developer_email')}")
-        print(f"   💰 Unlock fee: ₹{data.get('unlock_fee', 10)}")
+        token = data.get('token')
+        if not token:
+            results.add_fail("Verify OTP Existing User", "No token in response")
+            return False
         
-        # Test duplicate unlock
-        print("   🔄 Testing duplicate unlock...")
-        duplicate_response = requests.post(
-            f"{API_BASE}/marketplace/unlock-contact",
-            json=unlock_data,
-            timeout=10
-        )
+        user = data.get('user', {})
         
-        if duplicate_response.status_code == 200:
-            duplicate_data = duplicate_response.json()
-            if duplicate_data.get('already_unlocked'):
-                print("   ✅ Duplicate unlock handled correctly - returned existing unlock")
-            else:
-                print("   ⚠️ Duplicate unlock created new record (should return existing)")
+        results.add_pass("Verify OTP Existing User")
+        print(f"   ✅ OTP verified for existing user: {test_user_mobile}")
+        print(f"   🆕 Is new user: {data.get('is_new_user')}")
+        print(f"   🔑 Token received: {token[:20]}...")
+        print(f"   👤 User: {user.get('name', 'N/A')}")
         
         return True
         
     except Exception as e:
-        results.add_fail("Contact Unlock", f"Exception: {str(e)}")
+        results.add_fail("Verify OTP Existing User", f"Exception: {str(e)}")
         traceback.print_exc()
         return False
 
