@@ -26,14 +26,32 @@ const AuthScreen = ({ onAuthSuccess }) => {
     setError('');
     
     try {
-      // TODO: Call backend API to send OTP
-      // For now, simulate
-      setTimeout(() => {
+      const response = await fetch(`${API_URL}/api/incomelands/auth/send-otp`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ mobile })
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
         setMode('otp');
-        setLoading(false);
-      }, 1000);
+        setIsFirstTime(data.is_new_user);
+        // For development, show OTP in console
+        if (data.otp) {
+          console.log('OTP:', data.otp);
+          alert(`OTP sent! (Dev Mode: ${data.otp})`);
+        }
+      } else {
+        setError(data.detail || 'Failed to send OTP');
+      }
+      
+      setLoading(false);
     } catch (err) {
-      setError('Failed to send OTP');
+      console.error('OTP error:', err);
+      setError('Failed to send OTP. Please try again.');
       setLoading(false);
     }
   };
