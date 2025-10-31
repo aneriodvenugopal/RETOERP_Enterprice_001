@@ -8,9 +8,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Users, Phone, Mail, MapPin, Calendar, TrendingUp, Star } from 'lucide-react';
+import { Plus, Users, Phone, Mail, MapPin, Calendar, TrendingUp, Star, List } from 'lucide-react';
 import { toast } from 'sonner';
 import { Textarea } from '@/components/ui/textarea';
+import CalendarScheduler from '../components/CalendarScheduler';
 
 const Leads = () => {
   const [leads, setLeads] = useState([]);
