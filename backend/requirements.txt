@@ -82,3 +82,8 @@ pytesseract==0.3.13
 shapely==2.1.2
 emergentintegrations
 firebase_admin==7.1.0
+google-api-core==2.26.0
+google-api-python-client==2.185.0
+google-auth==2.41.1
+google-auth-httplib2==0.2.0
+google-auth-oauthlib==1.2.3
