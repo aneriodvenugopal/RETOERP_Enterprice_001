@@ -5125,10 +5125,10 @@ def test_telugu_language_detection():
 # ============ MAIN TEST EXECUTION ============
 
 def main():
-    """Main test execution for IncomeLands Marketplace API"""
-    print("🚀 Starting IncomeLands Marketplace API Tests")
+    """Main test execution for IncomeLands Authentication API"""
+    print("🚀 Starting IncomeLands Authentication API Tests")
     print(f"📅 Test run: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    print(f"🎯 Testing comprehensive marketplace integration with 25+ endpoints")
+    print(f"🎯 Testing complete authentication flow with registration, OTP, login, and password management")
     print(f"Backend URL: {API_BASE}")
     
     # Test 1: Health check
@@ -5137,98 +5137,61 @@ def main():
         return False
     
     print("\n" + "="*80)
-    print("🏪 INCOMELANDS MARKETPLACE API TESTING")
+    print("🔐 INCOMELANDS AUTHENTICATION API TESTING")
     print("="*80)
     
     # ============================================
-    # 1. AGENT MANAGEMENT APIs
+    # AUTHENTICATION FLOW TESTS
     # ============================================
-    print("\n👥 SECTION 1: AGENT MANAGEMENT APIs")
+    print("\n🔑 AUTHENTICATION FLOW TESTS")
     print("-" * 50)
     
-    test_agent_register()
-    test_agent_get_profile()
-    test_agent_lookup_by_phone()
+    # Test 1: Register new user with mobile and password
+    test_register_new_user()
     
-    # ============================================
-    # 2. PROJECTS & PROPERTIES APIs
-    # ============================================
-    print("\n🏗️ SECTION 2: PROJECTS & PROPERTIES APIs")
-    print("-" * 50)
+    # Test 2: Send OTP to new user (different mobile)
+    test_send_otp_new_user()
     
-    test_marketplace_projects_list()
-    test_marketplace_project_details()
-    test_marketplace_properties_search()
+    # Test 3: Verify OTP for new user
+    test_verify_otp_new_user()
     
-    # ============================================
-    # 3. CONTACT UNLOCK SYSTEM
-    # ============================================
-    print("\n🔓 SECTION 3: CONTACT UNLOCK SYSTEM")
-    print("-" * 50)
+    # Test 4: Set password for new user
+    test_set_password_new_user()
     
-    test_contact_unlock()
+    # Test 5: Login with password (using first registered user)
+    test_login_with_password()
     
-    # ============================================
-    # 4. LEAD SUBMISSION APIs
-    # ============================================
-    print("\n📝 SECTION 4: LEAD SUBMISSION APIs")
-    print("-" * 50)
+    # Test 6: Send OTP to existing user
+    test_send_otp_existing_user()
     
-    test_lead_submission()
-    test_agent_leads()
-    test_lead_status_update()
-    
-    # ============================================
-    # 5. BUYER REQUIREMENTS APIs
-    # ============================================
-    print("\n🏠 SECTION 5: BUYER REQUIREMENTS APIs")
-    print("-" * 50)
-    
-    test_buyer_requirements_create()
-    test_buyer_requirements_list()
-    test_ai_matching_engine()
-    
-    # ============================================
-    # 6. COMMISSION SYSTEM
-    # ============================================
-    print("\n💰 SECTION 6: COMMISSION SYSTEM")
-    print("-" * 50)
-    
-    test_commission_calculation()
-    test_agent_commissions()
-    
-    # ============================================
-    # 7. ANALYTICS & STATISTICS
-    # ============================================
-    print("\n📊 SECTION 7: ANALYTICS & STATISTICS")
-    print("-" * 50)
-    
-    test_marketplace_stats_overview()
-    test_developer_marketplace_stats()
+    # Test 7: Verify OTP for existing user
+    test_verify_otp_existing_user()
     
     # ============================================
     # FINAL SUMMARY
     # ============================================
     print("\n" + "="*80)
-    print("📋 INCOMELANDS MARKETPLACE API TEST SUMMARY")
+    print("📋 INCOMELANDS AUTHENTICATION API TEST SUMMARY")
     print("="*80)
     
     success = results.summary()
     
     if success:
-        print("\n🎉 ALL INCOMELANDS MARKETPLACE API TESTS PASSED!")
-        print("✅ The marketplace integration is ready for production use!")
+        print("\n🎉 ALL INCOMELANDS AUTHENTICATION API TESTS PASSED!")
+        print("✅ The authentication system is ready for production use!")
         print("\n📈 Key Features Validated:")
-        print("   • Agent registration and management")
-        print("   • Geo-location based project search")
-        print("   • Contact unlock revenue model (₹10 per unlock)")
-        print("   • Lead submission to RETOERP developers")
-        print("   • AI-powered property matching (0-100 scoring)")
-        print("   • Commission automation (1% agent, 10% platform fee)")
-        print("   • Comprehensive analytics and statistics")
+        print("   • User registration with mobile and password")
+        print("   • OTP generation and SMS sending (dev mode)")
+        print("   • OTP verification for new and existing users")
+        print("   • Password setting for new users")
+        print("   • Login with mobile and password")
+        print("   • JWT token generation and validation")
+        print("   • User profile management")
+        print("   • Free credits allocation (20 credits)")
+        print("   • Referral code generation")
         return True
     else:
-        print(f"\n💥 {results.failed} MARKETPLACE API TESTS FAILED!")
+        print(f"\n💥 {results.failed} AUTHENTICATION API TESTS FAILED!")
         print("❌ Please review and fix the issues before production deployment.")
         return False
 
