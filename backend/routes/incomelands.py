@@ -188,63 +188,63 @@ async def delete_property(property_id: str):
         "message": "Property deleted successfully"
     }
 
-# End of IncomeLands routes
+@router.post("/properties/search")
+async def search_properties(search_data: dict):
     """Search properties based on filters"""
     
     filter_query = {"status": "active"}
     
-    if query.property_type:
-        filter_query["property_type"] = query.property_type
+    # Get search parameters
+    property_type = search_data.get("property_type")
+    transaction_type = search_data.get("transaction_type")
+    min_price = search_data.get("min_price")
+    max_price = search_data.get("max_price")
+    latitude = search_data.get("latitude")
+    longitude = search_data.get("longitude")
+    radius_km = search_data.get("radius_km", 10)
+    limit = search_data.get("limit", 50)
     
-    if query.transaction_type:
-        filter_query["transaction_type"] = query.transaction_type
+    if property_type:
+        filter_query["type"] = property_type
     
-    if query.min_price or query.max_price:
-        filter_query["price.amount"] = {}
-        if query.min_price:
-            filter_query["price.amount"]["$gte"] = query.min_price
-        if query.max_price:
-            filter_query["price.amount"]["$lte"] = query.max_price
+    if transaction_type:
+        filter_query["transaction_type"] = transaction_type
+    
+    if min_price or max_price:
+        filter_query["cost.amount"] = {}
+        if min_price:
+            filter_query["cost.amount"]["$gte"] = min_price
+        if max_price:
+            filter_query["cost.amount"]["$lte"] = max_price
     
     # Get all matching properties
     properties = await db.incomelands_properties.find(filter_query).to_list(length=None)
     
     # Filter by distance if lat/lng provided
-    if query.latitude and query.longitude:
+    if latitude and longitude:
         properties_with_distance = []
         for prop in properties:
             if "location" in prop and "latitude" in prop["location"]:
                 distance = calculate_distance(
-                    query.latitude,
-                    query.longitude,
+                    latitude,
+                    longitude,
                     prop["location"]["latitude"],
                     prop["location"]["longitude"]
                 )
                 
-                if distance <= query.radius_km:
+                if distance <= radius_km:
                     prop["distance_km"] = round(distance, 2)
                     properties_with_distance.append(prop)
         
         properties = sorted(properties_with_distance, key=lambda x: x["distance_km"])
     
-    # Hide contacts
+    # Remove MongoDB _id field
     for prop in properties:
-        if prop.get("agent_id") != current_user["id"]:
-            has_unlocked = any(
-                unlock["user_id"] == current_user["id"]
-                for unlock in prop.get("contact_unlocks", [])
-            )
-            
-            if not has_unlocked and not prop.get("is_retoerp_property", False):
-                prop["agent_phone"] = None
-                prop["contact_locked"] = True
-        
-        if "owner_contact" in prop:
-            prop["owner_contact"] = None
+        prop.pop("_id", None)
     
     # Pagination
     total = len(properties)
-    properties = properties[query.skip:query.skip + query.limit]
+    properties = properties[:limit]
     
     return {
         "success": True,
