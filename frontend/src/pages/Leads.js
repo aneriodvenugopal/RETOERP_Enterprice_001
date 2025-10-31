@@ -383,7 +383,7 @@ const Leads = () => {
       </div>
 
       {/* Stats */}
-      {stats && (
+      {stats && viewMode === 'list' && (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <StatCard title="Total Leads" value={stats.total_leads} icon={Users} color="blue" />
           <StatCard title="Active Leads" value={stats.active_leads} icon={TrendingUp} color="green" />
@@ -397,11 +397,23 @@ const Leads = () => {
         </div>
       )}
 
-      {/* Leads Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>All Leads</CardTitle>
-        </CardHeader>
+      {/* Calendar View */}
+      {viewMode === 'calendar' && (
+        <CalendarScheduler 
+          leads={leads} 
+          onScheduleCreated={() => {
+            // Refresh leads when a new schedule is created
+            fetchLeads();
+          }} 
+        />
+      )}
+
+      {/* Leads Table - Only show in list view */}
+      {viewMode === 'list' && (
+        <Card>
+          <CardHeader>
+            <CardTitle>All Leads</CardTitle>
+          </CardHeader>
         <CardContent>
           {leads.length === 0 ? (
             <div className="text-center py-12">
