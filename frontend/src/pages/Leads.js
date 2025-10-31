@@ -466,7 +466,6 @@ const Leads = () => {
           )}
         </CardContent>
       </Card>
-      )}
 
       {/* Lead Details Dialog */}
       <Dialog open={showDetailsDialog} onOpenChange={setShowDetailsDialog}>
