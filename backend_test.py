@@ -358,74 +358,68 @@ def test_set_password_new_user():
         traceback.print_exc()
         return False
 
-def test_marketplace_project_details():
-    """Test 5: GET /api/marketplace/projects/{project_id} - Get project details"""
-    global test_project_id
+def test_login_with_password():
+    """Test 5: POST /api/incomelands/auth/login - Login with password"""
+    global test_user_mobile, test_token
     
-    if not test_project_id:
-        results.add_fail("Marketplace Project Details", "No test project ID available")
+    if not test_user_mobile:
+        results.add_fail("Login with Password", "No test user mobile available")
         return False
         
     try:
-        print(f"\n🏗️ TESTING: GET /api/marketplace/projects/{test_project_id}")
+        print("\n🔐 TESTING: POST /api/incomelands/auth/login")
         
-        response = requests.get(f"{API_BASE}/marketplace/projects/{test_project_id}", timeout=15)
+        login_data = {
+            "mobile": test_user_mobile,
+            "password": "test123"
+        }
+        
+        response = requests.post(
+            f"{API_BASE}/incomelands/auth/login",
+            json=login_data,
+            timeout=10
+        )
         
         if response.status_code != 200:
-            results.add_fail("Marketplace Project Details", f"Status code: {response.status_code}")
-            print_error_details("Marketplace Project Details", response)
+            results.add_fail("Login with Password", f"Status code: {response.status_code}")
+            print_error_details("Login with Password", response)
             return False
             
         data = response.json()
         
         # Validate response structure
-        required_fields = ['success', 'project', 'developer', 'statistics', 'sample_properties']
+        required_fields = ['success', 'message', 'token', 'user']
         missing_fields = [field for field in required_fields if field not in data]
         
         if missing_fields:
-            results.add_fail("Marketplace Project Details", f"Missing fields: {missing_fields}")
+            results.add_fail("Login with Password", f"Missing fields: {missing_fields}")
             return False
         
         if not data.get('success'):
-            results.add_fail("Marketplace Project Details", "Response success is False")
+            results.add_fail("Login with Password", "Response success is False")
             return False
         
-        # Validate developer contacts are LOCKED
-        developer = data.get('developer', {})
-        if developer.get('phone') != "LOCKED" or developer.get('email') != "LOCKED":
-            results.add_fail("Marketplace Project Details", "Developer contacts should be LOCKED")
+        user = data.get('user', {})
+        token = data.get('token')
+        
+        if not token:
+            results.add_fail("Login with Password", "No token in response")
             return False
         
-        if not developer.get('is_locked'):
-            results.add_fail("Marketplace Project Details", "Developer is_locked should be True")
+        if user.get('mobile') != test_user_mobile:
+            results.add_fail("Login with Password", "User mobile mismatch")
             return False
         
-        # Validate statistics
-        statistics = data.get('statistics', {})
-        required_stats = ['total_properties', 'available', 'booked', 'sold', 'price_range']
-        missing_stats = [field for field in required_stats if field not in statistics]
-        
-        if missing_stats:
-            results.add_fail("Marketplace Project Details", f"Missing statistics: {missing_stats}")
-            return False
-        
-        # Validate sample properties
-        sample_properties = data.get('sample_properties', [])
-        if not isinstance(sample_properties, list):
-            results.add_fail("Marketplace Project Details", "sample_properties is not a list")
-            return False
-        
-        project = data.get('project', {})
-        results.add_pass("Marketplace Project Details")
-        print(f"   ✅ Project details: {project.get('name')}")
-        print(f"   🔒 Developer contacts LOCKED: {developer.get('name')} (Phone: {developer.get('phone')}, Email: {developer.get('email')})")
-        print(f"   📊 Statistics: {statistics.get('total_properties')} total, {statistics.get('available')} available, {statistics.get('booked')} booked, {statistics.get('sold')} sold")
-        print(f"   🏠 Sample properties: {len(sample_properties)} returned")
+        results.add_pass("Login with Password")
+        print(f"   ✅ Login successful: {user.get('name')} ({test_user_mobile})")
+        print(f"   🎁 Free credits: {user.get('free_credits', 0)}")
+        print(f"   📅 Last login: {user.get('last_login')}")
+        print(f"   🔑 Token received: {token[:20]}...")
         
         return True
         
     except Exception as e:
-        results.add_fail("Marketplace Project Details", f"Exception: {str(e)}")
+        results.add_fail("Login with Password", f"Exception: {str(e)}")
         traceback.print_exc()
         return False
 
