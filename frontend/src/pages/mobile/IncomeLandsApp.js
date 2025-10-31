@@ -46,6 +46,7 @@ const IncomeLandsApp = () => {
   const [myProperties, setMyProperties] = useState([]);
   const [favourites, setFavourites] = useState([]);
   const [followupContacts, setFollowupContacts] = useState([]);
+  const [selectedProperty, setSelectedProperty] = useState(null);
   const [loading, setLoading] = useState(false);
   const [credits, setCredits] = useState(20);
   
