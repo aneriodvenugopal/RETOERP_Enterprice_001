@@ -358,7 +358,7 @@ const Leads = () => {
       </div>
 
       {/* Stats */}
-      {stats && viewMode === 'list' && (
+      {stats && (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <StatCard title="Total Leads" value={stats.total_leads} icon={Users} color="blue" />
           <StatCard title="Active Leads" value={stats.active_leads} icon={TrendingUp} color="green" />
@@ -372,25 +372,11 @@ const Leads = () => {
         </div>
       )}
 
-      {/* Calendar View */}
-      {viewMode === 'calendar' && (
-        <Card>
-          <CardContent className="py-12">
-            <div className="text-center">
-              <Calendar className="w-16 h-16 mx-auto text-gray-400 mb-4" />
-              <h3 className="text-lg font-semibold mb-2">Calendar View Coming Soon</h3>
-              <p className="text-gray-500">We're working on the calendar integration</p>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Leads Table - Only show in list view */}
-      {viewMode === 'list' && (
-        <Card>
-          <CardHeader>
-            <CardTitle>All Leads</CardTitle>
-          </CardHeader>
+      {/* Leads Table */}
+      <Card>
+        <CardHeader>
+          <CardTitle>All Leads</CardTitle>
+        </CardHeader>
         <CardContent>
           {leads.length === 0 ? (
             <div className="text-center py-12">
