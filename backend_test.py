@@ -104,10 +104,17 @@ test_lead_id = None
 test_requirement_id = None
 
 # ============================================
-# INCOMELANDS MARKETPLACE API TESTS
+# INCOMELANDS AUTHENTICATION API TESTS
 # ============================================
 
-def test_agent_register():
+# Global variables to store test data
+test_user_mobile = None
+test_otp = None
+test_token = None
+new_user_mobile = None
+new_user_otp = None
+
+def test_register_new_user():
     """Test 1: POST /api/marketplace/agents/register - Register new agent"""
     global test_agent_id
     
