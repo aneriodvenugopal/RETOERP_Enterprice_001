@@ -113,18 +113,31 @@ const AuthScreen = ({ onAuthSuccess }) => {
     setError('');
     
     try {
-      // TODO: Call backend API to set password
-      setTimeout(() => {
-        onAuthSuccess({
-          id: '123',
-          mobile: mobile,
-          name: 'New User',
-          free_credits: 20
-        });
+      const response = await fetch(`${API_URL}/api/incomelands/auth/set-password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ mobile, password })
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        setError(data.detail || 'Failed to set password');
         setLoading(false);
-      }, 1000);
+        return;
+      }
+      
+      if (data.success) {
+        onAuthSuccess({
+          ...data.user,
+          token: data.token
+        });
+      }
     } catch (err) {
-      setError('Failed to set password');
+      console.error('Set password error:', err);
+      setError('Failed to set password. Please try again.');
       setLoading(false);
     }
   };
