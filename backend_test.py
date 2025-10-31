@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Backend API Testing for RETOERP - IncomeLands Marketplace API Integration Testing
-Tests the comprehensive IncomeLands Marketplace API system with 25+ endpoints across 7 functional areas.
-Focus: Retesting after syntax fixes in marketplace.py
+Backend API Testing for RETOERP - IncomeLands Authentication API Testing
+Tests the IncomeLands authentication endpoints including registration, OTP flow, login, and password management.
+Focus: Complete authentication flow validation
 """
 
 import requests
