@@ -31,7 +31,7 @@ if not BACKEND_URL:
 
 API_BASE = f"{BACKEND_URL}/api"
 
-print(f"🔄 RETESTING IncomeLands Marketplace API after syntax fixes at: {API_BASE}")
+print(f"🔄 TESTING IncomeLands Authentication API at: {API_BASE}")
 print("=" * 80)
 
 class TestResults:
