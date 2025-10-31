@@ -303,7 +303,11 @@ const CalendarScheduler = ({ leads, onScheduleCreated }) => {
                 const eventDate = new Date(event.scheduled_time);
 
                 return (
-                  <Card key={event.id} className={`border-l-4 border-l-${urgency.color}-500`}>
+                  <Card key={event.id} className={`${
+                    urgency.color === 'red' ? 'border-l-4 border-l-red-500' :
+                    urgency.color === 'orange' ? 'border-l-4 border-l-orange-500' :
+                    'border-l-4 border-l-green-500'
+                  }`}>
                     <CardContent className="pt-4">
                       <div className="flex items-start justify-between">
                         {/* Left side - Event details */}
