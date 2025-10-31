@@ -297,99 +297,64 @@ def test_verify_otp_new_user():
         traceback.print_exc()
         return False
 
-def test_marketplace_projects_list():
-    """Test 4: GET /api/marketplace/projects - List projects with filters"""
-    global test_project_id
+def test_set_password_new_user():
+    """Test 4: POST /api/incomelands/auth/set-password - Set password for new user"""
+    global new_user_mobile
     
-    try:
-        print("\n🏗️ TESTING: GET /api/marketplace/projects")
+    if not new_user_mobile:
+        results.add_fail("Set Password New User", "No new user mobile available")
+        return False
         
-        # Test 1: Get all projects without filters
-        print("   📋 Testing without filters...")
-        response = requests.get(f"{API_BASE}/marketplace/projects", timeout=15)
+    try:
+        print("\n🔑 TESTING: POST /api/incomelands/auth/set-password")
+        
+        password_data = {
+            "mobile": new_user_mobile,
+            "password": "newpass123"
+        }
+        
+        response = requests.post(
+            f"{API_BASE}/incomelands/auth/set-password",
+            json=password_data,
+            timeout=10
+        )
         
         if response.status_code != 200:
-            results.add_fail("Marketplace Projects List", f"Status code: {response.status_code}")
-            print_error_details("Marketplace Projects List", response)
+            results.add_fail("Set Password New User", f"Status code: {response.status_code}")
+            print_error_details("Set Password New User", response)
             return False
             
         data = response.json()
         
         # Validate response structure
-        required_fields = ['success', 'count', 'projects']
+        required_fields = ['success', 'message', 'token', 'user']
         missing_fields = [field for field in required_fields if field not in data]
         
         if missing_fields:
-            results.add_fail("Marketplace Projects List", f"Missing fields: {missing_fields}")
+            results.add_fail("Set Password New User", f"Missing fields: {missing_fields}")
             return False
         
         if not data.get('success'):
-            results.add_fail("Marketplace Projects List", "Response success is False")
+            results.add_fail("Set Password New User", "Response success is False")
             return False
         
-        projects = data.get('projects', [])
-        if not isinstance(projects, list):
-            results.add_fail("Marketplace Projects List", "Projects is not a list")
+        user = data.get('user', {})
+        token = data.get('token')
+        
+        if not token:
+            results.add_fail("Set Password New User", "No token in response")
             return False
         
-        print(f"   ✅ Found {len(projects)} projects without filters")
+        results.add_pass("Set Password New User")
+        print(f"   ✅ Password set for user: {user.get('name')} ({new_user_mobile})")
+        print(f"   🎁 Free credits: {user.get('free_credits', 0)}")
+        print(f"   🔗 Referral code: {user.get('referral_code')}")
+        print(f"   🔑 Token received: {token[:20]}...")
         
-        # Store first project for later tests
-        if projects:
-            test_project_id = projects[0]['id']
-            project = projects[0]
-            
-            # Validate project structure
-            required_project_fields = ['developer_name', 'total_properties', 'available_properties', 'price_range']
-            missing_project_fields = [field for field in required_project_fields if field not in project]
-            
-            if missing_project_fields:
-                results.add_fail("Marketplace Projects List", f"Missing project fields: {missing_project_fields}")
-                return False
-            
-            print(f"   🏢 Sample project: {project.get('name')} by {project.get('developer_name')}")
-            print(f"   📊 Properties: {project.get('total_properties')} total, {project.get('available_properties')} available")
-            print(f"   💰 Price range: ₹{project['price_range'].get('min', 0):,} - ₹{project['price_range'].get('max', 0):,}")
-        
-        # Test 2: Filter by city
-        print("   🏙️ Testing with city filter (Hyderabad)...")
-        city_response = requests.get(
-            f"{API_BASE}/marketplace/projects",
-            params={"city": "Hyderabad"},
-            timeout=15
-        )
-        
-        if city_response.status_code == 200:
-            city_data = city_response.json()
-            print(f"   ✅ Found {len(city_data.get('projects', []))} projects in Hyderabad")
-        
-        # Test 3: Geo-location filter
-        print("   📍 Testing with geo-location filter...")
-        geo_response = requests.get(
-            f"{API_BASE}/marketplace/projects",
-            params={
-                "latitude": HYDERABAD_LAT,
-                "longitude": HYDERABAD_LON,
-                "radius_km": 20
-            },
-            timeout=15
-        )
-        
-        if geo_response.status_code == 200:
-            geo_data = geo_response.json()
-            geo_projects = geo_data.get('projects', [])
-            print(f"   ✅ Found {len(geo_projects)} projects within 20km of Hyderabad")
-            
-            # Validate distance calculation
-            for project in geo_projects[:3]:  # Check first 3
-                if project.get('distance_km') is not None:
-                    print(f"      - {project.get('name')}: {project.get('distance_km')}km away")
-        
-        results.add_pass("Marketplace Projects List")
         return True
         
     except Exception as e:
-        results.add_fail("Marketplace Projects List", f"Exception: {str(e)}")
+        results.add_fail("Set Password New User", f"Exception: {str(e)}")
         traceback.print_exc()
         return False
 
