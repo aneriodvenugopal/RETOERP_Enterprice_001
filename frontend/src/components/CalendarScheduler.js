@@ -364,14 +364,30 @@ const CalendarScheduler = ({ leads, onScheduleCreated }) => {
                         </div>
 
                         {/* Right side - Time with color flag */}
-                        <div className={`text-right ml-4 px-4 py-2 rounded-lg bg-${urgency.color}-50 border-2 border-${urgency.color}-200`}>
+                        <div className={`text-right ml-4 px-4 py-2 rounded-lg ${
+                          urgency.color === 'red' ? 'bg-red-50 border-2 border-red-200' :
+                          urgency.color === 'orange' ? 'bg-orange-50 border-2 border-orange-200' :
+                          'bg-green-50 border-2 border-green-200'
+                        }`}>
                           <div className="flex items-center gap-2 justify-end mb-1">
-                            <UrgencyIcon className={`w-4 h-4 text-${urgency.color}-600`} />
-                            <span className={`text-xs font-semibold text-${urgency.color}-700`}>
+                            <UrgencyIcon className={`w-4 h-4 ${
+                              urgency.color === 'red' ? 'text-red-600' :
+                              urgency.color === 'orange' ? 'text-orange-600' :
+                              'text-green-600'
+                            }`} />
+                            <span className={`text-xs font-semibold ${
+                              urgency.color === 'red' ? 'text-red-700' :
+                              urgency.color === 'orange' ? 'text-orange-700' :
+                              'text-green-700'
+                            }`}>
                               {urgency.label}
                             </span>
                           </div>
-                          <div className={`text-sm font-bold text-${urgency.color}-800`}>
+                          <div className={`text-sm font-bold ${
+                            urgency.color === 'red' ? 'text-red-800' :
+                            urgency.color === 'orange' ? 'text-orange-800' :
+                            'text-green-800'
+                          }`}>
                             {formatTimeDisplay(event.scheduled_time)}
                           </div>
                           <div className="text-xs text-gray-500 mt-1">
