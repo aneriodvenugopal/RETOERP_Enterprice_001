@@ -176,52 +176,63 @@ def test_register_new_user():
         traceback.print_exc()
         return False
 
-def test_agent_get_profile():
-    """Test 2: GET /api/marketplace/agents/{agent_id} - Get agent profile"""
-    global test_agent_id
+def test_send_otp_new_user():
+    """Test 2: POST /api/incomelands/auth/send-otp - Send OTP to new user"""
+    global new_user_mobile, new_user_otp
     
-    if not test_agent_id:
-        results.add_fail("Agent Get Profile", "No test agent ID available")
-        return False
-        
     try:
-        print(f"\n👤 TESTING: GET /api/marketplace/agents/{test_agent_id}")
+        print("\n📱 TESTING: POST /api/incomelands/auth/send-otp (New User)")
         
-        response = requests.get(f"{API_BASE}/marketplace/agents/{test_agent_id}", timeout=10)
+        new_user_mobile = "9999888877"  # Use the mobile from test case
+        
+        otp_data = {
+            "mobile": new_user_mobile
+        }
+        
+        response = requests.post(
+            f"{API_BASE}/incomelands/auth/send-otp",
+            json=otp_data,
+            timeout=10
+        )
         
         if response.status_code != 200:
-            results.add_fail("Agent Get Profile", f"Status code: {response.status_code}")
-            print_error_details("Agent Get Profile", response)
+            results.add_fail("Send OTP New User", f"Status code: {response.status_code}")
+            print_error_details("Send OTP New User", response)
             return False
             
         data = response.json()
         
         # Validate response structure
-        required_fields = ['success', 'agent', 'recent_leads', 'commission_summary']
+        required_fields = ['success', 'message', 'is_new_user']
         missing_fields = [field for field in required_fields if field not in data]
         
         if missing_fields:
-            results.add_fail("Agent Get Profile", f"Missing fields: {missing_fields}")
+            results.add_fail("Send OTP New User", f"Missing fields: {missing_fields}")
             return False
         
         if not data.get('success'):
-            results.add_fail("Agent Get Profile", "Response success is False")
+            results.add_fail("Send OTP New User", "Response success is False")
             return False
         
-        agent = data.get('agent', {})
-        if agent.get('id') != test_agent_id:
-            results.add_fail("Agent Get Profile", "Agent ID mismatch")
+        if not data.get('is_new_user'):
+            results.add_fail("Send OTP New User", "Expected is_new_user=true for new mobile number")
             return False
         
-        results.add_pass("Agent Get Profile")
-        print(f"   ✅ Agent profile retrieved: {agent.get('name')}")
-        print(f"   📊 Performance: {agent.get('total_leads_submitted', 0)} leads, {agent.get('converted_leads', 0)} conversions")
-        print(f"   💰 Commission earned: ₹{agent.get('total_commission_earned', 0):,.2f}")
+        # In dev mode, OTP should be returned in response
+        new_user_otp = data.get('otp')
+        if not new_user_otp:
+            results.add_fail("Send OTP New User", "No OTP in response (dev mode)")
+            return False
+        
+        results.add_pass("Send OTP New User")
+        print(f"   ✅ OTP sent to new user: {new_user_mobile}")
+        print(f"   🆕 Is new user: {data.get('is_new_user')}")
+        print(f"   🔢 OTP (dev mode): {new_user_otp}")
         
         return True
         
     except Exception as e:
-        results.add_fail("Agent Get Profile", f"Exception: {str(e)}")
+        results.add_fail("Send OTP New User", f"Exception: {str(e)}")
         traceback.print_exc()
         return False
 
