@@ -216,13 +216,36 @@ const Leads = () => {
           <h2 className="text-3xl font-bold">Leads</h2>
           <p className="text-gray-500">Manage your leads and follow-ups</p>
         </div>
-        <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="w-4 h-4 mr-2" />
-              New Lead
-            </Button>
-          </DialogTrigger>
+        <div className="flex items-center gap-3">
+          {/* View Mode Toggle */}
+          <div className="flex bg-gray-100 rounded-lg p-1">
+            <button
+              onClick={() => setViewMode('list')}
+              className={`px-4 py-2 rounded-md flex items-center gap-2 transition-colors ${
+                viewMode === 'list' ? 'bg-white shadow-sm' : 'text-gray-600'
+              }`}
+            >
+              <List className="w-4 h-4" />
+              List View
+            </button>
+            <button
+              onClick={() => setViewMode('calendar')}
+              className={`px-4 py-2 rounded-md flex items-center gap-2 transition-colors ${
+                viewMode === 'calendar' ? 'bg-white shadow-sm' : 'text-gray-600'
+              }`}
+            >
+              <Calendar className="w-4 h-4" />
+              Calendar View
+            </button>
+          </div>
+          
+          <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="w-4 h-4 mr-2" />
+                New Lead
+              </Button>
+            </DialogTrigger>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Create New Lead</DialogTitle>
