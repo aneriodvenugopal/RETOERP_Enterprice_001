@@ -92,16 +92,10 @@ def test_health_check():
         results.add_fail("API Health Check", f"Connection error: {str(e)}")
         return False
 
-# Test data constants
+# Test data constants - not needed for auth tests but keeping for compatibility
 DEFAULT_TENANT_ID = "f18f7bd6-3a1f-472d-acf9-c2fb181787e7"
 HYDERABAD_LAT = 17.385
 HYDERABAD_LON = 78.486
-
-# Global variables to store test data
-test_agent_id = None
-test_project_id = None
-test_lead_id = None
-test_requirement_id = None
 
 # ============================================
 # INCOMELANDS AUTHENTICATION API TESTS
