@@ -3,6 +3,8 @@ import { Phone, Lock, Eye, EyeOff } from 'lucide-react';
 import { useLanguage } from '../i18n/translations';
 import './AuthScreen.css';
 
+const API_URL = process.env.REACT_APP_BACKEND_URL || '';
+
 const AuthScreen = ({ onAuthSuccess }) => {
   const { t, language, changeLanguage } = useLanguage();
   const [mode, setMode] = useState('login'); // 'login', 'otp', 'setPassword'
