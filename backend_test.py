@@ -236,53 +236,64 @@ def test_send_otp_new_user():
         traceback.print_exc()
         return False
 
-def test_agent_lookup_by_phone():
-    """Test 3: GET /api/marketplace/agents/phone/{phone} - Lookup agent by phone"""
-    global test_agent_id
+def test_verify_otp_new_user():
+    """Test 3: POST /api/incomelands/auth/verify-otp - Verify OTP for new user"""
+    global new_user_mobile, new_user_otp
     
-    if not test_agent_id:
-        results.add_fail("Agent Lookup by Phone", "No test agent available")
+    if not new_user_mobile or not new_user_otp:
+        results.add_fail("Verify OTP New User", "No new user mobile or OTP available")
         return False
         
     try:
-        print("\n📱 TESTING: GET /api/marketplace/agents/phone/{phone}")
+        print("\n🔐 TESTING: POST /api/incomelands/auth/verify-otp (New User)")
         
-        # First get the agent to get their phone number
-        agent_response = requests.get(f"{API_BASE}/marketplace/agents/{test_agent_id}", timeout=10)
-        if agent_response.status_code != 200:
-            results.add_fail("Agent Lookup by Phone", "Could not get agent phone number")
-            return False
+        verify_data = {
+            "mobile": new_user_mobile,
+            "otp": new_user_otp
+        }
         
-        agent_data = agent_response.json()
-        phone = agent_data['agent']['phone']
-        
-        # Now lookup by phone
-        response = requests.get(f"{API_BASE}/marketplace/agents/phone/{phone}", timeout=10)
+        response = requests.post(
+            f"{API_BASE}/incomelands/auth/verify-otp",
+            json=verify_data,
+            timeout=10
+        )
         
         if response.status_code != 200:
-            results.add_fail("Agent Lookup by Phone", f"Status code: {response.status_code}")
-            print_error_details("Agent Lookup by Phone", response)
+            results.add_fail("Verify OTP New User", f"Status code: {response.status_code}")
+            print_error_details("Verify OTP New User", response)
             return False
             
         data = response.json()
         
-        # Validate response
+        # Validate response structure
+        required_fields = ['success', 'message', 'is_new_user', 'requires_password']
+        missing_fields = [field for field in required_fields if field not in data]
+        
+        if missing_fields:
+            results.add_fail("Verify OTP New User", f"Missing fields: {missing_fields}")
+            return False
+        
         if not data.get('success'):
-            results.add_fail("Agent Lookup by Phone", "Response success is False")
+            results.add_fail("Verify OTP New User", "Response success is False")
             return False
         
-        agent = data.get('agent', {})
-        if agent.get('id') != test_agent_id:
-            results.add_fail("Agent Lookup by Phone", "Agent ID mismatch")
+        if not data.get('is_new_user'):
+            results.add_fail("Verify OTP New User", "Expected is_new_user=true")
             return False
         
-        results.add_pass("Agent Lookup by Phone")
-        print(f"   ✅ Agent found by phone: {agent.get('name')} ({phone})")
+        if not data.get('requires_password'):
+            results.add_fail("Verify OTP New User", "Expected requires_password=true")
+            return False
+        
+        results.add_pass("Verify OTP New User")
+        print(f"   ✅ OTP verified for new user: {new_user_mobile}")
+        print(f"   🆕 Is new user: {data.get('is_new_user')}")
+        print(f"   🔑 Requires password: {data.get('requires_password')}")
         
         return True
         
     except Exception as e:
-        results.add_fail("Agent Lookup by Phone", f"Exception: {str(e)}")
+        results.add_fail("Verify OTP New User", f"Exception: {str(e)}")
         traceback.print_exc()
         return False
 
