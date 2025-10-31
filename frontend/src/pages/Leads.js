@@ -399,13 +399,15 @@ const Leads = () => {
 
       {/* Calendar View */}
       {viewMode === 'calendar' && (
-        <CalendarScheduler 
-          leads={leads} 
-          onScheduleCreated={() => {
-            // Refresh leads when a new schedule is created
-            fetchLeads();
-          }} 
-        />
+        <Card>
+          <CardContent className="py-12">
+            <div className="text-center">
+              <Calendar className="w-16 h-16 mx-auto text-gray-400 mb-4" />
+              <h3 className="text-lg font-semibold mb-2">Calendar View Coming Soon</h3>
+              <p className="text-gray-500">We're working on the calendar integration</p>
+            </div>
+          </CardContent>
+        </Card>
       )}
 
       {/* Leads Table - Only show in list view */}
