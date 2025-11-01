@@ -299,28 +299,66 @@ const Home = () => {
       {/* FREE 24×7 Expert Advisory CTA Section */}
       <section className="py-20 bg-gradient-to-r from-blue-600 to-cyan-600">
         <div className="container mx-auto px-6">
-          <div className="max-w-4xl mx-auto text-center text-white">
-            <div className="text-6xl mb-6">🤖</div>
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              FREE 24×7 Expert Advisory
-            </h2>
-            <p className="text-xl md:text-2xl mb-4 opacity-90">
-              Get instant, personalized real estate guidance powered by AI
-            </p>
-            <p className="text-lg mb-8 opacity-80">
-              Budget Advisory • Location Insights • Numerology • Best Projects • Investment Analysis
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link
-                to="/advisory"
-                className="inline-block bg-white text-blue-600 px-8 py-4 rounded-lg font-bold text-lg hover:bg-gray-100 transition-all transform hover:scale-105 shadow-xl"
-              >
-                Get Free Expert Advice Now →
-              </Link>
+          <div className="max-w-6xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+              {/* Left side - Expert Team Image */}
+              <div className="relative">
+                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
+                  <img 
+                    src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=600&h=400&fit=crop" 
+                    alt="Expert Real Estate Advisory Team" 
+                    className="rounded-xl shadow-2xl w-full"
+                  />
+                  <div className="absolute -bottom-4 -right-4 bg-white text-blue-600 px-6 py-3 rounded-lg shadow-xl font-bold">
+                    🎯 10+ Years Experience
+                  </div>
+                </div>
+              </div>
+              
+              {/* Right side - Content */}
+              <div className="text-white">
+                <h2 className="text-4xl md:text-5xl font-bold mb-6">
+                  FREE 24×7 Expert Advisory
+                </h2>
+                <p className="text-xl md:text-2xl mb-4 opacity-90">
+                  Get instant, personalized guidance from our team of real estate experts
+                </p>
+                <p className="text-lg mb-6 opacity-80">
+                  Our experienced advisors analyze your requirements and provide tailored recommendations within seconds
+                </p>
+                
+                {/* Services List */}
+                <div className="grid grid-cols-2 gap-4 mb-8">
+                  <div className="flex items-center">
+                    <span className="text-2xl mr-3">💰</span>
+                    <span>Budget Advisory</span>
+                  </div>
+                  <div className="flex items-center">
+                    <span className="text-2xl mr-3">📍</span>
+                    <span>Location Insights</span>
+                  </div>
+                  <div className="flex items-center">
+                    <span className="text-2xl mr-3">⭐</span>
+                    <span>Best Projects</span>
+                  </div>
+                  <div className="flex items-center">
+                    <span className="text-2xl mr-3">📈</span>
+                    <span>Investment Analysis</span>
+                  </div>
+                </div>
+                
+                <Link
+                  to="/advisory"
+                  className="inline-block bg-white text-blue-600 px-8 py-4 rounded-lg font-bold text-lg hover:bg-gray-100 transition-all transform hover:scale-105 shadow-xl"
+                >
+                  Talk to Our Experts Now →
+                </Link>
+                
+                <p className="mt-6 text-sm opacity-75">
+                  ✓ Available 24×7 &nbsp;&nbsp; ✓ Completely Free &nbsp;&nbsp; ✓ Instant Response &nbsp;&nbsp; ✓ Multi-language Support
+                </p>
+              </div>
             </div>
-            <p className="mt-6 text-sm opacity-75">
-              ✓ Available 24×7 &nbsp;&nbsp; ✓ Completely Free &nbsp;&nbsp; ✓ Instant Response &nbsp;&nbsp; ✓ Multi-language Support
-            </p>
           </div>
         </div>
       </section>
