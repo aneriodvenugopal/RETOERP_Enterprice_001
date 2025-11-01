@@ -115,6 +115,7 @@ function App() {
                 <Route path="/terms-conditions" element={<TermsConditions />} />
                 <Route path="/refund-policy" element={<RefundPolicy />} />
                 <Route path="/shipping-policy" element={<ShippingPolicy />} />
+                <Route path="/faq" element={<FAQRealEstate />} />
                 
                 {/* Public Landing Pages */}
                 <Route path="/tenants" element={<TenantsDirectory />} />
