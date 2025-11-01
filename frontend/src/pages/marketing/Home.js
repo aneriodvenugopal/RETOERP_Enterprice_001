@@ -296,6 +296,35 @@ const Home = () => {
         </div>
       </section>
 
+      {/* FREE 24×7 Expert Advisory CTA Section */}
+      <section className="py-20 bg-gradient-to-r from-blue-600 to-cyan-600">
+        <div className="container mx-auto px-6">
+          <div className="max-w-4xl mx-auto text-center text-white">
+            <div className="text-6xl mb-6">🤖</div>
+            <h2 className="text-4xl md:text-5xl font-bold mb-6">
+              FREE 24×7 Expert Advisory
+            </h2>
+            <p className="text-xl md:text-2xl mb-4 opacity-90">
+              Get instant, personalized real estate guidance powered by AI
+            </p>
+            <p className="text-lg mb-8 opacity-80">
+              Budget Advisory • Location Insights • Numerology • Best Projects • Investment Analysis
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link
+                to="/advisory"
+                className="inline-block bg-white text-blue-600 px-8 py-4 rounded-lg font-bold text-lg hover:bg-gray-100 transition-all transform hover:scale-105 shadow-xl"
+              >
+                Get Free Expert Advice Now →
+              </Link>
+            </div>
+            <p className="mt-6 text-sm opacity-75">
+              ✓ Available 24×7 &nbsp;&nbsp; ✓ Completely Free &nbsp;&nbsp; ✓ Instant Response &nbsp;&nbsp; ✓ Multi-language Support
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* Featured Partners Section */}
       <section className="py-20 bg-gradient-to-br from-blue-50 to-cyan-50">
         <div className="container mx-auto px-6">
