@@ -276,7 +276,7 @@ const Home = () => {
               <ul className="space-y-3 text-gray-600">
                 <li className="flex items-start">
                   <span className="text-blue-600 mr-2">✓</span>
-                  Free AI-powered property advisory
+                  FREE 24×7 Expert Advisory - Get instant property guidance anytime
                 </li>
                 <li className="flex items-start">
                   <span className="text-blue-600 mr-2">✓</span>
