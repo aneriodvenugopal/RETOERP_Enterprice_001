@@ -79,43 +79,21 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-white">
+      {/* Sticky Navigation */}
+      <StickyNavbar />
+      
       {/* Language Selector - Fixed Top Right */}
-      <div className="fixed top-4 right-4 z-50">
+      <div className="fixed top-20 right-4 z-40">
         <LanguageSelector />
       </div>
       
-      {/* Hero Section */}
-      <section className="bg-gradient-to-br from-blue-50 to-cyan-50 py-20">
-        <div className="container mx-auto px-6 text-center">
-          <h1 className="text-5xl md:text-7xl font-bold text-gray-900 mb-6">
-            {t.hero_title}, <span className="text-blue-600">{t.hero_subtitle}</span>
-          </h1>
-          
-          <p className="text-xl md:text-2xl text-gray-600 mb-8 max-w-3xl mx-auto">
-            {t.hero_description}
-          </p>
-          
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
-            <Link 
-              to="/register" 
-              className="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-lg transition-all"
-            >
-              {t.get_started} →
-            </Link>
-            <Link 
-              to="/login" 
-              className="px-8 py-4 bg-white hover:bg-gray-50 text-blue-600 font-semibold rounded-lg border-2 border-blue-200 transition-all"
-            >
-              {t.learn_more}
-            </Link>
-          </div>
-          
-          <p className="text-gray-500 text-sm">
-            ✨ {t.trusted_by}
-          </p>
-
-          {/* Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16 max-w-4xl mx-auto">
+      {/* Hero Carousel */}
+      <HeroCarousel />
+      
+      {/* Stats Section */}
+      <section className="py-12 bg-gray-50">
+        <div className="container mx-auto px-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
             <div className="bg-white rounded-xl p-8 shadow-md border border-gray-100">
               <div className="text-5xl font-bold text-blue-600 mb-2">10+</div>
               <div className="text-gray-600 font-medium">Years Experience</div>
