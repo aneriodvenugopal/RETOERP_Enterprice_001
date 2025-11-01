@@ -71,6 +71,7 @@ import PrivacyPolicy from "./pages/policies/PrivacyPolicy";
 import TermsConditions from "./pages/policies/TermsConditions";
 import RefundPolicy from "./pages/policies/RefundPolicy";
 import ShippingPolicy from "./pages/policies/ShippingPolicy";
+import FAQRealEstate from "./pages/FAQRealEstate";
 
 // PWA Components
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
