@@ -199,17 +199,23 @@ const AdvisoryChat = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-lg transition-all disabled:bg-gray-400"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-lg transition-all disabled:bg-gray-400 disabled:cursor-not-allowed"
               >
                 {loading ? (
                   <span className="flex items-center justify-center">
                     <Loader className="animate-spin mr-2" />
-                    Getting AI Advice...
+                    Getting Expert Advice...
                   </span>
                 ) : (
-                  'Get Free AI Advice'
+                  'Get Free 24×7 Expert Advice'
                 )}
               </button>
+              
+              {loading && loadingMessage && (
+                <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg text-center">
+                  <p className="text-blue-800 font-medium">{loadingMessage}</p>
+                </div>
+              )}
             </form>
           )}
 
