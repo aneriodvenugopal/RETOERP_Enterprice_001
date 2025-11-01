@@ -18,7 +18,7 @@ const FloatingWhatsApp = () => {
   return (
     <>
       {/* Floating Button */}
-      <div className="fixed bottom-6 right-6 z-50">
+      <div className="fixed bottom-6 left-6 z-50">
         {isOpen && (
           <div className="mb-4 bg-white rounded-2xl shadow-2xl p-6 w-80 animate-fadeIn">
             <div className="flex justify-between items-start mb-4">
