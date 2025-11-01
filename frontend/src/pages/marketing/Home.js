@@ -541,6 +541,12 @@ const Home = () => {
       {/* Success Stories */}
       <SuccessStories />
 
+      {/* Who Benefits - Complete Ecosystem */}
+      <WhoBenefits />
+
+      {/* Feature Highlights */}
+      <FeatureHighlights />
+
       {/* ROI Calculator */}
       <ROICalculator />
 
