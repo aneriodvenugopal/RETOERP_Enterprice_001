@@ -8,6 +8,8 @@ import StickyNavbar from '../../components/StickyNavbar';
 import FloatingWhatsApp from '../../components/FloatingWhatsApp';
 import SuccessStories from '../../components/SuccessStories';
 import ROICalculator from '../../components/ROICalculator';
+import WhoBenefits from '../../components/WhoBenefits';
+import FeatureHighlights from '../../components/FeatureHighlights';
 import { usePageTranslation } from '../../hooks/usePageTranslation';
 import apiInstance from '../../services/api';
 
