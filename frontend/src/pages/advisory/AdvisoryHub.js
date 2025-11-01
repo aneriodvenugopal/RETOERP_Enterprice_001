@@ -37,10 +37,10 @@ const AdvisoryHub = () => {
           <div className="text-center">
             <h1 className="text-5xl font-bold text-gray-900 mb-4">
               FREE 24×7 Expert Advisory
-              <span className="block text-blue-600 mt-2">For All Your Real Estate Needs</span>
+              <span className="block text-blue-600 mt-2">From Real Estate Professionals</span>
             </h1>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Get expert guidance on your real estate decisions - available 24×7, completely free! Our AI-powered advisory system provides personalized recommendations based on your unique requirements.
+              Get expert guidance from our team of experienced real estate advisors - available 24×7, completely free! Our professionals analyze your unique requirements and provide personalized recommendations instantly.
             </p>
           </div>
         </div>
