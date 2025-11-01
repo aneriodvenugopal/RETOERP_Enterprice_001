@@ -110,7 +110,7 @@ Go to **APIs & Services** → **Library** and enable:
 1. Under **Application restrictions**, select "HTTP referrers"
 2. Add your domain:
    ```
-   https://incomelands-app.preview.emergentagent.com/*
+   https://property-pulse-81.preview.emergentagent.com/*
    ```
 3. For production, add your production domain
 

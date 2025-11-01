@@ -47,7 +47,7 @@
         tenantId: tenantId,
         position: position,
         primaryColor: primaryColor,
-        backendUrl: 'https://incomelands-app.preview.emergentagent.com/api'
+        backendUrl: 'https://property-pulse-81.preview.emergentagent.com/api'
       };
       
       // Load chat widget bundle
