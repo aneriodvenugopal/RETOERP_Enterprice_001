@@ -69,6 +69,15 @@ import IncomeLandsApp from "./pages/mobile/IncomeLandsApp";
 // PWA Components
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
 
+// Custom Hooks
+import useScrollToTop from "./hooks/useScrollToTop";
+
+// Scroll to top component wrapper
+function ScrollToTop() {
+  useScrollToTop();
+  return null;
+}
+
 function App() {
   return (
     <AuthProvider>
@@ -76,6 +85,7 @@ function App() {
         <LanguageProvider>
           <div className="App">
             <BrowserRouter>
+              <ScrollToTop />
               <Routes>
                 {/* Marketing Routes - Public */}
                 <Route path="/" element={<Home />} />
