@@ -379,7 +379,7 @@ const Home = () => {
               <div className="relative">
                 <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
                   <img 
-                    src="https://images.unsplash.com/photo-1637176594832-97454dc84edf?w=600&h=400&fit=crop" 
+                    src="https://customer-assets.emergentagent.com/job_e1c4c75b-1560-4c52-a1d3-ae57271eccb9/artifacts/oyr6re22_ChatGPT%20Image%20Nov%201%2C%202025%2C%2009_59_36%20PM.png" 
                     alt="Expert Real Estate Advisory Team - Indian Women Professionals" 
                     className="rounded-xl shadow-2xl w-full"
                   />
