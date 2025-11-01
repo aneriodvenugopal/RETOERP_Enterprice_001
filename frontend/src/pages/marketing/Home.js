@@ -462,7 +462,7 @@ const Home = () => {
                 <li><Link to="/features" className="text-gray-600 hover:text-blue-600">Features</Link></li>
                 <li><Link to="/pricing" className="text-gray-600 hover:text-blue-600">Pricing</Link></li>
                 <li><Link to="/content" className="text-gray-600 hover:text-blue-600">Knowledge Hub</Link></li>
-                <li><Link to="/advisory" className="text-gray-600 hover:text-blue-600">Free AI Advisory</Link></li>
+                <li><Link to="/advisory" className="text-gray-600 hover:text-blue-600">FREE 24×7 Expert Advisory</Link></li>
               </ul>
             </div>
             
