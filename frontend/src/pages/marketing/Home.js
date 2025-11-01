@@ -236,6 +236,87 @@ const Home = () => {
         </div>
       </section>
 
+      {/* Services Showcase Carousel */}
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+              Comprehensive Real Estate Solutions
+            </h2>
+            <p className="text-xl text-gray-600">
+              Everything you need to manage and grow your real estate business
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+            {/* Service Cards */}
+            {[
+              {
+                icon: '📊',
+                title: 'Smart CRM & Lead Management',
+                description: 'Track leads, automate follow-ups, and never miss an opportunity',
+                features: ['Lead scoring', 'Auto-assignment', 'Follow-up reminders', 'Conversion tracking']
+              },
+              {
+                icon: '💰',
+                title: 'Payment & Booking Automation',
+                description: 'Streamline bookings, payments, and commission tracking',
+                features: ['Online payments', 'EMI management', 'Commission splits', 'Payment reminders']
+              },
+              {
+                icon: '🗺️',
+                title: 'Visual Property Layouts',
+                description: 'Interactive property maps with real-time availability',
+                features: ['DXF/SVG import', 'Interactive maps', 'Live availability', 'Virtual tours']
+              },
+              {
+                icon: '👥',
+                title: 'FREE 24×7 Expert Advisory',
+                description: 'Expert guidance for your customers - completely free',
+                features: ['Budget advisory', 'Location insights', 'Investment analysis', 'Multi-language']
+              },
+              {
+                icon: '📱',
+                title: 'Mobile-First PWA',
+                description: 'Manage your business from anywhere with our mobile app',
+                features: ['Works offline', 'Push notifications', 'Quick actions', 'Android & iOS']
+              },
+              {
+                icon: '📈',
+                title: 'Analytics & Insights',
+                description: 'Data-driven decisions with comprehensive reports',
+                features: ['Sales dashboard', 'Revenue reports', 'Team performance', 'Custom reports']
+              }
+            ].map((service, index) => (
+              <div key={index} className="bg-gray-50 rounded-xl p-8 hover:shadow-xl transition-all border border-gray-100 group">
+                <div className="text-6xl mb-4">{service.icon}</div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors">
+                  {service.title}
+                </h3>
+                <p className="text-gray-600 mb-4">{service.description}</p>
+                <ul className="space-y-2">
+                  {service.features.map((feature, idx) => (
+                    <li key={idx} className="flex items-start text-sm text-gray-700">
+                      <span className="text-blue-600 mr-2">✓</span>
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+
+          <div className="text-center mt-12">
+            <Link 
+              to="/features" 
+              className="inline-block px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-all"
+            >
+              Explore All Features →
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* Ecosystem Section */}
       <section className="py-20 bg-gray-50">
         <div className="container mx-auto px-6">
