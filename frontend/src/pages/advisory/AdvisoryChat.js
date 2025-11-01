@@ -77,6 +77,7 @@ const AdvisoryChat = () => {
   const handleGetAdvice = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setLoadingMessage('Our Expert team is working on it, they will update you in few seconds...');
     
     try {
       const response = await fetch(`${BACKEND_URL}/api/advisory/get-advice`, {
@@ -84,7 +85,7 @@ const AdvisoryChat = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           category,
-          user_inputs: formData
+          user_inputs: { ...formData, language: selectedLanguage }
         })
       });
       
@@ -96,6 +97,7 @@ const AdvisoryChat = () => {
       toast.error('Failed to get advice. Please try again.');
     } finally {
       setLoading(false);
+      setLoadingMessage('');
     }
   };
 
