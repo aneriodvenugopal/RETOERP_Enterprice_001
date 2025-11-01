@@ -186,9 +186,22 @@ const CalendarScheduler = ({ leads, onScheduleCreated }) => {
     }
   };
 
-  const connectGoogle = () => {
-    window.open(`${API_URL}/api/auth/google/login`, '_blank');
-    toast.info('Complete Google sign-in and refresh this page');
+  const connectGoogle = async () => {
+    try {
+      // Get the authorization URL from backend
+      const response = await fetch(`${API_URL}/api/auth/google/login`);
+      const data = await response.json();
+      
+      if (data.authorization_url) {
+        // Redirect to Google OAuth page
+        window.location.href = data.authorization_url;
+      } else {
+        toast.error('Failed to start Google authentication');
+      }
+    } catch (error) {
+      console.error('Google auth error:', error);
+      toast.error('Failed to connect Google Calendar');
+    }
   };
 
   // Calculate counts
