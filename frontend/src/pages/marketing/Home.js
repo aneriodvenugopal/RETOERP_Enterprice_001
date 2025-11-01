@@ -187,8 +187,8 @@ const Home = () => {
             {[
               {
                 icon: '🤖',
-                title: 'AI-Powered Advisory',
-                description: 'Free AI advisory for budget, location, numerology, and investment'
+                title: 'FREE 24×7 Expert Advisory',
+                description: 'Free expert advisory available 24×7 for budget, location, numerology, and investment decisions'
               },
               {
                 icon: '📊',
