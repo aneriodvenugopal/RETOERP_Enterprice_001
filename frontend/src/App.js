@@ -66,6 +66,12 @@ import TenantsDirectory from "./pages/public/TenantsDirectory";
 // Mobile App
 import IncomeLandsApp from "./pages/mobile/IncomeLandsApp";
 
+// Policy Pages
+import PrivacyPolicy from "./pages/policies/PrivacyPolicy";
+import TermsConditions from "./pages/policies/TermsConditions";
+import RefundPolicy from "./pages/policies/RefundPolicy";
+import ShippingPolicy from "./pages/policies/ShippingPolicy";
+
 // PWA Components
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
 
