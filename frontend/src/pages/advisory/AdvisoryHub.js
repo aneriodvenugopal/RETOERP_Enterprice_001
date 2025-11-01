@@ -86,9 +86,6 @@ const AdvisoryHub = () => {
               <h3 className="font-bold mb-2">Always Available</h3>
               <p className="opacity-90">Get expert guidance anytime, anywhere - 24×7</p>
             </div>
-              <h3 className="font-bold mb-2">100% Free</h3>
-              <p className="opacity-90">No hidden charges, completely free</p>
-            </div>
           </div>
         </div>
       </section>
