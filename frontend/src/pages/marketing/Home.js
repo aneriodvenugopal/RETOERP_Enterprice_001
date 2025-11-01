@@ -536,6 +536,12 @@ const Home = () => {
         </div>
       </section>
 
+      {/* Success Stories */}
+      <SuccessStories />
+
+      {/* ROI Calculator */}
+      <ROICalculator />
+
       {/* CTA Section */}
       <section className="py-20 bg-white">
         <div className="container mx-auto px-6">
