@@ -515,11 +515,11 @@ const Home = () => {
       {/* Footer */}
       <footer className="bg-gray-50 py-12 border-t border-gray-200">
         <div className="container mx-auto px-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
             <div>
               <h3 className="text-xl font-bold text-gray-900 mb-4">RETOERP</h3>
               <p className="text-gray-600">
-                Transforming real estate operations with AI and automation
+                Transforming real estate operations with expert advisory and automation
               </p>
             </div>
             
@@ -530,6 +530,7 @@ const Home = () => {
                 <li><Link to="/pricing" className="text-gray-600 hover:text-blue-600">Pricing</Link></li>
                 <li><Link to="/content" className="text-gray-600 hover:text-blue-600">Knowledge Hub</Link></li>
                 <li><Link to="/advisory" className="text-gray-600 hover:text-blue-600">FREE 24×7 Expert Advisory</Link></li>
+                <li><Link to="/tenants" className="text-gray-600 hover:text-blue-600">Our Partners</Link></li>
               </ul>
             </div>
             
@@ -537,6 +538,17 @@ const Home = () => {
               <h4 className="text-lg font-semibold text-gray-900 mb-3">Company</h4>
               <ul className="space-y-2">
                 <li><Link to="/about" className="text-gray-600 hover:text-blue-600">About Us</Link></li>
+                <li><Link to="/contact" className="text-gray-600 hover:text-blue-600">Contact Us</Link></li>
+              </ul>
+            </div>
+            
+            <div>
+              <h4 className="text-lg font-semibold text-gray-900 mb-3">Legal & Policies</h4>
+              <ul className="space-y-2">
+                <li><Link to="/privacy-policy" className="text-gray-600 hover:text-blue-600">Privacy Policy</Link></li>
+                <li><Link to="/terms-conditions" className="text-gray-600 hover:text-blue-600">Terms & Conditions</Link></li>
+                <li><Link to="/refund-policy" className="text-gray-600 hover:text-blue-600">Cancellation & Refund</Link></li>
+                <li><Link to="/shipping-policy" className="text-gray-600 hover:text-blue-600">Shipping Policy</Link></li>
               </ul>
             </div>
             
@@ -549,10 +561,15 @@ const Home = () => {
             </div>
           </div>
           
-          <div className="border-t border-gray-200 mt-8 pt-8 text-center">
-            <p className="text-gray-600">
-              © 2025 RETOERP. All rights reserved. | 10+ Years in Real Estate Excellence
-            </p>
+          <div className="border-t border-gray-200 mt-8 pt-8">
+            <div className="text-center mb-4">
+              <p className="text-gray-600 mb-2">
+                © 2025 RETOERP. All rights reserved. | 10+ Years in Real Estate Excellence
+              </p>
+              <p className="text-sm text-gray-500">
+                Secure payments powered by Razorpay & Stripe | Data protected with industry-standard encryption
+              </p>
+            </div>
           </div>
         </div>
       </footer>
