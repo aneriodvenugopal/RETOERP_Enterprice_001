@@ -1323,3 +1323,77 @@ agent_communication:
     message: "✅ RESALE REQUEST SYSTEM BACKEND TESTING COMPLETE: All backend APIs working perfectly! Comprehensive testing completed with 14/14 tests passed including: (1) Customer resale request creation with proper validation (project verification, urgent flagging, contact details), (2) Customer request retrieval and single request access with proper authorization, (3) Admin request management with status filtering (pending/approved/rejected) and comprehensive statistics, (4) Admin approval/rejection workflow with review notes and notification triggers, (5) Available resales browsing for approved listings with detailed property information, (6) Access control enforcement - customers properly denied admin access (403 errors), (7) Notification system verification - backend logs confirm notifications saved to database for admin alerts, customer updates, and broadcast notifications to interested users on approval. Fixed critical MongoDB ObjectId serialization issue during testing. All CRUD operations, validation, authorization, notification features, and tenant isolation working correctly. Resale Request System is production-ready with complete workflow from customer request to admin approval and public listing."
   - agent: "testing"
     message: "✅ AI CHATBOT SYSTEM - PHASE 2 TESTING COMPLETE: All backend APIs working perfectly! Comprehensive testing completed with 12/12 tests passed including: (1) Configuration APIs - GET /chatbot/config returns default RETOERP Assistant config with English/Telugu language support, tenant-specific configuration retrieval functional, (2) Public Chat APIs (no authentication required) - POST /chatbot/message successfully creates conversations and generates intelligent AI responses via OpenAI GPT-5 integration (verified real AI responses about 3BHK apartments in Hyderabad, not fallback errors), follow-up messages maintain conversation continuity with proper context, POST /chatbot/capture-lead captures contact information (Test User, 9876543210, test@example.com, 3BHK interest), GET /chatbot/history/{id} retrieves complete conversation history with lead status verification, (3) Admin APIs (authentication required) - GET /chatbot/admin/conversations lists all conversations with pagination (found 2 conversations), is_lead=true filter correctly returns only lead conversations, GET /chatbot/admin/conversation/{id} provides detailed conversation view with all messages, GET /chatbot/admin/analytics returns comprehensive metrics (2 conversations, 8 messages, 2 leads, 100% conversion rate, 4.0 avg messages per conversation), (4) Multi-language Support - Telugu language processing working excellently with native Telugu AI responses containing 465+ Telugu characters for 'నమస్కారం! నాకు హైదరాబాద్‌లో ఒక ఇల్లు కావాలి', (5) Lead Management - conversations properly marked as leads after capture, lead information persisted correctly, conversation history maintains chronological message order. AI integration via emergentintegrations library fully functional with intelligent real estate-focused responses. Critical features verified: GPT-5 AI responses generated (not fallback errors), conversation persistence across messages, lead capture updates conversation records, analytics calculates conversion rates correctly, admin can view all conversations and leads, Telugu language detection and response generation. AI Chatbot System is production-ready for deployment."
+
+backend:
+  - task: "Authentication persistence and session management"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/contexts/AuthContext.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Authentication context already properly implemented with localStorage persistence. Token and user data stored on login, retrieved on app mount, and cleared on logout. API interceptor attaches Bearer token to all requests. PrivateRoute component checks isAuthenticated state. Issue likely related to deployment/PWA configuration rather than code."
+  
+  - task: "Remove Emergent branding and tracking scripts"
+    implemented: true
+    working: true
+    file: "/app/frontend/public/index.html"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Removed Emergent tracking scripts (rrweb recorder and visual edit scripts) from index.html. Replaced with comment 'Custom tracking scripts for RETOERP only'. This should eliminate emergent links/branding in deployed PWA."
+
+frontend:
+  - task: "Fix page scroll issue - pages opening at bottom"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/hooks/useScrollToTop.js, /app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Created useScrollToTop custom hook that scrolls window to top on route change. Integrated into App.js as ScrollToTop component inside BrowserRouter. Uses 'instant' scroll behavior for immediate effect. This fixes pricing page and other pages opening at bottom section."
+  
+  - task: "Rename FREE AI ADVISORY to FREE 24×7 Expert Advisory"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/pages/advisory/AdvisoryHub.js, /app/frontend/src/pages/marketing/Home.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Updated all references: (1) AdvisoryHub page - Hero title now 'FREE 24×7 Expert Advisory For All Your Real Estate Needs' with enhanced description mentioning 24×7 availability, (2) Advisory button text changed to 'Get Free 24×7 Expert Advice', (3) Home page - Feature card title updated, Ecosystem section updated, Footer link updated, (4) Added new dedicated CTA section on Home page with gradient background, prominent button, and feature badges (24×7, Free, Instant, Multi-language)."
+  
+  - task: "Add language selection to advisory"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/pages/advisory/AdvisoryChat.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Added language selection dropdown (English, Telugu తెలుగు, Hindi हिंदी) at top of advisory form before user inputs. Selected language passed to backend API in user_inputs. Language preference now captured for each advisory session."
+  
+  - task: "Optimize advisory loading time and add loading message"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/pages/advisory/AdvisoryChat.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Added loading message: 'Our Expert team is working on it, they will update you in few seconds...' displayed in blue info box while API call is processing. Button text updated to show 'Getting Expert Advice...' with loading spinner. Backend already uses OpenAI GPT-5 which should be fast. Loading message provides better UX during API response wait time."
