@@ -1,8 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, CheckCircle, Users, Target, TrendingUp, Bell, BarChart } from 'lucide-react';
-import EnquiryForm from '../components/EnquiryForm';
-import StickyNavbar from '../components/StickyNavbar';
+import EnquiryForm from '../../components/EnquiryForm';
+import StickyNavbar from '../../components/StickyNavbar';
 
 const CRMSolution = () => {
   const features = [
