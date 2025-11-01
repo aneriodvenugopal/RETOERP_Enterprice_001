@@ -109,6 +109,12 @@ function App() {
                 <Route path="/advisory" element={<AdvisoryHub />} />
                 <Route path="/advisory/:category" element={<AdvisoryChat />} />
                 
+                {/* Policy Routes - Public */}
+                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                <Route path="/terms-conditions" element={<TermsConditions />} />
+                <Route path="/refund-policy" element={<RefundPolicy />} />
+                <Route path="/shipping-policy" element={<ShippingPolicy />} />
+                
                 {/* Public Landing Pages */}
                 <Route path="/tenants" element={<TenantsDirectory />} />
                 <Route path="/public/tenant/:tenantId" element={<TenantLandingPage />} />
