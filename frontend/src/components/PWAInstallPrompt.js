@@ -112,7 +112,7 @@ function PWAInstallPrompt() {
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <div className="bg-white p-2 rounded-lg">
-                  <img src="/icon-192.png" alt="RETOERP" className="w-12 h-12" />
+                  <img src="/retoerp-logo-icon.svg" alt="RETOERP" className="w-12 h-12" />
                 </div>
                 <div className="text-white">
                   <h3 className="font-bold text-lg">Install RETOERP App</h3>
