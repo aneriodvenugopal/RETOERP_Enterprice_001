@@ -386,8 +386,8 @@ const Home = () => {
               <div className="relative">
                 <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
                   <img 
-                    src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=600&h=400&fit=crop" 
-                    alt="Expert Real Estate Advisory Team" 
+                    src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=600&h=400&fit=crop" 
+                    alt="Expert Real Estate Advisory Team - Indian Women Professionals" 
                     className="rounded-xl shadow-2xl w-full"
                   />
                   <div className="absolute -bottom-4 -right-4 bg-white text-blue-600 px-6 py-3 rounded-lg shadow-xl font-bold">
@@ -398,7 +398,7 @@ const Home = () => {
               
               {/* Right side - Content */}
               <div className="text-white">
-                <h2 className="text-4xl md:text-5xl font-bold mb-6">
+                <h2 className="text-3xl md:text-4xl font-bold mb-6">
                   FREE 24×7 Expert Advisory
                 </h2>
                 <p className="text-xl md:text-2xl mb-4 opacity-90">
