@@ -125,6 +125,14 @@ function App() {
                 <Route path="/shipping-policy" element={<ShippingPolicy />} />
                 <Route path="/faq" element={<FAQRealEstate />} />
                 
+                {/* Solution Routes - Public */}
+                <Route path="/solutions/crm" element={<CRMSolution />} />
+                <Route path="/solutions/payments" element={<PaymentsSolution />} />
+                <Route path="/solutions/property-layouts" element={<PropertyLayoutsSolution />} />
+                <Route path="/solutions/analytics" element={<AnalyticsSolution />} />
+                <Route path="/solutions/communication" element={<CommunicationSolution />} />
+                <Route path="/solutions/resale" element={<ResaleSolution />} />
+                
                 {/* Public Landing Pages */}
                 <Route path="/tenants" element={<TenantsDirectory />} />
                 <Route path="/public/tenant/:tenantId" element={<TenantLandingPage />} />
