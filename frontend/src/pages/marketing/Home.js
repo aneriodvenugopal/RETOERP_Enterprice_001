@@ -658,6 +658,9 @@ const Home = () => {
         </div>
       </footer>
       
+      {/* Floating WhatsApp Button */}
+      <FloatingWhatsApp />
+      
       {/* Chat Widget */}
       <ChatWidget />
     </div>
