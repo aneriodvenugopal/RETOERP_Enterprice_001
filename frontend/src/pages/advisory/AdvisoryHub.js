@@ -35,7 +35,7 @@ const AdvisoryHub = () => {
             Back to Home
           </Link>
           <div className="text-center">
-            <h1 className="text-5xl font-bold text-gray-900 mb-4">
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
               FREE 24×7 Expert Advisory
               <span className="block text-blue-600 mt-2">From Real Estate Professionals</span>
             </h1>
