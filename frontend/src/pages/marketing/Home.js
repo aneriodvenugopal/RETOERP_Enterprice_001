@@ -186,9 +186,9 @@ const Home = () => {
             {/* Feature Cards */}
             {[
               {
-                icon: '🤖',
+                icon: '👥',
                 title: 'FREE 24×7 Expert Advisory',
-                description: 'Free expert advisory available 24×7 for budget, location, numerology, and investment decisions'
+                description: 'Free expert advisory from experienced professionals - available 24×7 for budget, location, and investment guidance'
               },
               {
                 icon: '📊',
