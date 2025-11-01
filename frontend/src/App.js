@@ -73,6 +73,14 @@ import RefundPolicy from "./pages/policies/RefundPolicy";
 import ShippingPolicy from "./pages/policies/ShippingPolicy";
 import FAQRealEstate from "./pages/FAQRealEstate";
 
+// Solution Pages
+import CRMSolution from "./pages/solutions/CRMSolution";
+import PaymentsSolution from "./pages/solutions/PaymentsSolution";
+import PropertyLayoutsSolution from "./pages/solutions/PropertyLayoutsSolution";
+import AnalyticsSolution from "./pages/solutions/AnalyticsSolution";
+import CommunicationSolution from "./pages/solutions/CommunicationSolution";
+import ResaleSolution from "./pages/solutions/ResaleSolution";
+
 // PWA Components
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
 
