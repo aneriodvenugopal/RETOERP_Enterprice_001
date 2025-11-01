@@ -5,6 +5,9 @@ import LanguageSelector from '../../components/LanguageSelector';
 import ChatWidget from '../../components/ChatWidget';
 import HeroCarousel from '../../components/HeroCarousel';
 import StickyNavbar from '../../components/StickyNavbar';
+import FloatingWhatsApp from '../../components/FloatingWhatsApp';
+import SuccessStories from '../../components/SuccessStories';
+import ROICalculator from '../../components/ROICalculator';
 import { usePageTranslation } from '../../hooks/usePageTranslation';
 import apiInstance from '../../services/api';
 
