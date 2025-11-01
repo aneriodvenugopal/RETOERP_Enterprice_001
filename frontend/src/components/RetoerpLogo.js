@@ -1,0 +1,73 @@
+import React from 'react';
+
+/**
+ * RETOERP Logo Component
+ * 
+ * Usage:
+ * <RetoerpLogo variant="full" size="md" />
+ * <RetoerpLogo variant="icon" size="sm" />
+ * <RetoerpLogo variant="white" size="lg" />
+ */
+
+const RetoerpLogo = ({ 
+  variant = 'full', // 'full', 'icon', 'white'
+  size = 'md', // 'sm', 'md', 'lg', 'xl'
+  className = '' 
+}) => {
+  // Size mappings
+  const sizes = {
+    sm: { width: 40, height: 40 },
+    md: { width: 60, height: 60 },
+    lg: { width: 100, height: 100 },
+    xl: { width: 150, height: 150 }
+  };
+
+  const fullSizes = {
+    sm: { width: 200, height: 50 },
+    md: { width: 300, height: 75 },
+    lg: { width: 400, height: 100 },
+    xl: { width: 500, height: 125 }
+  };
+
+  // Get logo path based on variant
+  const getLogoPath = () => {
+    switch (variant) {
+      case 'icon':
+        return '/retoerp-logo-icon.svg';
+      case 'white':
+        return '/retoerp-logo-white.svg';
+      case 'full':
+      default:
+        return '/retoerp-logo-full.svg';
+    }
+  };
+
+  // Get dimensions based on variant and size
+  const getDimensions = () => {
+    if (variant === 'icon') {
+      return sizes[size];
+    }
+    return fullSizes[size];
+  };
+
+  const dimensions = getDimensions();
+  const logoPath = getLogoPath();
+
+  return (
+    <img
+      src={logoPath}
+      alt="RETOERP - Real Estate Automation SaaS"
+      width={dimensions.width}
+      height={dimensions.height}
+      className={className}
+      style={{ objectFit: 'contain' }}
+    />
+  );
+};
+
+export default RetoerpLogo;
+
+// Export individual logo components for convenience
+export const RetoerpIconLogo = (props) => <RetoerpLogo variant="icon" {...props} />;
+export const RetoerpFullLogo = (props) => <RetoerpLogo variant="full" {...props} />;
+export const RetoerpWhiteLogo = (props) => <RetoerpLogo variant="white" {...props} />;
