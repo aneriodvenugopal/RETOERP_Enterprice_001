@@ -99,7 +99,7 @@ const RefundPolicy = () => {
             <div className="mt-4 p-4 bg-blue-50 rounded-lg">
               <p className="text-gray-900 font-semibold">Refund Support</p>
               <p className="text-gray-700">Email: <a href="mailto:enquiry@retoerp.com" className="text-blue-600 hover:underline">enquiry@retoerp.com</a></p>
-              <p className="text-gray-700">Phone: +91-9948303060</p>
+              <p className="text-gray-700">Phone: <a href="tel:+919948303060" className="text-blue-600 hover:underline">+91-9948303060</a></p>
               <p className="text-gray-700 mt-2">Response Time: Within 24 hours</p>
             </div>
           </section>

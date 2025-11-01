@@ -102,8 +102,8 @@ const TermsConditions = () => {
             <h2 className="text-2xl font-bold text-gray-900 mb-4">9. Contact Information</h2>
             <div className="mt-4 p-4 bg-blue-50 rounded-lg">
               <p className="text-gray-900 font-semibold">RETOERP</p>
-              <p className="text-gray-700">Email: support@retoerp.com</p>
-              <p className="text-gray-700">Phone: +91-9948303060</p>
+              <p className="text-gray-700">Email: <a href="mailto:enquiry@retoerp.com" className="text-blue-600 hover:underline">enquiry@retoerp.com</a></p>
+              <p className="text-gray-700">Phone: <a href="tel:+919948303060" className="text-blue-600 hover:underline">+91-9948303060</a></p>
             </div>
           </section>
 
