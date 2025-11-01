@@ -612,6 +612,7 @@ const Home = () => {
                 <li><Link to="/content" className="text-gray-600 hover:text-blue-600">Knowledge Hub</Link></li>
                 <li><Link to="/advisory" className="text-gray-600 hover:text-blue-600">FREE 24×7 Expert Advisory</Link></li>
                 <li><Link to="/tenants" className="text-gray-600 hover:text-blue-600">Our Partners</Link></li>
+                <li><Link to="/faq" className="text-gray-600 hover:text-blue-600">FAQ for Companies</Link></li>
               </ul>
             </div>
             
