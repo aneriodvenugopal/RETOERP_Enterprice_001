@@ -235,46 +235,56 @@ const Home = () => {
                 icon: '📊',
                 title: 'Smart CRM & Lead Management',
                 description: 'Track leads, automate follow-ups, and never miss an opportunity',
-                features: ['Lead scoring', 'Auto-assignment', 'Follow-up reminders', 'Conversion tracking']
+                features: ['Lead scoring', 'Auto-assignment', 'Follow-up reminders', 'Conversion tracking'],
+                link: '/solutions/crm'
               },
               {
                 icon: '💰',
                 title: 'Payment & Booking Automation',
                 description: 'Streamline bookings, payments, and commission tracking',
-                features: ['Online payments', 'EMI management', 'Commission splits', 'Payment reminders']
+                features: ['Online payments', 'EMI management', 'Commission splits', 'Payment reminders'],
+                link: '/solutions/payments'
               },
               {
                 icon: '🗺️',
                 title: 'Visual Property Layouts',
                 description: 'Interactive property maps with real-time availability',
-                features: ['DXF/SVG import', 'Interactive maps', 'Live availability', 'Virtual tours']
+                features: ['DXF/SVG import', 'Interactive maps', 'Live availability', 'Virtual tours'],
+                link: '/solutions/property-layouts'
               },
               {
                 icon: '👥',
                 title: 'FREE 24×7 Expert Advisory',
                 description: 'Expert guidance for your customers - completely free',
-                features: ['Budget advisory', 'Location insights', 'Investment analysis', 'Multi-language']
+                features: ['Budget advisory', 'Location insights', 'Investment analysis', 'Multi-language'],
+                link: '/advisory'
               },
               {
-                icon: '📱',
-                title: 'Mobile-First PWA',
-                description: 'Manage your business from anywhere with our mobile app',
-                features: ['Works offline', 'Push notifications', 'Quick actions', 'Android & iOS']
+                icon: '📧',
+                title: 'Communication Hub',
+                description: 'Automated SMS, Email, WhatsApp campaigns',
+                features: ['Bulk messaging', 'Event triggers', 'Multi-language', 'Delivery reports'],
+                link: '/solutions/communication'
               },
               {
                 icon: '📈',
                 title: 'Analytics & Insights',
                 description: 'Data-driven decisions with comprehensive reports',
-                features: ['Sales dashboard', 'Revenue reports', 'Team performance', 'Custom reports']
+                features: ['Sales dashboard', 'Revenue reports', 'Team performance', 'Custom reports'],
+                link: '/solutions/analytics'
               }
             ].map((service, index) => (
-              <div key={index} className="bg-gray-50 rounded-xl p-8 hover:shadow-xl transition-all border border-gray-100 group">
+              <Link 
+                key={index} 
+                to={service.link}
+                className="bg-gray-50 rounded-xl p-8 hover:shadow-xl transition-all border border-gray-100 group cursor-pointer"
+              >
                 <div className="text-6xl mb-4">{service.icon}</div>
                 <h3 className="text-2xl font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors">
                   {service.title}
                 </h3>
                 <p className="text-gray-600 mb-4">{service.description}</p>
-                <ul className="space-y-2">
+                <ul className="space-y-2 mb-4">
                   {service.features.map((feature, idx) => (
                     <li key={idx} className="flex items-start text-sm text-gray-700">
                       <span className="text-blue-600 mr-2">✓</span>
@@ -282,7 +292,10 @@ const Home = () => {
                     </li>
                   ))}
                 </ul>
-              </div>
+                <div className="text-blue-600 font-semibold group-hover:underline">
+                  Learn More →
+                </div>
+              </Link>
             ))}
           </div>
 
