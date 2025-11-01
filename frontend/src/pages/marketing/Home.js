@@ -386,7 +386,7 @@ const Home = () => {
               <div className="relative">
                 <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
                   <img 
-                    src="https://images.unsplash.com/photo-1590650046871-92c887180603?w=600&h=400&fit=crop" 
+                    src="https://images.unsplash.com/photo-1637176594832-97454dc84edf?w=600&h=400&fit=crop" 
                     alt="Expert Real Estate Advisory Team - Indian Women Professionals" 
                     className="rounded-xl shadow-2xl w-full"
                   />
