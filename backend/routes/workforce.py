@@ -152,10 +152,11 @@ async def get_skill_types():
     return skills
 
 @router.get("/workforce/cities", response_model=List[str])
-async def get_cities():
+async def get_cities(request: Request):
     """
     PUBLIC: Get list of cities with workforce data
     """
+    db = get_db(request)
     # Get unique cities from database
     cities = await db.workforce_workers.distinct("location.city")
     
