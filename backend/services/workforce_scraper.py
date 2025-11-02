@@ -1,7 +1,7 @@
 import os
 import asyncio
 from typing import List, Dict, Any
-from emergentintegrations import OpenAI
+from emergentintegrations.llm.chat import LlmChat, UserMessage
 
 class WorkforceScraper:
     """AI-powered web scraping service for construction workforce data"""
@@ -13,7 +13,7 @@ class WorkforceScraper:
             print("[WARNING] EMERGENT_LLM_KEY not found. AI scraping will be disabled.")
             self.client = None
         else:
-            self.client = OpenAI(api_key=self.llm_key)
+            self.client = LlmChat(api_key=self.llm_key)
     
     async def scrape_workers_from_search(self, skill_type: str, location: str, limit: int = 10) -> List[Dict[str, Any]]:
         """
