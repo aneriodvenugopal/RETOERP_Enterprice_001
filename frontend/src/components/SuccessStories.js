@@ -88,7 +88,7 @@ const SuccessStories = () => {
                   <div className="text-lg font-bold text-purple-600">{story.results.time}</div>
                   <div className="text-xs text-gray-600">Time Saved</div>
                 </div>
-                <div className="bg-yellow-50 rounded-lg p-4 text-center">
+                <div className="bg-yellow-50/30 rounded-lg p-4 text-center">
                   <Star className="w-6 h-6 text-yellow-600 mx-auto mb-2" />
                   <div className="text-2xl font-bold text-yellow-600">{story.results.rating}.0</div>
                   <div className="text-xs text-gray-600">Rating</div>
