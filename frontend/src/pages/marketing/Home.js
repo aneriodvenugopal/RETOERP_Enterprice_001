@@ -128,28 +128,46 @@ const Home = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            <div className="bg-white rounded-xl p-8 shadow-md border border-red-100">
+            <div className="bg-white rounded-xl p-8 shadow-md border border-red-100 hover:shadow-xl transition-all">
               <div className="text-5xl mb-4">📉</div>
               <h3 className="text-xl font-bold text-gray-900 mb-3">Lead Leakage</h3>
-              <p className="text-gray-600">
+              <p className="text-gray-600 mb-4">
                 Losing qualified leads due to poor follow-up and manual processes
               </p>
+              <Link 
+                to="/examples/lead-leakage"
+                className="inline-flex items-center text-blue-600 hover:text-blue-700 font-semibold"
+              >
+                Learn More →
+              </Link>
             </div>
             
-            <div className="bg-white rounded-xl p-8 shadow-md border border-red-100">
+            <div className="bg-white rounded-xl p-8 shadow-md border border-red-100 hover:shadow-xl transition-all">
               <div className="text-5xl mb-4">⏰</div>
               <h3 className="text-xl font-bold text-gray-900 mb-3">Slow Processes</h3>
-              <p className="text-gray-600">
+              <p className="text-gray-600 mb-4">
                 Manual work, delayed payments, and inefficient operations
               </p>
+              <Link 
+                to="/examples/slow-processes"
+                className="inline-flex items-center text-blue-600 hover:text-blue-700 font-semibold"
+              >
+                Learn More →
+              </Link>
             </div>
             
-            <div className="bg-white rounded-xl p-8 shadow-md border border-red-100">
+            <div className="bg-white rounded-xl p-8 shadow-md border border-red-100 hover:shadow-xl transition-all">
               <div className="text-5xl mb-4">💸</div>
               <h3 className="text-xl font-bold text-gray-900 mb-3">Revenue Loss</h3>
-              <p className="text-gray-600">
+              <p className="text-gray-600 mb-4">
                 Missing commissions, payment delays, and poor customer experience
               </p>
+              <Link 
+                to="/examples/revenue-loss"
+                className="inline-flex items-center text-blue-600 hover:text-blue-700 font-semibold"
+              >
+                Learn More →
+              </Link>
             </div>
           </div>
         </div>
