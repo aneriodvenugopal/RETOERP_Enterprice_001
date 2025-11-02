@@ -294,6 +294,7 @@ async def delete_worker(
 
 @router.put("/workforce/admin/{worker_id}")
 async def update_worker(
+    request: Request,
     worker_id: str,
     worker_data: WorkforceWorkerUpdate,
     current_user: dict = Depends(require_saas_admin)
@@ -301,6 +302,7 @@ async def update_worker(
     """
     ADMIN: Update worker details
     """
+    db = get_db(request)
     update_data = {k: v for k, v in worker_data.dict(exclude_unset=True).items() if v is not None}
     update_data["updated_at"] = datetime.utcnow()
     
