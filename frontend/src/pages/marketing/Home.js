@@ -279,11 +279,7 @@ const Home = () => {
                 link: '/solutions/analytics'
               }
             ].map((service, index) => (
-              <Link 
-                key={index} 
-                to={service.link}
-                className="bg-gray-50 rounded-xl p-8 hover:shadow-xl transition-all border border-gray-100 group cursor-pointer"
-              >
+              <div key={index} className="bg-gray-50/50 rounded-xl p-8 hover:shadow-xl transition-all border border-gray-100 group">
                 <div className="text-6xl mb-4">{service.icon}</div>
                 <h3 className="text-2xl font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors">
                   {service.title}
