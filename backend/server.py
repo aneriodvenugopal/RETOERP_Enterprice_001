@@ -70,6 +70,7 @@ api_router.include_router(incomelands.router)
 api_router.include_router(incomelands_auth.router)
 api_router.include_router(google_auth.router)
 api_router.include_router(calendar_integration.router)
+api_router.include_router(workforce.router)
 
 # PWA Install tracking
 @api_router.post("/analytics/pwa-install")
