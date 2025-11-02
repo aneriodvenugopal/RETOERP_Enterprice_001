@@ -134,10 +134,10 @@ const HeroCarousel = () => {
                     {slide.cta} →
                   </Link>
                   <button
-                    onClick={() => window.open(`/examples/${slide.link.split('/').pop()}`, '_blank')}
+                    onClick={() => window.location.href = `/demo${slide.link}`}
                     className="inline-block bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg font-bold text-base transition-all shadow-xl"
                   >
-                    📊 See Real Example
+                    🚀 Quick Demo
                   </button>
                 </div>
               </div>
