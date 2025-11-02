@@ -12,6 +12,7 @@ const WorkforceMap = () => {
   const [cities, setCities] = useState([]);
   const [selectedSkill, setSelectedSkill] = useState('');
   const [selectedCity, setSelectedCity] = useState('');
+  const [searchLocation, setSearchLocation] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedWorker, setSelectedWorker] = useState(null);
   const [showAddForm, setShowAddForm] = useState(false);
@@ -22,6 +23,8 @@ const WorkforceMap = () => {
   const mapRef = useRef(null);
   const googleMapRef = useRef(null);
   const markersRef = useRef([]);
+  const searchInputRef = useRef(null);
+  const autocompleteRef = useRef(null);
 
   // Initialize Google Maps
   useEffect(() => {
@@ -30,9 +33,45 @@ const WorkforceMap = () => {
       script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_KEY}&libraries=places`;
       script.async = true;
       script.defer = true;
+      script.onload = initializeGoogleServices;
       document.head.appendChild(script);
+    } else if (window.google) {
+      initializeGoogleServices();
     }
   }, []);
+
+  const initializeGoogleServices = () => {
+    // Initialize autocomplete for location search
+    if (searchInputRef.current && window.google) {
+      autocompleteRef.current = new window.google.maps.places.Autocomplete(
+        searchInputRef.current,
+        {
+          types: ['(cities)'],
+          componentRestrictions: { country: 'in' }
+        }
+      );
+
+      autocompleteRef.current.addListener('place_changed', () => {
+        const place = autocompleteRef.current.getPlace();
+        if (place.geometry) {
+          setSearchLocation(place.formatted_address || place.name);
+          setUserLocation({
+            lat: place.geometry.location.lat(),
+            lng: place.geometry.location.lng()
+          });
+          
+          // Center map on selected location
+          if (googleMapRef.current) {
+            googleMapRef.current.setCenter({
+              lat: place.geometry.location.lat(),
+              lng: place.geometry.location.lng()
+            });
+            googleMapRef.current.setZoom(12);
+          }
+        }
+      });
+    }
+  };
 
   // Get user location
   useEffect(() => {
@@ -109,6 +148,13 @@ const WorkforceMap = () => {
     }
   }, [userLocation]);
 
+  // Auto-search on mount
+  useEffect(() => {
+    if (userLocation) {
+      handleSearch();
+    }
+  }, [userLocation]);
+
   // Search workers
   const handleSearch = async () => {
     setLoading(true);
@@ -125,6 +171,7 @@ const WorkforceMap = () => {
       params.append('limit', '100');
       
       const response = await axios.get(`${BACKEND_URL}/api/workforce/search?${params.toString()}`);
+      console.log('Workers fetched:', response.data);
       setWorkers(response.data);
       setFilteredWorkers(response.data);
       
@@ -145,6 +192,11 @@ const WorkforceMap = () => {
     markersRef.current.forEach(marker => marker.setMap(null));
     markersRef.current = [];
 
+    if (workersList.length === 0) {
+      console.log('No workers to display on map');
+      return;
+    }
+
     // Add new markers
     workersList.forEach(worker => {
       const marker = new window.google.maps.Marker({
@@ -161,7 +213,19 @@ const WorkforceMap = () => {
         title: `${worker.name} - ${worker.skill_type}`
       });
 
+      // Info window
+      const infoWindow = new window.google.maps.InfoWindow({
+        content: `
+          <div style="padding: 8px;">
+            <h3 style="font-weight: bold; margin-bottom: 4px;">${worker.name}</h3>
+            <p style="color: #0066cc; margin-bottom: 4px;">${worker.skill_type}</p>
+            <p style="font-size: 12px; color: #666;">${worker.location.city || ''}</p>
+          </div>
+        `
+      });
+
       marker.addListener('click', () => {
+        infoWindow.open(googleMapRef.current, marker);
         setSelectedWorker(worker);
         googleMapRef.current.panTo({ lat: worker.location.lat, lng: worker.location.lng });
       });
@@ -206,7 +270,7 @@ const WorkforceMap = () => {
       setFilteredWorkers(workers);
       updateMapMarkers(workers);
     }
-  }, [searchTerm, workers]);
+  }, [searchTerm]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
@@ -237,15 +301,16 @@ const WorkforceMap = () => {
             )}
           </div>
 
-          {/* Search Bar */}
-          <div className="flex gap-2">
+          {/* Search Bar with Google Places Autocomplete */}
+          <div className="flex gap-2 mb-2">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
+                ref={searchInputRef}
                 type="text"
-                placeholder="Search by name, skill, or city..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search location (city, area)..."
+                value={searchLocation}
+                onChange={(e) => setSearchLocation(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
@@ -261,22 +326,12 @@ const WorkforceMap = () => {
               ))}
             </select>
 
-            <select
-              value={selectedCity}
-              onChange={(e) => setSelectedCity(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">All Cities</option>
-              {cities.map(city => (
-                <option key={city} value={city}>{city}</option>
-              ))}
-            </select>
-
             <button
               onClick={handleSearch}
               disabled={loading}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 font-medium"
+              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 font-medium flex items-center gap-2"
             >
+              <Search className="w-4 h-4" />
               {loading ? 'Searching...' : 'Search'}
             </button>
 
@@ -288,11 +343,23 @@ const WorkforceMap = () => {
               Add Worker
             </button>
           </div>
+          
+          {/* Name/Skill Search */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <input
+              type="text"
+              placeholder="Search by worker name or skill..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
         </div>
       </div>
 
       {/* Map and Results */}
-      <div className="flex h-[calc(100vh-200px)]">
+      <div className="flex h-[calc(100vh-240px)]">
         {/* Map */}
         <div className="flex-1 relative">
           <div ref={mapRef} className="w-full h-full" />
@@ -307,10 +374,21 @@ const WorkforceMap = () => {
           </div>
 
           <div className="divide-y">
-            {filteredWorkers.map(worker => (
+            {loading ? (
+              <div className="p-8 text-center text-gray-500">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+                <p>Searching workers...</p>
+              </div>
+            ) : filteredWorkers.map(worker => (
               <div
                 key={worker.id}
-                onClick={() => setSelectedWorker(worker)}
+                onClick={() => {
+                  setSelectedWorker(worker);
+                  if (googleMapRef.current) {
+                    googleMapRef.current.panTo({ lat: worker.location.lat, lng: worker.location.lng });
+                    googleMapRef.current.setZoom(14);
+                  }
+                }}
                 className={`p-4 cursor-pointer hover:bg-blue-50 transition ${
                   selectedWorker?.id === worker.id ? 'bg-blue-50 border-l-4 border-blue-600' : ''
                 }`}
@@ -337,8 +415,16 @@ const WorkforceMap = () => {
                     <p>Experience: {worker.experience_years} years</p>
                   )}
                   
+                  {worker.work_type && (
+                    <p>Work Type: {worker.work_type}</p>
+                  )}
+                  
                   {worker.daily_rate && (
                     <p className="text-green-600 font-medium">₹{worker.daily_rate}/day</p>
+                  )}
+                  
+                  {worker.description && (
+                    <p className="text-xs text-gray-500 mt-1">{worker.description}</p>
                   )}
                 </div>
 
@@ -368,7 +454,8 @@ const WorkforceMap = () => {
 
           {filteredWorkers.length === 0 && !loading && (
             <div className="p-8 text-center text-gray-500">
-              <p>No workers found. Try adjusting your filters.</p>
+              <p className="mb-2">No workers found in this area.</p>
+              <p className="text-sm">Try adjusting your search filters or location.</p>
             </div>
           )}
         </div>
