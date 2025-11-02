@@ -12,7 +12,8 @@ const CATEGORIES_CONFIG = {
     fields: [
       { key: 'budget', label: 'Your Budget (₹)', type: 'text', placeholder: 'e.g., 50 Lakhs' },
       { key: 'location', label: 'Preferred Location', type: 'text', placeholder: 'e.g., Hyderabad' },
-      { key: 'property_type', label: 'Property Type', type: 'select', options: ['Apartment', 'Villa', 'Plot', 'Farm Land'] }
+      { key: 'property_type', label: 'Property Type', type: 'select', options: ['Apartment', 'Villa', 'Plot', 'Farm Land'] },
+      { key: 'description', label: 'Additional Details / Questions', type: 'textarea', placeholder: 'Write any specific requirements or questions you have...', required: false }
     ]
   },
   location: {
@@ -21,7 +22,8 @@ const CATEGORIES_CONFIG = {
     fields: [
       { key: 'location', label: 'Interested Location', type: 'text', placeholder: 'e.g., Gachibowli' },
       { key: 'work_location', label: 'Work Location', type: 'text', placeholder: 'e.g., Hi-Tech City' },
-      { key: 'priorities', label: 'Priorities', type: 'text', placeholder: 'e.g., Schools, Hospitals' }
+      { key: 'priorities', label: 'Priorities', type: 'text', placeholder: 'e.g., Schools, Hospitals' },
+      { key: 'description', label: 'Additional Details / Questions', type: 'textarea', placeholder: 'Write any specific requirements or questions you have...', required: false }
     ]
   },
   numerology: {
@@ -30,7 +32,8 @@ const CATEGORIES_CONFIG = {
     fields: [
       { key: 'dob', label: 'Date of Birth', type: 'date' },
       { key: 'lucky_numbers', label: 'Lucky Numbers', type: 'text', placeholder: 'e.g., 3, 7, 9' },
-      { key: 'direction', label: 'Preferred Direction', type: 'select', options: ['North', 'South', 'East', 'West', 'Any'] }
+      { key: 'direction', label: 'Preferred Direction', type: 'select', options: ['North', 'South', 'East', 'West', 'Any'] },
+      { key: 'description', label: 'Additional Details / Questions', type: 'textarea', placeholder: 'Write any specific requirements or questions you have...', required: false }
     ]
   },
   best_project: {
@@ -39,7 +42,8 @@ const CATEGORIES_CONFIG = {
     fields: [
       { key: 'requirements', label: 'Your Requirements', type: 'textarea', placeholder: 'Describe what you need...' },
       { key: 'timeline', label: 'Purchase Timeline', type: 'select', options: ['Immediate', '3-6 months', '6-12 months', '1+ year'] },
-      { key: 'priorities', label: 'Priority Factors', type: 'text', placeholder: 'e.g., Investment, Location' }
+      { key: 'priorities', label: 'Priority Factors', type: 'text', placeholder: 'e.g., Investment, Location' },
+      { key: 'description', label: 'Additional Details / Questions', type: 'textarea', placeholder: 'Write any specific requirements or questions you have...', required: false }
     ]
   },
   investment: {
@@ -48,7 +52,8 @@ const CATEGORIES_CONFIG = {
     fields: [
       { key: 'investment_amount', label: 'Investment Amount (₹)', type: 'text', placeholder: 'e.g., 1 Crore' },
       { key: 'timeline', label: 'Investment Timeline', type: 'select', options: ['Short-term (1-2 years)', 'Medium-term (3-5 years)', 'Long-term (5+ years)'] },
-      { key: 'roi_expectations', label: 'Expected ROI', type: 'text', placeholder: 'e.g., 20% in 3 years' }
+      { key: 'roi_expectations', label: 'Expected ROI', type: 'text', placeholder: 'e.g., 20% in 3 years' },
+      { key: 'description', label: 'Additional Details / Questions', type: 'textarea', placeholder: 'Write any specific requirements or questions you have...', required: false }
     ]
   }
 };
