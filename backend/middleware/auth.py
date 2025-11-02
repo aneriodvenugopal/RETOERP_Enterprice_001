@@ -63,9 +63,10 @@ def require_role(required_roles: list):
 
 async def require_saas_admin(request: Request):
     """Verify user is SaaS admin (phone: 9948303060)"""
-    from database import db
-    
     user_payload = await get_current_user(request)
+    
+    # Get db from request
+    db = request.app.state.db
     
     # Get user from database
     user_doc = await db.users.find_one({'id': user_payload['user_id']}, {"_id": 0})
