@@ -146,6 +146,14 @@ function App() {
                 <Route path="/examples/slow-processes" element={<SlowProcessesExample />} />
                 <Route path="/examples/revenue-loss" element={<RevenueLossExample />} />
                 
+                {/* Demo Routes - Public */}
+                <Route path="/demo/solutions/crm" element={<CRMDemo />} />
+                <Route path="/demo/solutions/payments" element={<CRMDemo />} />
+                <Route path="/demo/solutions/analytics" element={<CRMDemo />} />
+                <Route path="/demo/solutions/property-layouts" element={<CRMDemo />} />
+                <Route path="/demo/solutions/communication" element={<CRMDemo />} />
+                <Route path="/demo/solutions/resale" element={<CRMDemo />} />
+                
                 {/* Public Landing Pages */}
                 <Route path="/tenants" element={<TenantsDirectory />} />
                 <Route path="/public/tenant/:tenantId" element={<TenantLandingPage />} />
