@@ -72,17 +72,17 @@ const AdvisoryHub = () => {
           <h2 className="text-3xl font-bold mb-4">Why Choose Our Expert Advisory?</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8">
             <div>
-              <div className="text-4xl mb-3">🏢</div>
+              <div className="text-4xl mb-3">👥</div>
               <h3 className="font-bold mb-2">Expert Team</h3>
               <p className="opacity-90">Experienced professionals analyze your needs 24×7</p>
             </div>
             <div>
-              <div className="text-4xl mb-3">📊</div>
+              <div className="text-4xl mb-3">🎯</div>
               <h3 className="font-bold mb-2">Personalized Recommendations</h3>
               <p className="opacity-90">Tailored advice based on your unique requirements</p>
             </div>
             <div>
-              <div className="text-4xl mb-3">🔧</div>
+              <div className="text-4xl mb-3">⚡</div>
               <h3 className="font-bold mb-2">Instant Response</h3>
               <p className="opacity-90">Get expert guidance within seconds - anytime, anywhere</p>
             </div>
