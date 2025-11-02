@@ -37,6 +37,7 @@ def calculate_distance(lat1: float, lng1: float, lat2: float, lng2: float) -> fl
 
 @router.get("/workforce/search", response_model=List[WorkforceWorker])
 async def search_workforce(
+    request: Request,
     skill_type: Optional[str] = None,
     city: Optional[str] = None,
     state: Optional[str] = None,
@@ -51,6 +52,8 @@ async def search_workforce(
     """
     PUBLIC: Search construction workers by skill, location, and filters
     """
+    db = get_db(request)
+    
     # Build query
     query = {"status": "approved"}  # Only show approved workers
     
