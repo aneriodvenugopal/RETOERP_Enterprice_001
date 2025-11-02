@@ -60,18 +60,13 @@ Return as valid JSON array only, no additional text:
 ]
 """
             
-            response = self.client.chat.completions.create(
-                model="gpt-4o",
-                messages=[
-                    {"role": "system", "content": "You are a construction workforce database generator. Generate realistic Indian construction worker data in valid JSON format only."},
-                    {"role": "user", "content": prompt}
-                ],
-                temperature=0.8,
-                max_tokens=2000
+            response = await self.client.send_message_async(
+                message=UserMessage(text=prompt),
+                llm_model="openai/gpt-4o"
             )
             
             # Parse AI response
-            content = response.choices[0].message.content.strip()
+            content = response.text.strip()
             
             # Extract JSON from response
             import json
