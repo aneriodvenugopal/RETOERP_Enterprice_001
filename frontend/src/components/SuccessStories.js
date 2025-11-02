@@ -96,7 +96,7 @@ const SuccessStories = () => {
               </div>
 
               {/* Quote */}
-              <div className="bg-gray-50 rounded-lg p-4 mb-4 relative">
+              <div className="bg-gray-50/30 rounded-lg p-4 mb-4 relative">
                 <div className="text-4xl text-blue-200 absolute -top-2 -left-2">"</div>
                 <p className="text-gray-700 italic relative z-10">{story.quote}</p>
               </div>
