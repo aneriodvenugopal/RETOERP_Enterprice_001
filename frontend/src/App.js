@@ -138,6 +138,11 @@ function App() {
                 <Route path="/solutions/communication" element={<CommunicationSolution />} />
                 <Route path="/solutions/resale" element={<ResaleSolution />} />
                 
+                {/* Example Routes - Public */}
+                <Route path="/examples/lead-leakage" element={<LeadLeakageExample />} />
+                <Route path="/examples/slow-processes" element={<SlowProcessesExample />} />
+                <Route path="/examples/revenue-loss" element={<RevenueLossExample />} />
+                
                 {/* Public Landing Pages */}
                 <Route path="/tenants" element={<TenantsDirectory />} />
                 <Route path="/public/tenant/:tenantId" element={<TenantLandingPage />} />
