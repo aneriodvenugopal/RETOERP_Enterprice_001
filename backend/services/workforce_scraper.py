@@ -11,9 +11,6 @@ class WorkforceScraper:
         self.llm_key = os.getenv("EMERGENT_LLM_KEY")
         if not self.llm_key:
             print("[WARNING] EMERGENT_LLM_KEY not found. AI scraping will be disabled.")
-            self.client = None
-        else:
-            self.client = LlmChat(api_key=self.llm_key)
     
     async def scrape_workers_from_search(self, skill_type: str, location: str, limit: int = 10) -> List[Dict[str, Any]]:
         """
