@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Users, Bell, Target, TrendingUp, CheckCircle, Zap } from 'lucide-react';
+import { ArrowLeft, Phone, Bell, Target, TrendingUp, CheckCircle, Zap } from 'lucide-react';
 import StickyNavbar from '../../components/StickyNavbar';
 import DemoRequestForm from '../../components/DemoRequestForm';
 
