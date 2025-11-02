@@ -260,7 +260,7 @@ const Home = () => {
               {
                 icon: '👥',
                 title: 'FREE 24×7 Expert Advisory',
-                description: 'Expert guidance for your customers - completely free',
+                description: 'Free expert advisory from experienced professionals - available 24×7 for budget, location, and investment guidance',
                 features: ['Budget advisory', 'Location insights', 'Investment analysis', 'Multi-language'],
                 link: '/advisory'
               },
