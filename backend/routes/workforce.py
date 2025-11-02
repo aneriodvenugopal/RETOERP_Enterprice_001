@@ -95,11 +95,13 @@ async def search_workforce(
 
 @router.post("/workforce/add", response_model=WorkforceWorker)
 async def add_worker_public(
+    request: Request,
     worker_data: WorkforceWorkerCreate
 ):
     """
     PUBLIC: Submit new worker to database (pending approval)
     """
+    db = get_db(request)
     # Create worker document
     worker = {
         "id": str(uuid.uuid4()),
