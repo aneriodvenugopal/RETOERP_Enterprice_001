@@ -323,6 +323,7 @@ async def update_worker(
 
 @router.post("/workforce/admin/scrape")
 async def trigger_ai_scrape(
+    request: Request,
     background_tasks: BackgroundTasks,
     skill_type: str,
     location: str,
@@ -333,6 +334,7 @@ async def trigger_ai_scrape(
     ADMIN: Trigger AI scraping to populate workforce database
     """
     async def scrape_and_save():
+        db = get_db(request)
         try:
             workers_data = await workforce_scraper.scrape_workers_from_search(
                 skill_type=skill_type,
