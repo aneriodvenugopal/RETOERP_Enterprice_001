@@ -117,6 +117,13 @@ const StickyNavbar = () => {
             </Link>
 
             <Link
+              to="/workforce-map"
+              className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
+            >
+              Workforce Map
+            </Link>
+
+            <Link
               to="/contact"
               className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
             >
