@@ -8,7 +8,7 @@ import requests
 
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "")
 GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET", "")
-GOOGLE_REDIRECT_URI = os.getenv("GOOGLE_REDIRECT_URI", "https://property-pulse-81.preview.emergentagent.com/api/auth/google/callback")
+GOOGLE_REDIRECT_URI = os.getenv("GOOGLE_REDIRECT_URI", "https://retoerp-realtor.preview.emergentagent.com/api/auth/google/callback")
 
 class GoogleCalendarService:
     """Service for Google Calendar integration"""

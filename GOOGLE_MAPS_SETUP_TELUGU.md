@@ -184,7 +184,7 @@
 
    **మొదటి referrer:**
    ```
-   https://property-pulse-81.preview.emergentagent.com/*
+   https://retoerp-realtor.preview.emergentagent.com/*
    ```
    - Paste చేసి Enter నొక్కండి
 
