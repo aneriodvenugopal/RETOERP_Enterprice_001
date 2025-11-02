@@ -66,6 +66,10 @@ import TenantsDirectory from "./pages/public/TenantsDirectory";
 // Mobile App
 import IncomeLandsApp from "./pages/mobile/IncomeLandsApp";
 
+// Workforce Map
+import WorkforceMap from "./pages/WorkforceMap";
+import WorkforceManagement from "./pages/WorkforceManagement";
+
 // Policy Pages
 import PrivacyPolicy from "./pages/policies/PrivacyPolicy";
 import TermsConditions from "./pages/policies/TermsConditions";
