@@ -203,11 +203,13 @@ async def get_workforce_stats(request: Request):
 
 @router.get("/workforce/admin/pending", response_model=List[WorkforceWorker])
 async def get_pending_workers(
+    request: Request,
     current_user: dict = Depends(require_saas_admin)
 ):
     """
     ADMIN: Get all pending worker submissions for approval
     """
+    db = get_db(request)
     workers = await db.workforce_workers.find({"status": "pending"}).to_list(length=None)
     return [WorkforceWorker(**w) for w in workers]
 
