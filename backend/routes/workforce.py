@@ -215,12 +215,14 @@ async def get_pending_workers(
 
 @router.put("/workforce/admin/{worker_id}/approve")
 async def approve_worker(
+    request: Request,
     worker_id: str,
     current_user: dict = Depends(require_saas_admin)
 ):
     """
     ADMIN: Approve a worker submission
     """
+    db = get_db(request)
     result = await db.workforce_workers.update_one(
         {"id": worker_id},
         {
