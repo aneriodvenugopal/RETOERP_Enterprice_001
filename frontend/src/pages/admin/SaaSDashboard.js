@@ -101,6 +101,13 @@ function SaaSDashboard() {
                 Tenants
               </button>
               <button
+                onClick={() => navigate('/admin/workforce')}
+                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition flex items-center gap-2"
+              >
+                <Users size={18} />
+                Workforce
+              </button>
+              <button
                 onClick={() => navigate('/dashboard')}
                 className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition"
               >
