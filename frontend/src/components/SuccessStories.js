@@ -73,7 +73,7 @@ const SuccessStories = () => {
 
               {/* Results Grid */}
               <div className="grid grid-cols-2 gap-4 mb-6">
-                <div className="bg-green-50 rounded-lg p-4 text-center">
+                <div className="bg-green-50/30 rounded-lg p-4 text-center">
                   <TrendingUp className="w-6 h-6 text-green-600 mx-auto mb-2" />
                   <div className="text-2xl font-bold text-green-600">{story.results.growth}</div>
                   <div className="text-xs text-gray-600">Growth</div>
