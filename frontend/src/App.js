@@ -166,6 +166,9 @@ function App() {
                 {/* IncomeLands Mobile App */}
                 <Route path="/incomelands" element={<IncomeLandsApp />} />
                 
+                {/* Workforce Map - Public */}
+                <Route path="/workforce-map" element={<WorkforceMap />} />
+                
                 {/* Admin Routes - Protected */}
                 <Route 
                   path="/admin/content" 
