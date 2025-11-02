@@ -101,38 +101,44 @@ const HeroCarousel = () => {
             <div className="container mx-auto px-6">
               <div className="max-w-4xl">
                 {/* Problem Badge */}
-                <div className="inline-block bg-red-500/90 text-white px-6 py-2 rounded-full font-semibold mb-6">
+                <div className="inline-block bg-red-500/90 text-white px-4 py-2 rounded-full font-semibold mb-4 text-sm">
                   ❌ Problem
                 </div>
                 
                 {/* Problem Statement */}
-                <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
+                <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 leading-tight">
                   {slide.problem}
                 </h2>
 
                 {/* Solution Badge */}
-                <div className="inline-block bg-green-500/90 text-white px-6 py-2 rounded-full font-semibold mb-4">
+                <div className="inline-block bg-green-500/90 text-white px-4 py-2 rounded-full font-semibold mb-3 text-sm">
                   ✅ Solution
                 </div>
 
                 {/* Solution Description */}
-                <p className="text-2xl md:text-3xl text-white/90 mb-6">
+                <p className="text-xl md:text-2xl text-white/90 mb-4">
                   {slide.solution}
                 </p>
 
                 {/* Benefit */}
-                <div className="inline-block bg-yellow-400 text-gray-900 px-8 py-3 rounded-lg font-bold text-xl mb-8">
+                <div className="inline-block bg-yellow-400 text-gray-900 px-6 py-2 rounded-lg font-bold text-lg mb-6">
                   🚀 {slide.benefit}
                 </div>
 
-                {/* CTA Button */}
-                <div>
+                {/* CTA Buttons */}
+                <div className="flex flex-wrap gap-4">
                   <Link
                     to={slide.link}
-                    className="inline-block bg-white text-blue-600 px-8 py-4 rounded-lg font-bold text-lg hover:bg-gray-100 transition-all transform hover:scale-105 shadow-xl"
+                    className="inline-block bg-white text-blue-600 px-6 py-3 rounded-lg font-bold text-base hover:bg-gray-100 transition-all transform hover:scale-105 shadow-xl"
                   >
                     {slide.cta} →
                   </Link>
+                  <button
+                    onClick={() => window.open(`/examples/${slide.link.split('/').pop()}`, '_blank')}
+                    className="inline-block bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg font-bold text-base transition-all shadow-xl"
+                  >
+                    📊 See Real Example
+                  </button>
                 </div>
               </div>
             </div>
