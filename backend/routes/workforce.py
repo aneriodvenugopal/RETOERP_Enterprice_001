@@ -169,10 +169,11 @@ async def get_cities(request: Request):
     return sorted(cities)
 
 @router.get("/workforce/stats")
-async def get_workforce_stats():
+async def get_workforce_stats(request: Request):
     """
     PUBLIC: Get workforce statistics
     """
+    db = get_db(request)
     total_workers = await db.workforce_workers.count_documents({"status": "approved"})
     pending_workers = await db.workforce_workers.count_documents({"status": "pending"})
     
