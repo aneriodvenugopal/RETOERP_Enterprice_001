@@ -86,6 +86,9 @@ import LeadLeakageExample from "./pages/examples/LeadLeakageExample";
 import SlowProcessesExample from "./pages/examples/SlowProcessesExample";
 import RevenueLossExample from "./pages/examples/RevenueLossExample";
 
+// Demo Pages
+import CRMDemo from "./pages/demos/CRMDemo";
+
 // PWA Components
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
 
