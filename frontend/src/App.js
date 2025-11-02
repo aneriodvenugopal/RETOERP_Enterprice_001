@@ -81,6 +81,11 @@ import AnalyticsSolution from "./pages/solutions/AnalyticsSolution";
 import CommunicationSolution from "./pages/solutions/CommunicationSolution";
 import ResaleSolution from "./pages/solutions/ResaleSolution";
 
+// Example Pages
+import LeadLeakageExample from "./pages/examples/LeadLeakageExample";
+import SlowProcessesExample from "./pages/examples/SlowProcessesExample";
+import RevenueLossExample from "./pages/examples/RevenueLossExample";
+
 // PWA Components
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
 
