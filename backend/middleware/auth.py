@@ -60,3 +60,21 @@ def require_role(required_roles: list):
             )
         return user
     return role_checker
+
+async def require_saas_admin(request: Request):
+    """Verify user is SaaS admin (phone: 9948303060)"""
+    from database import db
+    
+    user_payload = await get_current_user(request)
+    
+    # Get user from database
+    user_doc = await db.users.find_one({'id': user_payload['user_id']}, {"_id": 0})
+    
+    if not user_doc:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Check if user is SaaS admin (9948303060)
+    if user_doc.get('phone') != '9948303060':
+        raise HTTPException(status_code=403, detail="Access denied. SaaS admin only.")
+    
+    return user_payload
