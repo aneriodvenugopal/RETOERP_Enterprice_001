@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
+from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks, Request
 from typing import List, Optional
 from datetime import datetime
 import uuid
@@ -11,10 +11,12 @@ from models.workforce import (
     WorkforceSearchParams
 )
 from middleware.auth import get_current_user, require_saas_admin
-from database import db
 from services.workforce_scraper import workforce_scraper
 
 router = APIRouter()
+
+def get_db(request: Request):
+    return request.app.state.db
 
 # Haversine formula for distance calculation
 def calculate_distance(lat1: float, lng1: float, lat2: float, lng2: float) -> float:
