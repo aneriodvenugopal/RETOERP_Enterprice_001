@@ -274,12 +274,14 @@ async def reject_worker(
 
 @router.delete("/workforce/admin/{worker_id}")
 async def delete_worker(
+    request: Request,
     worker_id: str,
     current_user: dict = Depends(require_saas_admin)
 ):
     """
     ADMIN: Delete a worker from database
     """
+    db = get_db(request)
     result = await db.workforce_workers.delete_one({"id": worker_id})
     
     if result.deleted_count == 0:
