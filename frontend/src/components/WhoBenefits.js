@@ -228,7 +228,7 @@ const WhoBenefits = () => {
 
         {/* Content Area */}
         <div className="max-w-7xl mx-auto">
-          <div className={`${colors.light} rounded-2xl p-8 md:p-12 border-2 ${colors.border}`}>
+          <div className={`bg-${active.color}-50/30 rounded-2xl p-8 md:p-12 border border-${active.color}-100`}>
             {/* Header */}
             <div className="flex items-center mb-8">
               <div className={`${colors.bg} text-white p-4 rounded-xl mr-6`}>
