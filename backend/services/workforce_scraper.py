@@ -27,7 +27,7 @@ class WorkforceScraper:
         Returns:
             List of worker dictionaries with name, phone, location, etc.
         """
-        if not self.client:
+        if not self.llm_key:
             print("[AI SCRAPER] Emergent LLM Key not configured. Returning mock data.")
             return self._generate_mock_workers(skill_type, location, limit)
         
@@ -60,13 +60,20 @@ Return as valid JSON array only, no additional text:
 ]
 """
             
-            response = await self.client.send_message_async(
-                message=UserMessage(text=prompt),
-                llm_model="openai/gpt-4o"
-            )
+            # Initialize LLM chat for this scraping session
+            system_message = "You are a construction workforce database generator. Generate realistic Indian construction worker data in valid JSON format only."
             
-            # Parse AI response
-            content = response.text.strip()
+            chat = LlmChat(
+                api_key=self.llm_key,
+                session_id=f"workforce_scraper_{skill_type}_{location}",
+                system_message=system_message
+            ).with_model("openai", "gpt-4o")
+            
+            user_message = UserMessage(text=prompt)
+            
+            # Get AI response
+            response = await chat.send_message(user_message)
+            content = response.strip()
             
             # Extract JSON from response
             import json
