@@ -166,10 +166,11 @@ const AdvisoryChat = () => {
                 <div key={field.key} className="mb-6">
                   <label className="block text-gray-700 font-medium mb-2">
                     {field.label}
+                    {field.required === false && <span className="text-gray-400 text-sm ml-2">(Optional)</span>}
                   </label>
                   {field.type === 'select' ? (
                     <select
-                      required
+                      required={field.required !== false}
                       value={formData[field.key] || ''}
                       onChange={(e) => handleInputChange(field.key, e.target.value)}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -181,7 +182,7 @@ const AdvisoryChat = () => {
                     </select>
                   ) : field.type === 'textarea' ? (
                     <textarea
-                      required
+                      required={field.required !== false}
                       value={formData[field.key] || ''}
                       onChange={(e) => handleInputChange(field.key, e.target.value)}
                       placeholder={field.placeholder}
@@ -191,7 +192,7 @@ const AdvisoryChat = () => {
                   ) : (
                     <input
                       type={field.type}
-                      required
+                      required={field.required !== false}
                       value={formData[field.key] || ''}
                       onChange={(e) => handleInputChange(field.key, e.target.value)}
                       placeholder={field.placeholder}
