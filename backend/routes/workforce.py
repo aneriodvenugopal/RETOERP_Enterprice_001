@@ -246,12 +246,14 @@ async def approve_worker(
 
 @router.put("/workforce/admin/{worker_id}/reject")
 async def reject_worker(
+    request: Request,
     worker_id: str,
     current_user: dict = Depends(require_saas_admin)
 ):
     """
     ADMIN: Reject a worker submission
     """
+    db = get_db(request)
     result = await db.workforce_workers.update_one(
         {"id": worker_id},
         {
