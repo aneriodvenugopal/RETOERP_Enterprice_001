@@ -386,6 +386,14 @@ function App() {
                   </PrivateRoute>
                 }
               />
+              <Route
+                path="/admin/workforce"
+                element={
+                  <PrivateRoute>
+                    <WorkforceManagement />
+                  </PrivateRoute>
+                }
+              />
             </Routes>
           </BrowserRouter>
           <Toaster position="top-right" richColors />
