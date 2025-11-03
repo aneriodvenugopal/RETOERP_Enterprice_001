@@ -23,8 +23,8 @@ class WorkforceWorker(BaseModel):
     work_type: Optional[str] = None  # Daily, Contract, Both
     daily_rate: Optional[float] = None
     description: Optional[str] = None
+    source: Optional[str] = "user_submitted"  # user_submitted, ai_scraped, YouTube, Facebook, JustDial, Google Business, etc.
     status: str = "pending"  # pending, approved, rejected
-    source: str = "user_submitted"  # user_submitted, ai_scraped
     added_by: Optional[str] = None  # user_id who added this worker
     verified: bool = False
     created_at: datetime = Field(default_factory=datetime.utcnow)
