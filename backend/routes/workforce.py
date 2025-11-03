@@ -344,11 +344,15 @@ async def trigger_ai_scrape(
             
             # Save to database
             for worker_data in workers_data:
+                # Preserve the source from AI (YouTube, Facebook, JustDial, etc.)
+                # If no source specified, default to "ai_scraped"
+                source_platform = worker_data.get("source", "ai_scraped")
+                
                 worker = {
                     "id": str(uuid.uuid4()),
                     **worker_data,
                     "status": "approved",  # Auto-approve AI scraped data
-                    "source": "ai_scraped",
+                    "source": source_platform,  # Use the platform source from AI
                     "verified": True,
                     "created_at": datetime.utcnow(),
                     "updated_at": datetime.utcnow(),
