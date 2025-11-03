@@ -423,6 +423,10 @@ const WorkforceMap = () => {
                     <p className="text-green-600 font-medium">₹{worker.daily_rate}/day</p>
                   )}
                   
+                  {worker.source && worker.source !== 'user_submitted' && (
+                    <p className="text-xs text-blue-600 font-medium">📱 Found on: {worker.source}</p>
+                  )}
+                  
                   {worker.description && (
                     <p className="text-xs text-gray-500 mt-1">{worker.description}</p>
                   )}
