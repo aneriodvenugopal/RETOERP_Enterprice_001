@@ -168,8 +168,28 @@ const AvatarAssistant = () => {
 
   useEffect(() => {
     if (window.speechSynthesis) {
-      window.speechSynthesis.getVoices();
-      window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+      // Load voices
+      const loadVoices = () => {
+        const voices = window.speechSynthesis.getVoices();
+        
+        // Log available voices for debugging
+        console.log('=== Available Voices ===');
+        voices.forEach((voice, index) => {
+          if (voice.lang.includes('en-IN') || voice.lang.includes('hi-IN') || 
+              voice.name.toLowerCase().includes('female') || 
+              voice.name.toLowerCase().includes('woman')) {
+            console.log(`${index}: ${voice.name} (${voice.lang}) - ${voice.localService ? 'Local' : 'Remote'}`);
+          }
+        });
+        console.log('======================');
+      };
+      
+      loadVoices();
+      
+      // Chrome needs this event
+      if (window.speechSynthesis.onvoiceschanged !== undefined) {
+        window.speechSynthesis.onvoiceschanged = loadVoices;
+      }
     }
   }, []);
 
