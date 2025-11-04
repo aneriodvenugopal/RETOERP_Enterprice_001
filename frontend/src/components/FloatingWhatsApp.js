@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { MessageCircle, X, Phone } from 'lucide-react';
+import React from 'react';
+import { MessageCircle } from 'lucide-react';
 
 const FloatingWhatsApp = () => {
   return (
