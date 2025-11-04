@@ -36,7 +36,8 @@ const HeroCarousel = () => {
       image: "https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=1200&h=600&fit=crop",
       benefit: "3X Higher Conversions",
       cta: "Show Visual Maps",
-      link: "/solutions/property-layouts"
+      link: "/solutions/property-layouts",
+      demoLink: "https://billingwala.kitchenschools.com/public/" // External demo link
     },
     {
       problem: "Missing Revenue from Resale Opportunities?",
