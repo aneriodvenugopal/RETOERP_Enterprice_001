@@ -17,9 +17,9 @@ const Features = () => {
       ]
     },
     {
-      title: 'AI-Powered Advisory',
-      icon: '🤖',
-      image: 'https://images.unsplash.com/photo-1599090738077-75d2187fd892?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2Njl8MHwxfHNlYXJjaHwyfHxwcm9mZXNzaW9uYWwlMjBidXNpbmVzc3xlbnwwfHx8Ymx1ZXwxNzYwOTcxOTAxfDA&ixlib=rb-4.1.0&q=85',
+      title: 'Free 24 X 7 Expert Advisory',
+      icon: '👥',
+      image: 'https://images.unsplash.com/photo-1650784854859-a1e4b01779c6?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzR8MHwxfHNlYXJjaHwzfHxwcm9mZXNzaW9uYWwlMjByZWFsJTIwZXN0YXRlJTIwdGVhbXxlbnwwfHx8fDE3NjIyNDk4ODF8MA&ixlib=rb-4.1.0&q=85',
       features: [
         'Budget Advisory: Smart property recommendations based on budget',
         'Location Highlights: AI-powered location analysis and insights',
