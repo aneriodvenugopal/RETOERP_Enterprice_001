@@ -470,7 +470,7 @@ const AvatarAssistant = () => {
           {!searchQuery && (
             <div className="p-3">
               {/* Current Page Help */}
-              {currentPage !== 'home' && features.currentPage[currentPage] && (
+              {features.currentPage[currentPage] && (
                 <div className="mb-3">
                   <button
                     onClick={() => {
