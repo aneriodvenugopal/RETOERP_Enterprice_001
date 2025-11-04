@@ -87,11 +87,6 @@ const Home = () => {
       {/* Sticky Navigation */}
       <StickyNavbar />
       
-      {/* Language Selector - Fixed Top Right */}
-      <div className="fixed top-20 right-4 z-40">
-        <LanguageSelector />
-      </div>
-      
       {/* Hero Carousel */}
       <HeroCarousel />
       
