@@ -47,7 +47,7 @@
         tenantId: tenantId,
         position: position,
         primaryColor: primaryColor,
-        backendUrl: 'https://retoerp-realtor.preview.emergentagent.com/api'
+        backendUrl: 'https://skilled-workforce.preview.emergentagent.com/api'
       };
       
       // Load chat widget bundle
