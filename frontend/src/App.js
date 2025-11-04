@@ -102,6 +102,7 @@ import CRMDemo from "./pages/demos/CRMDemo";
 
 // PWA Components
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
+import FloatingWhatsApp from "./components/FloatingWhatsApp";
 import AvatarAssistant from "./components/AvatarAssistant";
 import PropertyChatbot from "./components/PropertyChatbot";
 
