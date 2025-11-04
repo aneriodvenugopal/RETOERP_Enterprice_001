@@ -20,12 +20,14 @@ const Features = () => {
       title: 'Free 24 X 7 Expert Advisory',
       icon: '👥',
       image: 'https://images.unsplash.com/photo-1650784854859-a1e4b01779c6?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzR8MHwxfHNlYXJjaHwzfHxwcm9mZXNzaW9uYWwlMjByZWFsJTIwZXN0YXRlJTIwdGVhbXxlbnwwfHx8fDE3NjIyNDk4ODF8MA&ixlib=rb-4.1.0&q=85',
+      description: 'AI-powered advisory trained on 10+ years of real estate expertise. Get instant, intelligent guidance 24×7 based on real market data and expert knowledge.',
       features: [
-        'Budget Advisory: Smart property recommendations based on budget',
-        'Location Highlights: AI-powered location analysis and insights',
-        'Numerology Advisory: Auspicious property selection guidance',
-        'Best Project Advisory: Data-driven project recommendations',
-        'Future Investment Advisory: Market trends and growth predictions'
+        'Budget Advisory: Smart property recommendations based on budget & market analysis',
+        'Location Highlights: AI-powered location analysis with connectivity insights',
+        'Numerology Advisory: Auspicious property selection with cultural guidance',
+        'Best Project Advisory: Data-driven project recommendations from real trends',
+        'Future Investment Advisory: Market trends & growth predictions based on analytics',
+        'Instant Response: Get expert-level advice in 30 seconds, any time of day'
       ]
     },
     {
