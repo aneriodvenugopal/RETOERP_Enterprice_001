@@ -86,55 +86,114 @@ const AvatarAssistant = () => {
     setSearchResults(results);
   };
 
-  // Speak text using Web Speech API with Indian female voice
+  // Speak text using Web Speech API with natural human-like delivery
   const speak = (text) => {
     if (!speechEnabled || !window.speechSynthesis) return;
 
     window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
     
-    // Sweet, soft voice settings
-    utterance.rate = 0.85; // Slightly slower for clarity and sweetness
-    utterance.pitch = 1.2; // Higher pitch for feminine, sweet tone
-    utterance.volume = 0.9; // Slightly softer volume
+    // Add natural pauses for better human-like speech
+    const naturalText = text
+      .replace(/\./g, '...') // Longer pause after sentences
+      .replace(/,/g, '..') // Short pause after commas
+      .replace(/\?/g, '...?') // Pause before question mark
+      .replace(/!/g, '...!'); // Pause before exclamation
+    
+    const utterance = new SpeechSynthesisUtterance(naturalText);
+    
+    // More human-like settings
+    utterance.rate = 0.8; // Even slower for natural conversational pace
+    utterance.pitch = 1.15; // Moderate sweetness, not too high
+    utterance.volume = 0.85; // Softer, more intimate volume
 
-    // Try to get best Indian female voice
     const voices = window.speechSynthesis.getVoices();
     
-    // Priority order for Indian female voices
-    const indianVoice = voices.find(voice => 
-      // Google Hindi Female (best quality)
-      voice.name.includes('Google हिन्दी') ||
-      voice.name.includes('Google Hindi') ||
-      // Microsoft Heera/Kalpana (Hindi female)
-      voice.name.includes('Heera') ||
-      voice.name.includes('Kalpana') ||
-      // Indian English female voices
-      (voice.lang.includes('en-IN') && voice.name.toLowerCase().includes('female')) ||
-      (voice.lang.includes('en-IN') && voice.name.toLowerCase().includes('woman')) ||
-      (voice.lang.includes('hi-IN') && voice.name.toLowerCase().includes('female'))
-    );
+    // Select voice based on language
+    let selectedVoice = null;
     
-    // Fallback to any sweet-sounding female voice
-    const fallbackVoice = voices.find(voice =>
-      voice.name.includes('Samantha') || // iOS/Mac - very natural
-      voice.name.includes('Serena') || // Android - pleasant
-      voice.name.includes('Google US English Female') ||
-      voice.name.includes('Microsoft Zira') || // Windows female
-      (voice.name.toLowerCase().includes('female') && voice.lang.startsWith('en'))
-    );
+    if (language === 'telugu') {
+      // For Telugu, try Telugu voices first, then Indian English
+      selectedVoice = voices.find(voice => 
+        voice.lang.includes('te-IN') || // Telugu
+        voice.lang.includes('te') ||
+        voice.name.includes('Telugu')
+      );
+      
+      // If no Telugu voice, use Indian English (sounds better for Telugu transliteration)
+      if (!selectedVoice) {
+        selectedVoice = voices.find(voice => 
+          (voice.lang.includes('en-IN') && voice.name.toLowerCase().includes('female')) ||
+          (voice.lang.includes('hi-IN') && voice.name.toLowerCase().includes('female'))
+        );
+      }
+    } else if (language === 'hindi') {
+      // For Hindi, try Hindi voices
+      selectedVoice = voices.find(voice => 
+        voice.lang.includes('hi-IN') ||
+        voice.name.includes('हिन्दी') ||
+        voice.name.includes('Hindi') ||
+        voice.name.includes('Heera') ||
+        voice.name.includes('Kalpana')
+      );
+    } else {
+      // For English, try Indian English female voices
+      selectedVoice = voices.find(voice => 
+        (voice.lang.includes('en-IN') && voice.name.toLowerCase().includes('female'))
+      );
+    }
     
-    if (indianVoice) {
-      utterance.voice = indianVoice;
-      console.log('Using Indian voice:', indianVoice.name);
-    } else if (fallbackVoice) {
-      utterance.voice = fallbackVoice;
-      console.log('Using fallback voice:', fallbackVoice.name);
+    // Fallback to best quality voices
+    if (!selectedVoice) {
+      selectedVoice = voices.find(voice =>
+        voice.name.includes('Samantha') || // iOS - Most natural!
+        voice.name.includes('Google हिन्दी') ||
+        voice.name.includes('Rishi') || // Indian male but natural
+        voice.name.includes('Veena') || // Indian female
+        voice.name.includes('Google UK English Female') ||
+        voice.name.includes('Serena')
+      );
+    }
+    
+    // Last resort - any female voice
+    if (!selectedVoice) {
+      selectedVoice = voices.find(voice => 
+        voice.name.toLowerCase().includes('female') ||
+        voice.name.toLowerCase().includes('woman')
+      );
+    }
+    
+    if (selectedVoice) {
+      utterance.voice = selectedVoice;
+      console.log(`🎤 Using voice: ${selectedVoice.name} (${selectedVoice.lang})`);
     }
 
-    utterance.onstart = () => setIsSpeaking(true);
-    utterance.onend = () => setIsSpeaking(false);
-    utterance.onerror = () => setIsSpeaking(false);
+    // Add natural speech events for more human feel
+    let wordIndex = 0;
+    const words = text.split(' ');
+    
+    utterance.onboundary = (event) => {
+      // Add slight pitch variation for each word (more expressive)
+      if (wordIndex < words.length) {
+        // Vary pitch naturally (between 1.1 and 1.2)
+        const pitchVariation = 1.1 + (Math.random() * 0.1);
+        wordIndex++;
+      }
+    };
+
+    utterance.onstart = () => {
+      setIsSpeaking(true);
+      console.log('🔊 Speaking:', text.substring(0, 50) + '...');
+    };
+    
+    utterance.onend = () => {
+      setIsSpeaking(false);
+      wordIndex = 0;
+    };
+    
+    utterance.onerror = (event) => {
+      console.error('Speech error:', event.error);
+      setIsSpeaking(false);
+    };
 
     window.speechSynthesis.speak(utterance);
   };
