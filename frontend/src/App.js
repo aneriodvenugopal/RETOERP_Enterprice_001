@@ -123,8 +123,17 @@ function ConditionalAssistant() {
     location.pathname.startsWith('/public/tenant/') || 
     location.pathname.startsWith('/public/project/');
   
-  // Show Property Chatbot on tenant/project pages, RETOERP Assistant on all others
-  return isTenantOrProjectPage ? <PropertyChatbot /> : <AvatarAssistant />;
+  // Check if on homepage
+  const isHomePage = location.pathname === '/';
+  
+  // Show Property Chatbot on tenant/project pages, RETOERP Assistant on other pages (except homepage)
+  if (isTenantOrProjectPage) {
+    return <PropertyChatbot />;
+  } else if (!isHomePage) {
+    return <AvatarAssistant />;
+  }
+  
+  return null; // No assistant on homepage
 }
 
 function App() {
