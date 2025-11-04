@@ -1,47 +1,111 @@
 import React, { useState, useEffect } from 'react';
-import { MessageCircle, X, Volume2, VolumeX } from 'lucide-react';
+import { MessageCircle, X, Volume2, VolumeX, Search, Home, MapPin, Users, CreditCard, TrendingUp, Mail, Building, HardHat } from 'lucide-react';
 
 const AvatarAssistant = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [currentMessage, setCurrentMessage] = useState('');
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [speechEnabled, setSpeechEnabled] = useState(true);
+  const [language, setLanguage] = useState('english'); // english, telugu, hindi
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
 
-  // Feature explanations
+  // Feature explanations in multiple languages
   const features = {
-    welcome: "Hello! I'm your RETOERP guide! Click on me anytime to learn about our features. What would you like to know?",
-    crm: "Our Smart CRM tracks every lead automatically - no more lost opportunities! It sends automatic follow-ups and ensures 0% lead leakage.",
-    propertyLayouts: "Visual Property Layouts let customers see interactive maps with real-time availability. They can click on plots and book directly - increasing conversions by 3X!",
-    advisory: "FREE 24x7 Expert Advisory provides professional guidance on budget, location, numerology, and investment - available in multiple languages!",
-    payments: "Multi-gateway payments support Razorpay and Stripe. Accept payments online, generate receipts automatically, and track everything in one place!",
-    analytics: "Smart Analytics Dashboard shows you real-time insights - conversion rates, revenue trends, agent performance, and more. Make data-driven decisions!",
-    communication: "Automated SMS, Email & WhatsApp campaigns save time and money. Send bulk messages, schedule campaigns, and track delivery - all automated!",
-    resale: "Resale Marketplace generates 15-25% additional revenue by listing resale properties. Buyers and sellers connect directly on your platform!",
-    workforceMap: "Construction Workforce Map helps you find skilled workers nearby - carpenters, electricians, masons, and more. All contacts in one place!"
+    welcome: {
+      english: "Hello! I'm your RETOERP guide! Search for any feature or ask me anything.",
+      telugu: "నమస్కారం! నేను మీ RETOERP గైడ్! ఏదైనా ఫీచర్ కోసం సెర్చ్ చేయండి లేదా నన్ను అడగండి.",
+      hindi: "नमस्ते! मैं आपकी RETOERP गाइड हूँ! किसी भी फीचर को खोजें या मुझसे पूछें।"
+    },
+    login: {
+      english: "Login page lets you access your RETOERP dashboard. Use your mobile number to receive OTP and login securely.",
+      telugu: "లాగిన్ పేజీ మీ RETOERP డాష్‌బోర్డ్‌ను యాక్సెస్ చేయడానికి అనుమతిస్తుంది. OTP పొందడానికి మీ మొబైల్ నంబర్‌ను ఉపయోగించండి మరియు సురక్షితంగా లాగిన్ అవ్వండి.",
+      hindi: "लॉगिन पेज आपको अपने RETOERP डैशबोर्ड तक पहुंचने देता है। OTP प्राप्त करने के लिए अपने मोबाइल नंबर का उपयोग करें।",
+      link: "/login"
+    },
+    crm: {
+      english: "Smart CRM tracks every lead automatically with 0% lead leakage. Automated follow-ups ensure no opportunity is missed.",
+      telugu: "స్మార్ట్ CRM ప్రతి లీడ్‌ను స్వయంచాలకంగా ట్రాక్ చేస్తుంది, 0% లీడ్ లీకేజ్‌తో. స్వయంచాలిత ఫాలో-అప్‌లు అవకాశాలు తప్పిపోవు.",
+      hindi: "स्मार्ट CRM हर लीड को स्वचालित रूप से ट्रैक करता है। 0% लीड लीकेज के साथ।",
+      link: "/solutions/crm"
+    },
+    property: {
+      english: "Visual Property Layouts show interactive maps with real-time availability. Customers can see plots and book directly - 3X higher conversions!",
+      telugu: "విజువల్ ప్రాపర్టీ లేఅవుట్స్ రియల్-టైమ్ లభ్యతతో ఇంటరాక్టివ్ మ్యాప్‌లను చూపిస్తాయి. కస్టమర్‌లు ప్లాట్‌లను చూసి నేరుగా బుక్ చేయవచ్చు - 3X ఎక్కువ మార్పిడులు!",
+      hindi: "विज़ुअल प्रॉपर्टी लेआउट रियल-टाइम उपलब्धता के साथ इंटरैक्टिव मैप दिखाते हैं।",
+      link: "/solutions/property-layouts"
+    },
+    advisory: {
+      english: "FREE 24x7 Expert Advisory provides guidance on budget, location, numerology and investment - in multiple languages!",
+      telugu: "ఉచిత 24x7 ఎక్స్‌పర్ట్ అడ్వైజరీ బడ్జెట్, స్థానం, న్యూమరాలజీ మరియు ఇన్వెస్ట్‌మెంట్‌పై మార్గదర్శకత్వం అందిస్తుంది - బహుళ భాషలలో!",
+      hindi: "मुफ्त 24x7 विशेषज्ञ सलाह बजट, स्थान और निवेश पर मार्गदर्शन प्रदान करती है।",
+      link: "/advisory"
+    },
+    workforce: {
+      english: "Workforce Map helps find skilled construction workers - carpenters, electricians, masons nearby with direct contact.",
+      telugu: "వర్క్‌ఫోర్స్ మ్యాప్ నైపుణ్యం కలిగిన నిర్మాణ కార్మికులను కనుగొనడంలో సహాయపడుతుంది - వడ్రంగులు, ఎలక్ట్రీషియన్లు, మేస్త్రీలు.",
+      hindi: "वर्कफोर्स मैप कुशल निर्माण श्रमिकों को खोजने में मदद करता है।",
+      link: "/workforce-map"
+    },
+    dashboard: {
+      english: "Dashboard shows your business overview - leads, bookings, revenue, and team performance in one place.",
+      telugu: "డాష్‌బోర్డ్ మీ వ్యాపార అవలోకనాన్ని చూపిస్తుంది - లీడ్స్, బుకింగ్‌లు, ఆదాయం మరియు టీమ్ పనితీరు ఒకే చోట.",
+      hindi: "डैशबोर्ड आपके व्यवसाय का अवलोकन दिखाता है - लीड्स, बुकिंग, राजस्व।",
+      link: "/dashboard"
+    },
+    contact: {
+      english: "Contact us anytime! Phone: +91 9948303060, Email: admin@retoerp.com. We're here to help!",
+      telugu: "ఎప్పుడైనా మమ్మల్ని సంప్రదించండి! ఫోన్: +91 9948303060, ఇమెయిల్: admin@retoerp.com. మేము సహాయం చేయడానికి ఇక్కడ ఉన్నాము!",
+      hindi: "किसी भी समय संपर्क करें! फोन: +91 9948303060, ईमेल: admin@retoerp.com।",
+      link: "/contact"
+    }
   };
 
-  // Speak text using Web Speech API
+  // Search index for smart search
+  const searchIndex = [
+    { keywords: ['login', 'signin', 'enter', 'access'], feature: 'login', icon: <Home className="w-4 h-4" /> },
+    { keywords: ['crm', 'leads', 'customers', 'follow'], feature: 'crm', icon: <Users className="w-4 h-4" /> },
+    { keywords: ['property', 'layout', 'map', 'plots', 'visual'], feature: 'property', icon: <MapPin className="w-4 h-4" /> },
+    { keywords: ['advisory', 'expert', 'guidance', 'advice', 'consult'], feature: 'advisory', icon: <MessageCircle className="w-4 h-4" /> },
+    { keywords: ['workforce', 'workers', 'labour', 'carpenter', 'mason'], feature: 'workforce', icon: <HardHat className="w-4 h-4" /> },
+    { keywords: ['dashboard', 'overview', 'stats', 'analytics'], feature: 'dashboard', icon: <TrendingUp className="w-4 h-4" /> },
+    { keywords: ['contact', 'phone', 'email', 'support', 'help'], feature: 'contact', icon: <Mail className="w-4 h-4" /> }
+  ];
+
+  // Smart search function
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+    if (!query.trim()) {
+      setSearchResults([]);
+      return;
+    }
+
+    const results = searchIndex.filter(item =>
+      item.keywords.some(keyword => keyword.includes(query.toLowerCase()))
+    );
+    setSearchResults(results);
+  };
+
+  // Speak text using Web Speech API with Indian voice
   const speak = (text) => {
     if (!speechEnabled || !window.speechSynthesis) return;
 
-    // Cancel any ongoing speech
     window.speechSynthesis.cancel();
-
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = 0.9; // Slightly slower for clarity
-    utterance.pitch = 1;
+    utterance.rate = 0.85;
+    utterance.pitch = 1.1;
     utterance.volume = 1;
 
-    // Set voice (prefer female voice if available)
+    // Try to get Indian female voice
     const voices = window.speechSynthesis.getVoices();
-    const femaleVoice = voices.find(voice => 
-      voice.name.includes('Female') || 
-      voice.name.includes('Google UK English Female') ||
-      voice.name.includes('Microsoft Zira')
-    );
-    if (femaleVoice) {
-      utterance.voice = femaleVoice;
-    }
+    const indianVoice = voices.find(voice => 
+      voice.lang.includes('hi-IN') || 
+      voice.lang.includes('en-IN') ||
+      voice.name.includes('Indian') ||
+      voice.name.includes('Hindi')
+    ) || voices.find(voice => voice.name.includes('Female'));
+    
+    if (indianVoice) utterance.voice = indianVoice;
 
     utterance.onstart = () => setIsSpeaking(true);
     utterance.onend = () => setIsSpeaking(false);
@@ -50,62 +114,53 @@ const AvatarAssistant = () => {
     window.speechSynthesis.speak(utterance);
   };
 
-  // Stop speaking
   const stopSpeaking = () => {
     window.speechSynthesis.cancel();
     setIsSpeaking(false);
   };
 
-  // Show feature explanation
   const showFeature = (featureKey) => {
-    const message = features[featureKey];
+    const message = features[featureKey][language];
     setCurrentMessage(message);
-    if (speechEnabled) {
-      speak(message);
+    if (speechEnabled) speak(message);
+  };
+
+  const handleFeatureClick = (featureKey) => {
+    showFeature(featureKey);
+    const link = features[featureKey].link;
+    if (link) {
+      setTimeout(() => {
+        window.location.href = link;
+      }, 3000); // Go to page after 3 seconds
     }
   };
 
-  // Welcome message on first open
   useEffect(() => {
     if (isOpen && !currentMessage) {
       showFeature('welcome');
     }
-  }, [isOpen]);
+  }, [isOpen, language]);
 
-  // Load voices on mount
   useEffect(() => {
     if (window.speechSynthesis) {
       window.speechSynthesis.getVoices();
-      window.speechSynthesis.onvoiceschanged = () => {
-        window.speechSynthesis.getVoices();
-      };
+      window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
     }
   }, []);
 
   return (
     <>
-      {/* Floating Avatar Icon */}
+      {/* Floating Avatar Icon - Smaller and Professional */}
       {!isOpen && (
         <div
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 z-50 cursor-pointer group"
-          title="Click me for help!"
+          className="fixed bottom-24 right-6 z-40 cursor-pointer group"
+          title="Need help? Click me!"
         >
-          {/* Avatar Circle with Animation */}
           <div className="relative">
-            {/* Pulsing ring */}
-            <div className="absolute inset-0 bg-blue-400 rounded-full animate-ping opacity-75"></div>
-            
-            {/* Avatar */}
-            <div className="relative w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform">
-              {/* Avatar Face */}
-              <div className="text-white text-3xl">👩‍💼</div>
-            </div>
-            
-            {/* Speech bubble hint */}
-            <div className="absolute -top-12 right-0 bg-white px-3 py-1 rounded-lg shadow-lg text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
-              Need help? Click me!
-              <div className="absolute bottom-0 right-4 transform translate-y-1/2 rotate-45 w-2 h-2 bg-white"></div>
+            <div className="absolute inset-0 bg-purple-400 rounded-full animate-ping opacity-50"></div>
+            <div className="relative w-12 h-12 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform">
+              <MessageCircle className="w-6 h-6 text-white" />
             </div>
           </div>
         </div>
@@ -113,31 +168,28 @@ const AvatarAssistant = () => {
 
       {/* Expanded Assistant Panel */}
       {isOpen && (
-        <div className="fixed bottom-6 right-6 z-50 w-96 bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden">
+        <div className="fixed bottom-6 right-6 z-50 w-96 bg-white rounded-xl shadow-2xl border border-gray-200">
           {/* Header */}
-          <div className="bg-gradient-to-r from-blue-500 to-purple-600 p-4 text-white">
+          <div className="bg-gradient-to-r from-purple-600 to-indigo-600 p-3 text-white rounded-t-xl">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center text-2xl backdrop-blur-sm">
-                  👩‍💼
-                </div>
+              <div className="flex items-center gap-2">
+                <MessageCircle className="w-5 h-5" />
                 <div>
-                  <h3 className="font-bold">RETOERP Assistant</h3>
+                  <h3 className="font-bold text-sm">RETOERP Assistant</h3>
                   <p className="text-xs text-white/80">
-                    {isSpeaking ? '🔊 Speaking...' : 'Here to help 24/7'}
+                    {isSpeaking ? '🔊 Speaking...' : 'Ask me anything'}
                   </p>
                 </div>
               </div>
-              <div className="flex gap-2">
+              <div className="flex gap-1">
                 <button
                   onClick={() => {
                     setSpeechEnabled(!speechEnabled);
                     if (speechEnabled) stopSpeaking();
                   }}
-                  className="p-2 hover:bg-white/20 rounded-lg transition"
-                  title={speechEnabled ? 'Mute voice' : 'Enable voice'}
+                  className="p-1.5 hover:bg-white/20 rounded transition"
                 >
-                  {speechEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
+                  {speechEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
                 </button>
                 <button
                   onClick={() => {
@@ -145,81 +197,98 @@ const AvatarAssistant = () => {
                     stopSpeaking();
                     setCurrentMessage('');
                   }}
-                  className="p-2 hover:bg-white/20 rounded-lg transition"
+                  className="p-1.5 hover:bg-white/20 rounded transition"
                 >
-                  <X className="w-5 h-5" />
+                  <X className="w-4 h-4" />
                 </button>
               </div>
             </div>
+
+            {/* Language Selector */}
+            <div className="flex gap-1 mt-2">
+              {['english', 'telugu', 'hindi'].map(lang => (
+                <button
+                  key={lang}
+                  onClick={() => {
+                    setLanguage(lang);
+                    stopSpeaking();
+                  }}
+                  className={`px-2 py-1 text-xs rounded transition ${
+                    language === lang 
+                      ? 'bg-white text-purple-600 font-semibold' 
+                      : 'bg-white/20 hover:bg-white/30'
+                  }`}
+                >
+                  {lang === 'english' ? 'English' : lang === 'telugu' ? 'తెలుగు' : 'हिंदी'}
+                </button>
+              ))}
+            </div>
           </div>
 
-          {/* Message Area */}
-          <div className="p-4 max-h-64 overflow-y-auto bg-gray-50">
-            {currentMessage && (
-              <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 relative">
-                {/* Animated mouth indicator */}
-                {isSpeaking && (
-                  <div className="absolute -left-2 top-4 w-3 h-3 bg-blue-500 rounded-full animate-pulse"></div>
-                )}
-                <p className="text-gray-700 leading-relaxed">{currentMessage}</p>
+          {/* Search Bar */}
+          <div className="p-3 border-b border-gray-200">
+            <div className="relative">
+              <Search className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => handleSearch(e.target.value)}
+                placeholder={language === 'telugu' ? 'సెర్చ్ చేయండి...' : language === 'hindi' ? 'खोजें...' : 'Search features...'}
+                className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              />
+            </div>
+
+            {/* Search Results */}
+            {searchResults.length > 0 && (
+              <div className="mt-2 space-y-1">
+                {searchResults.map((result, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => handleFeatureClick(result.feature)}
+                    className="w-full flex items-center gap-2 p-2 hover:bg-purple-50 rounded text-left text-sm"
+                  >
+                    {result.icon}
+                    <span className="font-medium">{result.feature.charAt(0).toUpperCase() + result.feature.slice(1)}</span>
+                  </button>
+                ))}
               </div>
             )}
           </div>
 
-          {/* Feature Buttons */}
-          <div className="p-4 bg-white border-t border-gray-200">
-            <p className="text-xs text-gray-500 mb-3 font-medium">What would you like to learn about?</p>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                onClick={() => showFeature('crm')}
-                className="px-3 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-sm font-medium transition"
-              >
-                📊 Smart CRM
-              </button>
-              <button
-                onClick={() => showFeature('propertyLayouts')}
-                className="px-3 py-2 bg-green-50 hover:bg-green-100 text-green-700 rounded-lg text-sm font-medium transition"
-              >
-                🗺️ Property Maps
-              </button>
-              <button
-                onClick={() => showFeature('advisory')}
-                className="px-3 py-2 bg-purple-50 hover:bg-purple-100 text-purple-700 rounded-lg text-sm font-medium transition"
-              >
-                💡 Expert Advisory
-              </button>
-              <button
-                onClick={() => showFeature('payments')}
-                className="px-3 py-2 bg-yellow-50 hover:bg-yellow-100 text-yellow-700 rounded-lg text-sm font-medium transition"
-              >
-                💳 Payments
-              </button>
-              <button
-                onClick={() => showFeature('analytics')}
-                className="px-3 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-lg text-sm font-medium transition"
-              >
-                📈 Analytics
-              </button>
-              <button
-                onClick={() => showFeature('communication')}
-                className="px-3 py-2 bg-pink-50 hover:bg-pink-100 text-pink-700 rounded-lg text-sm font-medium transition"
-              >
-                📧 Communication
-              </button>
-              <button
-                onClick={() => showFeature('resale')}
-                className="px-3 py-2 bg-orange-50 hover:bg-orange-100 text-orange-700 rounded-lg text-sm font-medium transition"
-              >
-                🏘️ Resale Market
-              </button>
-              <button
-                onClick={() => showFeature('workforceMap')}
-                className="px-3 py-2 bg-teal-50 hover:bg-teal-100 text-teal-700 rounded-lg text-sm font-medium transition"
-              >
-                👷 Workforce Map
-              </button>
+          {/* Message Area */}
+          {currentMessage && (
+            <div className="p-3 max-h-40 overflow-y-auto bg-gray-50">
+              <div className="bg-white p-3 rounded-lg shadow-sm border border-gray-200 relative text-sm">
+                {isSpeaking && (
+                  <div className="absolute -left-1 top-3 w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
+                )}
+                <p className="text-gray-700 leading-relaxed">{currentMessage}</p>
+              </div>
             </div>
-          </div>
+          )}
+
+          {/* Quick Actions - Only if no search */}
+          {!searchQuery && (
+            <div className="p-3">
+              <p className="text-xs text-gray-500 mb-2 font-medium">
+                {language === 'telugu' ? 'త్వరిత చర్యలు' : language === 'hindi' ? 'त्वरित कार्य' : 'Quick Actions'}
+              </p>
+              <div className="grid grid-cols-2 gap-2">
+                <button onClick={() => handleFeatureClick('login')} className="px-2 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded text-xs font-medium transition flex items-center gap-1">
+                  <Home className="w-3 h-3" /> Login
+                </button>
+                <button onClick={() => handleFeatureClick('advisory')} className="px-2 py-1.5 bg-purple-50 hover:bg-purple-100 text-purple-700 rounded text-xs font-medium transition flex items-center gap-1">
+                  <MessageCircle className="w-3 h-3" /> Advisory
+                </button>
+                <button onClick={() => handleFeatureClick('property')} className="px-2 py-1.5 bg-green-50 hover:bg-green-100 text-green-700 rounded text-xs font-medium transition flex items-center gap-1">
+                  <MapPin className="w-3 h-3" /> Property
+                </button>
+                <button onClick={() => handleFeatureClick('workforce')} className="px-2 py-1.5 bg-teal-50 hover:bg-teal-100 text-teal-700 rounded text-xs font-medium transition flex items-center gap-1">
+                  <HardHat className="w-3 h-3" /> Workers
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </>
