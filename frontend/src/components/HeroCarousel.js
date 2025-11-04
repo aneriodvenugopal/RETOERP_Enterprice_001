@@ -15,6 +15,14 @@ const HeroCarousel = () => {
       link: "/solutions/crm"
     },
     {
+      problem: "Struggling to Manage Multiple Projects Simultaneously?",
+      solution: "Handle unlimited projects with ease - system manages reports, payments, layouts, leads & follow-ups automatically",
+      image: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=1200&h=600&fit=crop",
+      benefit: "Manage 10+ Projects Effortlessly",
+      cta: "See How It Works",
+      link: "/solutions/multi-project-management"
+    },
+    {
       problem: "Manual Payment Tracking Causing Revenue Loss?",
       solution: "Automated payment collection with Razorpay & Stripe integration",
       image: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=1200&h=600&fit=crop",
