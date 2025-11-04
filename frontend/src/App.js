@@ -417,10 +417,10 @@ function App() {
                 }
               />
             </Routes>
+            <ConditionalAssistant />
           </BrowserRouter>
           <Toaster position="top-right" richColors />
           <PWAInstallPrompt />
-          <ConditionalAssistant />
         </div>
         </LanguageProvider>
       </CurrencyProvider>
