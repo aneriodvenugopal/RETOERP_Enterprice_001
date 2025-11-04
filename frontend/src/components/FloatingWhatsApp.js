@@ -1,13 +1,22 @@
 import React from 'react';
 import { MessageCircle } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
 
 const FloatingWhatsApp = () => {
+  const location = useLocation();
+  
+  // Check if on homepage
+  const isHomePage = location.pathname === '/';
+  
+  // On homepage (no RETOERP Assistant), position WhatsApp higher for visibility
+  const positionClass = isHomePage ? 'bottom-28' : 'bottom-6';
+  
   return (
     <a
       href="https://wa.me/919948303060"
       target="_blank"
       rel="noopener noreferrer"
-      className="fixed bottom-6 right-6 z-40 group"
+      className={`fixed ${positionClass} right-6 z-40 group`}
       title="Chat on WhatsApp"
     >
       <div className="relative">
