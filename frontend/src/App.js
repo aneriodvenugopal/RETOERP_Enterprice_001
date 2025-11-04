@@ -95,6 +95,7 @@ import CRMDemo from "./pages/demos/CRMDemo";
 
 // PWA Components
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
+import AvatarAssistant from "./components/AvatarAssistant";
 
 // Custom Hooks
 import useScrollToTop from "./hooks/useScrollToTop";
