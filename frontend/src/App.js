@@ -401,6 +401,7 @@ function App() {
           <Toaster position="top-right" richColors />
           <PWAInstallPrompt />
           <AvatarAssistant />
+          <PropertyChatbot />
         </div>
         </LanguageProvider>
       </CurrencyProvider>
