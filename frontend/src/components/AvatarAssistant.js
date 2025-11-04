@@ -469,6 +469,23 @@ const AvatarAssistant = () => {
           {/* Quick Actions - Only if no search */}
           {!searchQuery && (
             <div className="p-3">
+              {/* Current Page Help */}
+              {currentPage !== 'home' && features.currentPage[currentPage] && (
+                <div className="mb-3">
+                  <button
+                    onClick={() => {
+                      const msg = features.currentPage[currentPage][language];
+                      setCurrentMessage(msg);
+                      if (speechEnabled) speak(msg);
+                    }}
+                    className="w-full p-3 bg-gradient-to-r from-purple-500 to-indigo-500 text-white rounded-lg hover:from-purple-600 hover:to-indigo-600 transition font-medium text-sm flex items-center justify-center gap-2"
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                    {language === 'telugu' ? '📍 ఈ పేజీ గురించి తెలుసుకోండి' : language === 'hindi' ? '📍 इस पेज के बारे में जानें' : '📍 Explain This Page'}
+                  </button>
+                </div>
+              )}
+              
               <p className="text-xs text-gray-500 mb-2 font-medium">
                 {language === 'telugu' ? 'త్వరిత చర్యలు' : language === 'hindi' ? 'त्वरित कार्य' : 'Quick Actions'}
               </p>
