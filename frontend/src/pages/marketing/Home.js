@@ -656,6 +656,9 @@ const Home = () => {
       {/* Success Stories */}
       <SuccessStories />
 
+      {/* Client Testimonials */}
+      <Testimonials />
+
       {/* Who Benefits - Complete Ecosystem */}
       <WhoBenefits />
 
