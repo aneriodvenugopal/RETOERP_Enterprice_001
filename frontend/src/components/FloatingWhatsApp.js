@@ -7,7 +7,7 @@ const FloatingWhatsApp = () => {
       href="https://wa.me/919948303060"
       target="_blank"
       rel="noopener noreferrer"
-      className="fixed bottom-40 right-6 z-40 group"
+      className="fixed bottom-6 right-6 z-40 group"
       title="Chat on WhatsApp"
     >
       <div className="relative">
