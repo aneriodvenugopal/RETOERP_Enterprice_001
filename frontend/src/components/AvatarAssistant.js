@@ -227,28 +227,65 @@ const AvatarAssistant = () => {
 
   useEffect(() => {
     if (window.speechSynthesis) {
-      // Load voices
+      // Load voices with detailed logging
       const loadVoices = () => {
         const voices = window.speechSynthesis.getVoices();
         
-        // Log available voices for debugging
-        console.log('=== Available Voices ===');
-        voices.forEach((voice, index) => {
-          if (voice.lang.includes('en-IN') || voice.lang.includes('hi-IN') || 
-              voice.name.toLowerCase().includes('female') || 
-              voice.name.toLowerCase().includes('woman')) {
-            console.log(`${index}: ${voice.name} (${voice.lang}) - ${voice.localService ? 'Local' : 'Remote'}`);
-          }
-        });
-        console.log('======================');
+        console.log('=== ALL AVAILABLE VOICES ===');
+        console.log('Total voices:', voices.length);
+        
+        // Group by language
+        const teluguVoices = voices.filter(v => v.lang.includes('te'));
+        const hindiVoices = voices.filter(v => v.lang.includes('hi'));
+        const indianEnglish = voices.filter(v => v.lang.includes('en-IN'));
+        const femaleVoices = voices.filter(v => 
+          v.name.toLowerCase().includes('female') || 
+          v.name.toLowerCase().includes('woman') ||
+          v.name.includes('Samantha') ||
+          v.name.includes('Serena')
+        );
+        
+        if (teluguVoices.length > 0) {
+          console.log('\n🇮🇳 Telugu Voices:');
+          teluguVoices.forEach(v => console.log(`  - ${v.name} (${v.lang})`));
+        } else {
+          console.log('\n❌ No Telugu voices available');
+        }
+        
+        if (hindiVoices.length > 0) {
+          console.log('\n🇮🇳 Hindi Voices:');
+          hindiVoices.forEach(v => console.log(`  - ${v.name} (${v.lang})`));
+        } else {
+          console.log('\n❌ No Hindi voices available');
+        }
+        
+        if (indianEnglish.length > 0) {
+          console.log('\n🇮🇳 Indian English Voices:');
+          indianEnglish.forEach(v => console.log(`  - ${v.name} (${v.lang})`));
+        }
+        
+        if (femaleVoices.length > 0) {
+          console.log('\n👩 Female Voices (Best for natural sound):');
+          femaleVoices.slice(0, 5).forEach(v => console.log(`  - ${v.name} (${v.lang})`));
+        }
+        
+        console.log('\n💡 Tip: For best Telugu/Hindi experience:');
+        console.log('   - Chrome: Install Google TTS extension');
+        console.log('   - Windows: Add Hindi language pack');
+        console.log('   - Android: Google Text-to-Speech app');
+        console.log('================================\n');
       };
       
+      // Load immediately
       loadVoices();
       
       // Chrome needs this event
       if (window.speechSynthesis.onvoiceschanged !== undefined) {
         window.speechSynthesis.onvoiceschanged = loadVoices;
       }
+      
+      // Force reload after 1 second (Chrome workaround)
+      setTimeout(loadVoices, 1000);
     }
   }, []);
 
