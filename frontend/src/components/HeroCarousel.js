@@ -37,7 +37,7 @@ const HeroCarousel = () => {
       benefit: "3X Higher Conversions",
       cta: "Show Visual Maps",
       link: "/solutions/property-layouts",
-      demoLink: "https://billingwala.kitchenschools.com/public/" // External demo link
+      demoLink: "https://billingwala.kitchenschools.com/public/"
     },
     {
       problem: "Missing Revenue from Resale Opportunities?",
