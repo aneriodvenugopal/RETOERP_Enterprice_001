@@ -7,10 +7,11 @@ import {
   useLocation,
 } from "react-router-dom";
 import { Toaster } from "sonner";
+import "./App.css";
+import "./index.css";
 import { AuthProvider } from "./contexts/AuthContext";
 import { CurrencyProvider } from "./contexts/CurrencyContext";
 import { LanguageProvider } from "./contexts/LanguageContext";
-import { Toaster } from "sonner";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ForgotPassword from "./pages/ForgotPassword";
