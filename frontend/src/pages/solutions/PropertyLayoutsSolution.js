@@ -65,6 +65,18 @@ const PropertyLayoutsSolution = () => {
                 📈 3X Conversions
               </div>
             </div>
+            
+            {/* Quick Demo Button */}
+            <div className="mt-6">
+              <a
+                href="https://billingwala.kitchenschools.com/public/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block bg-green-500 hover:bg-green-600 text-white px-8 py-4 rounded-lg font-bold text-lg transition-all shadow-xl"
+              >
+                🚀 View Live Demo
+              </a>
+            </div>
           </div>
         </div>
       </div>
