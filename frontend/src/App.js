@@ -114,6 +114,19 @@ function ScrollToTop() {
   return null;
 }
 
+// Conditional Assistant Renderer
+function ConditionalAssistant() {
+  const location = useLocation();
+  
+  // Check if on tenant or project detail pages
+  const isTenantOrProjectPage = 
+    location.pathname.startsWith('/public/tenant/') || 
+    location.pathname.startsWith('/public/project/');
+  
+  // Show Property Chatbot on tenant/project pages, RETOERP Assistant on all others
+  return isTenantOrProjectPage ? <PropertyChatbot /> : <AvatarAssistant />;
+}
+
 function App() {
   return (
     <AuthProvider>
