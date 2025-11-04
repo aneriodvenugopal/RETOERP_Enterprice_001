@@ -228,7 +228,10 @@ const AdvisoryChat = () => {
           {step === 'response' && (
             <div>
               <div className="bg-blue-50 border-l-4 border-blue-600 p-6 mb-6">
-                <h2 className="text-xl font-bold text-gray-900 mb-4">AI Advisory Response:</h2>
+                <h2 className="text-xl font-bold text-gray-900 mb-2">Expert Advisory Response:</h2>
+                <p className="text-sm text-gray-600 mb-4 italic">
+                  💡 AI-Powered Analysis based on 10+ years of real estate expertise & market data
+                </p>
                 <div className="whitespace-pre-wrap text-gray-700 leading-relaxed">
                   {aiResponse}
                 </div>
