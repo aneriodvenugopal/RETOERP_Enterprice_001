@@ -530,9 +530,6 @@ function TenantLandingPage() {
           </p>
         </div>
       </footer>
-
-      {/* RETOERP AI Assistant */}
-      <ChatWidget tenantId={tenantId} position="bottom-right" />
     </div>
   );
 }
