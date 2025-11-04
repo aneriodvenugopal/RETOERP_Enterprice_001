@@ -287,6 +287,11 @@ const Home = () => {
             {/* Feature Cards */}
             {[
               {
+                icon: '🏢',
+                title: 'Multi-Project Management',
+                description: 'Seamlessly manage multiple projects simultaneously - switch between developments without losing context'
+              },
+              {
                 icon: '👥',
                 title: 'FREE 24×7 Expert Advisory',
                 description: 'Free expert advisory from experienced professionals - available 24×7 for budget, location, and investment guidance'
@@ -315,11 +320,6 @@ const Home = () => {
                 icon: '🌐',
                 title: 'Multi-Language',
                 description: 'English, Telugu, Hindi, and more'
-              },
-              {
-                icon: '📧',
-                title: 'Omni-Channel',
-                description: 'SMS, Email, WhatsApp notifications'
               },
               {
                 icon: '🎯',
