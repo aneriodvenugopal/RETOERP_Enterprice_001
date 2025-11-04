@@ -420,8 +420,7 @@ function App() {
           </BrowserRouter>
           <Toaster position="top-right" richColors />
           <PWAInstallPrompt />
-          <AvatarAssistant />
-          <PropertyChatbot />
+          <ConditionalAssistant />
         </div>
         </LanguageProvider>
       </CurrencyProvider>
