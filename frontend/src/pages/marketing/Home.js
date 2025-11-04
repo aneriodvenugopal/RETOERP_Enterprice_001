@@ -449,19 +449,23 @@ const Home = () => {
               <ul className="space-y-3 text-gray-600">
                 <li className="flex items-start">
                   <span className="text-blue-600 mr-2">✓</span>
-                  Multi-tenant SaaS architecture
+                  Multi-project workspace - Manage unlimited projects simultaneously
                 </li>
                 <li className="flex items-start">
                   <span className="text-blue-600 mr-2">✓</span>
-                  Complete CRM and lead management
+                  Multi-tenant SaaS architecture for enterprise scale
                 </li>
                 <li className="flex items-start">
                   <span className="text-blue-600 mr-2">✓</span>
-                  Booking and payment automation
+                  Complete CRM and lead management with zero leakage
                 </li>
                 <li className="flex items-start">
                   <span className="text-blue-600 mr-2">✓</span>
-                  Commission tracking and reports
+                  Booking and payment automation across all projects
+                </li>
+                <li className="flex items-start">
+                  <span className="text-blue-600 mr-2">✓</span>
+                  Cross-project commission tracking and reports
                 </li>
               </ul>
             </div>
