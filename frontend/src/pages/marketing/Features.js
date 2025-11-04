@@ -199,6 +199,12 @@ const Features = () => {
                     <h2 className="text-3xl font-bold text-white">{section.title}</h2>
                   </div>
                   
+                  {section.description && (
+                    <p className="text-lg text-cyan-200 mb-6 leading-relaxed italic">
+                      {section.description}
+                    </p>
+                  )}
+                  
                   <ul className="space-y-3">
                     {section.features.map((feature, featureIndex) => (
                       <li key={featureIndex} className="flex items-start text-gray-200">
