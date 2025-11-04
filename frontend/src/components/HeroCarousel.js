@@ -135,7 +135,13 @@ const HeroCarousel = () => {
                     {slide.cta} →
                   </Link>
                   <button
-                    onClick={() => window.location.href = `/demo${slide.link}`}
+                    onClick={() => {
+                      if (slide.demoLink) {
+                        window.open(slide.demoLink, '_blank');
+                      } else {
+                        window.location.href = `/demo${slide.link}`;
+                      }
+                    }}
                     className="inline-block bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg font-bold text-base transition-all shadow-xl"
                   >
                     🚀 Quick Demo
