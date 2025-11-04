@@ -60,7 +60,7 @@ const HeroCarousel = () => {
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % slides.length);
-    }, 5000); // Auto-advance every 5 seconds
+    }, 8000); // Changed from 5000 to 8000 (8 seconds instead of 5)
 
     return () => clearInterval(timer);
   }, [slides.length]);
