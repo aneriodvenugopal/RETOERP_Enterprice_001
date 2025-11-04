@@ -91,6 +91,7 @@ import PropertyLayoutsSolution from "./pages/solutions/PropertyLayoutsSolution";
 import AnalyticsSolution from "./pages/solutions/AnalyticsSolution";
 import CommunicationSolution from "./pages/solutions/CommunicationSolution";
 import ResaleSolution from "./pages/solutions/ResaleSolution";
+import MultiProjectManagement from "./pages/solutions/MultiProjectManagement";
 
 // Example Pages
 import LeadLeakageExample from "./pages/examples/LeadLeakageExample";
