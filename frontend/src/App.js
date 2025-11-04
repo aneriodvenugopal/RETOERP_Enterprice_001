@@ -172,6 +172,7 @@ function App() {
                 
                 {/* Solution Routes - Public */}
                 <Route path="/solutions/crm" element={<CRMSolution />} />
+                <Route path="/solutions/multi-project-management" element={<MultiProjectManagement />} />
                 <Route path="/solutions/payments" element={<PaymentsSolution />} />
                 <Route path="/solutions/property-layouts" element={<PropertyLayoutsSolution />} />
                 <Route path="/solutions/analytics" element={<AnalyticsSolution />} />
