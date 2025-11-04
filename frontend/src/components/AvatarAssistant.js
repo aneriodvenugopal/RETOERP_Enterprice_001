@@ -353,7 +353,7 @@ const AvatarAssistant = () => {
       {!isOpen && (
         <div
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-20 right-6 z-40 cursor-pointer group"
+          className="fixed bottom-28 right-6 z-40 cursor-pointer group"
           title="Need help? Click me!"
         >
           <div className="relative">
