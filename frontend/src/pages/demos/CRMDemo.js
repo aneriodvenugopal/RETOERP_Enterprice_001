@@ -42,15 +42,15 @@ const CRMDemo = () => {
                   </div>
                   <div className="flex-1">
                     <h3 className="text-xl font-bold text-gray-900 mb-2">
-                      1. Instant Lead Capture
+                      1. Quick Lead Entry
                     </h3>
                     <p className="text-gray-700 mb-3">
-                      Customer calls → System automatically captures details with source tracking in 5 seconds
+                      Customer calls → Staff enters details in 30 seconds with source tracking form
                     </p>
                     <div className="bg-blue-50 rounded-lg p-3">
                       <p className="text-sm text-blue-800">
-                        ✅ <strong>No manual entry</strong> - Zero human error<br/>
-                        ✅ <strong>Source tracking</strong> - Know which ad brought them<br/>
+                        ✅ <strong>Quick form</strong> - Guided data entry<br/>
+                        ✅ <strong>Source tracking</strong> - Select which ad/campaign<br/>
                         ✅ <strong>Complete details</strong> - Name, phone, budget, location
                       </p>
                     </div>
