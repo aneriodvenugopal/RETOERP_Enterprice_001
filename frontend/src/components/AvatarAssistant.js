@@ -76,45 +76,45 @@ const AvatarAssistant = () => {
       }
     },
     login: {
-      english: "Login page lets you access your RETOERP dashboard. Use your mobile number to receive OTP and login securely.",
-      telugu: "లాగిన్ పేజీ మీ RETOERP డాష్‌బోర్డ్‌ను యాక్సెస్ చేయడానికి అనుమతిస్తుంది. OTP పొందడానికి మీ మొబైల్ నంబర్‌ను ఉపయోగించండి మరియు సురక్షితంగా లాగిన్ అవ్వండి.",
-      hindi: "लॉगिन पेज आपको अपने RETOERP डैशबोर्ड तक पहुंचने देता है। OTP प्राप्त करने के लिए अपने मोबाइल नंबर का उपयोग करें।",
+      english: "Login page lets you access your Reto ERP dashboard. Use your mobile number to receive OTP and login securely.",
+      telugu: "లాగిన్ పేజీ మీ రెటో ఇఆర్‌పీ డాష్‌బోర్డ్‌ను యాక్సెస్ చేయడానికి అనుమతిస్తుంది. OTP పొందడానికి మీ మొబైల్ నంబర్‌ను ఉపయోగించండి!",
+      hindi: "लॉगिन पेज आपको रेटो ईआरपी डैशबोर्ड तक पहुंचने देता है।",
       link: "/login"
     },
     crm: {
       english: "Smart CRM tracks every lead automatically with 0% lead leakage. Automated follow-ups ensure no opportunity is missed.",
-      telugu: "స్మార్ట్ CRM ప్రతి లీడ్‌ను స్వయంచాలకంగా ట్రాక్ చేస్తుంది, 0% లీడ్ లీకేజ్‌తో. స్వయంచాలిత ఫాలో-అప్‌లు అవకాశాలు తప్పిపోవు.",
-      hindi: "स्मार्ट CRM हर लीड को स्वचालित रूप से ट्रैक करता है। 0% लीड लीकेज के साथ।",
+      telugu: "స్మార్ట్ CRM ప్రతి లీడ్‌ను స్వయంచాలకంగా ట్రాక్ చేస్తుంది, 0% లీడ్ లీకేజ్‌తో!",
+      hindi: "स्मार्ट सीआरएम हर लीड को स्वचालित रूप से ट्रैक करता है।",
       link: "/solutions/crm"
     },
     property: {
       english: "Visual Property Layouts show interactive maps with real-time availability. Customers can see plots and book directly - 3X higher conversions!",
-      telugu: "విజువల్ ప్రాపర్టీ లేఅవుట్స్ రియల్-టైమ్ లభ్యతతో ఇంటరాక్టివ్ మ్యాప్‌లను చూపిస్తాయి. కస్టమర్‌లు ప్లాట్‌లను చూసి నేరుగా బుక్ చేయవచ్చు - 3X ఎక్కువ మార్పిడులు!",
-      hindi: "विज़ुअल प्रॉपर्टी लेआउट रियल-टाइम उपलब्धता के साथ इंटरैक्टिव मैप दिखाते हैं।",
+      telugu: "విజువల్ ప్రాపర్టీ లేఅవుట్స్ రియల్-టైమ్ లభ్యతతో ఇంటరాక్టివ్ మ్యాప్‌లను చూపిస్తాయి!",
+      hindi: "विज़ुअल प्रॉपर्टी लेआउट रियल-टाइम उपलब्धता दिखाते हैं।",
       link: "/solutions/property-layouts"
     },
     advisory: {
       english: "FREE 24x7 Expert Advisory provides guidance on budget, location, numerology and investment - in multiple languages!",
-      telugu: "ఉచిత 24x7 ఎక్స్‌పర్ట్ అడ్వైజరీ బడ్జెట్, స్థానం, న్యూమరాలజీ మరియు ఇన్వెస్ట్‌మెంట్‌పై మార్గదర్శకత్వం అందిస్తుంది - బహుళ భాషలలో!",
-      hindi: "मुफ्त 24x7 विशेषज्ञ सलाह बजट, स्थान और निवेश पर मार्गदर्शन प्रदान करती है।",
+      telugu: "ఉచిత 24x7 ఎక్స్‌పర్ట్ అడ్వైజరీ బడ్జెట్, స్థానం, న్యూమరాలజీపై మార్గదర్శకత్వం అందిస్తుంది!",
+      hindi: "मुफ्त 24x7 विशेषज्ञ सलाह बजट और निवेश पर मार्गदर्शन प्रदान करती है।",
       link: "/advisory"
     },
     workforce: {
       english: "Workforce Map helps find skilled construction workers - carpenters, electricians, masons nearby with direct contact.",
-      telugu: "వర్క్‌ఫోర్స్ మ్యాప్ నైపుణ్యం కలిగిన నిర్మాణ కార్మికులను కనుగొనడంలో సహాయపడుతుంది - వడ్రంగులు, ఎలక్ట్రీషియన్లు, మేస్త్రీలు.",
+      telugu: "వర్క్‌ఫోర్స్ మ్యాప్ నైపుణ్యం కలిగిన నిర్మాణ కార్మికులను కనుగొనడంలో సహాయపడుతుంది!",
       hindi: "वर्कफोर्स मैप कुशल निर्माण श्रमिकों को खोजने में मदद करता है।",
       link: "/workforce-map"
     },
     dashboard: {
       english: "Dashboard shows your business overview - leads, bookings, revenue, and team performance in one place.",
-      telugu: "డాష్‌బోర్డ్ మీ వ్యాపార అవలోకనాన్ని చూపిస్తుంది - లీడ్స్, బుకింగ్‌లు, ఆదాయం మరియు టీమ్ పనితీరు ఒకే చోట.",
-      hindi: "डैशबोर्ड आपके व्यवसाय का अवलोकन दिखाता है - लीड्स, बुकिंग, राजस्व।",
+      telugu: "డాష్‌బోర్డ్ మీ వ్యాపార అవలోకనాన్ని చూపిస్తుంది - లీడ్స్, బుకింగ్‌లు, ఆదాయం!",
+      hindi: "डैशबोर्ड आपके व्यवसाय का अवलोकन दिखाता है।",
       link: "/dashboard"
     },
     contact: {
-      english: "Contact us anytime! Phone: +91 9948303060, Email: admin@retoerp.com. We're here to help!",
-      telugu: "ఎప్పుడైనా మమ్మల్ని సంప్రదించండి! ఫోన్: +91 9948303060, ఇమెయిల్: admin@retoerp.com. మేము సహాయం చేయడానికి ఇక్కడ ఉన్నాము!",
-      hindi: "किसी भी समय संपर्क करें! फोन: +91 9948303060, ईमेल: admin@retoerp.com।",
+      english: "Contact us anytime! Phone: +91 9948303060, Email: admin at retoerp.com. We're here to help!",
+      telugu: "ఎప్పుడైనా మమ్మల్ని సంప్రదించండి! ఫోన్: +91 9948303060!",
+      hindi: "किसी भी समय संपर्क करें! फोन: +91 9948303060।",
       link: "/contact"
     }
   };
