@@ -9,13 +9,71 @@ const AvatarAssistant = () => {
   const [language, setLanguage] = useState('english'); // english, telugu, hindi
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
+  const [currentPage, setCurrentPage] = useState('home');
 
-  // Feature explanations in multiple languages
+  // Detect current page
+  useEffect(() => {
+    const path = window.location.pathname;
+    if (path.includes('/advisory')) setCurrentPage('advisory');
+    else if (path.includes('/workforce-map')) setCurrentPage('workforce');
+    else if (path.includes('/solutions/crm')) setCurrentPage('crm');
+    else if (path.includes('/solutions/property')) setCurrentPage('property');
+    else if (path.includes('/dashboard')) setCurrentPage('dashboard');
+    else if (path.includes('/leads')) setCurrentPage('leads');
+    else if (path.includes('/login')) setCurrentPage('login');
+    else if (path.includes('/contact')) setCurrentPage('contact');
+    else setCurrentPage('home');
+  }, []);
+
+  // Feature explanations in multiple languages (FIXED: RETOERP → Reto ERP)
   const features = {
     welcome: {
-      english: "Hello! I'm your RETOERP guide! Search for any feature or ask me anything.",
-      telugu: "నమస్కారం! నేను మీ RETOERP గైడ్! ఏదైనా ఫీచర్ కోసం సెర్చ్ చేయండి లేదా నన్ను అడగండి.",
-      hindi: "नमस्ते! मैं आपकी RETOERP गाइड हूँ! किसी भी फीचर को खोजें या मुझसे पूछें।"
+      english: "Hello! I'm your Reto ERP guide! Search for any feature or ask me anything.",
+      telugu: "నమస్కారం! నేను మీ రెటో ఇఆర్‌పీ గైడ్! ఏదైనా ఫీచర్ కోసం సెర్చ్ చేయండి లేదా నన్ను అడగండి.",
+      hindi: "नमस्ते! मैं आपकी रेटो ईआरपी गाइड हूँ! किसी भी फीचर को खोजें या मुझसे पूछें।"
+    },
+    // Page-specific help messages
+    currentPage: {
+      advisory: {
+        english: "You're on the Expert Advisory page. Here you can get FREE 24x7 guidance on budget, location, numerology, and investment. Select a category and fill the form to get personalized advice in your preferred language!",
+        telugu: "మీరు ఎక్స్‌పర్ట్ అడ్వైజరీ పేజీలో ఉన్నారు. ఇక్కడ మీరు బడ్జెట్, స్థానం, న్యూమరాలజీ మరియు ఇన్వెస్ట్‌మెంట్‌పై ఉచిత 24x7 మార్గదర్శకత్వం పొందవచ్చు. కేటగిరీని ఎంచుకుని, మీ ఇష్టమైన భాషలో వ్యక్తిగత సలహా పొందడానికి ఫారం పూరించండి!",
+        hindi: "आप एक्सपर्ट एडवाइजरी पेज पर हैं। यहाँ आप बजट, स्थान, न्यूमरोलॉजी और निवेश पर मुफ्त 24x7 मार्गदर्शन प्राप्त कर सकते हैं।"
+      },
+      workforce: {
+        english: "You're on the Workforce Map. Here you can find skilled construction workers near you - carpenters, electricians, masons, and more. Use the search bar to filter by location and skill type. Click on any worker card to see their contact details and call or WhatsApp them directly!",
+        telugu: "మీరు వర్క్‌ఫోర్స్ మ్యాప్‌లో ఉన్నారు. ఇక్కడ మీరు మీ దగ్గర ఉన్న నైపుణ్యం కలిగిన నిర్మాణ కార్మికులను కనుగొనవచ్చు - వడ్రంగులు, ఎలక్ట్రీషియన్లు, మేస్త్రీలు మరియు మరిన్ని. స్థానం మరియు నైపుణ్య రకాన్ని బట్టి ఫిల్టర్ చేయడానికి సెర్చ్ బార్‌ను ఉపయోగించండి!",
+        hindi: "आप वर्कफोर्स मैप पर हैं। यहाँ आप अपने पास कुशल निर्माण श्रमिकों को ढूंढ सकते हैं - बढ़ई, इलेक्ट्रीशियन, मिस्त्री।"
+      },
+      crm: {
+        english: "You're viewing the Smart CRM solution. This feature tracks every lead automatically with 0% lead leakage. You can manage customers, send automated follow-ups, and never miss an opportunity. Want to see a demo or learn more?",
+        telugu: "మీరు స్మార్ట్ CRM సొల్యూషన్‌ను చూస్తున్నారు. ఈ ఫీచర్ ప్రతి లీడ్‌ను స్వయంచాలకంగా 0% లీడ్ లీకేజ్‌తో ట్రాక్ చేస్తుంది. మీరు కస్టమర్‌లను నిర్వహించవచ్చు, స్వయంచాలిత ఫాలో-అప్‌లు పంపవచ్చు!",
+        hindi: "आप स्मार्ट सीआरएम समाधान देख रहे हैं। यह सुविधा स्वचालित रूप से हर लीड को ट्रैक करती है।"
+      },
+      property: {
+        english: "You're on the Visual Property Layouts page. This feature lets customers see interactive maps with real-time availability. They can click on plots and book directly - resulting in 3X higher conversions! Click the demo button to see it in action.",
+        telugu: "మీరు విజువల్ ప్రాపర్టీ లేఅవుట్స్ పేజీలో ఉన్నారు. ఈ ఫీచర్ కస్టమర్‌లకు రియల్-టైమ్ లభ్యతతో ఇంటరాక్టివ్ మ్యాప్‌లను చూడటానికి అనుమతిస్తుంది!",
+        hindi: "आप विज़ुअल प्रॉपर्टी लेआउट पेज पर हैं। यह सुविधा ग्राहकों को इंटरैक्टिव मैप देखने देती है।"
+      },
+      dashboard: {
+        english: "You're on your Dashboard. Here you can see your business overview - leads, bookings, revenue, and team performance all in one place. Use the navigation menu to access different sections like Leads, Properties, and Analytics.",
+        telugu: "మీరు మీ డాష్‌బోర్డ్‌లో ఉన్నారు. ఇక్కడ మీరు మీ వ్యాపార అవలోకనాన్ని చూడవచ్చు - లీడ్స్, బుకింగ్‌లు, ఆదాయం మరియు టీమ్ పనితీరు అన్నీ ఒకే చోట!",
+        hindi: "आप अपने डैशबोर्ड पर हैं। यहाँ आप अपने व्यवसाय का अवलोकन देख सकते हैं।"
+      },
+      leads: {
+        english: "You're on the Leads Management page. Here you can view all your leads, filter them by status, assign them to agents, and track follow-ups. Click on any lead to see detailed information and update their status.",
+        telugu: "మీరు లీడ్స్ మేనేజ్‌మెంట్ పేజీలో ఉన్నారు. ఇక్కడ మీరు మీ అన్ని లీడ్‌లను చూడవచ్చు, స్టేటస్ ద్వారా వాటిని ఫిల్టర్ చేయవచ్చు, ఏజెంట్లకు కేటాయించవచ్చు!",
+        hindi: "आप लीड्स प्रबंधन पेज पर हैं। यहाँ आप अपने सभी लीड्स देख सकते हैं।"
+      },
+      login: {
+        english: "You're on the Login page. Enter your mobile number to receive an OTP and access your Reto ERP dashboard. New user? Contact us to create your account and start managing your real estate business efficiently!",
+        telugu: "మీరు లాగిన్ పేజీలో ఉన్నారు. OTP పొందడానికి మీ మొబైల్ నంబర్‌ను నమోదు చేయండి మరియు మీ రెటో ఇఆర్‌పీ డాష్‌బోర్డ్‌ను యాక్సెస్ చేయండి!",
+        hindi: "आप लॉगिन पेज पर हैं। अपने मोबाइल नंबर दर्ज करें।"
+      },
+      home: {
+        english: "You're on the Reto ERP homepage. We offer complete real estate automation solutions - CRM, Property Layouts, Expert Advisory, Workforce Map, and more. Scroll down to explore all features or use the menu to navigate!",
+        telugu: "మీరు రెటో ఇఆర్‌పీ హోమ్‌పేజీలో ఉన్నారు. మేము పూర్తి రియల్ ఎస్టేట్ ఆటోమేషన్ సొల్యూషన్‌లను అందిస్తాము - CRM, ప్రాపర్టీ లేఅవుట్స్, ఎక్స్‌పర్ట్ అడ్వైజరీ, వర్క్‌ఫోర్స్ మ్యాప్ మరియు మరిన్ని!",
+        hindi: "आप रेटो ईआरपी होमपेज पर हैं। हम पूर्ण रियल एस्टेट ऑटोमेशन समाधान प्रदान करते हैं।"
+      }
     },
     login: {
       english: "Login page lets you access your RETOERP dashboard. Use your mobile number to receive OTP and login securely.",
