@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import apiInstance from '../../services/api';
-import ChatWidget from '../../components/ChatWidget';
 import { Building2, MapPin, Phone, Mail, TrendingUp, Home, Users, Calendar, ArrowRight, ExternalLink } from 'lucide-react';
 
 function TenantLandingPage() {
