@@ -409,7 +409,7 @@ const AvatarAssistant = () => {
               <div className="flex items-center gap-2">
                 <MessageCircle className="w-5 h-5" />
                 <div>
-                  <h3 className="font-bold text-sm">RETOERP Assistant</h3>
+                  <h3 className="font-bold text-sm">Reto ERP Software Speaking Guide</h3>
                   <p className="text-xs text-white/80">
                     {isSpeaking ? '🔊 Speaking...' : 'Ask me anything'}
                   </p>
