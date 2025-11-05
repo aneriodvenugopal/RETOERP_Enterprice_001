@@ -163,24 +163,24 @@ const EloniotCredibility = () => {
             <h3 className="text-3xl font-bold text-gray-900 mb-8 text-center">
               Recent Client Projects
             </h3>
-            <div className="grid md:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
               {recentClients.map((client, index) => (
-                <div key={index} className="bg-white rounded-xl p-6 border border-gray-200 hover:border-blue-300 hover:shadow-lg transition-all">
+                <div key={index} className={`${client.highlight ? 'bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-300' : 'bg-white border border-gray-200'} rounded-xl p-6 hover:border-blue-300 hover:shadow-lg transition-all`}>
                   <div className="flex items-center justify-between mb-4">
-                    <h4 className="font-bold text-gray-900">{client.name}</h4>
+                    <h4 className="font-bold text-gray-900 text-sm">{client.name}</h4>
                     {client.website !== '#' && (
                       <a 
                         href={client.website}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-600 hover:text-blue-800 text-sm font-semibold"
+                        className="text-blue-600 hover:text-blue-800 text-xs font-semibold"
                       >
                         Visit →
                       </a>
                     )}
                   </div>
-                  <p className="text-gray-700 text-sm mb-3">{client.description}</p>
-                  <span className="inline-block px-3 py-1 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full">
+                  <p className="text-gray-700 text-xs mb-3">{client.description}</p>
+                  <span className={`inline-block px-3 py-1 ${client.highlight ? 'bg-green-500 text-white' : 'bg-blue-100 text-blue-700'} text-xs font-semibold rounded-full`}>
                     {client.type}
                   </span>
                 </div>
