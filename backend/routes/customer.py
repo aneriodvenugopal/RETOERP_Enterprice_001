@@ -385,22 +385,43 @@ async def create_resale_request(resale_data: ResaleRequest, request: Request):
     
     await db.resale_requests.insert_one(serialize_doc(resale_request))
     
-    # Create notification for tenant admin
+    # Create notification for tenant admin AND project managers
+    # Get all roles that should be notified
+    tenant_admin_role = await db.roles.find_one({'slug': 'tenant_admin'}, {'_id': 0})
+    super_admin_role = await db.roles.find_one({'slug': 'super_admin'}, {'_id': 0})
+    project_manager_role = await db.roles.find_one({'slug': 'project_manager'}, {'_id': 0})
+    
+    # Get tenant admins and super admins
     tenant_admins = await db.users.find({
         'tenant_id': tenant_id,
         'role_id': {'$in': [
-            (await db.roles.find_one({'slug': 'tenant_admin'}, {'_id': 0}))['id'],
-            (await db.roles.find_one({'slug': 'super_admin'}, {'_id': 0}))['id']
+            tenant_admin_role['id'] if tenant_admin_role else '',
+            super_admin_role['id'] if super_admin_role else ''
         ]},
         'is_active': True,
         'deleted_at': None
     }, {'_id': 0}).to_list(length=100)
     
-    # Create notification for each admin
-    for admin in tenant_admins:
+    # Get project managers assigned to this property's project
+    property_obj = await db.properties.find_one({'id': resale_data.property_id}, {'_id': 0})
+    project_managers = []
+    if property_obj and property_obj.get('project_id') and project_manager_role:
+        project_managers = await db.users.find({
+            'tenant_id': tenant_id,
+            'role_id': project_manager_role['id'],
+            'assigned_projects': property_obj['project_id'],  # Project manager assigned to this project
+            'is_active': True,
+            'deleted_at': None
+        }, {'_id': 0}).to_list(length=100)
+    
+    # Combine all recipients (admins + project managers)
+    all_recipients = tenant_admins + project_managers
+    
+    # Create notification for each recipient
+    for recipient in all_recipients:
         notification_doc = {
             'id': str(uuid.uuid4()),
-            'user_id': admin['id'],
+            'user_id': recipient['id'],
             'tenant_id': tenant_id,
             'title': '🏠 New Resale Request',
             'message': f'{customer.get("name", "Customer")} requested to resell {property_doc.get("property_name", "property")} for ₹{resale_data.asking_price:,.0f}',
@@ -415,7 +436,8 @@ async def create_resale_request(resale_data: ResaleRequest, request: Request):
                 'property_id': resale_data.property_id,
                 'property_name': property_doc.get('property_name'),
                 'asking_price': resale_data.asking_price,
-                'request_id': resale_request['id']
+                'request_id': resale_request['id'],
+                'project_id': property_obj.get('project_id') if property_obj else None
             },
             'created_at': datetime.now(timezone.utc).isoformat(),
             'read_at': None
