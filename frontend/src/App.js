@@ -378,7 +378,7 @@ function App() {
                 path="/admin/saas-dashboard"
                 element={
                   <PrivateRoute>
-                    <SaaSDashboard />
+                    <EnhancedSaaSDashboard />
                   </PrivateRoute>
                 }
               />
