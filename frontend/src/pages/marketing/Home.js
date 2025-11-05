@@ -92,6 +92,9 @@ const Home = () => {
       {/* Hero Carousel */}
       <HeroCarousel />
       
+      {/* Our Story */}
+      <OurStory />
+      
       {/* Stats Section */}
       <section className="py-12 bg-gray-50">
         <div className="container mx-auto px-6">
