@@ -4,46 +4,46 @@ import { TrendingUp, Users, DollarSign, Clock, Star } from 'lucide-react';
 const SuccessStories = () => {
   const stories = [
     {
-      company: "Vasavi Housing",
+      company: "Abhinandhana Avenues",
       location: "Hyderabad",
       logo: "🏢",
       results: {
-        growth: "45X",
-        revenue: "₹50 Cr+",
-        time: "15 hrs/week saved",
+        growth: "35%",
+        revenue: "3 Projects",
+        time: "Zero leakage",
         rating: 5
       },
-      quote: "RETOERP transformed our operations completely. We went from losing 40% leads to 0% leakage. Our sales team productivity increased 5X!",
-      person: "Rajesh Kumar",
-      designation: "Director"
+      quote: "RETOERP has completely transformed our operations. Managing 3 projects simultaneously was chaotic with Excel sheets. Now with RETOERP's multi-project dashboard, we have complete visibility. Our booking conversion rate improved by 35% within 3 months!",
+      person: "Managing Director",
+      designation: "Abhinandhana Avenues"
     },
     {
-      company: "Green Valley Developers",
-      location: "Bangalore",
-      logo: "🌳",
-      results: {
-        growth: "60X",
-        revenue: "₹80 Cr+",
-        time: "20 hrs/week saved",
-        rating: 5
-      },
-      quote: "The payment automation alone saved us ₹2 Cr annually. Commission tracking eliminated all disputes. Best investment we made!",
-      person: "Priya Sharma",
-      designation: "CEO"
-    },
-    {
-      company: "Sri Sai Constructions",
-      location: "Chennai",
+      company: "BRR GROUP (Janabhivrudhhi)",
+      location: "Telangana",
       logo: "🏗️",
       results: {
-        growth: "35X",
-        revenue: "₹35 Cr+",
-        time: "12 hrs/week saved",
+        growth: "40%",
+        revenue: "15-20 leads/week",
+        time: "2 days saved/month",
         rating: 5
       },
-      quote: "Visual property layouts increased our conversions by 300%. Customers love the interactive maps. Team loves the automation!",
-      person: "Venkat Reddy",
-      designation: "Managing Partner"
+      quote: "Before RETOERP, tracking payments and generating reports took 2 full days every month. Now everything is automated! Payment reminders via WhatsApp improved our collection speed by 40%. The website brings 15-20 genuine inquiries every week!",
+      person: "Founder & CEO",
+      designation: "BRR GROUP"
+    },
+    {
+      company: "Sri Jayam Housing",
+      location: "Vijayawada",
+      logo: "🏠",
+      results: {
+        growth: "90%",
+        revenue: "ROI in 2 months",
+        time: "Zero disputes",
+        rating: 5
+      },
+      quote: "Payment tracking was our biggest headache. RETOERP's payment module solved everything. Automated reminders, instant receipts, transparent commission calculations. We achieved 90% on-time payment collection. ROI was achieved in just 2 months!",
+      person: "Director",
+      designation: "Sri Jayam Housing"
     }
   ];
 
