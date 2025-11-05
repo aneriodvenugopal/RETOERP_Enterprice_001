@@ -184,7 +184,7 @@
 
    **మొదటి referrer:**
    ```
-   https://skilled-workforce.preview.emergentagent.com/*
+   https://retoerp-marketing.preview.emergentagent.com/*
    ```
    - Paste చేసి Enter నొక్కండి
 

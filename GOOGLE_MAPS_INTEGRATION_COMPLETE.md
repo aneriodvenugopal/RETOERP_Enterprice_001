@@ -110,7 +110,7 @@ Go to **APIs & Services** → **Library** and enable:
 1. Under **Application restrictions**, select "HTTP referrers"
 2. Add your domain:
    ```
-   https://skilled-workforce.preview.emergentagent.com/*
+   https://retoerp-marketing.preview.emergentagent.com/*
    ```
 3. For production, add your production domain
 
