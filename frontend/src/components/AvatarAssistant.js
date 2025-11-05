@@ -157,7 +157,12 @@ const AvatarAssistant = () => {
     { keywords: ['advisory', 'expert', 'guidance', 'advice', 'consult'], feature: 'advisory', icon: <MessageCircle className="w-4 h-4" /> },
     { keywords: ['workforce', 'workers', 'labour', 'carpenter', 'mason'], feature: 'workforce', icon: <HardHat className="w-4 h-4" /> },
     { keywords: ['dashboard', 'overview', 'stats', 'analytics'], feature: 'dashboard', icon: <TrendingUp className="w-4 h-4" /> },
-    { keywords: ['contact', 'phone', 'email', 'support', 'help'], feature: 'contact', icon: <Mail className="w-4 h-4" /> }
+    { keywords: ['contact', 'phone', 'email', 'support', 'help'], feature: 'contact', icon: <Mail className="w-4 h-4" /> },
+    { keywords: ['pricing', 'price', 'cost', 'plans', 'package', 'subscription'], feature: 'pricing', icon: <CreditCard className="w-4 h-4" /> },
+    { keywords: ['multi', 'multiple', 'projects', 'multiproject', 'manage'], feature: 'multiproject', icon: <Building className="w-4 h-4" /> },
+    { keywords: ['support', 'help', 'training', 'onboarding', 'assistance'], feature: 'support', icon: <MessageCircle className="w-4 h-4" /> },
+    { keywords: ['demo', 'video', 'tutorial', 'show', 'watch'], feature: 'demo', icon: <MessageCircle className="w-4 h-4" /> },
+    { keywords: ['payment', 'pay', 'installment', 'receipt', 'automation'], feature: 'payments', icon: <CreditCard className="w-4 h-4" /> }
   ];
 
   // Smart search function
