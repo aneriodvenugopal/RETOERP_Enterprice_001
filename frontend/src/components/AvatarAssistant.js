@@ -116,6 +116,36 @@ const AvatarAssistant = () => {
       telugu: "ఎప్పుడైనా మమ్మల్ని సంప్రదించండి! ఫోన్: +91 9948303060!",
       hindi: "किसी भी समय संपर्क करें! फोन: +91 9948303060।",
       link: "/contact"
+    },
+    pricing: {
+      english: "Simple transparent pricing with 3 plans: Starter at ₹9,999/month, Professional at ₹24,999/month (Most Popular), and Enterprise at ₹49,999/month. All plans include CRM, property layouts, and automated payments. Get first 3 months free support!",
+      telugu: "3 ప్లాన్‌లతో సరళమైన ధరలు: స్టార్టర్ ₹9,999/నెల, ప్రొఫెషనల్ ₹24,999/నెల, ఎంటర్‌ప్రైజ్ ₹49,999/నెల. మొదటి 3 నెలలు ఉచిత మద్దతు!",
+      hindi: "सरल मूल्य निर्धारण 3 योजनाओं के साथ: स्टार्टर ₹9,999/माह, प्रोफेशनल ₹24,999/माह, एंटरप्राइज़ ₹49,999/माह। पहले 3 महीने मुफ्त सहायता!",
+      link: "/pricing"
+    },
+    multiproject: {
+      english: "Multi-Project Management lets you manage multiple real estate projects simultaneously in one dashboard. Switch between projects without losing context. Track leads, bookings, and revenue across all projects with unified analytics and cross-project reports!",
+      telugu: "మల్టీ-ప్రాజెక్ట్ మేనేజ్‌మెంట్ ఒకే డాష్‌బోర్డ్‌లో ఏకకాలంలో అనేక ప్రాజెక్ట్‌లను నిర్వహించడానికి మిమ్మల్ని అనుమతిస్తుంది. కాంటెక్స్ట్ కోల్పోకుండా ప్రాజెక్ట్‌ల మధ్య మారండి!",
+      hindi: "मल्टी-प्रोजेक्ट मैनेजमेंट आपको एक डैशबोर्ड में कई परियोजनाओं का प्रबंधन करने देता है। संदर्भ खोए बिना परियोजनाओं के बीच स्विच करें!",
+      link: "/solutions/multi-project-management"
+    },
+    support: {
+      english: "We provide comprehensive support with first 3 months FREE support (conditions apply)! Includes onboarding assistance, team training, priority bug fixes, and technical consultation. Multi-channel support via Phone, WhatsApp, Email in English, Telugu, and Hindi. Submit feature requests anytime - high-demand features added to latest versions free!",
+      telugu: "మేము మొదటి 3 నెలలు ఉచిత మద్దతుతో సమగ్ర మద్దతును అందిస్తాము! ఫోన్, వాట్సాప్, ఇమెయిల్ ద్వారా ఇంగ్లీష్, తెలుగు, హిందీలో మల్టీ-ఛానల్ మద్దతు!",
+      hindi: "हम पहले 3 महीने मुफ्त सहायता के साथ व्यापक समर्थन प्रदान करते हैं! फोन, व्हाट्सएप, ईमेल के माध्यम से अंग्रेजी, तेलुगु, हिंदी में मल्टी-चैनल समर्थन!",
+      link: "/contact"
+    },
+    demo: {
+      english: "Want to see Reto ERP in action? We have a product demo video coming soon! Meanwhile, you can schedule a live demo with our team to explore all features - multi-project dashboard, visual property layouts, payment automation, and WhatsApp integration!",
+      telugu: "రెటో ఇఆర్‌పీని చర్యలో చూడాలనుకుంటున్నారా? మా ఉత్పత్తి డెమో వీడియో త్వరలో వస్తోంది! అయితే, మా టీమ్‌తో లైవ్ డెమో షెడ్యూల్ చేయండి!",
+      hindi: "रेटो ईआरपी को कार्रवाई में देखना चाहते हैं? हमारा उत्पाद डेमो वीडियो जल्द आ रहा है! इस बीच, हमारी टीम के साथ लाइव डेमो शेड्यूल करें!",
+      link: "/contact"
+    },
+    payments: {
+      english: "Payment Automation tracks all customer payments, sends automated reminders via SMS and WhatsApp, generates instant receipts, and handles commission calculations transparently. Achieve 90% on-time payment collection with automated payment schedules!",
+      telugu: "పేమెంట్ ఆటోమేషన్ అన్ని కస్టమర్ చెల్లింపులను ట్రాక్ చేస్తుంది, SMS మరియు వాట్సాప్ ద్వారా స్వయంచాలిత రిమైండర్‌లను పంపుతుంది!",
+      hindi: "पेमेंट ऑटोमेशन सभी ग्राहक भुगतानों को ट्रैक करता है, एसएमएस और व्हाट्सएप के माध्यम से स्वचालित अनुस्मारक भेजता है!",
+      link: "/solutions/payments"
     }
   };
 
