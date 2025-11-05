@@ -146,6 +146,47 @@ const SuperAdminDashboard = () => {
 // Tenant Admin Dashboard
 const TenantAdminDashboard = () => {
   const navigate = useNavigate();
+  const [stats, setStats] = React.useState({
+    projects: 0,
+    leads: 0,
+    bookings: 0,
+    team: 0
+  });
+  const [loading, setLoading] = React.useState(true);
+  
+  React.useEffect(() => {
+    fetchDashboardStats();
+  }, []);
+  
+  const fetchDashboardStats = async () => {
+    try {
+      setLoading(true);
+      const apiUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      const token = localStorage.getItem('token');
+      
+      // Fetch analytics data
+      const response = await fetch(`${apiUrl}/api/analytics/overview`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setStats({
+          projects: data.total_projects || 0,
+          leads: data.total_leads || 0,
+          bookings: data.total_bookings || 0,
+          team: data.total_staff || 0
+        });
+      }
+    } catch (error) {
+      console.error('Failed to fetch dashboard stats:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
   
   return (
     <div className="space-y-6">
@@ -155,28 +196,28 @@ const TenantAdminDashboard = () => {
         <StatCard 
           icon={Building2} 
           title="Projects" 
-          value="0" 
+          value={loading ? '...' : stats.projects.toString()} 
           gradient="from-ocean-primary to-ocean-secondary"
           onClick={() => navigate('/projects')} 
         />
         <StatCard 
           icon={Users} 
           title="Leads" 
-          value="0" 
+          value={loading ? '...' : stats.leads.toString()} 
           gradient="from-ocean-secondary to-ocean-accent"
           onClick={() => navigate('/leads')} 
         />
         <StatCard 
           icon={BarChart3} 
           title="Bookings" 
-          value="0" 
+          value={loading ? '...' : stats.bookings.toString()} 
           gradient="from-ocean-accent to-ocean-success"
           onClick={() => navigate('/bookings')} 
         />
         <StatCard 
           icon={Users} 
           title="Team" 
-          value="0" 
+          value={loading ? '...' : stats.team.toString()} 
           gradient="from-ocean-success to-ocean-primary"
         />
       </div>
