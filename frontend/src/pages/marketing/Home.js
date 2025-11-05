@@ -13,6 +13,7 @@ import Testimonials from '../../components/Testimonials';
 import ImplementationSupport from '../../components/ImplementationSupport';
 import OurStory from '../../components/OurStory';
 import EloniotCredibility from '../../components/EloniotCredibility';
+import IncomeLandsSuccess from '../../components/IncomeLandsSuccess';
 import { usePageTranslation } from '../../hooks/usePageTranslation';
 import apiInstance from '../../services/api';
 
