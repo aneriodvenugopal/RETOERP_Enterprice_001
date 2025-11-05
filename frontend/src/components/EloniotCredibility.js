@@ -29,7 +29,7 @@ const EloniotCredibility = () => {
     {
       icon: <Shield className="w-8 h-8" />,
       title: 'Government Projects',
-      description: 'Trusted by Telangana Government for Library Management Applications',
+      description: 'Trusted by Telangana Government - Cyberabad CCTV Inventory System & Library Management Applications',
       color: 'green'
     },
     {
