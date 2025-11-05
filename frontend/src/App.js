@@ -318,6 +318,14 @@ function App() {
                 }
               />
               <Route
+                path="/project-manager-dashboard"
+                element={
+                  <PrivateRoute>
+                    <ProjectManagerDashboard />
+                  </PrivateRoute>
+                }
+              />
+              <Route
                 path="/share-rewards"
                 element={
                   <PrivateRoute>
