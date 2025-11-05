@@ -389,7 +389,7 @@ const AvatarAssistant = () => {
         <div
           onClick={() => setIsOpen(true)}
           className="fixed bottom-28 right-6 z-40 cursor-pointer group"
-          title="RETOERP Speaking Agent - Click to talk!"
+          title="Reto ERP Software Speaking Guide - Click to talk!"
         >
           <div className="relative">
             <div className="absolute inset-0 bg-purple-400 rounded-full animate-ping opacity-50"></div>
