@@ -28,9 +28,9 @@ const AvatarAssistant = () => {
   // Feature explanations in multiple languages (FIXED: RETOERP → Reto ERP)
   const features = {
     welcome: {
-      english: "Hello! I'm your Reto ERP guide! Search for any feature or ask me anything.",
-      telugu: "నమస్కారం! నేను మీ రెటో ఇఆర్‌పీ గైడ్! ఏదైనా ఫీచర్ కోసం సెర్చ్ చేయండి లేదా నన్ను అడగండి.",
-      hindi: "नमस्ते! मैं आपकी रेटो ईआरपी गाइड हूँ! किसी भी फीचर को खोजें या मुझसे पूछें।"
+      english: "Hello! I'm your RETOERP SOFTWARE speaking guide! Search for any feature or ask me anything.",
+      telugu: "నమస్కారం! నేను మీ రెటో ఇఆర్‌పీ సాఫ్ట్‌వేర్ స్పీకింగ్ గైడ్! ఏదైనా ఫీచర్ కోసం సెర్చ్ చేయండి లేదా నన్ను అడగండి.",
+      hindi: "नमस्ते! मैं आपकी रेटो ईआरपी सॉफ्टवेयर स्पीकिंग गाइड हूँ! किसी भी फीचर को खोजें या मुझसे पूछें।"
     },
     // Page-specific help messages
     currentPage: {
