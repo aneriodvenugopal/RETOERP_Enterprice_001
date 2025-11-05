@@ -95,6 +95,9 @@ const Home = () => {
       
       {/* Our Story */}
       <OurStory />
+
+      {/* Eloniot Credibility */}
+      <EloniotCredibility />
       
       {/* Stats Section */}
       <section className="py-12 bg-gray-50">
