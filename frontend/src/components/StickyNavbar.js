@@ -43,9 +43,12 @@ const StickyNavbar = () => {
       <div className="container mx-auto px-6">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2">
+          <Link to="/" className="flex items-center gap-3">
             <img src="/retoerp-logo-icon.svg" alt="RETOERP SOFTWARE" className="h-10 w-10" />
-            <span className="text-2xl font-bold text-blue-600">RETOERP SOFTWARE</span>
+            <div className="flex flex-col">
+              <span className="text-2xl font-bold text-blue-600 leading-tight">RETOERP SOFTWARE</span>
+              <span className="text-xs font-medium text-gray-600 tracking-wide">Real Estate Automation Software</span>
+            </div>
           </Link>
 
           {/* Desktop Menu */}
