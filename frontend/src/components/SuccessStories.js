@@ -8,26 +8,26 @@ const SuccessStories = () => {
       location: "Hyderabad",
       logo: "🏢",
       results: {
-        growth: "35%",
-        revenue: "3 Projects",
-        time: "Zero leakage",
+        growth: "Better tracking",
+        revenue: "Multi-project",
+        time: "Time saved",
         rating: 5
       },
-      quote: "RETOERP has completely transformed our operations. Managing 3 projects simultaneously was chaotic with Excel sheets. Now with RETOERP's multi-project dashboard, we have complete visibility. Our booking conversion rate improved by 35% within 3 months!",
+      quote: "RETOERP helped us manage our real estate operations more efficiently. The dashboard gives us better visibility and the system is easy to use.",
       person: "Managing Director",
       designation: "Abhinandhana Avenues"
     },
     {
-      company: "BRR GROUP (Janabhivrudhhi)",
+      company: "BRR GROUP",
       location: "Telangana",
       logo: "🏗️",
       results: {
-        growth: "40%",
-        revenue: "15-20 leads/week",
-        time: "2 days saved/month",
+        growth: "Automated",
+        revenue: "Website inquiries",
+        time: "Saves time",
         rating: 5
       },
-      quote: "Before RETOERP, tracking payments and generating reports took 2 full days every month. Now everything is automated! Payment reminders via WhatsApp improved our collection speed by 40%. The website brings 15-20 genuine inquiries every week!",
+      quote: "The payment tracking and reporting features are helpful. Website integration brings regular inquiries. Overall a useful system for our needs.",
       person: "Founder & CEO",
       designation: "BRR GROUP"
     },
@@ -36,12 +36,12 @@ const SuccessStories = () => {
       location: "Vijayawada",
       logo: "🏠",
       results: {
-        growth: "90%",
-        revenue: "ROI in 2 months",
-        time: "Zero disputes",
+        growth: "Improved",
+        revenue: "Good ROI",
+        time: "Easy to use",
         rating: 5
       },
-      quote: "Payment tracking was our biggest headache. RETOERP's payment module solved everything. Automated reminders, instant receipts, transparent commission calculations. We achieved 90% on-time payment collection. ROI was achieved in just 2 months!",
+      quote: "Payment reminders and receipt generation features are very useful. The commission tracking helps avoid disputes. A practical solution for real estate management.",
       person: "Director",
       designation: "Sri Jayam Housing"
     }
