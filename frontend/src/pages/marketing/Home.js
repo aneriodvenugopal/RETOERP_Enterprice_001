@@ -681,6 +681,331 @@ const Home = () => {
       {/* ROI Calculator */}
       <ROICalculator />
 
+      {/* Video Demo Section */}
+      <section className="py-20 bg-gradient-to-br from-gray-50 to-blue-50">
+        <div className="container mx-auto px-6">
+          <div className="max-w-5xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+                See RETOERP in Action
+              </h2>
+              <p className="text-xl text-gray-600">
+                Watch how RETOERP transforms real estate operations
+              </p>
+            </div>
+
+            {/* Video Demo Placeholder */}
+            <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
+              <div className="aspect-video bg-gradient-to-br from-blue-600 to-cyan-600 flex items-center justify-center relative">
+                <div className="text-center text-white">
+                  <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                    <svg className="w-12 h-12" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-2xl font-bold mb-2">Product Demo Video</h3>
+                  <p className="text-white/90 text-lg">Coming Soon</p>
+                  <p className="text-white/80 text-sm mt-4 max-w-md mx-auto">
+                    Meanwhile, schedule a live demo with our team to see all features in action
+                  </p>
+                  <Link
+                    to="/contact"
+                    className="inline-block mt-6 px-8 py-3 bg-white text-blue-600 font-semibold rounded-lg hover:bg-gray-100 transition-all shadow-lg"
+                  >
+                    Schedule Live Demo
+                  </Link>
+                </div>
+              </div>
+            </div>
+
+            {/* Quick Feature Highlights */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
+              {[
+                { label: 'Multi-Project Dashboard', icon: '📊' },
+                { label: 'Visual Property Layouts', icon: '🗺️' },
+                { label: 'Payment Automation', icon: '💰' },
+                { label: 'WhatsApp Integration', icon: '💬' }
+              ].map((feature, idx) => (
+                <div key={idx} className="bg-white rounded-lg p-4 text-center shadow-md hover:shadow-lg transition-all">
+                  <div className="text-3xl mb-2">{feature.icon}</div>
+                  <p className="text-sm font-semibold text-gray-800">{feature.label}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing Hint Section */}
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-6">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+                Simple, Transparent Pricing
+              </h2>
+              <p className="text-xl text-gray-600">
+                Plans that grow with your business
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+              {/* Starter */}
+              <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl p-8 hover:shadow-xl transition-all border-2 border-blue-100">
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">Starter</h3>
+                <div className="mb-6">
+                  <span className="text-4xl font-bold text-blue-600">₹9,999</span>
+                  <span className="text-gray-600">/month</span>
+                </div>
+                <ul className="space-y-3 mb-6">
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-600 text-lg">✓</span>
+                    <span className="text-gray-700">Up to 2 Projects</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-600 text-lg">✓</span>
+                    <span className="text-gray-700">5 Team Members</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-600 text-lg">✓</span>
+                    <span className="text-gray-700">500 SMS Credits</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-600 text-lg">✓</span>
+                    <span className="text-gray-700">Basic Support</span>
+                  </li>
+                </ul>
+                <Link
+                  to="/pricing"
+                  className="block w-full py-3 text-center bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all"
+                >
+                  Learn More
+                </Link>
+              </div>
+
+              {/* Professional - Most Popular */}
+              <div className="bg-gradient-to-br from-blue-600 to-cyan-600 rounded-2xl p-8 hover:shadow-2xl transition-all transform scale-105 relative">
+                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-yellow-400 text-gray-900 px-4 py-1 rounded-full text-sm font-bold">
+                  Most Popular
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-2">Professional</h3>
+                <div className="mb-6">
+                  <span className="text-4xl font-bold text-white">₹24,999</span>
+                  <span className="text-white/90">/month</span>
+                </div>
+                <ul className="space-y-3 mb-6">
+                  <li className="flex items-start gap-2">
+                    <span className="text-yellow-300 text-lg">✓</span>
+                    <span className="text-white">Up to 10 Projects</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-yellow-300 text-lg">✓</span>
+                    <span className="text-white">25 Team Members</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-yellow-300 text-lg">✓</span>
+                    <span className="text-white">2000 SMS Credits</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-yellow-300 text-lg">✓</span>
+                    <span className="text-white">Priority Support</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-yellow-300 text-lg">✓</span>
+                    <span className="text-white">Advanced Analytics</span>
+                  </li>
+                </ul>
+                <Link
+                  to="/pricing"
+                  className="block w-full py-3 text-center bg-white text-blue-600 hover:bg-gray-100 font-semibold rounded-lg transition-all"
+                >
+                  Learn More
+                </Link>
+              </div>
+
+              {/* Enterprise */}
+              <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-8 hover:shadow-xl transition-all border-2 border-purple-100">
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">Enterprise</h3>
+                <div className="mb-6">
+                  <span className="text-4xl font-bold text-purple-600">₹49,999</span>
+                  <span className="text-gray-600">/month</span>
+                </div>
+                <ul className="space-y-3 mb-6">
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-600 text-lg">✓</span>
+                    <span className="text-gray-700">Unlimited Projects</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-600 text-lg">✓</span>
+                    <span className="text-gray-700">Unlimited Users</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-600 text-lg">✓</span>
+                    <span className="text-gray-700">10,000 SMS Credits</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-600 text-lg">✓</span>
+                    <span className="text-gray-700">24/7 Dedicated Support</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-600 text-lg">✓</span>
+                    <span className="text-gray-700">Custom Branding</span>
+                  </li>
+                </ul>
+                <Link
+                  to="/pricing"
+                  className="block w-full py-3 text-center bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition-all"
+                >
+                  Learn More
+                </Link>
+              </div>
+            </div>
+
+            <div className="text-center">
+              <Link
+                to="/pricing"
+                className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-semibold text-lg"
+              >
+                View Full Pricing Details <ArrowRight size={20} />
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Support & Feature Request Section */}
+      <section className="py-20 bg-gradient-to-br from-blue-50 to-cyan-50">
+        <div className="container mx-auto px-6">
+          <div className="max-w-5xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+                We're Here to Help You Succeed
+              </h2>
+              <p className="text-xl text-gray-600">
+                Comprehensive support and continuous improvement
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+              {/* Free Support */}
+              <div className="bg-white rounded-2xl shadow-xl p-8">
+                <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center mb-6">
+                  <span className="text-3xl">🎁</span>
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-4">
+                  First 3 Months Free Support
+                </h3>
+                <p className="text-gray-600 mb-6">
+                  Get started with confidence! We provide comprehensive free support for the first 3 months of your subscription.
+                </p>
+                <div className="space-y-3">
+                  <div className="flex items-start gap-3">
+                    <span className="text-green-600 text-lg">✓</span>
+                    <span className="text-gray-700">Dedicated onboarding assistance</span>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <span className="text-green-600 text-lg">✓</span>
+                    <span className="text-gray-700">Team training sessions</span>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <span className="text-green-600 text-lg">✓</span>
+                    <span className="text-gray-700">Priority bug fixes</span>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <span className="text-green-600 text-lg">✓</span>
+                    <span className="text-gray-700">Technical consultation</span>
+                  </div>
+                </div>
+                <div className="mt-6 p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded">
+                  <p className="text-sm text-gray-700">
+                    <strong>Conditions Apply:</strong> Valid for Professional and Enterprise plans. Basic support continues after 3 months as per plan.
+                  </p>
+                </div>
+              </div>
+
+              {/* Feature Requests */}
+              <div className="bg-white rounded-2xl shadow-xl p-8">
+                <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center mb-6">
+                  <span className="text-3xl">🚀</span>
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-4">
+                  Feature Requests & Updates
+                </h3>
+                <p className="text-gray-600 mb-6">
+                  Your feedback drives our development! We continuously improve RETOERP based on customer needs.
+                </p>
+                <div className="space-y-3 mb-6">
+                  <div className="flex items-start gap-3">
+                    <span className="text-blue-600 text-lg">✓</span>
+                    <span className="text-gray-700">Submit feature requests anytime</span>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <span className="text-blue-600 text-lg">✓</span>
+                    <span className="text-gray-700">Vote on upcoming features</span>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <span className="text-blue-600 text-lg">✓</span>
+                    <span className="text-gray-700">Automatic updates included</span>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <span className="text-blue-600 text-lg">✓</span>
+                    <span className="text-gray-700">Latest version at no extra cost</span>
+                  </div>
+                </div>
+                <div className="bg-blue-50 rounded-lg p-4">
+                  <p className="text-sm text-gray-700 mb-3">
+                    <strong>High-demand features</strong> are prioritized for the latest software versions. All subscribers get free updates!
+                  </p>
+                  <Link
+                    to="/contact"
+                    className="inline-block px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all text-sm"
+                  >
+                    Submit Feature Request
+                  </Link>
+                </div>
+              </div>
+            </div>
+
+            {/* Support Channels */}
+            <div className="bg-white rounded-2xl shadow-xl p-8">
+              <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">
+                Multiple Support Channels
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div className="text-center">
+                  <div className="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <span className="text-2xl">📞</span>
+                  </div>
+                  <p className="font-semibold text-gray-900">Phone</p>
+                  <p className="text-sm text-gray-600">+91 99483 03060</p>
+                </div>
+                <div className="text-center">
+                  <div className="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <span className="text-2xl">💬</span>
+                  </div>
+                  <p className="font-semibold text-gray-900">WhatsApp</p>
+                  <p className="text-sm text-gray-600">Quick Response</p>
+                </div>
+                <div className="text-center">
+                  <div className="w-14 h-14 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <span className="text-2xl">✉️</span>
+                  </div>
+                  <p className="font-semibold text-gray-900">Email</p>
+                  <p className="text-sm text-gray-600">24/7 Support</p>
+                </div>
+                <div className="text-center">
+                  <div className="w-14 h-14 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <span className="text-2xl">🗣️</span>
+                  </div>
+                  <p className="font-semibold text-gray-900">Languages</p>
+                  <p className="text-sm text-gray-600">English, తెలుగు, हिंदी</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="py-20 bg-white">
         <div className="container mx-auto px-6">
