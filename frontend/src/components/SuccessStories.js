@@ -117,7 +117,7 @@ const SuccessStories = () => {
 
         {/* Trust Badges */}
         <div className="mt-16 bg-white rounded-2xl shadow-xl p-8 max-w-5xl mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center mb-6">
             <div>
               <div className="text-4xl font-bold text-blue-600 mb-2">500+</div>
               <div className="text-gray-600">Real Estate Companies</div>
@@ -135,6 +135,9 @@ const SuccessStories = () => {
               <div className="text-gray-600">Uptime SLA</div>
             </div>
           </div>
+          <p className="text-xs text-gray-500 text-center italic border-t border-gray-200 pt-4">
+            *Metrics represent cumulative data across all clients. Individual client results may vary. Performance is subject to various factors including implementation, usage, and market conditions.
+          </p>
         </div>
       </div>
     </section>
