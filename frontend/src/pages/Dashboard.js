@@ -165,7 +165,7 @@ const TenantAdminDashboard = () => {
       const token = localStorage.getItem('token');
       
       // Fetch analytics data
-      const response = await fetch(`${apiUrl}/api/analytics/overview`, {
+      const response = await fetch(`${apiUrl}/api/analytics/dashboard`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -178,7 +178,7 @@ const TenantAdminDashboard = () => {
           projects: data.total_projects || 0,
           leads: data.total_leads || 0,
           bookings: data.total_bookings || 0,
-          team: data.total_staff || 0
+          team: data.total_staff || data.total_users || 0
         });
       }
     } catch (error) {
