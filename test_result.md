@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Enhance RETOERP homepage to communicate multi-project management capability and ensure page-aware assistant feature is working: (1) Add prominent multi-project management messaging to homepage - emphasize that users can manage multiple real estate projects simultaneously without losing context, (2) Verify and enhance page-aware assistant feature - button to show current page features and provide contextual help based on which page user is viewing."
+user_problem_statement: "Enhance RETOERP with the following improvements: (1) Replace WhatsApp chat icon with RETOERP speaking assistant chatbot on ALL pages, (2) Fix fake testimonials in SuccessStories component with real client data, (3) Add video demo section with 'Coming Soon' placeholder, (4) Add pricing hint section with 3-tier pricing table, (5) Add support & feature request section with '3 months free support' info, (6) Enhance SaaS admin dashboard with better BI graphs, charts, and real estate-focused metrics."
 
 backend:
   - task: "Public APIs for Tenant and Project landing pages"
