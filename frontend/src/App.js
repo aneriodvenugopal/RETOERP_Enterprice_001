@@ -327,6 +327,14 @@ function App() {
                 }
               />
               <Route
+                path="/marketing-agent-dashboard"
+                element={
+                  <PrivateRoute>
+                    <MarketingAgentDashboard />
+                  </PrivateRoute>
+                }
+              />
+              <Route
                 path="/share-rewards"
                 element={
                   <PrivateRoute>
