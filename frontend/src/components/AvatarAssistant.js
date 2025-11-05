@@ -70,9 +70,9 @@ const AvatarAssistant = () => {
         hindi: "आप लॉगिन पेज पर हैं। अपने मोबाइल नंबर दर्ज करें।"
       },
       home: {
-        english: "You're on the Reto ERP homepage. We offer complete real estate automation solutions - CRM, Property Layouts, Expert Advisory, Workforce Map, and more. Scroll down to explore all features or use the menu to navigate!",
-        telugu: "మీరు రెటో ఇఆర్‌పీ హోమ్‌పేజీలో ఉన్నారు. మేము పూర్తి రియల్ ఎస్టేట్ ఆటోమేషన్ సొల్యూషన్‌లను అందిస్తాము - CRM, ప్రాపర్టీ లేఅవుట్స్, ఎక్స్‌పర్ట్ అడ్వైజరీ, వర్క్‌ఫోర్స్ మ్యాప్ మరియు మరిన్ని!",
-        hindi: "आप रेटो ईआरपी होमपेज पर हैं। हम पूर्ण रियल एस्टेट ऑटोमेशन समाधान प्रदान करते हैं।"
+        english: "You're on the Reto ERP homepage! We help real estate companies grow 40X faster. Scroll down to see our latest additions: Video Demo section (coming soon), Simple Pricing with 3 plans starting at ₹9,999/month, First 3 Months Free Support offer, Multi-Project Management capabilities, Feature Request system, and real client testimonials from Abhinandhana Avenues, BRR Group, and Sri Jayam Housing. Explore all features using the menu!",
+        telugu: "మీరు రెటో ఇఆర్‌పీ హోమ్‌పేజీలో ఉన్నారు! మేము రియల్ ఎస్టేట్ కంపెనీలకు 40X వేగంగా పెరగడానికి సహాయం చేస్తాము. క్రిందికి స్క్రోల్ చేసి మా తాజా జోడింపులను చూడండి: వీడియో డెమో, సాధారణ ధరలు ₹9,999/నెల నుండి, మొదటి 3 నెలలు ఉచిత మద్దతు!",
+        hindi: "आप रेटो ईआरपी होमपेज पर हैं! हम रियल एस्टेट कंपनियों को 40X तेजी से बढ़ने में मदद करते हैं। नीचे स्क्रॉल करके हमारे नवीनतम जोड़ देखें: वीडियो डेमो, सरल मूल्य निर्धारण ₹9,999/माह से, पहले 3 महीने मुफ्त सहायता!"
       }
     },
     login: {
