@@ -128,7 +128,7 @@ function EnhancedSaaSDashboard() {
   ];
 
   // Monthly revenue trend (mock data - can be replaced with real data)
-  const revenueT rend = [
+  const revenueTrend = [
     { month: 'Jan', revenue: overview.monthly_recurring_revenue * 0.6, tenants: Math.floor(overview.total_tenants * 0.6) },
     { month: 'Feb', revenue: overview.monthly_recurring_revenue * 0.7, tenants: Math.floor(overview.total_tenants * 0.7) },
     { month: 'Mar', revenue: overview.monthly_recurring_revenue * 0.75, tenants: Math.floor(overview.total_tenants * 0.75) },
