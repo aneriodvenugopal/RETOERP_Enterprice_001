@@ -256,7 +256,7 @@ const Testimonials = () => {
             <p className="text-gray-600 mb-6">
               Start your free trial today and see the difference in 7 days
             </p>
-            <div className="flex flex-wrap justify-center gap-4">
+            <div className="flex flex-wrap justify-center gap-4 mb-6">
               <a
                 href="/register"
                 className="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-all transform hover:scale-105 shadow-lg"
@@ -270,6 +270,10 @@ const Testimonials = () => {
                 Schedule Demo
               </a>
             </div>
+            <p className="text-xs text-gray-500 italic border-t border-gray-200 pt-4">
+              *Testimonials are from actual clients. Individual results may vary based on business size, market conditions, and implementation. 
+              Past performance does not guarantee similar results for your business.
+            </p>
           </div>
         </div>
       </div>
