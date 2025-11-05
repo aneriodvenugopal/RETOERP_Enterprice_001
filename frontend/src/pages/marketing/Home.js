@@ -276,7 +276,7 @@ const Home = () => {
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              RETOERP: The Complete Solution
+              RETOERP SOFTWARE: The Complete Solution
             </h2>
             <p className="text-xl text-gray-600">
               Like AI transformed software development, we transform real estate operations
