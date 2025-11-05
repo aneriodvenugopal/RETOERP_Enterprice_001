@@ -10,6 +10,7 @@ import ROICalculator from '../../components/ROICalculator';
 import WhoBenefits from '../../components/WhoBenefits';
 import FeatureHighlights from '../../components/FeatureHighlights';
 import Testimonials from '../../components/Testimonials';
+import ImplementationSupport from '../../components/ImplementationSupport';
 import { usePageTranslation } from '../../hooks/usePageTranslation';
 import apiInstance from '../../services/api';
 
