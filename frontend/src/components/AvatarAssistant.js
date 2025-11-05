@@ -25,12 +25,12 @@ const AvatarAssistant = () => {
     else setCurrentPage('home');
   }, []);
 
-  // Feature explanations in multiple languages (FIXED: RETOERP → Reto ERP)
+  // Feature explanations in multiple languages
   const features = {
     welcome: {
-      english: "Hello! I'm your RETOERP SOFTWARE speaking guide! Search for any feature or ask me anything.",
-      telugu: "నమస్కారం! నేను మీ రెటో ఇఆర్‌పీ సాఫ్ట్‌వేర్ స్పీకింగ్ గైడ్! ఏదైనా ఫీచర్ కోసం సెర్చ్ చేయండి లేదా నన్ను అడగండి.",
-      hindi: "नमस्ते! मैं आपकी रेटो ईआरपी सॉफ्टवेयर स्पीकिंग गाइड हूँ! किसी भी फीचर को खोजें या मुझसे पूछें।"
+      english: "Hello! I'm your Reto ERP Software Speaking Guide! We help real estate companies grow 40X faster with multi-project management, visual property layouts, payment automation, expert advisory, and workforce solutions. Search for any feature or ask me anything!",
+      telugu: "నమస్కారం! నేను మీ రెటో ఇఆర్‌పీ సాఫ్ట్‌వేర్ స్పీకింగ్ గైడ్! మేము రియల్ ఎస్టేట్ కంపెనీలకు మల్టీ-ప్రాజెక్ట్ మేనేజ్‌మెంట్, విజువల్ ప్రాపర్టీ లేఅవుట్స్, పేమెంట్ ఆటోమేషన్, ఎక్స్‌పర్ట్ అడ్వైజరీతో 40X వేగంగా పెరగడానికి సహాయం చేస్తాము!",
+      hindi: "नमस्ते! मैं आपकी रेटो ईआरपी सॉफ्टवेयर स्पीकिंग गाइड हूँ! हम रियल एस्टेट कंपनियों को मल्टी-प्रोजेक्ट मैनेजमेंट, विज़ुअल प्रॉपर्टी लेआउट, पेमेंट ऑटोमेशन के साथ 40X तेजी से बढ़ने में मदद करते हैं!"
     },
     // Page-specific help messages
     currentPage: {
