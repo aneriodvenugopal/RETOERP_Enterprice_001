@@ -78,6 +78,63 @@ const Testimonials = () => {
       modules: ["Visual Property Layouts", "Multi-Project Dashboard", "Real-time Inventory", "Mobile PWA App", "WhatsApp Notifications"],
       verified: true,
       letterhead: false
+    },
+    {
+      company: "NTR Estates",
+      website: "#",
+      logo: "NTR",
+      person: "Proprietor",
+      location: "Andhra Pradesh",
+      rating: 5,
+      project: "Complete Real Estate Management Software + Website Development",
+      testimonial: "As a growing real estate business, we needed a system that could scale with us. RETOERP delivered exactly that. The software handles our daily operations - from lead capture to final booking. The website they developed is modern, mobile-responsive, and generates quality leads. What impressed us most was the ease of use. Our staff, who were not tech-savvy, started using the system within 2 days of training. The mobile app means our field agents can work from anywhere. Customer inquiries are responded to within minutes now!",
+      results: [
+        "Fully operational within 1 week",
+        "Staff adapted in 2 days with training",
+        "Mobile-first approach for field agents",
+        "Response time under 5 minutes"
+      ],
+      modules: ["Complete CRM Software", "Website Development", "Mobile PWA App", "Lead Management", "Training & Support"],
+      verified: true,
+      letterhead: false
+    },
+    {
+      company: "Sree Ramainfra Developers (Nisarga Project)",
+      website: "#",
+      logo: "SRI",
+      person: "Project Director",
+      location: "Hyderabad",
+      rating: 5,
+      project: "Project-Specific Software + Professional Website for Nisarga",
+      testimonial: "For our premium Nisarga project, we wanted a dedicated software system and professional online presence. RETOERP delivered both brilliantly! The custom website showcases our project beautifully with high-quality images, virtual tours, and interactive plot selection. The backend software manages all bookings, payment schedules, and customer communication seamlessly. We've had zero technical issues in 6 months of operation. The automated payment reminder system alone has saved our accounts team countless hours. Highly professional team!",
+      results: [
+        "Zero technical issues in 6 months",
+        "Premium project presentation online",
+        "Automated payment management",
+        "Seamless booking experience"
+      ],
+      modules: ["Project Website", "Booking Management", "Payment Scheduling", "Customer Portal", "Visual Layouts"],
+      verified: true,
+      letterhead: false
+    },
+    {
+      company: "Pudami Real Estate",
+      website: "#",
+      logo: "PR",
+      person: "Managing Partner",
+      location: "Telangana",
+      rating: 5,
+      project: "Real Estate Management Software + Website",
+      testimonial: "We've tried 2 other real estate software before RETOERP, and this is by far the best. The difference is that RETOERP actually understands Indian real estate business. Features like Telugu language support, WhatsApp integration, and commission tracking are built-in, not afterthoughts. The website brings professional credibility to our business. Customers trust us more when they see our professional online presence. The software's reporting feature helps us make data-driven decisions. Setup was smooth, support is responsive. Worth every rupee!",
+      results: [
+        "3rd time lucky - best software choice",
+        "Telugu language support built-in",
+        "Professional online credibility",
+        "Data-driven decision making"
+      ],
+      modules: ["CRM Software", "Website Development", "Telugu Interface", "WhatsApp Integration", "Commission Tracking"],
+      verified: true,
+      letterhead: false
     }
   ];
 
