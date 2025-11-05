@@ -145,7 +145,7 @@ const EloniotCredibility = () => {
                 <div className="text-4xl mb-3">🛡️</div>
                 <h4 className="font-bold text-gray-900 mb-2">Government-Grade Reliability</h4>
                 <p className="text-gray-700 text-sm">
-                  Trusted by Telangana Government for critical applications. Your data and operations are in experienced hands.
+                  Trusted by Telangana Government for critical applications - Cyberabad CCTV Inventory System & Library Management. Your data and operations are in experienced hands.
                 </p>
               </div>
               <div className="bg-white rounded-xl p-6 shadow-sm">
