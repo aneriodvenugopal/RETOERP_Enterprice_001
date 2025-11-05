@@ -45,8 +45,7 @@ const StickyNavbar = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
             <img src="/retoerp-logo-icon.svg" alt="RETOERP SOFTWARE" className="h-10 w-10" />
-            <span className="text-2xl font-bold text-blue-600">RETOERP</span>
-            <span className="text-sm text-gray-600 ml-1">SOFTWARE</span>
+            <span className="text-2xl font-bold text-blue-600">RETOERP SOFTWARE</span>
           </Link>
 
           {/* Desktop Menu */}
