@@ -48,6 +48,20 @@ const EloniotCredibility = () => {
 
   const recentClients = [
     {
+      name: 'Cyberabad CCTV Project',
+      website: '#',
+      description: 'Inventory management system for Government CCTV surveillance project',
+      type: '🏛️ Government Project',
+      highlight: true
+    },
+    {
+      name: 'Telangana Library System',
+      website: '#',
+      description: 'Government library management application for public libraries',
+      type: '🏛️ Government Project',
+      highlight: true
+    },
+    {
       name: 'V3 Electricals',
       website: 'https://v3electricals.com/',
       description: 'Professional electrical services website',
@@ -58,12 +72,6 @@ const EloniotCredibility = () => {
       website: '#',
       description: 'E-commerce platform for jewelry business',
       type: 'E-commerce Application'
-    },
-    {
-      name: 'Telangana Library System',
-      website: '#',
-      description: 'Government library management application',
-      type: 'Government Project'
     }
   ];
 
