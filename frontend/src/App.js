@@ -424,7 +424,6 @@ function App() {
                 }
               />
             </Routes>
-            <FloatingWhatsApp />
             <ConditionalAssistant />
           </BrowserRouter>
           <Toaster position="top-right" richColors />
