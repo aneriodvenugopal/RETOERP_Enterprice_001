@@ -1059,6 +1059,76 @@ const Home = () => {
         </div>
       </section>
 
+      {/* Disclaimer Section */}
+      <section className="py-12 bg-gradient-to-br from-gray-100 to-gray-50">
+        <div className="container mx-auto px-6">
+          <div className="max-w-6xl mx-auto">
+            <div className="bg-white rounded-2xl shadow-lg p-8 border-l-4 border-blue-600">
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0">
+                  <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                    <span className="text-2xl">ℹ️</span>
+                  </div>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold text-gray-900 mb-3">Important Information & Disclaimer</h3>
+                  <div className="space-y-3 text-sm text-gray-700 leading-relaxed">
+                    <p>
+                      <strong>Product Development & Continuous Improvement:</strong> RETOERP Software is under continuous development and improvement. While we strive to deliver the best possible experience, features, functionality, and performance may vary based on usage patterns, system configurations, and specific business requirements. We are committed to addressing issues promptly and releasing regular updates.
+                    </p>
+                    <p>
+                      <strong>Results May Vary:</strong> Success metrics, growth percentages (e.g., "40X faster"), and performance improvements mentioned on this website are based on specific client implementations and their unique business scenarios. Individual results may vary depending on various factors including but not limited to business size, market conditions, team adoption, data quality, and usage patterns. Past performance of other clients does not guarantee similar results for your business.
+                    </p>
+                    <p>
+                      <strong>Feature Availability:</strong> Some features and integrations are subject to availability, third-party service dependencies, and your subscription plan. Features are continuously being added, modified, or improved based on technological advancements and customer feedback. We recommend contacting our team for the latest feature availability and roadmap.
+                    </p>
+                    <p>
+                      <strong>Best Efforts & Support:</strong> We provide support and maintenance on a best-efforts basis. While we aim for 99.9% uptime and quick resolution of issues, factors beyond our control (such as internet connectivity, third-party service disruptions, or force majeure events) may occasionally affect service availability. We maintain regular backups and have disaster recovery procedures in place.
+                    </p>
+                    <p>
+                      <strong>No Liability for Business Decisions:</strong> RETOERP Software is a tool to assist in real estate management. Final business decisions, legal compliance, financial transactions, and regulatory adherence remain the sole responsibility of the user/organization. We recommend consulting with legal, financial, and tax professionals for business-critical decisions.
+                    </p>
+                    <p>
+                      <strong>Testimonials & Case Studies:</strong> All testimonials featured on this website are from actual clients. However, specific numbers, percentages, and results mentioned are based on their individual experiences and may not be representative of typical results. Client names and details are used with permission.
+                    </p>
+                    <p>
+                      <strong>Terms & Conditions:</strong> Use of RETOERP Software is subject to our{' '}
+                      <Link to="/terms-conditions" className="text-blue-600 hover:text-blue-700 font-semibold underline">
+                        Terms & Conditions
+                      </Link>,{' '}
+                      <Link to="/privacy-policy" className="text-blue-600 hover:text-blue-700 font-semibold underline">
+                        Privacy Policy
+                      </Link>, and{' '}
+                      <Link to="/refund-policy" className="text-blue-600 hover:text-blue-700 font-semibold underline">
+                        Refund Policy
+                      </Link>. By using our software, you acknowledge and agree to these terms.
+                    </p>
+                    <p className="pt-3 border-t border-gray-200">
+                      <strong>Contact Us:</strong> For clarifications, support, or concerns, please reach out to us at{' '}
+                      <a href="tel:+919948303060" className="text-blue-600 hover:text-blue-700 font-semibold">
+                        +91 9948303060
+                      </a>{' '}
+                      or{' '}
+                      <a href="mailto:admin@retoerp.com" className="text-blue-600 hover:text-blue-700 font-semibold">
+                        admin@retoerp.com
+                      </a>
+                      . We're committed to transparency and customer satisfaction.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Additional Note */}
+            <div className="mt-6 text-center">
+              <p className="text-xs text-gray-500 italic">
+                This website is an informational and marketing platform for RETOERP Software. All information is provided in good faith for general informational purposes only. We make no representations or warranties of any kind, express or implied, about the completeness, accuracy, reliability, or availability of the information, products, or services contained on this website.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Footer */}
       <footer className="bg-gray-50 py-12 border-t border-gray-200">
         <div className="container mx-auto px-6">
