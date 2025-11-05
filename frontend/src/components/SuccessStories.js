@@ -119,24 +119,24 @@ const SuccessStories = () => {
         <div className="mt-16 bg-white rounded-2xl shadow-xl p-8 max-w-5xl mx-auto">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center mb-6">
             <div>
-              <div className="text-4xl font-bold text-blue-600 mb-2">500+</div>
-              <div className="text-gray-600">Real Estate Companies</div>
+              <div className="text-4xl font-bold text-blue-600 mb-2">10+</div>
+              <div className="text-gray-600">Years Experience</div>
             </div>
             <div>
-              <div className="text-4xl font-bold text-green-600 mb-2">₹1000+ Cr</div>
-              <div className="text-gray-600">Revenue Processed</div>
+              <div className="text-4xl font-bold text-green-600 mb-2">50+</div>
+              <div className="text-gray-600">Projects Completed</div>
             </div>
             <div>
-              <div className="text-4xl font-bold text-purple-600 mb-2">50,000+</div>
-              <div className="text-gray-600">Properties Managed</div>
+              <div className="text-4xl font-bold text-purple-600 mb-2">30+</div>
+              <div className="text-gray-600">Websites Delivered</div>
             </div>
             <div>
-              <div className="text-4xl font-bold text-orange-600 mb-2">99.9%</div>
-              <div className="text-gray-600">Uptime SLA</div>
+              <div className="text-4xl font-bold text-orange-600 mb-2">25+</div>
+              <div className="text-gray-600">CRM Systems Built</div>
             </div>
           </div>
           <p className="text-xs text-gray-500 text-center italic border-t border-gray-200 pt-4">
-            *Metrics represent cumulative data across all clients. Individual client results may vary. Performance is subject to various factors including implementation, usage, and market conditions.
+            *Based on work done by parent company Eloniot Software Solutions over 10+ years. RETOERP is our SaaS product launched in 2024.
           </p>
         </div>
       </div>
