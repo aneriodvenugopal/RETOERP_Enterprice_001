@@ -1184,8 +1184,13 @@ const Home = () => {
               <p className="text-gray-600 mb-2">
                 © 2025 RETOERP SOFTWARE. All rights reserved. | 10+ Years in Real Estate Excellence
               </p>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-gray-500 mb-2">
                 Secure payments powered by Razorpay & Stripe | Data protected with industry-standard encryption
+              </p>
+              <p className="text-xs text-gray-500 mt-3">
+                Results may vary. Subject to{' '}
+                <Link to="/terms-conditions" className="text-blue-600 hover:underline">Terms & Conditions</Link>.{' '}
+                Features under continuous improvement. This is a marketing website - actual product functionality may vary.
               </p>
             </div>
           </div>
