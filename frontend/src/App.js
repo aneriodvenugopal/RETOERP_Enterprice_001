@@ -59,7 +59,7 @@ import AdvisoryChat from "./pages/advisory/AdvisoryChat";
 // Admin Pages
 import ContentManagement from "./pages/admin/ContentManagement";
 import ResaleManagement from "./pages/admin/ResaleManagement";
-import SaaSDashboard from "./pages/admin/SaaSDashboard";
+import EnhancedSaaSDashboard from "./pages/admin/EnhancedSaaSDashboard";
 import PackageManagement from "./pages/admin/PackageManagement";
 import TenantManagement from "./pages/admin/TenantManagement";
 import ChatManagement from "./pages/admin/ChatManagement";
