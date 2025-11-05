@@ -13,7 +13,7 @@ const EloniotCredibility = () => {
     { name: 'Transport Logistics', icon: '🚛', count: 'Australian Clients' },
     { name: 'E-commerce Platforms', icon: '🛒', count: 'Ratnajyoti & More' },
     { name: 'Government Projects', icon: '🏛️', count: 'Telangana Library' },
-    { name: 'CCTV Inventory', icon: '📹', count: 'Security Sector' },
+    { name: 'CCTV Inventory', icon: '📹', count: 'Cyberabad Govt Project' },
     { name: 'NGO Websites', icon: '🤝', count: 'Social Sector' },
     { name: 'Service Companies', icon: '⚡', count: 'B2B Solutions' },
     { name: 'Real Estate', icon: '🏢', count: 'RETOERP SOFTWARE' }
