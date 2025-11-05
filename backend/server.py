@@ -72,6 +72,7 @@ api_router.include_router(google_auth.router)
 api_router.include_router(calendar_integration.router)
 api_router.include_router(workforce.router)
 api_router.include_router(project_dashboard.router)
+api_router.include_router(marketing_dashboard.router)
 
 # PWA Install tracking
 @api_router.post("/analytics/pwa-install")
