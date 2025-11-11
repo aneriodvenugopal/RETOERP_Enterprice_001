@@ -95,7 +95,7 @@ const Home = () => {
       <HeroCarousel />
       
       {/* Our Story */}
-      <OurStory />
+      <OurStoryImproved />
 
       {/* Eloniot Credibility */}
       <EloniotCredibility />
