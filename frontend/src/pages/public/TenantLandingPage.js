@@ -19,6 +19,17 @@ function TenantLandingPage() {
 
   useEffect(() => {
     fetchTenantData();
+    
+    // Check for tab parameter in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const tab = urlParams.get('tab');
+    if (tab === 'properties') {
+      setActiveSection('properties');
+      setTimeout(() => scrollToSection('properties'), 500);
+    } else if (tab === 'about') {
+      setActiveSection('about');
+      setTimeout(() => scrollToSection('about'), 500);
+    }
   }, [tenantId]);
 
   const fetchTenantData = async () => {
