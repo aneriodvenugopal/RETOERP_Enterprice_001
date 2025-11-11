@@ -667,7 +667,7 @@ const Home = () => {
       <SuccessStories />
 
       {/* Client Testimonials */}
-      <Testimonials />
+      <TestimonialsCarousel />
 
       {/* Implementation & Support */}
       <ImplementationSupport />
