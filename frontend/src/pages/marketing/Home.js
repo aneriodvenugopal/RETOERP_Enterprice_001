@@ -597,8 +597,7 @@ const Home = () => {
                 {featuredTenants.slice(0, 6).map((tenant) => (
                   <div
                     key={tenant.id}
-                    onClick={() => navigate(`/public/tenant/${tenant.id}`)}
-                    className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all cursor-pointer transform hover:scale-105 border-2 border-transparent hover:border-blue-500"
+                    className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all border-2 border-transparent hover:border-blue-500 group"
                   >
                     {/* Company Header */}
                     <div className="bg-gradient-to-br from-blue-600 to-cyan-600 p-6 text-white">
@@ -611,45 +610,62 @@ const Home = () => {
                           />
                         ) : (
                           <div className="h-14 w-14 bg-white rounded-full flex items-center justify-center">
-                            <span className="text-blue-600 font-bold text-xl">
-                              {tenant.company_name.charAt(0)}
-                            </span>
+                            <Building2 className="text-blue-600" size={28} />
                           </div>
                         )}
                         <div className="flex-1">
-                          <h3 className="text-lg font-bold truncate">{tenant.company_name}</h3>
-                          {(tenant.city || tenant.state) && (
-                            <div className="flex items-center gap-1 text-sm text-blue-100 mt-1">
-                              <MapPin size={14} />
-                              <span className="truncate">
-                                {tenant.city}{tenant.city && tenant.state && ', '}{tenant.state}
-                              </span>
-                            </div>
-                          )}
+                          <h3 className="text-xl font-bold">{tenant.company_name}</h3>
+                          <p className="text-sm text-blue-100">{tenant.location || tenant.city || tenant.state || 'India'}</p>
                         </div>
                       </div>
                     </div>
 
-                    {/* Company Stats */}
-                    <div className="p-6">
-                      <div className="grid grid-cols-3 gap-3 mb-4">
-                        <div className="text-center">
-                          <p className="text-xl font-bold text-blue-600">{tenant.project_count || 0}</p>
-                          <p className="text-xs text-gray-600">Projects</p>
+                    {/* Stats */}
+                    <div className="p-6 bg-white">
+                      <div className="grid grid-cols-3 gap-4 mb-4">
+                        <div className="text-center p-3 bg-blue-50 rounded-lg">
+                          <div className="text-2xl font-bold text-blue-600">{tenant.project_count || tenant.total_projects || 0}</div>
+                          <div className="text-xs text-gray-600">Projects</div>
                         </div>
-                        <div className="text-center">
-                          <p className="text-xl font-bold text-green-600">{tenant.property_count || 0}</p>
-                          <p className="text-xs text-gray-600">Properties</p>
+                        <div className="text-center p-3 bg-green-50 rounded-lg">
+                          <div className="text-2xl font-bold text-green-600">{tenant.property_count || tenant.total_properties || 0}</div>
+                          <div className="text-xs text-gray-600">Properties</div>
                         </div>
-                        <div className="text-center">
-                          <p className="text-xl font-bold text-purple-600">{tenant.booking_count || 0}</p>
-                          <p className="text-xs text-gray-600">Bookings</p>
+                        <div className="text-center p-3 bg-purple-50 rounded-lg">
+                          <div className="text-2xl font-bold text-purple-600">{tenant.booking_count || tenant.total_bookings || 0}</div>
+                          <div className="text-xs text-gray-600">Bookings</div>
                         </div>
                       </div>
-
-                      <button className="w-full py-2 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-lg hover:shadow-lg transition font-semibold text-sm flex items-center justify-center gap-2">
-                        View Company <ArrowRight size={16} />
-                      </button>
+                      
+                      {/* Action Buttons */}
+                      <div className="space-y-2">
+                        <button
+                          onClick={() => navigate(`/public/tenant/${tenant.id}`)}
+                          className="w-full px-4 py-2 bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-semibold rounded-lg hover:shadow-lg transition-all flex items-center justify-center gap-2"
+                        >
+                          <Building2 size={18} />
+                          View All Projects
+                        </button>
+                        
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => navigate(`/public/tenant/${tenant.id}?tab=properties`)}
+                            className="flex-1 px-3 py-2 bg-green-100 text-green-700 font-medium rounded-lg hover:bg-green-200 transition-all text-sm"
+                          >
+                            Properties
+                          </button>
+                          <button
+                            onClick={() => navigate(`/public/tenant/${tenant.id}?tab=about`)}
+                            className="flex-1 px-3 py-2 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition-all text-sm"
+                          >
+                            About
+                          </button>
+                        </div>
+                      </div>
+                      
+                      <div className="mt-3 pt-3 border-t text-center text-xs text-gray-500">
+                        Member since {new Date(tenant.created_at).getFullYear()}
+                      </div>
                     </div>
                   </div>
                 ))}
