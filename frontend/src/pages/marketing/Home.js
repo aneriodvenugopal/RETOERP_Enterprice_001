@@ -82,9 +82,20 @@ const Home = () => {
 
   const handleEmailSubscribe = async (e) => {
     e.preventDefault();
+    setSubscribeError('');
+    setSubscribed(false);
+    
+    // Validate email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email || !emailRegex.test(email)) {
+      setSubscribeError('Please enter a valid email address');
+      return;
+    }
+    
     // TODO: Implement email subscription backend API
     setSubscribed(true);
-    setTimeout(() => setSubscribed(false), 3000);
+    setEmail('');
+    setTimeout(() => setSubscribed(false), 5000);
   };
 
   return (
