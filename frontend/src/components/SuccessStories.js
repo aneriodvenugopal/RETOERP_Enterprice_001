@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { Star, TrendingUp, Award, CheckCircle, ChevronRight } from 'lucide-react';
 import { TrendingUp, Users, DollarSign, Clock, Star } from 'lucide-react';
 
 const SuccessStories = () => {
