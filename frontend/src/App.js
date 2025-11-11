@@ -49,6 +49,7 @@ import Pricing from "./pages/marketing/Pricing";
 import About from "./pages/marketing/About";
 import Features from "./pages/marketing/Features";
 import Contact from "./pages/marketing/Contact";
+import TestimonialDetail from "./pages/marketing/TestimonialDetail";
 
 // Content Pages
 import ContentLibrary from "./pages/content/ContentLibrary";
