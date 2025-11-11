@@ -21,6 +21,7 @@ const Home = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
+  const [subscribeError, setSubscribeError] = useState('');
   const [featuredTenants, setFeaturedTenants] = useState([]);
 
   // Fetch featured tenants on component mount
