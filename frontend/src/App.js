@@ -149,6 +149,7 @@ function App() {
                 <Route path="/pricing" element={<Pricing />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/features" element={<Features />} />
+                <Route path="/testimonials/:id" element={<TestimonialDetail />} />
                 <Route path="/contact" element={<Contact />} />
                 
                 {/* Content Routes - Public */}
