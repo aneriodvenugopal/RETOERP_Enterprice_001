@@ -3,50 +3,64 @@ import { Star, TrendingUp, Award, CheckCircle, ChevronRight } from 'lucide-react
 import { TrendingUp, Users, DollarSign, Clock, Star } from 'lucide-react';
 
 const SuccessStories = () => {
+  const [expandedStory, setExpandedStory] = useState(null);
+
   const stories = [
     {
       company: "Abhinandhana Avenues",
       location: "Hyderabad",
       logo: "🏢",
-      results: {
-        growth: "Better tracking",
-        revenue: "Multi-project",
-        time: "Time saved",
-        rating: 5
-      },
-      quote: "RETOERP helped us manage our real estate operations more efficiently. The dashboard gives us better visibility and the system is easy to use.",
+      color: "blue",
+      results: ["Better Tracking", "Multi-project", "Time Saved"],
+      shortQuote: "RETOERP helped us manage operations more efficiently.",
+      fullQuote: "RETOERP helped us manage our real estate operations more efficiently. The dashboard gives us better visibility and the system is easy to use.",
       person: "Managing Director",
-      designation: "Abhinandhana Avenues"
+      rating: 5
     },
     {
       company: "BRR GROUP",
       location: "Telangana",
       logo: "🏗️",
-      results: {
-        growth: "Automated",
-        revenue: "Website inquiries",
-        time: "Saves time",
-        rating: 5
-      },
-      quote: "The payment tracking and reporting features are helpful. Website integration brings regular inquiries. Overall a useful system for our needs.",
+      color: "green",
+      results: ["Automated", "Website Inquiries", "Saves Time"],
+      shortQuote: "Payment tracking and reporting features are helpful.",
+      fullQuote: "The payment tracking and reporting features are helpful. Website integration brings regular inquiries. Overall a useful system for our needs.",
       person: "Founder & CEO",
-      designation: "BRR GROUP"
+      rating: 5
     },
     {
       company: "Sri Jayam Housing",
       location: "Vijayawada",
       logo: "🏠",
-      results: {
-        growth: "Improved",
-        revenue: "Good ROI",
-        time: "Easy to use",
-        rating: 5
-      },
-      quote: "Payment reminders and receipt generation features are very useful. The commission tracking helps avoid disputes. A practical solution for real estate management.",
+      color: "purple",
+      results: ["Improved", "Good ROI", "Easy to Use"],
+      shortQuote: "Payment reminders and commission tracking are useful.",
+      fullQuote: "Payment reminders and receipt generation features are very useful. The commission tracking helps avoid disputes. A practical solution for real estate management.",
       person: "Director",
-      designation: "Sri Jayam Housing"
+      rating: 5
     }
   ];
+
+  const colorClasses = {
+    blue: {
+      gradient: 'from-blue-500 to-blue-600',
+      bg: 'bg-blue-50',
+      text: 'text-blue-600',
+      border: 'border-blue-200'
+    },
+    green: {
+      gradient: 'from-green-500 to-green-600',
+      bg: 'bg-green-50',
+      text: 'text-green-600',
+      border: 'border-green-200'
+    },
+    purple: {
+      gradient: 'from-purple-500 to-purple-600',
+      bg: 'bg-purple-50',
+      text: 'text-purple-600',
+      border: 'border-purple-200'
+    }
+  };
 
   return (
     <section className="py-20 bg-gradient-to-br from-blue-50 to-cyan-50">
