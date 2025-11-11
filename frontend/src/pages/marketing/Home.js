@@ -1047,25 +1047,36 @@ const Home = () => {
             {/* Email Subscription */}
             <div className="max-w-md mx-auto">
               <h3 className="text-xl mb-4">Get Real Estate Tips & Updates</h3>
-              <form onSubmit={handleEmailSubscribe} className="flex gap-2">
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your email"
-                  required
-                  className="flex-1 px-4 py-3 rounded-lg bg-white/20 backdrop-blur-sm border border-white/30 text-white placeholder-white/70 focus:outline-none focus:border-white"
-                />
-                <button 
-                  type="submit"
-                  className="px-6 py-3 bg-white text-blue-600 font-semibold rounded-lg hover:bg-gray-100 transition-all"
-                >
-                  Subscribe
-                </button>
+              <form onSubmit={handleEmailSubscribe}>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      setSubscribeError('');
+                    }}
+                    placeholder="Enter your email"
+                    className="flex-1 px-4 py-3 rounded-lg bg-white/20 backdrop-blur-sm border border-white/30 text-white placeholder-white/70 focus:outline-none focus:border-white"
+                  />
+                  <button 
+                    type="submit"
+                    className="px-6 py-3 bg-white text-blue-600 font-semibold rounded-lg hover:bg-gray-100 transition-all whitespace-nowrap"
+                  >
+                    Subscribe
+                  </button>
+                </div>
+                {subscribeError && (
+                  <div className="mt-2 px-4 py-2 bg-red-100 border border-red-300 rounded-lg">
+                    <p className="text-red-700 text-sm">{subscribeError}</p>
+                  </div>
+                )}
+                {subscribed && (
+                  <div className="mt-2 px-4 py-2 bg-green-100 border border-green-300 rounded-lg">
+                    <p className="text-green-700 text-sm">✓ Thank you! You're subscribed to our newsletter.</p>
+                  </div>
+                )}
               </form>
-              {subscribed && (
-                <p className="text-green-200 mt-2">Thank you! You're subscribed to our newsletter.</p>
-              )}
             </div>
           </div>
         </div>
