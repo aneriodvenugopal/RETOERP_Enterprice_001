@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends, UploadFile, File
+from fastapi import APIRouter, HTTPException, Depends, UploadFile, File, BackgroundTasks
 from typing import List, Optional
 from datetime import datetime, timezone
 import os
@@ -13,6 +13,12 @@ from services.razorpay_service import razorpay_service
 from middleware.auth import get_current_user
 
 router = APIRouter()
+
+# Import commission calculation function
+async def trigger_commission_calculation(payment_id: str):
+    """Trigger commission calculation for a completed payment"""
+    from routes.commission_management import calculate_commissions_for_payment
+    await calculate_commissions_for_payment(payment_id)
 
 # Database connection
 MONGO_URL = os.getenv('MONGO_URL')
