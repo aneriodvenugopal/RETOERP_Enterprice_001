@@ -287,6 +287,9 @@ async def create_manual_payment(
                         }
                     }
                 )
+        
+        # Trigger commission calculation in background (only for non-cheque)
+        background_tasks.add_task(trigger_commission_calculation, payment_id)
     
     return {
         "success": True,
