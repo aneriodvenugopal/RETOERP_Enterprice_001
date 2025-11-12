@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Enhance RETOERP with the following improvements: (1) Replace WhatsApp chat icon with RETOERP speaking assistant chatbot on ALL pages, (2) Fix fake testimonials in SuccessStories component with real client data, (3) Add video demo section with 'Coming Soon' placeholder, (4) Add pricing hint section with 3-tier pricing table, (5) Add support & feature request section with '3 months free support' info, (6) Enhance SaaS admin dashboard with better BI graphs, charts, and real estate-focused metrics."
+user_problem_statement: "Build comprehensive Payment System for RETOERP with: (1) Payment Receive Module - Customers paying via Razorpay (UPI, Cards, Net Banking) + Manual entry (NEFT, Cheque, Cash), (2) Payment Schemes - 12M, 18M, 24M, Custom with dynamic fields, (3) Multi-property & Multi-project payments, (4) Commission Management System - Hierarchical staff structure with gap commissions, project-wise and category-wise commission configuration, (5) Payment Transfer Module - Agent commission payouts with TDS calculation, (6) Multi-currency support (INR, USD, EUR, GBP, AED, SGD), (7) Master Categories - Residential/Commercial/Industrial/Agricultural with proper subcategories"
 
 backend:
   - task: "Public APIs for Tenant and Project landing pages"
