@@ -188,6 +188,7 @@ async def verify_razorpay_payment(
 @router.post("/manual", response_model=dict)
 async def create_manual_payment(
     payment: CustomerPaymentCreate,
+    background_tasks: BackgroundTasks,
     current_user: dict = Depends(get_current_user)
 ):
     """Create manual payment entry (NEFT, Cheque, Cash, etc.)"""
