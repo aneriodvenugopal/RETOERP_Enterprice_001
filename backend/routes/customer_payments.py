@@ -303,6 +303,7 @@ async def create_manual_payment(
 @router.post("/cheque/{payment_id}/clear", response_model=dict)
 async def clear_cheque_payment(
     payment_id: str,
+    background_tasks: BackgroundTasks,
     current_user: dict = Depends(get_current_user)
 ):
     """Mark cheque payment as cleared"""
