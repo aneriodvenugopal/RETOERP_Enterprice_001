@@ -15,21 +15,34 @@ root.render(
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
     try {
-      // First, unregister any old service workers from different domains
+      // First, unregister ALL old service workers completely
       const registrations = await navigator.serviceWorker.getRegistrations();
-      const currentOrigin = window.location.origin;
       
-      for (const registration of registrations) {
-        // If service worker is from a different domain (like old emergent domain), unregister it
-        if (registration.scope && !registration.scope.startsWith(currentOrigin)) {
-          console.log('Unregistering old service worker from different domain:', registration.scope);
+      if (registrations.length > 0) {
+        console.log(`Found ${registrations.length} old service worker(s), unregistering...`);
+        for (const registration of registrations) {
           await registration.unregister();
+          console.log('Unregistered old service worker:', registration.scope);
         }
+        
+        // Clear all caches
+        const cacheNames = await caches.keys();
+        for (const cacheName of cacheNames) {
+          await caches.delete(cacheName);
+          console.log('Deleted cache:', cacheName);
+        }
+        
+        // Wait a bit for cleanup
+        await new Promise(resolve => setTimeout(resolve, 1000));
       }
       
       // Now register the new service worker
-      const registration = await navigator.serviceWorker.register('/service-worker.js');
-      console.log('Service Worker registered successfully:', registration.scope);
+      const registration = await navigator.serviceWorker.register('/service-worker.js', {
+        scope: '/',
+        updateViaCache: 'none' // Don't use HTTP cache for service worker
+      });
+      
+      console.log('✅ Service Worker registered successfully:', registration.scope);
       
       // Check for updates periodically
       setInterval(() => {
@@ -39,8 +52,11 @@ if ('serviceWorker' in navigator) {
       // Handle updates
       registration.addEventListener('updatefound', () => {
         const newWorker = registration.installing;
+        console.log('Service Worker update found');
+        
         newWorker.addEventListener('statechange', () => {
           if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            console.log('New Service Worker installed');
             // New service worker available, prompt user to refresh
             if (confirm('New version available! Reload to update?')) {
               newWorker.postMessage({ type: 'SKIP_WAITING' });
@@ -50,8 +66,28 @@ if ('serviceWorker' in navigator) {
         });
       });
     } catch (error) {
-      console.log('Service Worker registration failed:', error);
-      // Don't show error to user, just log it
+      console.error('❌ Service Worker registration failed:', error);
+      // If registration fails, try clearing everything and reload once
+      if (!sessionStorage.getItem('sw_cleared')) {
+        sessionStorage.setItem('sw_cleared', 'true');
+        console.log('Clearing all service workers and reloading...');
+        
+        try {
+          const registrations = await navigator.serviceWorker.getRegistrations();
+          for (const registration of registrations) {
+            await registration.unregister();
+          }
+          
+          const cacheNames = await caches.keys();
+          for (const cacheName of cacheNames) {
+            await caches.delete(cacheName);
+          }
+          
+          window.location.reload();
+        } catch (clearError) {
+          console.error('Failed to clear service workers:', clearError);
+        }
+      }
     }
   });
   
@@ -60,6 +96,7 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if (!refreshing) {
       refreshing = true;
+      console.log('Service Worker controller changed, reloading...');
       window.location.reload();
     }
   });
