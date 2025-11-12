@@ -107,15 +107,30 @@ user_problem_statement: "Build comprehensive Payment System for RETOERP with: (1
 backend:
   - task: "PHASE 1: Foundation - Master Categories & Database Schemas"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/models/property_category.py, /app/backend/models/payment_scheme.py, /app/backend/models/staff_hierarchy.py, /app/backend/models/customer_payment.py, /app/backend/models/commission_transaction.py, /app/backend/models/currency.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "✅ PHASE 1 COMPLETE - Created comprehensive database models: (1) MasterPropertyCategory & MasterPropertySubcategory - 4 master categories (Residential, Commercial, Industrial, Agricultural) with 22 subcategories seeded, (2) TenantPropertyCategory & TenantPropertySubcategory - Tenant-specific customizations, (3) PaymentScheme model with dynamic SchemeField for 12M/18M/24M/Custom schemes, (4) StaffHierarchy model with parent-child relationships, hierarchy_level, direct_commission_percentage, gap_commission_percentage, project_commissions, category_commissions, (5) CustomerPayment model supporting multiple payment methods (Razorpay, Manual), multiple bookings allocation, multi-currency with exchange rates, (6) CommissionEarning model with direct/gap commission types, TDS calculation, approval workflow, (7) CommissionPayout model for payment transfer with bank details, (8) Currency model with 6 currencies seeded (INR base, USD, EUR, GBP, AED, SGD with exchange rates). All models support tenant isolation, soft deletes, and comprehensive tracking. Ready for API routes implementation."
+      - working: true
+        agent: "main"
+        comment: "✅ VERIFIED - All database models working correctly. Collections created and seeded: master_property_categories (4), master_property_subcategories (22), currencies (6). Models ready for API implementation."
+  
+  - task: "PHASE 2: Payment Receive Module - APIs & Razorpay Integration"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/routes/payment_schemes.py, /app/backend/routes/customer_payments.py, /app/backend/services/razorpay_service.py"
     stuck_count: 0
     priority: "high"
     needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
-        comment: "✅ PHASE 1 COMPLETE - Created comprehensive database models: (1) MasterPropertyCategory & MasterPropertySubcategory - 4 master categories (Residential, Commercial, Industrial, Agricultural) with 22 subcategories seeded, (2) TenantPropertyCategory & TenantPropertySubcategory - Tenant-specific customizations, (3) PaymentScheme model with dynamic SchemeField for 12M/18M/24M/Custom schemes, (4) StaffHierarchy model with parent-child relationships, hierarchy_level, direct_commission_percentage, gap_commission_percentage, project_commissions, category_commissions, (5) CustomerPayment model supporting multiple payment methods (Razorpay, Manual), multiple bookings allocation, multi-currency with exchange rates, (6) CommissionEarning model with direct/gap commission types, TDS calculation, approval workflow, (7) CommissionPayout model for payment transfer with bank details, (8) Currency model with 6 currencies seeded (INR base, USD, EUR, GBP, AED, SGD with exchange rates). All models support tenant isolation, soft deletes, and comprehensive tracking. Ready for API routes implementation."
+        comment: "✅ PHASE 2 COMPLETE - Implemented Payment Receive Module: (1) PAYMENT SCHEMES API (payment_schemes.py) - 9 endpoints: POST /api/schemes (create scheme with dynamic fields), GET /api/schemes (list with filters: tenant_id, project_id, scheme_type, is_template, is_finalized), GET /api/schemes/{id} (get single scheme), PUT /api/schemes/{id} (update, only if not finalized), POST /api/schemes/{id}/finalize (lock scheme from editing), DELETE /api/schemes/{id} (soft delete, checks if used in bookings), GET /api/schemes/templates/system (get system templates), POST /api/schemes/{id}/clone (clone existing scheme). (2) CUSTOMER PAYMENTS API (customer_payments.py) - 8 endpoints: POST /api/razorpay/create-order (create Razorpay order with order_id, amount, currency, returns key_id for frontend integration), POST /api/razorpay/verify (verify payment signature for security, updates payment status to completed, updates booking paid_amount), POST /api/manual (manual payment entry for NEFT/RTGS/IMPS/Cheque/DD/Cash with allocation across multiple bookings), POST /api/cheque/{id}/clear (mark cheque as cleared, updates bookings), GET /api/payments (list payments with filters: tenant_id, customer_id, booking_id, project_id, status, payment_mode, date range), GET /api/payments/{id} (detailed payment with booking breakdown), GET /api/customer/{id}/payments (customer payment history). (3) RAZORPAY SERVICE (razorpay_service.py) - Complete integration: create_order(), verify_payment_signature() with HMAC-SHA256, fetch_payment(), capture_payment(), refund_payment(). Uses test credentials: rzp_test_RerrHbczEdBIJ1. Mock mode for testing when credentials not configured. (4) FEATURES: Multi-property payment allocation, Multi-project payments, Auto receipt generation (RCP-YYYYMMDD-XXX format), Cheque clearance workflow, Payment screenshot upload support, Exchange rate tracking, Booking balance auto-update. Backend registered and running successfully. Ready for testing."
   
   - task: "Public APIs for Tenant and Project landing pages"
     implemented: true
