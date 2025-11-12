@@ -11,8 +11,8 @@ root.render(
   </React.StrictMode>,
 );
 
-// Register Service Worker for PWA
-if ('serviceWorker' in navigator) {
+// Register Service Worker for PWA (Disabled in preview/development)
+if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
   window.addEventListener('load', async () => {
     try {
       // First, unregister ALL old service workers completely
@@ -67,27 +67,6 @@ if ('serviceWorker' in navigator) {
       });
     } catch (error) {
       console.error('❌ Service Worker registration failed:', error);
-      // If registration fails, try clearing everything and reload once
-      if (!sessionStorage.getItem('sw_cleared')) {
-        sessionStorage.setItem('sw_cleared', 'true');
-        console.log('Clearing all service workers and reloading...');
-        
-        try {
-          const registrations = await navigator.serviceWorker.getRegistrations();
-          for (const registration of registrations) {
-            await registration.unregister();
-          }
-          
-          const cacheNames = await caches.keys();
-          for (const cacheName of cacheNames) {
-            await caches.delete(cacheName);
-          }
-          
-          window.location.reload();
-        } catch (clearError) {
-          console.error('Failed to clear service workers:', clearError);
-        }
-      }
     }
   });
   
@@ -98,6 +77,29 @@ if ('serviceWorker' in navigator) {
       refreshing = true;
       console.log('Service Worker controller changed, reloading...');
       window.location.reload();
+    }
+  });
+} else if ('serviceWorker' in navigator) {
+  // In development/preview, just clean up any existing service workers
+  window.addEventListener('load', async () => {
+    try {
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      if (registrations.length > 0) {
+        console.log('🧹 Cleaning up service workers in development mode...');
+        for (const registration of registrations) {
+          await registration.unregister();
+          console.log('✅ Unregistered:', registration.scope);
+        }
+        
+        // Clear all caches
+        const cacheNames = await caches.keys();
+        for (const cacheName of cacheNames) {
+          await caches.delete(cacheName);
+        }
+        console.log('✅ Service workers and caches cleaned up');
+      }
+    } catch (error) {
+      console.log('Service worker cleanup failed:', error);
     }
   });
 }
