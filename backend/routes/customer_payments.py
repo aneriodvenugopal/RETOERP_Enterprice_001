@@ -112,6 +112,7 @@ async def create_razorpay_order(
 @router.post("/razorpay/verify", response_model=dict)
 async def verify_razorpay_payment(
     verification: RazorpayPaymentVerify,
+    background_tasks: BackgroundTasks,
     current_user: dict = Depends(get_current_user)
 ):
     """Verify Razorpay payment after successful payment"""
