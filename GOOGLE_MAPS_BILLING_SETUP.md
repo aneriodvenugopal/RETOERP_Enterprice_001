@@ -48,7 +48,7 @@ This watermark appears when Google Maps API billing is not properly configured.
    - Select "HTTP referrers (websites)"
    - Add your domains:
      ```
-     https://retoerp-marketing.preview.emergentagent.com/*
+     https://realty-manager-app-1.preview.emergentagent.com/*
      http://localhost:3000/*
      ```
 

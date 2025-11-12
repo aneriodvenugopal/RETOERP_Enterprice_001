@@ -184,7 +184,7 @@
 
    **మొదటి referrer:**
    ```
-   https://retoerp-marketing.preview.emergentagent.com/*
+   https://realty-manager-app-1.preview.emergentagent.com/*
    ```
    - Paste చేసి Enter నొక్కండి
 

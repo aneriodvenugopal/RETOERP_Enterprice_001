@@ -47,7 +47,7 @@
         tenantId: tenantId,
         position: position,
         primaryColor: primaryColor,
-        backendUrl: 'https://retoerp-marketing.preview.emergentagent.com/api'
+        backendUrl: 'https://realty-manager-app-1.preview.emergentagent.com/api'
       };
       
       // Load chat widget bundle

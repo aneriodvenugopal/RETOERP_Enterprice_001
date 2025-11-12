@@ -270,7 +270,7 @@ Starting **March 1, 2025**, Google introduced **massive discounts for India**:
    - Select **"HTTP referrers (websites)"**
 3. Add these referrers:
    ```
-   https://retoerp-marketing.preview.emergentagent.com/*
+   https://realty-manager-app-1.preview.emergentagent.com/*
    https://yourdomain.com/*
    http://localhost:3000/*
    ```
@@ -338,7 +338,7 @@ Wait 10-15 seconds for restart.
 
 ### **Step 8: Test the Map**
 
-1. Open IncomeLands app: https://retoerp-marketing.preview.emergentagent.com/incomelands
+1. Open IncomeLands app: https://realty-manager-app-1.preview.emergentagent.com/incomelands
 2. Click on **"Map View"** tab
 3. You should see Google Map loading
 4. Check browser console (F12) for errors
