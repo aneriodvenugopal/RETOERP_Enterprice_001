@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 import uuid
 
 # Import routes
-from routes import auth, tenants, currencies, categories, projects, properties, leads, bookings, commissions, analytics, notifications, users, scheduler, customer, layouts, layouts_library, in_app_notifications, referrals, translations, content, advisory, admin_content, share_referral, resale, saas_admin, chatbot, public_pages, marketplace, incomelands, incomelands_auth, google_auth, calendar_integration, workforce, project_dashboard, marketing_dashboard
+from routes import auth, tenants, currencies, categories, projects, properties, leads, bookings, commissions, analytics, notifications, users, scheduler, customer, layouts, layouts_library, in_app_notifications, referrals, translations, content, advisory, admin_content, share_referral, resale, saas_admin, chatbot, public_pages, marketplace, incomelands, incomelands_auth, google_auth, calendar_integration, workforce, project_dashboard, marketing_dashboard, payment_schemes, customer_payments
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
