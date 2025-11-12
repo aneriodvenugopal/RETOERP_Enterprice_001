@@ -174,6 +174,9 @@ async def verify_razorpay_payment(
                 }
             )
     
+    # Trigger commission calculation in background
+    background_tasks.add_task(trigger_commission_calculation, payment["id"])
+    
     return {
         "success": True,
         "message": "Payment verified successfully",
