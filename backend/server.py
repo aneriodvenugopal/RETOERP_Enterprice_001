@@ -79,6 +79,7 @@ api_router.include_router(staff_hierarchy.router)
 api_router.include_router(commission_management.router)
 api_router.include_router(property_categories.router)
 api_router.include_router(currency_management.router)
+api_router.include_router(usage_tracking.router)
 
 # PWA Install tracking
 @api_router.post("/analytics/pwa-install")
