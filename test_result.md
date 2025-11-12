@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Build comprehensive Payment System for RETOERP with: (1) Payment Receive Module - Customers paying via Razorpay (UPI, Cards, Net Banking) + Manual entry (NEFT, Cheque, Cash), (2) Payment Schemes - 12M, 18M, 24M, Custom with dynamic fields, (3) Multi-property & Multi-project payments, (4) Commission Management System - Hierarchical staff structure with gap commissions, project-wise and category-wise commission configuration, (5) Payment Transfer Module - Agent commission payouts with TDS calculation, (6) Multi-currency support (INR, USD, EUR, GBP, AED, SGD), (7) Master Categories - Residential/Commercial/Industrial/Agricultural with proper subcategories"
+user_problem_statement: "Build comprehensive Payment System for RETOERP with: (1) Payment Receive Module - Customers paying via Razorpay (UPI, Cards, Net Banking) + Manual entry (NEFT, Cheque, Cash), (2) Payment Schemes - 12M, 18M, 24M, Custom with dynamic fields, (3) Multi-property & Multi-project payments, (4) Commission Management System - Hierarchical staff structure with gap commissions, project-wise and category-wise commission configuration, (5) Payment Transfer Module - Agent commission payouts with TDS calculation, (6) Multi-currency support (INR, USD, EUR, GBP, AED, SGD), (7) Master Categories - Residential/Commercial/Industrial/Agricultural with proper subcategories, (8) SaaS Usage Tracking & Limit Enforcement with alerts"
 
 backend:
   - task: "PHASE 1: Foundation - Master Categories & Database Schemas"
