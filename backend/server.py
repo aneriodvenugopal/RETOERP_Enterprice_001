@@ -75,6 +75,8 @@ api_router.include_router(project_dashboard.router)
 api_router.include_router(marketing_dashboard.router)
 api_router.include_router(payment_schemes.router)
 api_router.include_router(customer_payments.router)
+api_router.include_router(staff_hierarchy.router)
+api_router.include_router(commission_management.router)
 
 # PWA Install tracking
 @api_router.post("/analytics/pwa-install")
