@@ -352,6 +352,9 @@ async def clear_cheque_payment(
                 }
             )
     
+    # Trigger commission calculation after cheque clearance
+    background_tasks.add_task(trigger_commission_calculation, payment_id)
+    
     return {
         "success": True,
         "message": "Cheque cleared successfully",
