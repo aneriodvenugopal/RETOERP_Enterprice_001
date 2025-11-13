@@ -9,12 +9,14 @@ const WorkforceManagement = () => {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(false);
   const [scrapeForm, setScrapeForm] = useState({
-    skill_type: '',
+    skill_type: 'all', // Changed to 'all' by default
     location: '',
     limit: 10
   });
   const [skillTypes, setSkillTypes] = useState([]);
   const [scraping, setScraping] = useState(false);
+  const locationInputRef = React.useRef(null);
+  const autocompleteRef = React.useRef(null);
 
   useEffect(() => {
     fetchData();
