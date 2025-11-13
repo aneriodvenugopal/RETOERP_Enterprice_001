@@ -381,11 +381,18 @@ async def trigger_ai_scrape(
                             "approved_by": current_user.get("id")
                         }
                         
-                        # Check for duplicates
-                        existing = await db.workforce_workers.find_one({"phone": worker.get("phone")})
+                        # Check for duplicates by phone number
+                        existing = await db.workforce_workers.find_one({
+                            "phone": worker.get("phone"),
+                            "deleted_at": None
+                        })
+                        
                         if not existing:
                             await db.workforce_workers.insert_one(worker)
                             total_workers_added += 1
+                            print(f"[FREE SCRAPER] Added new worker: {worker.get('name')} - {worker.get('phone')}")
+                        else:
+                            print(f"[FREE SCRAPER] Skipped duplicate: {worker.get('phone')}")
                     
                     print(f"[FREE SCRAPER] Added {len(workers_data)} {skill} workers - NO CREDITS USED")
                 
