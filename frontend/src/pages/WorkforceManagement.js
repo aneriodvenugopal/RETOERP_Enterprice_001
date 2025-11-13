@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { CheckCircle, XCircle, Trash2, Edit, Users, MapPin, TrendingUp, RefreshCw } from 'lucide-react';
+import { CheckCircle, XCircle, Trash2, Edit, Users, MapPin, TrendingUp, RefreshCw, X, Phone, MessageCircle, Search, Briefcase, Calendar } from 'lucide-react';
 import axios from 'axios';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
@@ -17,6 +17,13 @@ const WorkforceManagement = () => {
   const [scraping, setScraping] = useState(false);
   const locationInputRef = React.useRef(null);
   const autocompleteRef = React.useRef(null);
+  
+  // Modal state
+  const [showModal, setShowModal] = useState(false);
+  const [modalWorkers, setModalWorkers] = useState([]);
+  const [modalTitle, setModalTitle] = useState('');
+  const [modalLoading, setModalLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     fetchData();
