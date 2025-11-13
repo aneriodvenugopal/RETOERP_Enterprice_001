@@ -387,13 +387,13 @@ async def trigger_ai_scrape(
                             await db.workforce_workers.insert_one(worker)
                             total_workers_added += 1
                     
-                    print(f"[AI SCRAPER] Added {len(workers_data)} {skill} workers")
+                    print(f"[FREE SCRAPER] Added {len(workers_data)} {skill} workers - NO CREDITS USED")
                 
                 except Exception as skill_error:
-                    print(f"[AI SCRAPER] Error scraping {skill}: {str(skill_error)}")
+                    print(f"[FREE SCRAPER] Error scraping {skill}: {str(skill_error)}")
                     continue
             
-            print(f"[AI SCRAPER] Successfully scraped and saved {total_workers_added} workers total")
+            print(f"[FREE SCRAPER] Successfully scraped and saved {total_workers_added} workers total - 100% FREE!")
         
         except Exception as e:
             print(f"[AI SCRAPER ERROR] {str(e)}")
