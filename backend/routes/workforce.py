@@ -348,17 +348,18 @@ async def trigger_ai_scrape(
             # Determine which skills to scrape
             if skill_type.lower() == 'all':
                 skills_to_scrape = all_skills
-                print(f"[AI SCRAPER] Scraping ALL skill types in {location}")
+                print(f"[FREE SCRAPER] Scraping ALL skill types in {location} - 100% FREE")
             else:
                 skills_to_scrape = [skill_type]
-                print(f"[AI SCRAPER] Scraping {skill_type} in {location}")
+                print(f"[FREE SCRAPER] Scraping {skill_type} in {location} - 100% FREE")
             
             total_workers_added = 0
             
-            # Scrape for each skill type
+            # Scrape for each skill type using FREE scraper (no credits used)
             for skill in skills_to_scrape:
                 try:
-                    workers_data = await workforce_scraper.scrape_workers_from_search(
+                    # Use FREE scraper instead of AI - NO CREDITS CONSUMED
+                    workers_data = free_scraper.scrape_workers(
                         skill_type=skill,
                         location=location,
                         limit=limit
