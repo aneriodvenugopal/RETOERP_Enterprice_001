@@ -153,6 +153,49 @@ const WorkforceManagement = () => {
     }
   };
 
+  const fetchWorkersBySkill = async (skill) => {
+    setModalLoading(true);
+    setShowModal(true);
+    setModalTitle(`${skill} Workers`);
+    setSearchTerm('');
+    
+    try {
+      const response = await axios.get(`${BACKEND_URL}/api/workforce/search?skill_type=${skill}&limit=500`);
+      setModalWorkers(response.data);
+    } catch (error) {
+      console.error('Error fetching workers by skill:', error);
+      alert('Failed to load workers');
+      setShowModal(false);
+    } finally {
+      setModalLoading(false);
+    }
+  };
+
+  const fetchWorkersByCity = async (city) => {
+    setModalLoading(true);
+    setShowModal(true);
+    setModalTitle(`Workers in ${city}`);
+    setSearchTerm('');
+    
+    try {
+      const response = await axios.get(`${BACKEND_URL}/api/workforce/search?city=${encodeURIComponent(city)}&limit=500`);
+      setModalWorkers(response.data);
+    } catch (error) {
+      console.error('Error fetching workers by city:', error);
+      alert('Failed to load workers');
+      setShowModal(false);
+    } finally {
+      setModalLoading(false);
+    }
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+    setModalWorkers([]);
+    setModalTitle('');
+    setSearchTerm('');
+  };
+
   const handleAIScrape = async (e) => {
     e.preventDefault();
     
