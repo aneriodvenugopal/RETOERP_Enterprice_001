@@ -84,12 +84,16 @@ async def search_workforce(
             worker_lng = worker["location"]["lng"]
             distance = calculate_distance(lat, lng, worker_lat, worker_lng)
             
+            print(f"DEBUG: Worker {worker['name']} at ({worker_lat}, {worker_lng}) - Distance: {distance} km")
+            
             if distance <= radius_km:
                 worker["distance_km"] = round(distance, 2)
                 filtered_workers.append(worker)
+                print(f"DEBUG: Added worker with distance_km: {worker.get('distance_km')}")
         
         # Sort by distance
         filtered_workers.sort(key=lambda x: x.get("distance_km", 999))
+        print(f"DEBUG: Returning {len(filtered_workers)} workers with geo-filtering")
         # Return raw data with distance_km field for geo-filtered results
         return filtered_workers
     
