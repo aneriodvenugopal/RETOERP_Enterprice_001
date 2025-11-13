@@ -90,7 +90,8 @@ async def search_workforce(
         
         # Sort by distance
         filtered_workers.sort(key=lambda x: x.get("distance_km", 999))
-        return [WorkforceWorker(**w) for w in filtered_workers]
+        # Return raw data with distance_km field for geo-filtered results
+        return filtered_workers
     
     return [WorkforceWorker(**w) for w in workers]
 
