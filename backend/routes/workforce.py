@@ -396,7 +396,7 @@ async def trigger_ai_scrape(
             print(f"[FREE SCRAPER] Successfully scraped and saved {total_workers_added} workers total - 100% FREE!")
         
         except Exception as e:
-            print(f"[AI SCRAPER ERROR] {str(e)}")
+            print(f"[FREE SCRAPER ERROR] {str(e)}")
     
     # Run in background
     background_tasks.add_task(scrape_and_save)
