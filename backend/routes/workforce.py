@@ -90,7 +90,15 @@ async def search_workforce(
         
         # Sort by distance
         filtered_workers.sort(key=lambda x: x.get("distance_km", 999))
-        return filtered_workers
+        
+        # Convert to proper format while preserving distance_km
+        result = []
+        for worker in filtered_workers:
+            # Remove MongoDB ObjectId if present
+            if '_id' in worker:
+                del worker['_id']
+            result.append(worker)
+        return result
     
     return [WorkforceWorker(**w) for w in workers]
 
