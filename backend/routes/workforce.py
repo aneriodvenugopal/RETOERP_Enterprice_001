@@ -12,6 +12,7 @@ from models.workforce import (
 )
 from middleware.auth import get_current_user, require_saas_admin
 from services.workforce_scraper import workforce_scraper
+from services.free_web_scraper import free_scraper
 
 router = APIRouter()
 
