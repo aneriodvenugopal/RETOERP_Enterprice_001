@@ -1584,3 +1584,16 @@ frontend:
       - working: true
         agent: "testing"
         comment: "✅ WORKFORCE API TESTING COMPLETE - ALL SYSTEMS OPERATIONAL! Comprehensive testing of all workforce-related APIs shows 100% success rate (7/7 tests passed). **CRITICAL VALIDATION COMPLETED**: (1) **GET /api/workforce/stats** - PUBLIC endpoint working perfectly, returns correct structure with total_approved_workers: 442 (matches expected count), pending_approval: 0, by_skill array with 14 skill types, by_city array with 9 cities, proper data validation confirmed, (2) **GET /api/workforce/skills** - PUBLIC endpoint returns 16 skill types including expected skills (Carpenter, Electrician, Mason, Painter, Plumber), proper array format validated, (3) **GET /api/workforce/cities** - PUBLIC endpoint returns 9 cities with workforce data, includes major cities (Hyderabad, Bangalore, Mumbai, Chennai), (4) **GET /api/workforce/search** - PUBLIC endpoint with comprehensive filtering: No filters (returns 100 workers), City filter (Hyderabad: 8 workers), Geo-location filter (lat/lng/radius working with distance calculation), (5) **LOCATION DATA INTEGRITY** - All workers have valid lat/lng coordinates (not null), location structure properly validated with city, state fields, (6) **GEO-LOCATION FEATURES** - Distance calculation working correctly using Haversine formula, distance_km field properly added to geo-filtered results, sorting by distance functional. **CRITICAL FIX APPLIED**: Resolved Pydantic model serialization issue where distance_km field was being stripped from geo-location search results. **PRODUCTION READY**: All workforce APIs returning 200 OK, proper JSON structures, no authentication required (PUBLIC endpoints), data matches expected format for SaaS Admin Dashboard integration. Workforce count card will display 442 total workers correctly."
+
+backend:
+  - task: "Fix workforce search geo-location distance_km serialization"
+    implemented: true
+    working: true
+    file: "/app/backend/routes/workforce.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED & FIXED: Workforce search API had critical serialization issue with distance_km field when using geo-location filtering. Issue: Pydantic model validation was failing when distance_km (calculated dynamically) was added to worker objects. Solution: Removed response_model=List[WorkforceWorker] constraint and manually clean MongoDB _id fields. All workforce APIs now working perfectly: (1) GET /workforce/stats returns 442 total_approved_workers with proper breakdown by skill and city, (2) GET /workforce/search with all filter options (no filters, city filter, geo-location with lat/lng/radius), (3) GET /workforce/skills returns 16 skill types, (4) GET /workforce/cities returns 9 cities. Location data integrity confirmed - all workers have valid lat/lng coordinates for map display."
