@@ -469,9 +469,14 @@ const WorkforceManagement = () => {
             <h2 className="text-xl font-bold text-gray-900 mb-4">Workers by Skill Type</h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {stats.by_skill.map(item => (
-                <div key={item.skill} className="border rounded-lg p-4">
-                  <p className="text-sm text-gray-600">{item.skill}</p>
+                <div 
+                  key={item.skill} 
+                  onClick={() => fetchWorkersBySkill(item.skill)}
+                  className="border rounded-lg p-4 cursor-pointer hover:shadow-lg hover:border-blue-400 hover:scale-105 transition-all duration-200 group"
+                >
+                  <p className="text-sm text-gray-600 group-hover:text-blue-600 transition-colors">{item.skill}</p>
                   <p className="text-2xl font-bold text-blue-600">{item.count}</p>
+                  <p className="text-xs text-gray-400 mt-1 group-hover:text-blue-500">Click to view contacts →</p>
                 </div>
               ))}
             </div>
@@ -484,9 +489,14 @@ const WorkforceManagement = () => {
             <h2 className="text-xl font-bold text-gray-900 mb-4">Top Cities</h2>
             <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
               {stats.by_city.map(item => (
-                <div key={item.city} className="border rounded-lg p-4">
-                  <p className="text-sm text-gray-600">{item.city}</p>
+                <div 
+                  key={item.city} 
+                  onClick={() => fetchWorkersByCity(item.city)}
+                  className="border rounded-lg p-4 cursor-pointer hover:shadow-lg hover:border-green-400 hover:scale-105 transition-all duration-200 group"
+                >
+                  <p className="text-sm text-gray-600 group-hover:text-green-600 transition-colors">{item.city}</p>
                   <p className="text-2xl font-bold text-green-600">{item.count}</p>
+                  <p className="text-xs text-gray-400 mt-1 group-hover:text-green-500">Click to view contacts →</p>
                 </div>
               ))}
             </div>
