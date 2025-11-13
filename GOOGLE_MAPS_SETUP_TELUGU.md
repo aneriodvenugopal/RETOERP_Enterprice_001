@@ -184,7 +184,7 @@
 
    **మొదటి referrer:**
    ```
-   https://realty-manager-app-1.preview.emergentagent.com/*
+   https://agent-commission-5.preview.emergentagent.com/*
    ```
    - Paste చేసి Enter నొక్కండి
 
