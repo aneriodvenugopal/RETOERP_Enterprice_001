@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Backend API Testing for RETOERP - IncomeLands Authentication API Testing
-Tests the IncomeLands authentication endpoints including registration, OTP flow, login, and password management.
-Focus: Complete authentication flow validation
+Backend API Testing for RETOERP - Workforce API Testing
+Tests the workforce-related APIs including stats, search, skills, and cities endpoints.
+Focus: Workforce data retrieval and validation for SaaS Admin Dashboard
 """
 
 import requests
