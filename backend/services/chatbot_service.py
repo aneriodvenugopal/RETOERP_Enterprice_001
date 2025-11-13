@@ -63,55 +63,36 @@ Remember: You're here to help customers and capture quality leads for the sales 
                           conversation_history: List[Dict[str, str]] = None,
                           user_context: Optional[Dict] = None) -> str:
         """
-        Send message to AI and get response
+        Send message to AI and get response - 100% FREE VERSION
+        Uses rule-based responses (no credits consumed)
         
         Args:
             conversation_id: Unique conversation ID
             user_message: User's message text
-            conversation_history: Previous messages [{"role": "user"/"assistant", "content": "..."}]
+            conversation_history: Previous messages (kept for compatibility)
             user_context: Additional context (name, phone, interest, etc.)
         
         Returns:
-            AI assistant's response
+            AI assistant's response (FREE - no credits used)
         """
         try:
-            # Enhance system prompt with user context if available
-            enhanced_system_prompt = self.system_prompt
-            if user_context:
-                context_info = []
-                if user_context.get('name'):
-                    context_info.append(f"Customer name: {user_context['name']}")
-                if user_context.get('phone'):
-                    context_info.append(f"Phone: {user_context['phone']}")
-                if user_context.get('interest'):
-                    context_info.append(f"Interested in: {user_context['interest']}")
-                
-                if context_info:
-                    enhanced_system_prompt += "\n\nCustomer Context:\n" + "\n".join(context_info)
+            # Use 100% FREE AI chat service
+            # NO CREDITS CONSUMED, NO API CALLS
+            response = await free_ai_chat.chat(
+                message=user_message,
+                context=None  # Keep context minimal to stay free
+            )
             
-            # Initialize LLM chat
-            chat = LlmChat(
-                api_key=self.api_key,
-                session_id=conversation_id,
-                system_message=enhanced_system_prompt
-            ).with_model("openai", "gpt-5")
-            
-            # If we have conversation history, we need to manually build context
-            # Note: emergentintegrations manages session history internally,
-            # but we can prepend history if needed
-            
-            # Create user message
-            message = UserMessage(text=user_message)
-            
-            # Send message and get response
-            response = await chat.send_message(message)
+            # Add personalization if we have user context
+            if user_context and user_context.get('name'):
+                response = f"{user_context['name']}, {response}"
             
             return response
             
         except Exception as e:
-            print(f"Error in chatbot service: {str(e)}")
-            # Fallback response
-            return "I apologize, but I'm having trouble processing your message right now. Please try again in a moment, or feel free to contact our team directly."
+            print(f"[FREE CHAT] Error: {str(e)}")
+            # Simple fallback
+            return "I'm here to help! Please ask about properties, bookings, payments, or workers."
     
     
     def should_capture_lead(self, user_message: str, assistant_response: str) -> bool:
