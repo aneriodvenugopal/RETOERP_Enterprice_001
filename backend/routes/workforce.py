@@ -405,5 +405,5 @@ async def trigger_ai_scrape(
     
     return {
         "success": True,
-        "message": f"AI scraping initiated for {skills_message} in {location}. Workers will be added to database shortly. Check back in 1-2 minutes."
+        "message": f"✅ 100% FREE scraping initiated for {skills_message} in {location}. No credits used! Workers will be added to database shortly."
     }
