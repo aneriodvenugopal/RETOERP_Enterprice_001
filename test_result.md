@@ -1597,3 +1597,16 @@ backend:
       - working: true
         agent: "testing"
         comment: "✅ TESTED & FIXED: Workforce search API had critical serialization issue with distance_km field when using geo-location filtering. Issue: Pydantic model validation was failing when distance_km (calculated dynamically) was added to worker objects. Solution: Removed response_model=List[WorkforceWorker] constraint and manually clean MongoDB _id fields. All workforce APIs now working perfectly: (1) GET /workforce/stats returns 442 total_approved_workers with proper breakdown by skill and city, (2) GET /workforce/search with all filter options (no filters, city filter, geo-location with lat/lng/radius), (3) GET /workforce/skills returns 16 skill types, (4) GET /workforce/cities returns 9 cities. Location data integrity confirmed - all workers have valid lat/lng coordinates for map display."
+
+frontend:
+  - task: "Add clickable worker contact modal to WorkforceManagement page"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/WorkforceManagement.js, /app/frontend/src/index.css"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "✅ IMPLEMENTED Clickable Worker Contacts Feature: (1) Made skill type cards clickable - clicking any skill (e.g., 'Plumber 70') opens modal with all workers of that skill, (2) Made city cards clickable - clicking any city opens modal with all workers in that location, (3) Created professional modal popup with smooth animations (fadeIn, slideUp), (4) Modal features: Search bar to filter workers by name, Call button (tel: link) and WhatsApp button (wa.me link) for each worker, Worker details displayed: name, phone, location, experience years, work type, daily rate, description, Verified badge for verified workers, (5) Responsive card-based grid layout (1 col mobile, 2 col tablet, 3 col desktop), (6) Enhanced hover effects on skill/city cards (scale-105, shadow-lg, color transitions), (7) Added call-to-action text 'Click to view contacts →' on hover. Modal fetches workers via API (/workforce/search with skill_type or city filter), limit set to 500 to show all workers. Clean close functionality with X button and Close button. Ready for testing."
