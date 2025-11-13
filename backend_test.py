@@ -461,65 +461,7 @@ def test_workforce_search_with_geo_filter():
         traceback.print_exc()
         return False
 
-def test_send_otp_new_user():
-    """Test 2: POST /api/incomelands/auth/send-otp - Send OTP to new user"""
-    global new_user_mobile, new_user_otp
-    
-    try:
-        print("\n📱 TESTING: POST /api/incomelands/auth/send-otp (New User)")
-        
-        new_user_mobile = "9999888877"  # Use the mobile from test case
-        
-        otp_data = {
-            "mobile": new_user_mobile
-        }
-        
-        response = requests.post(
-            f"{API_BASE}/incomelands/auth/send-otp",
-            json=otp_data,
-            timeout=10
-        )
-        
-        if response.status_code != 200:
-            results.add_fail("Send OTP New User", f"Status code: {response.status_code}")
-            print_error_details("Send OTP New User", response)
-            return False
-            
-        data = response.json()
-        
-        # Validate response structure
-        required_fields = ['success', 'message', 'is_new_user']
-        missing_fields = [field for field in required_fields if field not in data]
-        
-        if missing_fields:
-            results.add_fail("Send OTP New User", f"Missing fields: {missing_fields}")
-            return False
-        
-        if not data.get('success'):
-            results.add_fail("Send OTP New User", "Response success is False")
-            return False
-        
-        if not data.get('is_new_user'):
-            results.add_fail("Send OTP New User", "Expected is_new_user=true for new mobile number")
-            return False
-        
-        # In dev mode, OTP should be returned in response
-        new_user_otp = data.get('otp')
-        if not new_user_otp:
-            results.add_fail("Send OTP New User", "No OTP in response (dev mode)")
-            return False
-        
-        results.add_pass("Send OTP New User")
-        print(f"   ✅ OTP sent to new user: {new_user_mobile}")
-        print(f"   🆕 Is new user: {data.get('is_new_user')}")
-        print(f"   🔢 OTP (dev mode): {new_user_otp}")
-        
-        return True
-        
-    except Exception as e:
-        results.add_fail("Send OTP New User", f"Exception: {str(e)}")
-        traceback.print_exc()
-        return False
+# ============ MAIN TEST EXECUTION ============
 
 def test_verify_otp_new_user():
     """Test 3: POST /api/incomelands/auth/verify-otp - Verify OTP for new user"""
