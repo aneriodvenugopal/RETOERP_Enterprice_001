@@ -254,23 +254,27 @@ const WorkforceManagement = () => {
                 className="w-full px-3 py-2 rounded-lg text-gray-900"
                 required
               >
-                <option value="">Select Skill</option>
+                <option value="all">🔥 All Skills (Recommended)</option>
+                <option value="">-- Or Select Single Skill --</option>
                 {skillTypes.map(skill => (
                   <option key={skill} value={skill}>{skill}</option>
                 ))}
               </select>
+              <p className="text-xs mt-1 opacity-75">Select "All Skills" to fetch all workforce types at once</p>
             </div>
 
             <div>
-              <label className="block text-sm mb-1 opacity-90">Location *</label>
+              <label className="block text-sm mb-1 opacity-90">Location * (Auto-Suggest)</label>
               <input
+                ref={locationInputRef}
                 type="text"
                 value={scrapeForm.location}
                 onChange={(e) => setScrapeForm({ ...scrapeForm, location: e.target.value })}
-                placeholder="City name"
+                placeholder="Start typing city name..."
                 className="w-full px-3 py-2 rounded-lg text-gray-900"
                 required
               />
+              <p className="text-xs mt-1 opacity-75">Google auto-complete enabled</p>
             </div>
 
             <div>
