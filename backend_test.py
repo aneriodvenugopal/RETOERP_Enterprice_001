@@ -5410,10 +5410,10 @@ def test_telugu_language_detection():
 # ============ MAIN TEST EXECUTION ============
 
 def main():
-    """Main test execution for IncomeLands Authentication API"""
-    print("🚀 Starting IncomeLands Authentication API Tests")
+    """Main test execution for Workforce API"""
+    print("🚀 Starting Workforce API Tests")
     print(f"📅 Test run: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    print(f"🎯 Testing complete authentication flow with registration, OTP, login, and password management")
+    print(f"🎯 Testing workforce-related APIs for SaaS Admin Dashboard")
     print(f"Backend URL: {API_BASE}")
     
     # Test 1: Health check
@@ -5422,61 +5422,64 @@ def main():
         return False
     
     print("\n" + "="*80)
-    print("🔐 INCOMELANDS AUTHENTICATION API TESTING")
+    print("👷 WORKFORCE API TESTING")
     print("="*80)
     
     # ============================================
-    # AUTHENTICATION FLOW TESTS
+    # WORKFORCE API TESTS
     # ============================================
-    print("\n🔑 AUTHENTICATION FLOW TESTS")
+    print("\n📊 WORKFORCE DATA TESTS")
     print("-" * 50)
     
-    # Test 1: Register new user with mobile and password
-    test_register_new_user()
+    # Test 1: Get workforce statistics
+    test_workforce_stats()
     
-    # Test 2: Send OTP to new user (different mobile)
-    test_send_otp_new_user()
+    # Test 2: Get available skill types
+    test_workforce_skills()
     
-    # Test 3: Verify OTP for new user
-    test_verify_otp_new_user()
+    # Test 3: Get cities with workforce data
+    test_workforce_cities()
     
-    # Test 4: Set password for new user
-    test_set_password_new_user()
+    # Test 4: Search workers without filters
+    test_workforce_search_no_filters()
     
-    # Test 5: Login with password (using first registered user)
-    test_login_with_password()
+    # Test 5: Search workers with city filter
+    test_workforce_search_with_city_filter()
     
-    # Test 6: Send OTP to existing user
-    test_send_otp_existing_user()
-    
-    # Test 7: Verify OTP for existing user
-    test_verify_otp_existing_user()
+    # Test 6: Search workers with geo-location filter
+    test_workforce_search_with_geo_filter()
     
     # ============================================
     # FINAL SUMMARY
     # ============================================
     print("\n" + "="*80)
-    print("📋 INCOMELANDS AUTHENTICATION API TEST SUMMARY")
+    print("📋 WORKFORCE API TEST SUMMARY")
     print("="*80)
     
     success = results.summary()
     
     if success:
-        print("\n🎉 ALL INCOMELANDS AUTHENTICATION API TESTS PASSED!")
-        print("✅ The authentication system is ready for production use!")
+        print("\n🎉 ALL WORKFORCE API TESTS PASSED!")
+        print("✅ The workforce system is ready for production use!")
         print("\n📈 Key Features Validated:")
-        print("   • User registration with mobile and password")
-        print("   • OTP generation and SMS sending (dev mode)")
-        print("   • OTP verification for new and existing users")
-        print("   • Password setting for new users")
-        print("   • Login with mobile and password")
-        print("   • JWT token generation and validation")
-        print("   • User profile management")
-        print("   • Free credits allocation (20 credits)")
-        print("   • Referral code generation")
+        print("   • Workforce statistics endpoint (total workers: 442 expected)")
+        print("   • Skills and cities data retrieval")
+        print("   • Worker search with various filters")
+        print("   • Geo-location based search with distance calculation")
+        print("   • Proper data structure and validation")
+        print("   • Location data integrity (lat/lng not null)")
+        
+        # Show key statistics if available
+        if workforce_stats:
+            print(f"\n📊 Current Workforce Data:")
+            print(f"   • Total approved workers: {workforce_stats.get('total_approved_workers', 0)}")
+            print(f"   • Pending approval: {workforce_stats.get('pending_approval', 0)}")
+            print(f"   • Available skills: {len(workforce_stats.get('by_skill', []))}")
+            print(f"   • Cities with workers: {len(workforce_stats.get('by_city', []))}")
+        
         return True
     else:
-        print(f"\n💥 {results.failed} AUTHENTICATION API TESTS FAILED!")
+        print(f"\n💥 {results.failed} WORKFORCE API TESTS FAILED!")
         print("❌ Please review and fix the issues before production deployment.")
         return False
 
