@@ -1,10 +1,10 @@
 """
-AI Chatbot Service using OpenAI GPT-5 via Emergent LLM Key
-Handles intelligent conversations, lead capture, and multi-language support
+AI Chatbot Service - 100% FREE VERSION
+Uses rule-based responses + simple AI (no credits consumed)
 """
 import os
 from typing import List, Dict, Optional
-from emergentintegrations.llm.chat import LlmChat, UserMessage
+from services.free_ai_chat import free_ai_chat
 from dotenv import load_dotenv
 
 load_dotenv()
