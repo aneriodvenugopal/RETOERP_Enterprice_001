@@ -18,6 +18,7 @@ function EnhancedSaaSDashboard() {
   const [loading, setLoading] = useState(true);
   const [dashboardData, setDashboardData] = useState(null);
   const [tenantStats, setTenantStats] = useState([]);
+  const [workforceCount, setWorkforceCount] = useState(0);
   const [error, setError] = useState('');
 
   useEffect(() => {
