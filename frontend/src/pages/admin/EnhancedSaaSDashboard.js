@@ -47,8 +47,22 @@ function EnhancedSaaSDashboard() {
     }
   };
 
+  const fetchWorkforceCount = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/workforce/admin/stats`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await response.json();
+      setWorkforceCount(data.total_workers || 0);
+    } catch (error) {
+      console.error('Error fetching workforce count:', error);
+    }
+  };
+
   const fetchEnhancedMetrics = async () => {
     try {
+      fetchWorkforceCount(); // Fetch workforce count in parallel
       // Fetch all tenants with their stats
       const tenantsResponse = await apiInstance.get('/saas-admin/tenants');
       if (tenantsResponse.data.success) {
