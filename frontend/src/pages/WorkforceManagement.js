@@ -21,7 +21,44 @@ const WorkforceManagement = () => {
   useEffect(() => {
     fetchData();
     fetchSkillTypes();
+    initializeGooglePlaces();
   }, []);
+
+  const initializeGooglePlaces = () => {
+    // Load Google Maps API for autocomplete
+    if (!window.google) {
+      const script = document.createElement('script');
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.REACT_APP_GOOGLE_MAPS_KEY}&libraries=places`;
+      script.async = true;
+      script.defer = true;
+      script.onload = setupAutocomplete;
+      document.head.appendChild(script);
+    } else {
+      setupAutocomplete();
+    }
+  };
+
+  const setupAutocomplete = () => {
+    if (locationInputRef.current && window.google) {
+      autocompleteRef.current = new window.google.maps.places.Autocomplete(
+        locationInputRef.current,
+        {
+          types: ['(cities)'],
+          componentRestrictions: { country: 'in' }
+        }
+      );
+
+      autocompleteRef.current.addListener('place_changed', () => {
+        const place = autocompleteRef.current.getPlace();
+        if (place.formatted_address || place.name) {
+          setScrapeForm({ 
+            ...scrapeForm, 
+            location: place.formatted_address || place.name 
+          });
+        }
+      });
+    }
+  };
 
   const fetchData = async () => {
     setLoading(true);
