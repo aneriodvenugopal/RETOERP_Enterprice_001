@@ -288,7 +288,7 @@ function EnhancedSaaSDashboard() {
         </div>
 
         {/* Secondary KPI Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-cyan-500 hover:shadow-xl transition-all">
             <div className="flex items-center justify-between">
               <div>
@@ -326,6 +326,23 @@ function EnhancedSaaSDashboard() {
               </div>
               <div className="bg-indigo-100 p-4 rounded-xl">
                 <Package className="text-indigo-600" size={32} />
+              </div>
+            </div>
+          </div>
+
+          {/* Clickable Workforce Count Card */}
+          <div 
+            onClick={() => navigate('/workforce')}
+            className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-teal-500 hover:shadow-xl hover:scale-105 transition-all cursor-pointer"
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600 font-medium mb-1">Scraped Workforce</p>
+                <p className="text-3xl font-bold text-gray-900">{workforceCount}</p>
+                <p className="text-xs text-teal-600 mt-2 font-semibold">Click to view map →</p>
+              </div>
+              <div className="bg-teal-100 p-4 rounded-xl">
+                <Users className="text-teal-600" size={32} />
               </div>
             </div>
           </div>
