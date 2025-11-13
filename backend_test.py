@@ -98,15 +98,13 @@ HYDERABAD_LAT = 17.385
 HYDERABAD_LON = 78.486
 
 # ============================================
-# INCOMELANDS AUTHENTICATION API TESTS
+# WORKFORCE API TESTS
 # ============================================
 
 # Global variables to store test data
-test_user_mobile = None
-test_otp = None
-test_token = None
-new_user_mobile = None
-new_user_otp = None
+workforce_stats = None
+available_skills = None
+available_cities = None
 
 def test_register_new_user():
     """Test 1: POST /api/incomelands/auth/register - Register new user"""
