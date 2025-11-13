@@ -186,6 +186,281 @@ def test_workforce_stats():
         traceback.print_exc()
         return False
 
+def test_workforce_skills():
+    """Test 2: GET /api/workforce/skills - Get available skill types"""
+    global available_skills
+    
+    try:
+        print("\n🔧 TESTING: GET /api/workforce/skills")
+        
+        response = requests.get(
+            f"{API_BASE}/workforce/skills",
+            timeout=10
+        )
+        
+        if response.status_code != 200:
+            results.add_fail("Workforce Skills", f"Status code: {response.status_code}")
+            print_error_details("Workforce Skills", response)
+            return False
+            
+        data = response.json()
+        
+        # Validate response is a list
+        if not isinstance(data, list):
+            results.add_fail("Workforce Skills", "Response is not a list")
+            return False
+        
+        # Validate skills are strings
+        for skill in data:
+            if not isinstance(skill, str):
+                results.add_fail("Workforce Skills", f"Skill '{skill}' is not a string")
+                return False
+        
+        # Check for expected skills
+        expected_skills = ["Carpenter", "Electrician", "Mason", "Painter", "Plumber"]
+        missing_skills = [skill for skill in expected_skills if skill not in data]
+        
+        if missing_skills:
+            results.add_fail("Workforce Skills", f"Missing expected skills: {missing_skills}")
+            return False
+        
+        available_skills = data
+        
+        results.add_pass("Workforce Skills")
+        print(f"   ✅ Found {len(data)} skill types")
+        print(f"   🔧 Skills: {', '.join(data[:5])}{'...' if len(data) > 5 else ''}")
+        
+        return True
+        
+    except Exception as e:
+        results.add_fail("Workforce Skills", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+def test_workforce_cities():
+    """Test 3: GET /api/workforce/cities - Get cities with workforce data"""
+    global available_cities
+    
+    try:
+        print("\n🏙️ TESTING: GET /api/workforce/cities")
+        
+        response = requests.get(
+            f"{API_BASE}/workforce/cities",
+            timeout=10
+        )
+        
+        if response.status_code != 200:
+            results.add_fail("Workforce Cities", f"Status code: {response.status_code}")
+            print_error_details("Workforce Cities", response)
+            return False
+            
+        data = response.json()
+        
+        # Validate response is a list
+        if not isinstance(data, list):
+            results.add_fail("Workforce Cities", "Response is not a list")
+            return False
+        
+        # Validate cities are strings
+        for city in data:
+            if not isinstance(city, str):
+                results.add_fail("Workforce Cities", f"City '{city}' is not a string")
+                return False
+        
+        # Check for expected major cities
+        expected_cities = ["Hyderabad", "Bangalore", "Mumbai", "Chennai"]
+        missing_cities = [city for city in expected_cities if city not in data]
+        
+        if missing_cities:
+            print(f"   ⚠️ Some major cities not found: {missing_cities} (may be expected)")
+        
+        available_cities = data
+        
+        results.add_pass("Workforce Cities")
+        print(f"   ✅ Found {len(data)} cities")
+        print(f"   🏙️ Cities: {', '.join(data[:5])}{'...' if len(data) > 5 else ''}")
+        
+        return True
+        
+    except Exception as e:
+        results.add_fail("Workforce Cities", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+def test_workforce_search_no_filters():
+    """Test 4: GET /api/workforce/search - Search workers without filters"""
+    
+    try:
+        print("\n🔍 TESTING: GET /api/workforce/search (No Filters)")
+        
+        response = requests.get(
+            f"{API_BASE}/workforce/search",
+            timeout=10
+        )
+        
+        if response.status_code != 200:
+            results.add_fail("Workforce Search No Filters", f"Status code: {response.status_code}")
+            print_error_details("Workforce Search No Filters", response)
+            return False
+            
+        data = response.json()
+        
+        # Validate response is a list
+        if not isinstance(data, list):
+            results.add_fail("Workforce Search No Filters", "Response is not a list")
+            return False
+        
+        # Validate worker structure if workers exist
+        if data:
+            worker = data[0]
+            required_fields = ['id', 'name', 'phone', 'skill_type', 'location']
+            missing_fields = [field for field in required_fields if field not in worker]
+            
+            if missing_fields:
+                results.add_fail("Workforce Search No Filters", f"Missing worker fields: {missing_fields}")
+                return False
+            
+            # Validate location structure
+            location = worker.get('location', {})
+            location_fields = ['lat', 'lng', 'city']
+            missing_location_fields = [field for field in location_fields if field not in location]
+            
+            if missing_location_fields:
+                results.add_fail("Workforce Search No Filters", f"Missing location fields: {missing_location_fields}")
+                return False
+            
+            # Validate lat/lng are not null
+            if location.get('lat') is None or location.get('lng') is None:
+                results.add_fail("Workforce Search No Filters", "Location lat/lng cannot be null")
+                return False
+        
+        results.add_pass("Workforce Search No Filters")
+        print(f"   ✅ Found {len(data)} workers")
+        
+        if data:
+            worker = data[0]
+            print(f"   👤 Sample worker: {worker.get('name')} - {worker.get('skill_type')}")
+            print(f"   📍 Location: {worker.get('location', {}).get('city')} ({worker.get('location', {}).get('lat')}, {worker.get('location', {}).get('lng')})")
+        
+        return True
+        
+    except Exception as e:
+        results.add_fail("Workforce Search No Filters", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+def test_workforce_search_with_city_filter():
+    """Test 5: GET /api/workforce/search - Search workers with city filter"""
+    
+    try:
+        print("\n🔍 TESTING: GET /api/workforce/search (City Filter)")
+        
+        # Use a common city for testing
+        test_city = "Hyderabad"
+        
+        response = requests.get(
+            f"{API_BASE}/workforce/search",
+            params={"city": test_city, "limit": 10},
+            timeout=10
+        )
+        
+        if response.status_code != 200:
+            results.add_fail("Workforce Search City Filter", f"Status code: {response.status_code}")
+            print_error_details("Workforce Search City Filter", response)
+            return False
+            
+        data = response.json()
+        
+        # Validate response is a list
+        if not isinstance(data, list):
+            results.add_fail("Workforce Search City Filter", "Response is not a list")
+            return False
+        
+        # Validate city filter is working if workers exist
+        if data:
+            for worker in data[:3]:  # Check first 3 workers
+                worker_city = worker.get('location', {}).get('city', '')
+                if test_city.lower() not in worker_city.lower():
+                    results.add_fail("Workforce Search City Filter", f"Worker city '{worker_city}' doesn't match filter '{test_city}'")
+                    return False
+        
+        results.add_pass("Workforce Search City Filter")
+        print(f"   ✅ Found {len(data)} workers in {test_city}")
+        
+        if data:
+            worker = data[0]
+            print(f"   👤 Sample worker: {worker.get('name')} - {worker.get('skill_type')}")
+            print(f"   📍 City: {worker.get('location', {}).get('city')}")
+        
+        return True
+        
+    except Exception as e:
+        results.add_fail("Workforce Search City Filter", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+def test_workforce_search_with_geo_filter():
+    """Test 6: GET /api/workforce/search - Search workers with geo-location filter"""
+    
+    try:
+        print("\n🌍 TESTING: GET /api/workforce/search (Geo-location Filter)")
+        
+        # Use Hyderabad coordinates
+        lat = 17.385
+        lng = 78.486
+        radius = 20  # 20km radius
+        
+        response = requests.get(
+            f"{API_BASE}/workforce/search",
+            params={
+                "lat": lat,
+                "lng": lng,
+                "radius_km": radius,
+                "limit": 10
+            },
+            timeout=10
+        )
+        
+        if response.status_code != 200:
+            results.add_fail("Workforce Search Geo Filter", f"Status code: {response.status_code}")
+            print_error_details("Workforce Search Geo Filter", response)
+            return False
+            
+        data = response.json()
+        
+        # Validate response is a list
+        if not isinstance(data, list):
+            results.add_fail("Workforce Search Geo Filter", "Response is not a list")
+            return False
+        
+        # Validate distance calculation if workers exist
+        if data:
+            for worker in data[:3]:  # Check first 3 workers
+                if 'distance_km' not in worker:
+                    results.add_fail("Workforce Search Geo Filter", "Missing distance_km field in geo-filtered results")
+                    return False
+                
+                distance = worker.get('distance_km')
+                if distance > radius:
+                    results.add_fail("Workforce Search Geo Filter", f"Worker distance {distance}km exceeds radius {radius}km")
+                    return False
+        
+        results.add_pass("Workforce Search Geo Filter")
+        print(f"   ✅ Found {len(data)} workers within {radius}km of Hyderabad")
+        
+        if data:
+            worker = data[0]
+            print(f"   👤 Closest worker: {worker.get('name')} - {worker.get('skill_type')}")
+            print(f"   📍 Distance: {worker.get('distance_km')}km from search center")
+            print(f"   🏙️ City: {worker.get('location', {}).get('city')}")
+        
+        return True
+        
+    except Exception as e:
+        results.add_fail("Workforce Search Geo Filter", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
 def test_send_otp_new_user():
     """Test 2: POST /api/incomelands/auth/send-otp - Send OTP to new user"""
     global new_user_mobile, new_user_otp
