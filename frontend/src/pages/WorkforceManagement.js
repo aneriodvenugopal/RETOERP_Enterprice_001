@@ -503,6 +503,175 @@ const WorkforceManagement = () => {
           </div>
         )}
       </div>
+
+      {/* Worker Contacts Modal */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 animate-fadeIn">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-6xl max-h-[90vh] flex flex-col animate-slideUp">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">{modalTitle}</h2>
+                <p className="text-sm text-gray-600 mt-1">
+                  {modalWorkers.length} worker{modalWorkers.length !== 1 ? 's' : ''} found
+                </p>
+              </div>
+              <button
+                onClick={closeModal}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <X size={24} className="text-gray-600" />
+              </button>
+            </div>
+
+            {/* Search Bar */}
+            <div className="p-4 border-b border-gray-200">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                <input
+                  type="text"
+                  placeholder="Search by name..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+            </div>
+
+            {/* Modal Body - Worker Cards */}
+            <div className="flex-1 overflow-y-auto p-6">
+              {modalLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {modalWorkers
+                    .filter(worker => 
+                      worker.name.toLowerCase().includes(searchTerm.toLowerCase())
+                    )
+                    .map(worker => (
+                      <div 
+                        key={worker.id} 
+                        className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-lg transition-all duration-200 hover:border-blue-300"
+                      >
+                        {/* Worker Name & Skill */}
+                        <div className="flex items-start justify-between mb-3">
+                          <div>
+                            <h3 className="font-bold text-gray-900 text-lg">{worker.name}</h3>
+                            <p className="text-sm text-blue-600 font-medium">{worker.skill_type}</p>
+                          </div>
+                          {worker.verified && (
+                            <CheckCircle size={20} className="text-green-500 flex-shrink-0" />
+                          )}
+                        </div>
+
+                        {/* Contact Buttons */}
+                        <div className="flex gap-2 mb-3">
+                          <a
+                            href={`tel:${worker.phone}`}
+                            className="flex-1 flex items-center justify-center gap-2 bg-blue-600 text-white py-2 px-3 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+                          >
+                            <Phone size={16} />
+                            Call
+                          </a>
+                          {worker.whatsapp ? (
+                            <a
+                              href={`https://wa.me/${worker.whatsapp.replace(/[^0-9]/g, '')}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex-1 flex items-center justify-center gap-2 bg-green-600 text-white py-2 px-3 rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
+                            >
+                              <MessageCircle size={16} />
+                              WhatsApp
+                            </a>
+                          ) : (
+                            <a
+                              href={`https://wa.me/${worker.phone.replace(/[^0-9]/g, '')}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex-1 flex items-center justify-center gap-2 bg-green-600 text-white py-2 px-3 rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
+                            >
+                              <MessageCircle size={16} />
+                              WhatsApp
+                            </a>
+                          )}
+                        </div>
+
+                        {/* Worker Details */}
+                        <div className="space-y-2 text-sm border-t pt-3">
+                          <div className="flex items-center gap-2 text-gray-600">
+                            <Phone size={14} className="flex-shrink-0" />
+                            <span>{worker.phone}</span>
+                          </div>
+                          
+                          {worker.location && (
+                            <div className="flex items-center gap-2 text-gray-600">
+                              <MapPin size={14} className="flex-shrink-0" />
+                              <span className="truncate">{worker.location.city}</span>
+                            </div>
+                          )}
+
+                          <div className="flex items-center gap-2 text-gray-600">
+                            <Calendar size={14} className="flex-shrink-0" />
+                            <span>{worker.experience_years} years exp</span>
+                          </div>
+
+                          {worker.work_type && (
+                            <div className="flex items-center gap-2 text-gray-600">
+                              <Briefcase size={14} className="flex-shrink-0" />
+                              <span>{worker.work_type}</span>
+                            </div>
+                          )}
+
+                          {worker.daily_rate && (
+                            <div className="mt-2 pt-2 border-t">
+                              <p className="text-lg font-bold text-green-600">
+                                ₹{worker.daily_rate}/day
+                              </p>
+                            </div>
+                          )}
+
+                          {worker.description && (
+                            <div className="mt-2">
+                              <p className="text-xs text-gray-500 line-clamp-2">
+                                {worker.description}
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              )}
+
+              {!modalLoading && modalWorkers.filter(worker => 
+                worker.name.toLowerCase().includes(searchTerm.toLowerCase())
+              ).length === 0 && (
+                <div className="text-center py-12">
+                  <Users size={48} className="mx-auto text-gray-300 mb-4" />
+                  <p className="text-gray-600 font-medium">No workers found</p>
+                  {searchTerm && (
+                    <p className="text-sm text-gray-500 mt-2">
+                      Try adjusting your search term
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-4 border-t border-gray-200 bg-gray-50 rounded-b-2xl">
+              <button
+                onClick={closeModal}
+                className="w-full py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-medium"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
