@@ -36,7 +36,7 @@ def calculate_distance(lat1: float, lng1: float, lat2: float, lng2: float) -> fl
 
 # PUBLIC ENDPOINTS
 
-@router.get("/workforce/search", response_model=List[WorkforceWorker])
+@router.get("/workforce/search")
 async def search_workforce(
     request: Request,
     skill_type: Optional[str] = None,
