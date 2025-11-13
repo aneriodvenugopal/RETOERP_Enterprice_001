@@ -8,7 +8,7 @@ import {
 import { 
   Users, Package, DollarSign, TrendingUp, Calendar, Activity,
   Building2, Home, FileText, UserCheck, ArrowUp, ArrowDown,
-  Percent, Target, Clock, Award
+  Percent, Target, Clock, Award, MapPin
 } from 'lucide-react';
 
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'];
