@@ -106,65 +106,83 @@ workforce_stats = None
 available_skills = None
 available_cities = None
 
-def test_register_new_user():
-    """Test 1: POST /api/incomelands/auth/register - Register new user"""
-    global test_user_mobile, test_token
+def test_workforce_stats():
+    """Test 1: GET /api/workforce/stats - Get workforce statistics"""
+    global workforce_stats
     
     try:
-        print("\n👤 TESTING: POST /api/incomelands/auth/register")
+        print("\n📊 TESTING: GET /api/workforce/stats")
         
-        # Create unique user data
-        unique_suffix = str(uuid.uuid4())[:8]
-        test_user_mobile = f"9123456789"  # Use the mobile from test case
-        
-        user_data = {
-            "mobile": test_user_mobile,
-            "name": "Test Agent",
-            "password": "test123"
-        }
-        
-        response = requests.post(
-            f"{API_BASE}/incomelands/auth/register",
-            json=user_data,
+        response = requests.get(
+            f"{API_BASE}/workforce/stats",
             timeout=10
         )
         
-        if response.status_code != 201:
-            results.add_fail("Register New User", f"Status code: {response.status_code}")
-            print_error_details("Register New User", response)
+        if response.status_code != 200:
+            results.add_fail("Workforce Stats", f"Status code: {response.status_code}")
+            print_error_details("Workforce Stats", response)
             return False
             
         data = response.json()
         
         # Validate response structure
-        required_fields = ['success', 'message', 'token', 'user']
+        required_fields = ['total_approved_workers', 'pending_approval', 'by_skill', 'by_city']
         missing_fields = [field for field in required_fields if field not in data]
         
         if missing_fields:
-            results.add_fail("Register New User", f"Missing fields: {missing_fields}")
+            results.add_fail("Workforce Stats", f"Missing fields: {missing_fields}")
             return False
         
-        if not data.get('success'):
-            results.add_fail("Register New User", "Response success is False")
+        # Validate data types
+        if not isinstance(data.get('total_approved_workers'), int):
+            results.add_fail("Workforce Stats", "total_approved_workers is not an integer")
             return False
         
-        user = data.get('user', {})
-        if 'id' not in user:
-            results.add_fail("Register New User", "No user ID in response")
+        if not isinstance(data.get('pending_approval'), int):
+            results.add_fail("Workforce Stats", "pending_approval is not an integer")
             return False
         
-        test_token = data.get('token')
+        if not isinstance(data.get('by_skill'), list):
+            results.add_fail("Workforce Stats", "by_skill is not a list")
+            return False
         
-        results.add_pass("Register New User")
-        print(f"   ✅ User registered: {user.get('name')} (ID: {user.get('id')})")
-        print(f"   📱 Mobile: {user.get('mobile')}")
-        print(f"   🎁 Free credits: {user.get('free_credits', 0)}")
-        print(f"   🔑 Token received: {test_token[:20]}...")
+        if not isinstance(data.get('by_city'), list):
+            results.add_fail("Workforce Stats", "by_city is not a list")
+            return False
+        
+        # Validate skill structure
+        for skill in data.get('by_skill', []):
+            if not isinstance(skill, dict) or 'skill' not in skill or 'count' not in skill:
+                results.add_fail("Workforce Stats", "Invalid skill structure")
+                return False
+        
+        # Validate city structure
+        for city in data.get('by_city', []):
+            if not isinstance(city, dict) or 'city' not in city or 'count' not in city:
+                results.add_fail("Workforce Stats", "Invalid city structure")
+                return False
+        
+        workforce_stats = data
+        
+        results.add_pass("Workforce Stats")
+        print(f"   ✅ Total approved workers: {data.get('total_approved_workers')}")
+        print(f"   ⏳ Pending approval: {data.get('pending_approval')}")
+        print(f"   🔧 Skills available: {len(data.get('by_skill', []))}")
+        print(f"   🏙️ Cities with workers: {len(data.get('by_city', []))}")
+        
+        # Show top skills and cities
+        if data.get('by_skill'):
+            top_skill = data['by_skill'][0]
+            print(f"   🏆 Top skill: {top_skill['skill']} ({top_skill['count']} workers)")
+        
+        if data.get('by_city'):
+            top_city = data['by_city'][0]
+            print(f"   🏆 Top city: {top_city['city']} ({top_city['count']} workers)")
         
         return True
         
     except Exception as e:
-        results.add_fail("Register New User", f"Exception: {str(e)}")
+        results.add_fail("Workforce Stats", f"Exception: {str(e)}")
         traceback.print_exc()
         return False
 
