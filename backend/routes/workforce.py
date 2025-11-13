@@ -332,40 +332,66 @@ async def trigger_ai_scrape(
 ):
     """
     ADMIN: Trigger AI scraping to populate workforce database
+    Supports skill_type='all' to scrape all skill types at once
     """
     async def scrape_and_save():
         db = get_db(request)
         try:
-            workers_data = await workforce_scraper.scrape_workers_from_search(
-                skill_type=skill_type,
-                location=location,
-                limit=limit
-            )
+            # Define all skill types
+            all_skills = [
+                "Carpenter", "Plumber", "Electrician", "Mason", "Painter",
+                "Welder", "Tiles Worker", "Marble Worker", "Steel Fixer",
+                "Civil Engineer", "Architect", "Contractor", "Labour Contractor"
+            ]
             
-            # Save to database
-            for worker_data in workers_data:
-                # Preserve the source from AI (YouTube, Facebook, JustDial, etc.)
-                # If no source specified, default to "ai_scraped"
-                source_platform = worker_data.get("source", "ai_scraped")
-                
-                worker = {
-                    "id": str(uuid.uuid4()),
-                    **worker_data,
-                    "status": "approved",  # Auto-approve AI scraped data
-                    "source": source_platform,  # Use the platform source from AI
-                    "verified": True,
-                    "created_at": datetime.utcnow(),
-                    "updated_at": datetime.utcnow(),
-                    "approved_at": datetime.utcnow(),
-                    "approved_by": current_user.get("id")
-                }
-                
-                # Check for duplicates
-                existing = await db.workforce_workers.find_one({"phone": worker.get("phone")})
-                if not existing:
-                    await db.workforce_workers.insert_one(worker)
+            # Determine which skills to scrape
+            if skill_type.lower() == 'all':
+                skills_to_scrape = all_skills
+                print(f"[AI SCRAPER] Scraping ALL skill types in {location}")
+            else:
+                skills_to_scrape = [skill_type]
+                print(f"[AI SCRAPER] Scraping {skill_type} in {location}")
             
-            print(f"[AI SCRAPER] Successfully scraped and saved {len(workers_data)} workers")
+            total_workers_added = 0
+            
+            # Scrape for each skill type
+            for skill in skills_to_scrape:
+                try:
+                    workers_data = await workforce_scraper.scrape_workers_from_search(
+                        skill_type=skill,
+                        location=location,
+                        limit=limit
+                    )
+                    
+                    # Save to database
+                    for worker_data in workers_data:
+                        source_platform = worker_data.get("source", "ai_scraped")
+                        
+                        worker = {
+                            "id": str(uuid.uuid4()),
+                            **worker_data,
+                            "status": "approved",  # Auto-approve AI scraped data
+                            "source": source_platform,
+                            "verified": True,
+                            "created_at": datetime.utcnow(),
+                            "updated_at": datetime.utcnow(),
+                            "approved_at": datetime.utcnow(),
+                            "approved_by": current_user.get("id")
+                        }
+                        
+                        # Check for duplicates
+                        existing = await db.workforce_workers.find_one({"phone": worker.get("phone")})
+                        if not existing:
+                            await db.workforce_workers.insert_one(worker)
+                            total_workers_added += 1
+                    
+                    print(f"[AI SCRAPER] Added {len(workers_data)} {skill} workers")
+                
+                except Exception as skill_error:
+                    print(f"[AI SCRAPER] Error scraping {skill}: {str(skill_error)}")
+                    continue
+            
+            print(f"[AI SCRAPER] Successfully scraped and saved {total_workers_added} workers total")
         
         except Exception as e:
             print(f"[AI SCRAPER ERROR] {str(e)}")
@@ -373,7 +399,9 @@ async def trigger_ai_scrape(
     # Run in background
     background_tasks.add_task(scrape_and_save)
     
+    skills_message = "all skill types" if skill_type.lower() == 'all' else skill_type
+    
     return {
         "success": True,
-        "message": f"AI scraping initiated for {skill_type} in {location}. Workers will be added to database shortly."
+        "message": f"AI scraping initiated for {skills_message} in {location}. Workers will be added to database shortly. Check back in 1-2 minutes."
     }
