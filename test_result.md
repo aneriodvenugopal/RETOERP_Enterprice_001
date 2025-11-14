@@ -751,16 +751,20 @@ frontend:
 
 metadata:
   created_by: "main_agent"
-  version: "3.1"
-  test_sequence: 5
+  version: "3.2"
+  test_sequence: 6
   run_ui: false
 
 test_plan:
   current_focus:
-    - "PHASE 1: Customer Payment Entry UI - Backend integration testing"
-    - "Verify GET /api/payments endpoint with filters"
-    - "Test POST /api/manual payment entry with various modes"
-    - "Test Razorpay integration flow"
+    - "PHASE 1 & 2: Payment and Commission Dashboards - Backend integration testing"
+    - "Test GET /api/payments endpoint with tenant_id filters"
+    - "Test POST /api/manual payment entry with all modes (NEFT/Cheque/Cash)"
+    - "Test Razorpay integration flow (mock mode)"
+    - "Test GET /commissions/earnings with staff_id and status filters"
+    - "Test POST /commissions/earnings/{id}/approve (approve/reject/hold)"
+    - "Test GET /commissions/staff/{id}/summary for personal stats"
+    - "Verify commission auto-calculation on payment completion"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
