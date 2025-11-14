@@ -71,6 +71,10 @@ const AdvisoryChat = () => {
   const [leadData, setLeadData] = useState({ name: '', email: '', phone: '' });
   const [selectedLanguage, setSelectedLanguage] = useState('en');
   const [loadingMessage, setLoadingMessage] = useState('');
+  
+  // Refs for Google Maps autocomplete
+  const locationInputRefs = useRef({});
+  const autocompleteRefs = useRef({});
 
   if (!config) {
     return <div className="p-8 text-center">Invalid advisory category</div>;
