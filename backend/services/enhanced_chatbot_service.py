@@ -316,15 +316,15 @@ Example: 9876543210"""
                 
                 response = f"""✅ **Verified Successfully!** {name_part}
 
-Great news! I can now provide you with:
+Great news! Now you can:
 
-1️⃣ **Instant Advisory** - Based on your requirements
-2️⃣ **Personalized Consultation** - Schedule a call with our experts
+**Select an option (type number):**
 
-Would you like to:
-• Get instant advisory now (type "advisory")
-• Schedule a call with our expert (type "schedule")
-• Both (type "both")"""
+1️⃣ Get Instant Advisory - Based on your requirements
+2️⃣ Schedule Expert Call - Talk to our consultants
+3️⃣ Both - Get advisory + schedule call
+
+Type: 1, 2, or 3"""
                 
                 state["stage"] = "providing_advisory"
                 self.conversation_states[conv_id] = state
