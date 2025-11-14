@@ -161,20 +161,45 @@ const CommissionDashboard = () => {
 
   const getStatusBadge = (status) => {
     const badges = {
-      pending: { color: 'bg-yellow-100 text-yellow-800', icon: <Clock size={14} /> },
-      approved: { color: 'bg-green-100 text-green-800', icon: <CheckCircle size={14} /> },
-      paid: { color: 'bg-blue-100 text-blue-800', icon: <DollarSign size={14} /> },
-      cancelled: { color: 'bg-red-100 text-red-800', icon: <XCircle size={14} /> },
-      on_hold: { color: 'bg-gray-100 text-gray-800', icon: <Clock size={14} /> }
+      pending: { color: 'bg-yellow-100 text-yellow-800 border-yellow-300', icon: <Clock size={14} />, label: 'Pending' },
+      approved: { color: 'bg-green-100 text-green-800 border-green-300', icon: <CheckCircle size={14} />, label: 'Approved' },
+      paid: { color: 'bg-blue-100 text-blue-800 border-blue-300', icon: <Wallet size={14} />, label: 'Paid' },
+      cancelled: { color: 'bg-red-100 text-red-800 border-red-300', icon: <XCircle size={14} />, label: 'Cancelled' },
+      on_hold: { color: 'bg-gray-100 text-gray-800 border-gray-300', icon: <PauseCircle size={14} />, label: 'On Hold' }
     };
     const badge = badges[status] || badges.pending;
     return (
-      <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ${badge.color}`}>
+      <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold border ${badge.color}`}>
         {badge.icon}
-        {status.replace('_', ' ')}
+        {badge.label}
       </span>
     );
   };
+
+  const getCommissionTypeBadge = (type) => {
+    const badges = {
+      direct: { color: 'bg-purple-100 text-purple-800', icon: <TrendingUp size={14} />, label: 'Direct' },
+      gap: { color: 'bg-indigo-100 text-indigo-800', icon: <Users size={14} />, label: 'Gap' }
+    };
+    const badge = badges[type] || badges.direct;
+    return (
+      <span className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium ${badge.color}`}>
+        {badge.icon}
+        {badge.label}
+      </span>
+    );
+  };
+
+  const filteredEarnings = earnings.filter(earning => {
+    const matchesSearch = 
+      earning.staff_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      earning.sales_staff_name?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesStatus = filterStatus === 'all' || earning.status === filterStatus;
+    const matchesType = filterType === 'all' || earning.commission_type === filterType;
+    
+    return matchesSearch && matchesStatus && matchesType;
+  });
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
