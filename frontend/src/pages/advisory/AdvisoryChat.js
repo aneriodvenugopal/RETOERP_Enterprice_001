@@ -142,7 +142,7 @@ const AdvisoryChat = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           category,
-          user_inputs: { ...formData, language: selectedLanguage }
+          user_inputs: formData
         })
       });
       
