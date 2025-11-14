@@ -1,0 +1,254 @@
+import React, { useState, useEffect } from 'react';
+import { TrendingUp, CheckCircle, XCircle, Clock, DollarSign, Users } from 'lucide-react';
+import apiInstance from '../../services/api';
+import { toast } from 'sonner';
+
+const CommissionDashboard = () => {
+  const [earnings, setEarnings] = useState([]);
+  const [summary, setSummary] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [filterStatus, setFilterStatus] = useState('all');
+  const [selectedEarning, setSelectedEarning] = useState(null);
+
+  useEffect(() => {
+    fetchEarnings();
+  }, [filterStatus]);
+
+  const fetchEarnings = async () => {
+    setLoading(true);
+    try {
+      const params = {};
+      if (filterStatus !== 'all') params.status = filterStatus;
+      
+      const response = await apiInstance.get('/commissions/earnings', { params });
+      setEarnings(response.data.earnings || []);
+      setSummary(response.data.summary || {});
+    } catch (error) {
+      console.error('Error fetching earnings:', error);
+      toast.error('Failed to load commissions');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleApprove = async (earningId, action) => {
+    try {
+      await apiInstance.post(`/commissions/earnings/${earningId}/approve`, { action });
+      toast.success(`Commission ${action}d successfully!`);
+      fetchEarnings();
+      setSelectedEarning(null);
+    } catch (error) {
+      console.error('Error updating earning:', error);
+      toast.error(error.response?.data?.detail || `Failed to ${action} commission`);
+    }
+  };
+
+  const getStatusBadge = (status) => {
+    const badges = {
+      pending: { color: 'bg-yellow-100 text-yellow-800', icon: <Clock size={14} /> },
+      approved: { color: 'bg-green-100 text-green-800', icon: <CheckCircle size={14} /> },
+      paid: { color: 'bg-blue-100 text-blue-800', icon: <DollarSign size={14} /> },
+      cancelled: { color: 'bg-red-100 text-red-800', icon: <XCircle size={14} /> },
+      on_hold: { color: 'bg-gray-100 text-gray-800', icon: <Clock size={14} /> }
+    };
+    const badge = badges[status] || badges.pending;
+    return (
+      <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ${badge.color}`}>
+        {badge.icon}
+        {status.replace('_', ' ')}
+      </span>
+    );
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
+            <TrendingUp className="text-green-600" size={36} />
+            Commission Dashboard
+          </h1>
+          <p className="text-gray-600 mt-2">Manage and approve commission earnings</p>
+        </div>
+
+        {/* Summary Cards */}
+        {summary && (
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600">Total Earnings</p>
+                  <p className="text-2xl font-bold text-gray-900 mt-1">
+                    ₹{(summary.total_gross || 0).toLocaleString('en-IN')}
+                  </p>
+                </div>
+                <div className="bg-green-100 p-3 rounded-lg">
+                  <DollarSign className="text-green-600" size={24} />
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600">Pending Approval</p>
+                  <p className="text-2xl font-bold text-yellow-600 mt-1">
+                    {summary.pending_count || 0}
+                  </p>
+                </div>
+                <div className="bg-yellow-100 p-3 rounded-lg">
+                  <Clock className="text-yellow-600" size={24} />
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600">Approved</p>
+                  <p className="text-2xl font-bold text-green-600 mt-1">
+                    {summary.approved_count || 0}
+                  </p>
+                </div>
+                <div className="bg-green-100 p-3 rounded-lg">
+                  <CheckCircle className="text-green-600" size={24} />
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600">Net Payable</p>
+                  <p className="text-2xl font-bold text-blue-600 mt-1">
+                    ₹{(summary.total_net || 0).toLocaleString('en-IN')}
+                  </p>
+                </div>
+                <div className="bg-blue-100 p-3 rounded-lg">
+                  <TrendingUp className="text-blue-600" size={24} />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Filters */}
+        <div className="bg-white rounded-xl shadow-sm p-4 mb-6">
+          <div className="flex flex-wrap gap-2">
+            {['all', 'pending', 'approved', 'paid', 'cancelled', 'on_hold'].map((status) => (
+              <button
+                key={status}
+                onClick={() => setFilterStatus(status)}
+                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                  filterStatus === status
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                {status.charAt(0).toUpperCase() + status.slice(1).replace('_', ' ')}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Earnings Table */}
+        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50 border-b">
+                <tr>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase">Staff</th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase">Payment</th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase">Gross</th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase">TDS</th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase">Net</th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {loading ? (
+                  <tr>
+                    <td colSpan="9" className="px-6 py-12 text-center">
+                      <div className="flex justify-center">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                      </div>
+                    </td>
+                  </tr>
+                ) : earnings.length === 0 ? (
+                  <tr>
+                    <td colSpan="9" className="px-6 py-12 text-center text-gray-500">
+                      No commission earnings found
+                    </td>
+                  </tr>
+                ) : (
+                  earnings.map((earning) => (
+                    <tr key={earning.id} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {new Date(earning.earned_date).toLocaleDateString()}
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="text-sm font-medium text-gray-900">{earning.staff_name || 'N/A'}</div>
+                        <div className="text-xs text-gray-500">{earning.staff_role || 'Agent'}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded ${
+                          earning.commission_type === 'direct' 
+                            ? 'bg-blue-100 text-blue-800' 
+                            : 'bg-purple-100 text-purple-800'
+                        }`}>
+                          {earning.commission_type}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                        ₹{earning.payment_amount?.toLocaleString('en-IN')}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        ₹{earning.gross_commission?.toLocaleString('en-IN')}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-red-600">
+                        ₹{earning.tds_amount?.toLocaleString('en-IN')}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-green-600">
+                        ₹{earning.net_commission?.toLocaleString('en-IN')}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {getStatusBadge(earning.status)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {earning.status === 'pending' && (
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => handleApprove(earning.id, 'approve')}
+                              className="text-green-600 hover:text-green-800 font-medium text-sm"
+                            >
+                              Approve
+                            </button>
+                            <button
+                              onClick={() => handleApprove(earning.id, 'reject')}
+                              className="text-red-600 hover:text-red-800 font-medium text-sm"
+                            >
+                              Reject
+                            </button>
+                          </div>
+                        )}
+                        {earning.status === 'approved' && (
+                          <span className="text-sm text-gray-500">Ready for payout</span>
+                        )}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default CommissionDashboard;
