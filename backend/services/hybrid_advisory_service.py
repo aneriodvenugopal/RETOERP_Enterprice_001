@@ -96,27 +96,16 @@ Keep it short and readable."""
         elif category == "location":
             location = user_inputs.get('location', 'Not specified')
             work_location = user_inputs.get('work_location', 'Not specified')
-            priorities = user_inputs.get('priorities', 'Not specified')
-            description = user_inputs.get('description', '')
             
-            prompt = f"""Analyze this location choice for a property buyer:
-- Interested Location: {location}
-- They work at: {work_location}
-- Priorities: {priorities}"""
-            
-            if description:
-                prompt += f"\n- Additional Context: {description}"
-            
-            prompt += f"""
+            prompt = f"""Evaluate {location} for someone working at {work_location}.
 
-Provide expert analysis:
-1. Is {location} smart choice given they work at {work_location}? Commute reality?
-2. Current market status in {location} - hot or cooling?
-3. 3-5 year outlook - will their investment appreciate?
-4. Hidden factors about {location} they should know
-5. Better alternatives if any?
+Give 4 points:
+✓ Commute assessment
+✓ Investment potential (3-5 year view)
+⚠️ One drawback to know
+✓ Better alternative if any
 
-Be honest and specific. Don't sugarcoat if location has issues."""
+Short and direct."""
             
             return prompt
         
