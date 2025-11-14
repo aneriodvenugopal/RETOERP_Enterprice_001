@@ -123,83 +123,179 @@ def get_auth_headers():
         "Content-Type": "application/json"
     }
 
-def test_workforce_stats():
-    """Test 1: GET /api/workforce/stats - Get workforce statistics"""
-    global workforce_stats
-    
+# ============================================
+# 1. SUPPORTING APIS TESTS
+# ============================================
+
+def test_currencies_api():
+    """Test 1: GET /api/currencies - List available currencies"""
     try:
-        print("\n📊 TESTING: GET /api/workforce/stats")
+        print("\n💰 TESTING: GET /api/currencies")
         
+        response = requests.get(f"{API_BASE}/currencies", timeout=10)
+        
+        if response.status_code != 200:
+            results.add_fail("Currencies API", f"Status code: {response.status_code}")
+            print_error_details("Currencies API", response)
+            return False
+            
+        data = response.json()
+        
+        # Validate response is a list
+        if not isinstance(data, list):
+            results.add_fail("Currencies API", "Response is not a list")
+            return False
+        
+        # Check for INR currency
+        inr_found = False
+        for currency in data:
+            if currency.get('code') == 'INR':
+                inr_found = True
+                break
+        
+        if not inr_found:
+            results.add_fail("Currencies API", "INR currency not found")
+            return False
+        
+        results.add_pass("Currencies API")
+        print(f"   ✅ Found {len(data)} currencies")
+        print(f"   💱 Currencies: {', '.join([c.get('code', 'Unknown') for c in data[:5]])}")
+        
+        return True
+        
+    except Exception as e:
+        results.add_fail("Currencies API", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+def test_bookings_api():
+    """Test 2: GET /api/bookings - List confirmed bookings"""
+    try:
+        print("\n📋 TESTING: GET /api/bookings")
+        
+        headers = get_auth_headers()
         response = requests.get(
-            f"{API_BASE}/workforce/stats",
+            f"{API_BASE}/bookings",
+            headers=headers,
+            params={"tenant_id": DEFAULT_TENANT_ID, "status": "confirmed"},
             timeout=10
         )
         
         if response.status_code != 200:
-            results.add_fail("Workforce Stats", f"Status code: {response.status_code}")
-            print_error_details("Workforce Stats", response)
+            results.add_fail("Bookings API", f"Status code: {response.status_code}")
+            print_error_details("Bookings API", response)
+            return False
+            
+        data = response.json()
+        
+        # Validate response is a list
+        if not isinstance(data, list):
+            results.add_fail("Bookings API", "Response is not a list")
+            return False
+        
+        results.add_pass("Bookings API")
+        print(f"   ✅ Found {len(data)} confirmed bookings")
+        
+        # Store a booking ID for later tests if available
+        global test_booking_id
+        if data:
+            test_booking_id = data[0].get('id')
+            print(f"   📝 Sample booking: {test_booking_id}")
+        
+        return True
+        
+    except Exception as e:
+        results.add_fail("Bookings API", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+# ============================================
+# 2. PAYMENT SCHEMES APIS TESTS
+# ============================================
+
+def test_create_payment_scheme():
+    """Test 3: POST /api/schemes - Create new payment scheme"""
+    global test_scheme_id
+    
+    try:
+        print("\n💳 TESTING: POST /api/schemes")
+        
+        headers = get_auth_headers()
+        
+        # Create a comprehensive payment scheme
+        scheme_data = {
+            "tenant_id": DEFAULT_TENANT_ID,
+            "project_id": None,
+            "scheme_name": "Test 24M Payment Plan",
+            "scheme_type": "24_months",
+            "duration_months": 24,
+            "description": "24-month payment scheme for testing",
+            "terms_conditions": "Standard terms and conditions apply",
+            "is_template": False,
+            "fields": [
+                {
+                    "field_name": "Booking Amount",
+                    "field_type": "amount",
+                    "field_value": 500000,
+                    "is_percentage": False,
+                    "due_days": 0,
+                    "description": "Initial booking amount"
+                },
+                {
+                    "field_name": "Down Payment",
+                    "field_type": "amount", 
+                    "field_value": 2000000,
+                    "is_percentage": False,
+                    "due_days": 30,
+                    "description": "Down payment after 30 days"
+                },
+                {
+                    "field_name": "Monthly EMI",
+                    "field_type": "amount",
+                    "field_value": 150000,
+                    "is_percentage": False,
+                    "due_days": 60,
+                    "description": "Monthly EMI for remaining amount"
+                }
+            ]
+        }
+        
+        response = requests.post(
+            f"{API_BASE}/schemes",
+            headers=headers,
+            json=scheme_data,
+            timeout=10
+        )
+        
+        if response.status_code != 200:
+            results.add_fail("Create Payment Scheme", f"Status code: {response.status_code}")
+            print_error_details("Create Payment Scheme", response)
             return False
             
         data = response.json()
         
         # Validate response structure
-        required_fields = ['total_approved_workers', 'pending_approval', 'by_skill', 'by_city']
+        required_fields = ['success', 'scheme_id', 'total_amount']
         missing_fields = [field for field in required_fields if field not in data]
         
         if missing_fields:
-            results.add_fail("Workforce Stats", f"Missing fields: {missing_fields}")
+            results.add_fail("Create Payment Scheme", f"Missing fields: {missing_fields}")
             return False
         
-        # Validate data types
-        if not isinstance(data.get('total_approved_workers'), int):
-            results.add_fail("Workforce Stats", "total_approved_workers is not an integer")
+        if not data.get('success'):
+            results.add_fail("Create Payment Scheme", "Response success is False")
             return False
         
-        if not isinstance(data.get('pending_approval'), int):
-            results.add_fail("Workforce Stats", "pending_approval is not an integer")
-            return False
+        test_scheme_id = data.get('scheme_id')
         
-        if not isinstance(data.get('by_skill'), list):
-            results.add_fail("Workforce Stats", "by_skill is not a list")
-            return False
-        
-        if not isinstance(data.get('by_city'), list):
-            results.add_fail("Workforce Stats", "by_city is not a list")
-            return False
-        
-        # Validate skill structure
-        for skill in data.get('by_skill', []):
-            if not isinstance(skill, dict) or 'skill' not in skill or 'count' not in skill:
-                results.add_fail("Workforce Stats", "Invalid skill structure")
-                return False
-        
-        # Validate city structure
-        for city in data.get('by_city', []):
-            if not isinstance(city, dict) or 'city' not in city or 'count' not in city:
-                results.add_fail("Workforce Stats", "Invalid city structure")
-                return False
-        
-        workforce_stats = data
-        
-        results.add_pass("Workforce Stats")
-        print(f"   ✅ Total approved workers: {data.get('total_approved_workers')}")
-        print(f"   ⏳ Pending approval: {data.get('pending_approval')}")
-        print(f"   🔧 Skills available: {len(data.get('by_skill', []))}")
-        print(f"   🏙️ Cities with workers: {len(data.get('by_city', []))}")
-        
-        # Show top skills and cities
-        if data.get('by_skill'):
-            top_skill = data['by_skill'][0]
-            print(f"   🏆 Top skill: {top_skill['skill']} ({top_skill['count']} workers)")
-        
-        if data.get('by_city'):
-            top_city = data['by_city'][0]
-            print(f"   🏆 Top city: {top_city['city']} ({top_city['count']} workers)")
+        results.add_pass("Create Payment Scheme")
+        print(f"   ✅ Payment scheme created: {test_scheme_id}")
+        print(f"   💰 Total amount: ₹{data.get('total_amount'):,}")
         
         return True
         
     except Exception as e:
-        results.add_fail("Workforce Stats", f"Exception: {str(e)}")
+        results.add_fail("Create Payment Scheme", f"Exception: {str(e)}")
         traceback.print_exc()
         return False
 
