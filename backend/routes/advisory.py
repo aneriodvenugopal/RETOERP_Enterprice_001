@@ -1,12 +1,14 @@
 """
 AI Advisory System Routes
+100% FREE - No API costs
 """
 from fastapi import APIRouter, HTTPException, Request
 from typing import List, Optional
 import uuid
 from datetime import datetime
 from models.advisory import AdvisorySession, AdvisoryRequest, AdvisoryLeadCapture
-from services.advisory_service import advisory_service
+# Use FREE advisory service (zero cost)
+from services.free_advisory_service import free_advisory_service
 
 router = APIRouter(prefix="/advisory", tags=["advisory"])
 
