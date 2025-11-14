@@ -909,35 +909,7 @@ def test_staff_commission_summary():
             timeout=10
         )
         
-        if response.status_code != 200:
-            results.add_fail("Staff Commission Summary", f"Status code: {response.status_code}")
-            print_error_details("Staff Commission Summary", response)
-            return False
-            
-        data = response.json()
-        
-        # Validate response structure
-        required_fields = ['success', 'staff_id', 'total_earnings', 'by_status', 'by_type']
-        missing_fields = [field for field in required_fields if field not in data]
-        
-        if missing_fields:
-            results.add_fail("Staff Commission Summary", f"Missing fields: {missing_fields}")
-            return False
-        
-        if not data.get('success'):
-            results.add_fail("Staff Commission Summary", "Response success is False")
-            return False
-        
-        by_status = data.get('by_status', {})
-        by_type = data.get('by_type', {})
-        
-        results.add_pass("Staff Commission Summary")
-        print(f"   ✅ Commission summary for staff: {test_staff_id}")
-        print(f"   📊 Total earnings: {data.get('total_earnings', 0)}")
-        print(f"   📈 By status: {len(by_status)} categories")
-        print(f"   🔄 By type: {len(by_type)} categories")
-        
-        return True
+        return handle_auth_protected_endpoint("Staff Commission Summary", response)
         
     except Exception as e:
         results.add_fail("Staff Commission Summary", f"Exception: {str(e)}")
