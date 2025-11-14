@@ -301,6 +301,22 @@ function App() {
                 }
               />
               <Route
+                path="/payments"
+                element={
+                  <PrivateRoute>
+                    <CustomerPayments />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/commissions"
+                element={
+                  <PrivateRoute>
+                    <CommissionDashboard />
+                  </PrivateRoute>
+                }
+              />
+              <Route
                 path="/reports"
                 element={
                   <PrivateRoute>
