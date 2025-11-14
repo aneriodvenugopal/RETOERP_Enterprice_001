@@ -418,9 +418,13 @@ const CustomerPayments = () => {
                   </tr>
                 ) : (
                   filteredPayments.map((payment) => (
-                    <tr key={payment.id} className="hover:bg-gray-50 transition-colors">
+                    <tr key={payment.id} className="hover:bg-gray-50 transition-colors cursor-pointer">
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {new Date(payment.payment_date).toLocaleDateString()}
+                        {new Date(payment.payment_date).toLocaleDateString('en-IN', {
+                          day: '2-digit',
+                          month: 'short',
+                          year: 'numeric'
+                        })}
                       </td>
                       <td className="px-6 py-4">
                         <div className="text-sm font-medium text-gray-900">{payment.customer_name}</div>
@@ -428,26 +432,46 @@ const CustomerPayments = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-bold text-gray-900">
-                          ₹{payment.amount?.toLocaleString('en-IN')}
+                          ₹{payment.amount?.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{payment.payment_method}</div>
-                        {payment.payment_mode && (
-                          <div className="text-xs text-gray-500">{payment.payment_mode}</div>
+                        {payment.currency_id !== 'INR' && (
+                          <div className="text-xs text-gray-500">{payment.currency_id}</div>
                         )}
                       </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center gap-2">
+                          {getPaymentModeIcon(payment.payment_mode)}
+                          <div>
+                            <div className="text-sm text-gray-900 capitalize">{payment.payment_method}</div>
+                            {payment.payment_mode && (
+                              <div className="text-xs text-gray-500 uppercase">{payment.payment_mode}</div>
+                            )}
+                          </div>
+                        </div>
+                      </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {payment.transaction_reference || '-'}
+                        <div>{payment.reference_number || payment.transaction_id || '-'}</div>
+                        {payment.receipt_number && (
+                          <div className="text-xs text-blue-600 font-medium">{payment.receipt_number}</div>
+                        )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         {getStatusBadge(payment.status)}
+                        {!payment.is_cleared && payment.payment_mode === 'cheque' && (
+                          <div className="text-xs text-amber-600 mt-1">⏳ Awaiting clearance</div>
+                        )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        {payment.commission_calculated ? (
-                          <span className="text-green-600 font-medium">✓ Calculated</span>
+                        {payment.status === 'completed' ? (
+                          <span className="flex items-center gap-1 text-green-600 font-medium">
+                            <CheckCircle size={14} />
+                            Auto-calculated
+                          </span>
                         ) : (
-                          <span className="text-gray-400">Pending</span>
+                          <span className="flex items-center gap-1 text-gray-400">
+                            <Clock size={14} />
+                            Pending
+                          </span>
                         )}
                       </td>
                     </tr>
