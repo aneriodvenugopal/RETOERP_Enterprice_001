@@ -246,6 +246,12 @@ const AdvisoryChat = () => {
                       value={formData[field.key] || ''}
                       onChange={(e) => handleInputChange(field.key, e.target.value)}
                       placeholder={field.placeholder}
+                      ref={(el) => {
+                        // Add ref for location fields for Google Maps autocomplete
+                        if (field.key.includes('location') || field.label.toLowerCase().includes('location')) {
+                          locationInputRefs.current[field.key] = el;
+                        }
+                      }}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                   )}
