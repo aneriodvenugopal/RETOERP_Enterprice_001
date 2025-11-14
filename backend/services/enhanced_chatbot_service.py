@@ -117,12 +117,14 @@ What would you like to know about?"""
 
 I'm here to help you explore our real estate ERP platform.
 
-Would you like to:
+**Please select an option (just type the number):**
+
 1️⃣ Learn about our features
 2️⃣ Get property advisory
 3️⃣ See how we can help your business
+4️⃣ Talk to our team
 
-What interests you?"""
+Type: 1, 2, 3, or 4"""
         
         state["stage"] = "gathering_requirements"
         self.conversation_states[conv_id] = state
