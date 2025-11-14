@@ -86,8 +86,8 @@ async def get_advisory(request: Request, advisory_request: AdvisoryRequest):
         
         projects = await db.projects.find(query).limit(10).to_list(length=10)
         
-        # Get FREE advisory (zero cost for SaaS owner)
-        ai_response = await free_advisory_service.get_advisory(
+        # Get HYBRID advisory (AI insights + real data, minimal cost)
+        ai_response = await hybrid_advisory_service.get_advisory(
             advisory_request.category,
             advisory_request.user_inputs,
             projects
