@@ -88,20 +88,23 @@ class EnhancedChatbotService:
     async def _handle_initial_stage(self, msg: str, conv_id: str, state: Dict) -> Dict:
         """Stage 1: Greet and offer help"""
         
-        # Check if asking about features
-        if any(word in msg for word in ["feature", "what can", "help", "how does", "what is"]):
+        # Check if asking about features or user typed "1"
+        if any(word in msg for word in ["feature", "what can", "help", "how does", "what is"]) or msg in ["1", "one"]:
             response = """Hello! 👋 I'm your RETOERP Assistant!
 
-I can help you with:
+**Our Key Features:**
 
-🏠 **Property Management** - Browse projects, layouts, availability
-💰 **Payment Tracking** - Check payment schedules, EMI plans
-📊 **Analytics Dashboard** - Real-time business insights
-👥 **Lead Management** - Never miss a customer
-📱 **Mobile App** - Manage on-the-go
-🤖 **AI Advisory** - Get expert property advice
+1️⃣ Property Management - Browse projects, layouts, availability
+2️⃣ Payment Tracking - EMI plans, payment schedules
+3️⃣ Analytics Dashboard - Real-time business insights
+4️⃣ Lead Management - Never miss a customer
+5️⃣ Mobile App - Manage on-the-go
+6️⃣ AI Advisory - Expert property advice
 
-What would you like to know about?"""
+**What interests you? (Type number)**
+
+Type: 1, 2, 3, 4, 5, or 6
+Or type 0 to continue conversation"""
             
             state["stage"] = "gathering_requirements"
             self.conversation_states[conv_id] = state
