@@ -42,17 +42,93 @@ const CustomerPayments = () => {
   });
 
   useEffect(() => {
-    fetchPayments();
-  }, [filterStatus]);
+    initializeComponent();
+  }, []);
+
+  useEffect(() => {
+    if (tenantId) {
+      fetchPayments();
+    }
+  }, [filterStatus, tenantId]);
+
+  const initializeComponent = async () => {
+    try {
+      // Get current user and tenant info
+      const userResponse = await apiInstance.get('/user/me');
+      const user = userResponse.data;
+      const currentTenantId = user.tenant_id || localStorage.getItem('tenant_id');
+      
+      if (!currentTenantId) {
+        toast.error('Tenant information not found');
+        return;
+      }
+      
+      setTenantId(currentTenantId);
+      setFormData(prev => ({ ...prev, tenant_id: currentTenantId }));
+      
+      // Fetch reference data in parallel
+      await Promise.all([
+        fetchPaymentSchemes(currentTenantId),
+        fetchCurrencies(),
+        fetchBookings(currentTenantId)
+      ]);
+      
+    } catch (error) {
+      console.error('Error initializing:', error);
+      toast.error('Failed to initialize payment module');
+    }
+  };
+
+  const fetchBookings = async (tid) => {
+    try {
+      const response = await apiInstance.get('/bookings', {
+        params: { 
+          tenant_id: tid,
+          status: 'confirmed', // Only show confirmed bookings
+          limit: 500
+        }
+      });
+      setBookings(response.data.bookings || []);
+    } catch (error) {
+      console.error('Error fetching bookings:', error);
+      toast.error('Failed to load bookings');
+    }
+  };
+
+  const fetchPaymentSchemes = async (tid) => {
+    try {
+      const response = await apiInstance.get('/schemes', {
+        params: { tenant_id: tid }
+      });
+      setPaymentSchemes(response.data.schemes || []);
+    } catch (error) {
+      console.error('Error fetching payment schemes:', error);
+    }
+  };
+
+  const fetchCurrencies = async () => {
+    try {
+      const response = await apiInstance.get('/currencies');
+      setCurrencies(response.data.currencies || []);
+    } catch (error) {
+      console.error('Error fetching currencies:', error);
+      // Set default currencies
+      setCurrencies([
+        { code: 'INR', symbol: '₹', name: 'Indian Rupee' },
+        { code: 'USD', symbol: '$', name: 'US Dollar' },
+        { code: 'EUR', symbol: '€', name: 'Euro' }
+      ]);
+    }
+  };
 
   const fetchPayments = async () => {
     setLoading(true);
     try {
-      const params = {};
+      const params = { tenant_id: tenantId, limit: 100 };
       if (filterStatus !== 'all') params.status = filterStatus;
       
-      const response = await apiInstance.get('/customer-payments', { params });
-      setPayments(response.data);
+      const response = await apiInstance.get('/payments', { params });
+      setPayments(response.data.payments || []);
     } catch (error) {
       console.error('Error fetching payments:', error);
       toast.error('Failed to load payments');
