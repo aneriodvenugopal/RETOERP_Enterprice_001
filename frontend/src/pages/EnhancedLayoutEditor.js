@@ -149,18 +149,14 @@ const EnhancedLayoutEditor = () => {
     if (!isDrawing || !drawingMode) return;
     
     const svg = svgRef.current;
-    const rect = svg.getBoundingClientRect();
+    const pt = svg.createSVGPoint();
+    pt.x = e.clientX;
+    pt.y = e.clientY;
     
-    // Get SVG viewBox or default dimensions
-    const viewBox = svg.viewBox.baseVal;
-    const svgWidth = viewBox.width || svg.width.baseVal.value || 1000;
-    const svgHeight = viewBox.height || svg.height.baseVal.value || 1000;
+    // Transform screen coordinates to SVG coordinates
+    const svgP = pt.matrixTransform(svg.getScreenCTM().inverse());
     
-    // Convert screen coordinates to SVG coordinates
-    const x = ((e.clientX - rect.left) / rect.width) * svgWidth;
-    const y = ((e.clientY - rect.top) / rect.height) * svgHeight;
-    
-    const newPoints = [...currentPoints, { x, y }];
+    const newPoints = [...currentPoints, { x: svgP.x, y: svgP.y }];
     setCurrentPoints(newPoints);
     
     // Auto-complete shapes
