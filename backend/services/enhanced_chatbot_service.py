@@ -98,6 +98,65 @@ class EnhancedChatbotService:
     async def _handle_initial_stage(self, msg: str, conv_id: str, state: Dict) -> Dict:
         """Stage 1: Greet and offer help"""
         
+        project_name = state.get("context", {}).get("project_name")
+        is_project_chat = bool(state.get("context", {}).get("project_id"))
+        
+        # Project-specific welcome
+        if is_project_chat and project_name:
+            if msg in ["1", "property", "details"]:
+                response = f"""**{project_name} - Property Details** 🏘️
+
+I can help you with:
+
+1️⃣ Available Units & Floor Plans
+2️⃣ Pricing & Payment Options
+3️⃣ Amenities & Facilities
+4️⃣ Location Benefits
+5️⃣ Construction Status
+6️⃣ Documentation & RERA
+
+**What would you like to know? (Type number)**"""
+                
+                state["stage"] = "gathering_requirements"
+                self.conversation_states[conv_id] = state
+                
+                return {
+                    "message": response,
+                    "action": "continue",
+                    "data": {}
+                }
+            
+            elif msg in ["4", "visit", "schedule"]:
+                response = f"""**Schedule Site Visit - {project_name}** 📅
+
+Great choice! Let me help you schedule a visit.
+
+**Preferred Date? (Type number or date)**
+
+1️⃣ Today
+2️⃣ Tomorrow
+3️⃣ This Weekend
+4️⃣ Next Week
+
+**Preferred Time?**
+
+5️⃣ Morning (10 AM - 12 PM)
+6️⃣ Afternoon (2 PM - 4 PM)
+7️⃣ Evening (4 PM - 6 PM)
+
+Type: "2 6" for Tomorrow Afternoon
+Or: "Tomorrow at 3 PM"
+"""
+                
+                state["stage"] = "scheduling_call"
+                self.conversation_states[conv_id] = state
+                
+                return {
+                    "message": response,
+                    "action": "continue",
+                    "data": {}
+                }
+        
         # Check if asking about features or user typed "1"
         if any(word in msg for word in ["feature", "what can", "help", "how does", "what is"]) or msg in ["1", "one"]:
             response = """Hello! 👋 I'm your RETOERP Assistant!
