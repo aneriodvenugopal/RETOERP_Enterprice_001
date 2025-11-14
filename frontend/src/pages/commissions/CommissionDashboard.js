@@ -276,20 +276,58 @@ const CommissionDashboard = () => {
 
         {/* Filters */}
         <div className="bg-white rounded-xl shadow-sm p-4 mb-6">
-          <div className="flex flex-wrap gap-2">
-            {['all', 'pending', 'approved', 'paid', 'cancelled', 'on_hold'].map((status) => (
-              <button
-                key={status}
-                onClick={() => setFilterStatus(status)}
-                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                  filterStatus === status
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                {status.charAt(0).toUpperCase() + status.slice(1).replace('_', ' ')}
-              </button>
-            ))}
+          <div className="flex flex-col gap-4">
+            {/* Search */}
+            <div className="flex items-center gap-2">
+              <Search size={20} className="text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search by staff name..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            
+            {/* Status Filters */}
+            <div>
+              <label className="text-sm font-medium text-gray-700 mb-2 block">Status</label>
+              <div className="flex flex-wrap gap-2">
+                {['all', 'pending', 'approved', 'paid', 'cancelled', 'on_hold'].map((status) => (
+                  <button
+                    key={status}
+                    onClick={() => setFilterStatus(status)}
+                    className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                      filterStatus === status
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    {status.charAt(0).toUpperCase() + status.slice(1).replace('_', ' ')}
+                  </button>
+                ))}
+              </div>
+            </div>
+            
+            {/* Type Filters */}
+            <div>
+              <label className="text-sm font-medium text-gray-700 mb-2 block">Commission Type</label>
+              <div className="flex flex-wrap gap-2">
+                {['all', 'direct', 'gap'].map((type) => (
+                  <button
+                    key={type}
+                    onClick={() => setFilterType(type)}
+                    className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                      filterType === type
+                        ? 'bg-purple-600 text-white'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    {type.charAt(0).toUpperCase() + type.slice(1)}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
 
