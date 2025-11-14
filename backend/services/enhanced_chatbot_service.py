@@ -364,7 +364,7 @@ Example: 123456"""
     async def _handle_advisory_stage(self, msg: str, conv_id: str, state: Dict) -> Dict:
         """Stage 6: Provide advisory or move to scheduling"""
         
-        if "advisory" in msg.lower() or "both" in msg.lower():
+        if msg in ["1", "advisory", "both", "3"]:
             # Trigger advisory (will be handled by frontend to call advisory API)
             response = f"""📊 **Preparing Your Advisory...**
 
@@ -372,13 +372,13 @@ Based on your requirements:
 • {state.get('requirements', {}).get('user_query', 'Property search')}
 • Budget and location preferences
 
-I'll generate a detailed advisory for you now!
+Generating detailed advisory now!
 
-*(This will open the advisory form with your details pre-filled)*"""
+*(Advisory form will open with your details)*"""
             
-            if "both" in msg.lower():
+            if msg in ["both", "3"]:
                 state["stage"] = "scheduling_call"
-                response += "\n\nAfter reviewing the advisory, we can schedule an expert call!"
+                response += "\n\n✅ Great! After reviewing advisory, let's schedule your expert call..."
             
             self.conversation_states[conv_id] = state
             
@@ -391,19 +391,28 @@ I'll generate a detailed advisory for you now!
                 }
             }
         
-        elif "schedule" in msg.lower() or "call" in msg.lower() or "both" in msg.lower():
+        elif msg in ["2", "schedule", "call"]:
             response = """📞 **Schedule Expert Consultation**
 
-Our property experts are ready to help you!
+Our property experts are ready to help!
 
-Please share your preferred:
+**Preferred Date? (Select or type)**
 
-🗓️ **Date** (e.g., 15 December or Tomorrow)
-⏰ **Time** (e.g., 3 PM or Evening)
-📝 **Any special request?** (Optional)
+1️⃣ Today
+2️⃣ Tomorrow
+3️⃣ Day After Tomorrow
+4️⃣ This Weekend
+5️⃣ Other (please specify date)
 
-Example: "Tomorrow at 3 PM, want to discuss budget options"
+**Preferred Time?**
 
+6️⃣ Morning (9 AM - 12 PM)
+7️⃣ Afternoon (12 PM - 3 PM)
+8️⃣ Evening (3 PM - 6 PM)
+9️⃣ Night (6 PM - 9 PM)
+
+**Type date and time numbers (e.g., "2 7" for Tomorrow Afternoon)**
+Or type directly: "Tomorrow at 3 PM"
 """
             
             state["stage"] = "scheduling_call"
@@ -416,12 +425,13 @@ Example: "Tomorrow at 3 PM, want to discuss budget options"
             }
         
         else:
-            response = """I can help you with:
+            response = """**Select an option (type number):**
 
-1️⃣ **Instant Advisory** - Get property recommendations now
-2️⃣ **Expert Call** - Speak with our consultants
+1️⃣ Instant Advisory - Get recommendations now
+2️⃣ Expert Call - Schedule consultation
+3️⃣ Both - Advisory + Expert call
 
-What would you prefer?"""
+Type: 1, 2, or 3"""
             
             return {
                 "message": response,
