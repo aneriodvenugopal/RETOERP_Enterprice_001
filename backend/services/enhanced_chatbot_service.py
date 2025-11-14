@@ -450,23 +450,52 @@ Type: 1, 2, or 3"""
             "special_request": ""
         }
         
-        # Simple date extraction
-        if any(word in msg.lower() for word in ["tomorrow", "today", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]):
-            words = msg.lower().split()
-            for word in words:
-                if word in ["tomorrow", "today", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]:
-                    schedule_info["date"] = word.capitalize()
-                    break
+        # Number-based date selection
+        date_map = {
+            "1": "Today",
+            "2": "Tomorrow", 
+            "3": "Day After Tomorrow",
+            "4": "This Weekend"
+        }
         
-        # Simple time extraction
-        time_match = re.search(r'\b(\d{1,2})\s*(am|pm|AM|PM)\b', msg)
-        if time_match:
-            schedule_info["time"] = time_match.group()
-        elif any(word in msg.lower() for word in ["morning", "afternoon", "evening", "night"]):
-            for word in ["morning", "afternoon", "evening", "night"]:
-                if word in msg.lower():
-                    schedule_info["time"] = word.capitalize()
-                    break
+        # Number-based time selection
+        time_map = {
+            "6": "Morning (9 AM - 12 PM)",
+            "7": "Afternoon (12 PM - 3 PM)",
+            "8": "Evening (3 PM - 6 PM)",
+            "9": "Night (6 PM - 9 PM)"
+        }
+        
+        # Check for number inputs
+        for num, date in date_map.items():
+            if num in msg:
+                schedule_info["date"] = date
+                break
+        
+        for num, time in time_map.items():
+            if num in msg:
+                schedule_info["time"] = time
+                break
+        
+        # Simple date extraction from text
+        if schedule_info["date"] == "Not specified":
+            if any(word in msg.lower() for word in ["tomorrow", "today", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]):
+                words = msg.lower().split()
+                for word in words:
+                    if word in ["tomorrow", "today", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]:
+                        schedule_info["date"] = word.capitalize()
+                        break
+        
+        # Simple time extraction from text
+        if schedule_info["time"] == "Not specified":
+            time_match = re.search(r'\b(\d{1,2})\s*(am|pm|AM|PM)\b', msg)
+            if time_match:
+                schedule_info["time"] = time_match.group()
+            elif any(word in msg.lower() for word in ["morning", "afternoon", "evening", "night"]):
+                for word in ["morning", "afternoon", "evening", "night"]:
+                    if word in msg.lower():
+                        schedule_info["time"] = word.capitalize()
+                        break
         
         # Extract special request
         schedule_info["special_request"] = msg
