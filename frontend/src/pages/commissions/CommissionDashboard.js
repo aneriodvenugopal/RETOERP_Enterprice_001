@@ -121,15 +121,41 @@ const CommissionDashboard = () => {
     }
   };
 
-  const handleApprove = async (earningId, action) => {
+  const handleApprove = async (earningId, action, notes = '') => {
+    if (!isAdmin) {
+      toast.error('Only admins can approve commissions');
+      return;
+    }
+
     try {
-      await apiInstance.post(`/commissions/earnings/${earningId}/approve`, { action });
-      toast.success(`Commission ${action}d successfully!`);
-      fetchEarnings();
-      setSelectedEarning(null);
+      setLoading(true);
+      const response = await apiInstance.post(`/commissions/earnings/${earningId}/approve`, {
+        action, // 'approve', 'reject', or 'hold'
+        notes
+      });
+      
+      if (response.data.success) {
+        const actionText = action === 'approve' ? 'approved' : action === 'reject' ? 'rejected' : 'put on hold';
+        toast.success(`Commission ${actionText} successfully`);
+        setShowApprovalModal(false);
+        fetchEarnings();
+      }
     } catch (error) {
-      console.error('Error updating earning:', error);
-      toast.error(error.response?.data?.detail || `Failed to ${action} commission`);
+      console.error('Error updating commission:', error);
+      toast.error(error.response?.data?.detail || 'Failed to update commission');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const viewDetails = async (earningId) => {
+    try {
+      const response = await apiInstance.get(`/commissions/earnings/${earningId}`);
+      setSelectedEarning(response.data);
+      setShowDetailModal(true);
+    } catch (error) {
+      console.error('Error fetching earning details:', error);
+      toast.error('Failed to load commission details');
     }
   };
 
