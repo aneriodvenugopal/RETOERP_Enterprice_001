@@ -4,7 +4,7 @@ Generate and track ₹5000 discount coupons
 """
 from fastapi import APIRouter, HTTPException, Depends, Request
 from models.coupon import CouponCode, CouponRequest, CouponUsage
-from middleware.auth import require_auth
+from middleware.auth import get_current_user
 import uuid
 from datetime import datetime
 import random
