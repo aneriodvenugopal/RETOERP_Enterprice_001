@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import apiInstance from '../../services/api';
-import { Building2, MapPin, Phone, Mail, TrendingUp, Home, Users, Calendar, ArrowRight, ExternalLink } from 'lucide-react';
+import { Building2, MapPin, Phone, Mail, TrendingUp, Home, Users, Calendar, ArrowRight, ExternalLink, Download } from 'lucide-react';
 
 function TenantLandingPage() {
   const { tenantId } = useParams();
