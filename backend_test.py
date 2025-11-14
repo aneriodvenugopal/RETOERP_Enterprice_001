@@ -1,8 +1,13 @@
 #!/usr/bin/env python3
 """
-Backend API Testing for RETOERP - Workforce API Testing
-Tests the workforce-related APIs including stats, search, skills, and cities endpoints.
-Focus: Workforce data retrieval and validation for SaaS Admin Dashboard
+Backend API Testing for RETOERP - Payment & Commission ERP Module
+Comprehensive testing of all backend APIs for the complete ERP module including:
+- Payment Schemes APIs
+- Staff Hierarchy APIs  
+- Customer Payments APIs (Razorpay + Manual)
+- Commission Management APIs
+- Agent Payouts APIs
+- Supporting APIs (currencies, bookings)
 """
 
 import requests
@@ -10,7 +15,7 @@ import json
 import sys
 import os
 import traceback
-from datetime import datetime
+from datetime import datetime, timezone
 import uuid
 
 # Get backend URL from frontend .env file
@@ -31,7 +36,7 @@ if not BACKEND_URL:
 
 API_BASE = f"{BACKEND_URL}/api"
 
-print(f"🔄 TESTING Workforce API at: {API_BASE}")
+print(f"🔄 TESTING RETOERP Payment & Commission ERP Module at: {API_BASE}")
 print("=" * 80)
 
 class TestResults:
