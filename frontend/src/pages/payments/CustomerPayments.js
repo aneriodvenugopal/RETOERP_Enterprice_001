@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { DollarSign, Plus, Search, Filter, CheckCircle, XCircle, Clock, Download } from 'lucide-react';
+import { 
+  DollarSign, Plus, Search, CheckCircle, XCircle, Clock, 
+  CreditCard, Wallet, FileText, Users, Calendar, Building2,
+  Trash2, Edit2, Eye
+} from 'lucide-react';
 import apiInstance from '../../services/api';
 import { toast } from 'sonner';
 
@@ -9,17 +13,32 @@ const CustomerPayments = () => {
   const [showModal, setShowModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
+  const [tenantId, setTenantId] = useState('');
+  
+  // Dropdown data
+  const [bookings, setBookings] = useState([]);
+  const [paymentSchemes, setPaymentSchemes] = useState([]);
+  const [currencies, setCurrencies] = useState([]);
   
   // Form state
   const [formData, setFormData] = useState({
-    booking_id: '',
+    tenant_id: '',
+    booking_ids: [],
+    customer_id: '',
     customer_name: '',
     customer_phone: '',
+    customer_email: '',
     amount: '',
+    currency_id: 'INR',
     payment_method: 'manual',
-    payment_mode: 'NEFT',
-    transaction_reference: '',
-    remarks: ''
+    payment_mode: 'neft',
+    transaction_id: '',
+    reference_number: '',
+    bank_name: '',
+    cheque_date: '',
+    payment_screenshot_url: '',
+    allocation: {}, // {booking_id: amount}
+    notes: ''
   });
 
   useEffect(() => {
