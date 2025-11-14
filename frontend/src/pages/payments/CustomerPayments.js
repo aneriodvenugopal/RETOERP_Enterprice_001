@@ -256,15 +256,57 @@ const CustomerPayments = () => {
 
   const resetForm = () => {
     setFormData({
-      booking_id: '',
+      tenant_id: tenantId,
+      booking_ids: [],
+      customer_id: '',
       customer_name: '',
       customer_phone: '',
+      customer_email: '',
       amount: '',
+      currency_id: 'INR',
       payment_method: 'manual',
-      payment_mode: 'NEFT',
-      transaction_reference: '',
-      remarks: ''
+      payment_mode: 'neft',
+      transaction_id: '',
+      reference_number: '',
+      bank_name: '',
+      cheque_date: '',
+      payment_screenshot_url: '',
+      allocation: {},
+      notes: ''
     });
+  };
+  
+  const handleBookingSelection = (bookingId) => {
+    const selected = bookings.find(b => b.id === bookingId);
+    if (!selected) return;
+    
+    // Update form data with booking info
+    setFormData(prev => ({
+      ...prev,
+      booking_ids: [bookingId],
+      customer_id: selected.customer_id,
+      customer_name: selected.customer_name,
+      customer_phone: selected.customer_phone,
+      customer_email: selected.customer_email,
+      amount: (selected.balance_amount || 0).toString(),
+      allocation: { [bookingId]: selected.balance_amount || 0 }
+    }));
+  };
+  
+  const getPaymentModeIcon = (mode) => {
+    const icons = {
+      'razorpay': <CreditCard size={16} />,
+      'upi': <Wallet size={16} />,
+      'card': <CreditCard size={16} />,
+      'netbanking': <Building2 size={16} />,
+      'neft': <FileText size={16} />,
+      'rtgs': <FileText size={16} />,
+      'imps': <Wallet size={16} />,
+      'cheque': <FileText size={16} />,
+      'dd': <FileText size={16} />,
+      'cash': <DollarSign size={16} />
+    };
+    return icons[mode?.toLowerCase()] || <FileText size={16} />;
   };
 
   const getStatusBadge = (status) => {
