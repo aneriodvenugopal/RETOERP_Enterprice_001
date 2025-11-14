@@ -86,12 +86,30 @@ async def get_advisory(request: Request, advisory_request: AdvisoryRequest):
         
         projects = await db.projects.find(query).limit(10).to_list(length=10)
         
-        # Get HYBRID advisory (AI insights + real data, minimal cost)
-        ai_response = await hybrid_advisory_service.get_advisory(
-            advisory_request.category,
-            advisory_request.user_inputs,
-            projects
-        )
+        # DUAL ADVISORY SYSTEM:
+        # - Logged-in users (tenants/staff) → AI-powered (Emergent LLM)
+        # - Public users → Template-based (Free, no API cost)
+        
+        # Check if user is authenticated
+        auth_header = request.headers.get('authorization', '')
+        is_authenticated = bool(auth_header and auth_header.startswith('Bearer '))
+        
+        if is_authenticated:
+            # PAID: Logged-in tenant/staff gets AI-powered advisory
+            from services.hybrid_advisory_service import hybrid_advisory_service
+            ai_response = await hybrid_advisory_service.get_advisory(
+                advisory_request.category,
+                advisory_request.user_inputs,
+                projects
+            )
+        else:
+            # FREE: Public website users get template-based advisory
+            from services.free_advisory_service import free_advisory_service
+            ai_response = await free_advisory_service.get_advisory(
+                advisory_request.category,
+                advisory_request.user_inputs,
+                projects
+            )
         
         # Extract recommended project names from response (simple matching)
         recommended_projects = []
