@@ -399,13 +399,19 @@ const WorkforceMap = () => {
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
                 <p>Searching workers...</p>
               </div>
-            ) : filteredWorkers.map(worker => (
+            ) : filteredWorkers.map(worker => {
+              const lat = worker.location?.lat || worker.lat;
+              const lng = worker.location?.lng || worker.lng;
+              const city = worker.location?.city || worker.city;
+              const state = worker.location?.state || worker.state;
+              
+              return (
               <div
                 key={worker.id}
                 onClick={() => {
                   setSelectedWorker(worker);
-                  if (googleMapRef.current) {
-                    googleMapRef.current.panTo({ lat: worker.location.lat, lng: worker.location.lng });
+                  if (googleMapRef.current && lat && lng) {
+                    googleMapRef.current.panTo({ lat, lng });
                     googleMapRef.current.setZoom(14);
                   }
                 }}
@@ -428,7 +434,7 @@ const WorkforceMap = () => {
                 <div className="space-y-1 text-sm text-gray-600">
                   <div className="flex items-center gap-2">
                     <MapPin className="w-4 h-4" />
-                    <span>{worker.location.city}, {worker.location.state}</span>
+                    <span>{city}, {state}</span>
                   </div>
                   
                   {worker.experience_years && (
