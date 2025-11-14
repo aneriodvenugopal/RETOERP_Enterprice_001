@@ -630,7 +630,7 @@ def test_create_staff_hierarchy():
         return False
 
 def test_list_staff_hierarchy():
-    """Test 9: GET /api/staff-hierarchy - List staff hierarchy with filters"""
+    """Test 10: GET /api/staff-hierarchy - List staff hierarchy with filters (requires auth)"""
     try:
         print("\n📋 TESTING: GET /api/staff-hierarchy")
         
@@ -642,35 +642,33 @@ def test_list_staff_hierarchy():
             timeout=10
         )
         
-        if response.status_code != 200:
-            results.add_fail("List Staff Hierarchy", f"Status code: {response.status_code}")
-            print_error_details("List Staff Hierarchy", response)
-            return False
+        def success_handler(response):
+            data = response.json()
             
-        data = response.json()
+            # Validate response structure
+            required_fields = ['success', 'count', 'hierarchies']
+            missing_fields = [field for field in required_fields if field not in data]
+            
+            if missing_fields:
+                results.add_fail("List Staff Hierarchy", f"Missing fields: {missing_fields}")
+                return False
+            
+            if not data.get('success'):
+                results.add_fail("List Staff Hierarchy", "Response success is False")
+                return False
+            
+            hierarchies = data.get('hierarchies', [])
+            
+            results.add_pass("List Staff Hierarchy")
+            print(f"   ✅ Found {len(hierarchies)} staff hierarchy entries")
+            
+            if hierarchies:
+                staff = hierarchies[0]
+                print(f"   👤 Sample staff: {staff.get('staff_name')} (Level {staff.get('hierarchy_level', 0)})")
+            
+            return True
         
-        # Validate response structure
-        required_fields = ['success', 'count', 'hierarchies']
-        missing_fields = [field for field in required_fields if field not in data]
-        
-        if missing_fields:
-            results.add_fail("List Staff Hierarchy", f"Missing fields: {missing_fields}")
-            return False
-        
-        if not data.get('success'):
-            results.add_fail("List Staff Hierarchy", "Response success is False")
-            return False
-        
-        hierarchies = data.get('hierarchies', [])
-        
-        results.add_pass("List Staff Hierarchy")
-        print(f"   ✅ Found {len(hierarchies)} staff hierarchy entries")
-        
-        if hierarchies:
-            staff = hierarchies[0]
-            print(f"   👤 Sample staff: {staff.get('staff_name')} (Level {staff.get('hierarchy_level', 0)})")
-        
-        return True
+        return handle_auth_protected_endpoint("List Staff Hierarchy", response, success_handler)
         
     except Exception as e:
         results.add_fail("List Staff Hierarchy", f"Exception: {str(e)}")
