@@ -148,9 +148,17 @@ const EnhancedLayoutEditor = () => {
   const handleSvgClick = (e) => {
     if (!isDrawing || !drawingMode) return;
     
-    const rect = svgRef.current.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / zoom;
-    const y = (e.clientY - rect.top) / zoom;
+    const svg = svgRef.current;
+    const rect = svg.getBoundingClientRect();
+    
+    // Get SVG viewBox or default dimensions
+    const viewBox = svg.viewBox.baseVal;
+    const svgWidth = viewBox.width || svg.width.baseVal.value || 1000;
+    const svgHeight = viewBox.height || svg.height.baseVal.value || 1000;
+    
+    // Convert screen coordinates to SVG coordinates
+    const x = ((e.clientX - rect.left) / rect.width) * svgWidth;
+    const y = ((e.clientY - rect.top) / rect.height) * svgHeight;
     
     const newPoints = [...currentPoints, { x, y }];
     setCurrentPoints(newPoints);
