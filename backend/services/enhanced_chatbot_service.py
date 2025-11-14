@@ -543,26 +543,35 @@ Looking forward to helping you find your perfect property! 🏡"""
         
         # Feature questions
         if any(word in msg for word in ["feature", "what can", "how does", "price", "cost"]):
-            response = """RETOERP offers comprehensive features:
+            response = """**RETOERP Features:**
 
-🏠 **Property Management** - Visual layouts, availability tracking
-💰 **Payment Automation** - Razorpay/Stripe integration
-📊 **Analytics** - Real-time BI dashboards
-👥 **CRM** - Smart lead management
-📱 **Mobile App** - iOS & Android PWA
-🤖 **AI Advisory** - Property recommendations
+1️⃣ Property Management - Layouts, availability
+2️⃣ Payment Automation - Razorpay/Stripe
+3️⃣ Analytics - Real-time dashboards
+4️⃣ CRM - Lead management
+5️⃣ Mobile App - iOS & Android
+6️⃣ AI Advisory - Property recommendations
 
-Want to know more about any specific feature?"""
+**Select a feature to learn more (type number)**
+
+Or type:
+7️⃣ See Pricing
+8️⃣ Schedule Demo
+9️⃣ Talk to Expert"""
             
         else:
-            response = """I'm here to help! You can ask me about:
+            response = """**I'm here to help!**
 
-• RETOERP features and pricing
-• Property advisory
-• Scheduling an expert call
-• How our platform works
+**What would you like to know? (Type number)**
 
-What would you like to know?"""
+1️⃣ RETOERP Features
+2️⃣ Pricing & Plans
+3️⃣ Property Advisory
+4️⃣ Schedule Expert Call
+5️⃣ How Platform Works
+6️⃣ Request Demo
+
+Type: 1, 2, 3, 4, 5, or 6"""
         
         return {
             "message": response,
