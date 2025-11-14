@@ -80,7 +80,7 @@ async def generate_coupon(
 async def mark_coupon_used(
     usage: CouponUsage,
     db = Depends(get_db),
-    current_user: dict = Depends(require_auth)
+    current_user: dict = Depends(get_current_user)
 ):
     """
     Mark coupon as used
