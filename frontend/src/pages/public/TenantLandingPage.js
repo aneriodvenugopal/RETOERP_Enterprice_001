@@ -531,13 +531,33 @@ function TenantLandingPage() {
 
       {/* Footer */}
       <footer className="bg-gray-900 text-white py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p className="text-gray-400">
-            © {new Date().getFullYear()} {tenant.company_name}. All rights reserved.
-          </p>
-          <p className="text-gray-500 text-sm mt-2">
-            Powered by RETOERP
-          </p>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Install App Section */}
+          <div className="text-center mb-6">
+            <button
+              onClick={() => {
+                const event = new CustomEvent('trigger-pwa-install');
+                window.dispatchEvent(event);
+              }}
+              className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors shadow-lg"
+            >
+              <Download size={20} />
+              Install {tenant.company_name} App
+            </button>
+            <p className="text-gray-400 text-sm mt-2">
+              Get faster access and work offline
+            </p>
+          </div>
+          
+          {/* Copyright */}
+          <div className="text-center border-t border-gray-800 pt-6">
+            <p className="text-gray-400">
+              © {new Date().getFullYear()} {tenant.company_name}. All rights reserved.
+            </p>
+            <p className="text-gray-500 text-sm mt-2">
+              Powered by RETOERP
+            </p>
+          </div>
         </div>
       </footer>
     </div>
