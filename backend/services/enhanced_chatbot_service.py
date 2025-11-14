@@ -268,11 +268,11 @@ Don't worry - we respect your privacy and will only use this to help you better!
             
             response = f"""Perfect! {name_part}Thank you! 🎉
 
-I've sent a verification code to **{phone}**.
+📱 Verification code sent to **{phone}**
 
-**OTP: {otp}** (Demo mode - showing OTP directly)
+**OTP: {otp}** (Demo - showing OTP for testing)
 
-Please enter the 6-digit OTP to verify your number."""
+Please type the 6-digit OTP to verify."""
             
             state["stage"] = "verifying_otp"
             self.conversation_states[conv_id] = state
