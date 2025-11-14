@@ -763,38 +763,7 @@ def test_create_razorpay_order():
             timeout=10
         )
         
-        # This might fail if booking doesn't exist, which is expected in test environment
-        if response.status_code == 404:
-            print("   ⚠️ Expected 404 - Booking not found (normal for test environment)")
-            print("   ✅ Razorpay create-order endpoint is accessible and validates input")
-            results.add_pass("Create Razorpay Order")
-            return True
-        elif response.status_code == 200:
-            data = response.json()
-            
-            # Validate response structure
-            required_fields = ['success', 'order_id', 'amount', 'currency', 'key_id']
-            missing_fields = [field for field in required_fields if field not in data]
-            
-            if missing_fields:
-                results.add_fail("Create Razorpay Order", f"Missing fields: {missing_fields}")
-                return False
-            
-            if not data.get('success'):
-                results.add_fail("Create Razorpay Order", "Response success is False")
-                return False
-            
-            results.add_pass("Create Razorpay Order")
-            print(f"   ✅ Razorpay order created: {data.get('order_id')}")
-            print(f"   💰 Amount: ₹{data.get('amount'):,}")
-            print(f"   🔑 Key ID: {data.get('key_id')}")
-            print(f"   🧪 Mock mode: {data.get('is_mock', False)}")
-            
-            return True
-        else:
-            results.add_fail("Create Razorpay Order", f"Unexpected status code: {response.status_code}")
-            print_error_details("Create Razorpay Order", response)
-            return False
+        return handle_auth_protected_endpoint("Create Razorpay Order", response)
         
     except Exception as e:
         results.add_fail("Create Razorpay Order", f"Exception: {str(e)}")
