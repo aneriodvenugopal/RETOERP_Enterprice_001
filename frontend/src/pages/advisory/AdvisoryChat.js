@@ -106,7 +106,7 @@ const AdvisoryChat = () => {
       const inputRef = locationInputRefs.current[field.key];
       if (inputRef && window.google) {
         const autocomplete = new window.google.maps.places.Autocomplete(inputRef, {
-          types: ['(cities)'],
+          types: ['geocode', 'establishment'], // Changed from '(cities)' to show localities, neighborhoods
           componentRestrictions: { country: 'in' }
         });
 
