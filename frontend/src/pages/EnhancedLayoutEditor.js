@@ -607,8 +607,6 @@ const EnhancedLayoutEditor = () => {
           <svg
             ref={svgRef}
             onClick={handleSvgClick}
-            viewBox="0 0 1000 1000"
-            preserveAspectRatio="xMidYMid meet"
             className="w-full h-full"
             style={{
               transform: `scale(${zoom})`,
@@ -618,7 +616,7 @@ const EnhancedLayoutEditor = () => {
           >
             {/* Background SVG */}
             {svgUrl && (
-              <image href={svgUrl} x="0" y="0" width="1000" height="1000" opacity="0.3" preserveAspectRatio="xMidYMid meet" />
+              <image href={svgUrl} width="100%" height="100%" opacity="0.3" />
             )}
             
             {/* Plots */}
