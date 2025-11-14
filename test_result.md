@@ -1714,3 +1714,16 @@ backend:
       - working: "NA"
         agent: "main"
         comment: "✅ IMPLEMENTED Clean Advisory + Coupon Strategy: (1) SIMPLIFIED AI PROMPTS: Ultra-short prompts (20-30 words) instead of 150+ words, Format: 'Client wants X in Y with Z budget. Give 4 bullet points: ✓ What they can get, ✓ Financial tip, ⚠️ Hidden costs, ✓ Key advice', Cost reduced by 60% (200 tokens → 250 tokens total), (2) READABLE RESPONSE FORMAT: Changed from long paragraphs to bullet points with ✓ and ⚠️ icons, 100-150 words (vs 200 before), Compact location data (top 2 schools, hospitals, 1 mall, metro), Clear sections with proper spacing, (3) RETOERP PROJECTS INTEGRATION: Shows available projects near user's location, Filters projects by location match, Displays: Project name, Location, Units available, 'Contact for details', Falls back to showing any 2 projects if no match, (4) COUPON CODE SYSTEM (₹5000 Discount Strategy): NEW API endpoint: POST /coupons/generate - generates unique coupon (RETO5K-XXXXXX), Tracks: customer phone, name, email, issue date, status (issued/used/expired), GET /coupons/verify/{code} - verify if coupon valid, POST /coupons/mark-used - mark coupon as used (staff only), GET /coupons/stats - get usage statistics (admin), Database: coupons collection with full tracking, Lead generation: Customer shares phone to get coupon code, Strategy: Works whether they buy from RETOERP or elsewhere - we capture lead!, (5) ADVISORY RESPONSE INCLUDES: Clean AI insights (100-150 words), Compact location data, RETOERP projects nearby, Prominent coupon offer section with instructions, Note about pan-India presence. Result: Fast response (~1.5s), Low cost (₹0.70-1 per advisory), Readable format (not walls of text), Strong lead capture mechanism, Professional and actionable. Ready for testing!"
+
+frontend:
+  - task: "Fix confusing button-like elements on homepage (UX issue)"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/components/HeroCarousel.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "✅ FIXED Homepage UX Confusion: Problem: Elements like 'Problem', 'Solution', '40X Faster Growth' looked like clickable buttons but were just decorative divs with rounded-pill/rounded-full styling, shadows, and bright colors - causing user confusion. Solution: (1) Changed 'Problem' badge from rounded pill (bg-red-500/90, rounded-full) to clean label style (text-red-400, uppercase, tracking-wider, no background), (2) Changed 'Solution' badge from rounded pill (bg-green-500/90, rounded-full) to clean label style (text-green-400, uppercase, tracking-wider, no background), (3) Changed benefit badge from prominent rounded button look (bg-yellow-400, rounded-lg, font-bold, text-lg) to subtle flat badge (inline-flex, gradient background, smaller padding, no rounded corners), (4) Added semantic labels: '❌ THE PROBLEM' and '✅ OUR SOLUTION' instead of just 'Problem/Solution', (5) Kept actual CTA buttons with proper button styling (rounded-lg, hover effects, shadows). Result: Clear visual hierarchy - labels look like labels, buttons look like buttons. No more confusion about what's clickable! Professional UX that guides users properly."
