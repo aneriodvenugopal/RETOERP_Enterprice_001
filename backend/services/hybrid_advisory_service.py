@@ -260,38 +260,41 @@ Be specific to their {amount} investment and {timeline}. Include current market 
             return None
     
     def _format_response(self, category: str, user_inputs: dict, ai_insights: str, location_data: dict, projects: list) -> str:
-        """Format final response with AI + real data"""
+        """Format final response - conversational, not template-like"""
         
         # Category icons and titles
         titles = {
-            "budget": "💰 Budget Advisory",
-            "location": "📍 Location Analysis",
-            "numerology": "🔢 Numerology Guidance",
-            "best_project": "⭐ Project Recommendations",
-            "investment": "📈 Investment Strategy"
+            "budget": "💰 Your Budget Analysis",
+            "location": "📍 Location Deep-Dive",
+            "numerology": "🔢 Your Numerology Profile",
+            "best_project": "⭐ Project Selection Guide",
+            "investment": "📈 Investment Breakdown"
         }
         
-        title = titles.get(category, "🏡 Real Estate Advisory")
+        title = titles.get(category, "🏡 Your Property Advisory")
         
-        # Start with user inputs summary
+        # Start conversationally
         response = f"**{title}**\n\n"
-        response += self._format_user_inputs(category, user_inputs)
         
-        # AI Insights (50-100 words)
-        response += f"\n\n**💡 Expert Insights:**\n{ai_insights}\n"
+        # Quick summary of their situation (conversational)
+        response += self._format_situation_summary(category, user_inputs)
         
-        # Real location data (if available)
+        # AI Expert Analysis (main content - 150-200 words)
+        response += f"\n\n**📊 Our Analysis:**\n\n{ai_insights}\n"
+        
+        # Real location data (if available) - positioned as "Ground Reality"
         if location_data and location_data.get('coordinates'):
             location_text = location_insights_service.format_insights_for_advisory(location_data)
             if location_text:
+                response += f"\n**🔍 Ground Reality - What's Actually There:**\n"
                 response += location_text
         
-        # Matched projects
+        # Available projects - positioned as "Your Options"
         if projects:
             response += self._format_projects(projects, user_inputs.get('location'))
         
-        # Call to action
-        response += "\n\n**📞 Next Steps:** Talk to our sales team for site visits and detailed project information.\n"
+        # Personal call to action
+        response += "\n\n**💬 Want to discuss this further?** Our property consultants are available to dive deeper into your specific situation.\n"
         
         return response
     
