@@ -200,7 +200,7 @@ Visit the location during peak hours to check traffic, explore nearby amenities,
         
         return response
     
-    def _numerology_advisory(self, inputs: dict, projects: list) -> str:
+    async def _numerology_advisory(self, inputs: dict, projects: list) -> str:
         """Numerology-based advisory"""
         
         dob = inputs.get('dob', 'Not provided')
