@@ -110,13 +110,18 @@ test_payout_id = None
 test_booking_id = None
 
 # ============================================
-# WORKFORCE API TESTS
+# RETOERP PAYMENT & COMMISSION ERP MODULE TESTS
 # ============================================
 
-# Global variables to store test data
-workforce_stats = None
-available_skills = None
-available_cities = None
+# Authentication helper - using mock auth for testing
+def get_auth_headers():
+    """Get authentication headers for API requests"""
+    # For testing purposes, we'll use a mock token
+    # In production, this would be obtained through proper authentication
+    return {
+        "Authorization": "Bearer mock_token_for_testing",
+        "Content-Type": "application/json"
+    }
 
 def test_workforce_stats():
     """Test 1: GET /api/workforce/stats - Get workforce statistics"""
