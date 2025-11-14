@@ -47,8 +47,8 @@ class FreeAdvisoryService:
         
         return advisory
     
-    def _budget_advisory(self, inputs: dict, projects: list) -> str:
-        """Budget-focused advisory"""
+    async def _budget_advisory(self, inputs: dict, projects: list) -> str:
+        """Budget-focused advisory with real location data"""
         
         budget = inputs.get('budget', 'Not specified')
         location = inputs.get('location', 'any location')
@@ -56,6 +56,10 @@ class FreeAdvisoryService:
         
         # Match projects within budget (basic matching)
         matched_projects = self._match_projects_by_location(projects, location)
+        
+        # Fetch REAL location insights
+        location_insights = await location_insights_service.get_location_insights(location)
+        real_data_section = location_insights_service.format_insights_for_advisory(location_insights)
         
         response = f"""🏡 **Budget Advisory Report**
 
