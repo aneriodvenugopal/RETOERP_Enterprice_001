@@ -336,6 +336,14 @@ function App() {
                 }
               />
               <Route
+                path="/payouts"
+                element={
+                  <PrivateRoute>
+                    <AgentPayouts />
+                  </PrivateRoute>
+                }
+              />
+              <Route
                 path="/reports"
                 element={
                   <PrivateRoute>
