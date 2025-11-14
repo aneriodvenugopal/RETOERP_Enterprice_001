@@ -109,6 +109,7 @@ import CustomerPayments from "./pages/payments/CustomerPayments";
 import CommissionDashboard from "./pages/commissions/CommissionDashboard";
 import PaymentSchemes from "./pages/schemes/PaymentSchemes";
 import StaffHierarchy from "./pages/staff/StaffHierarchy";
+import AgentPayouts from "./pages/payouts/AgentPayouts";
 
 // PWA Components
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
