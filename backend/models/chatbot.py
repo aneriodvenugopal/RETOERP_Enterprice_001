@@ -122,6 +122,7 @@ class ChatMessageCreate(BaseModel):
     visitor_id: str
     content: str
     language: Optional[str] = "en"
+    context: Optional[dict] = None  # Project ID, page type, etc
     
     # Optional visitor metadata (for first message)
     visitor_ip: Optional[str] = None
