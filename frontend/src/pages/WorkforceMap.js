@@ -479,7 +479,7 @@ const WorkforceMap = () => {
                   </a>
                 </div>
               </div>
-            ))}
+            )})}
           </div>
 
           {filteredWorkers.length === 0 && !loading && (
