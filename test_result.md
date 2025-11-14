@@ -1610,3 +1610,16 @@ frontend:
       - working: "NA"
         agent: "main"
         comment: "✅ IMPLEMENTED Clickable Worker Contacts Feature: (1) Made skill type cards clickable - clicking any skill (e.g., 'Plumber 70') opens modal with all workers of that skill, (2) Made city cards clickable - clicking any city opens modal with all workers in that location, (3) Created professional modal popup with smooth animations (fadeIn, slideUp), (4) Modal features: Search bar to filter workers by name, Call button (tel: link) and WhatsApp button (wa.me link) for each worker, Worker details displayed: name, phone, location, experience years, work type, daily rate, description, Verified badge for verified workers, (5) Responsive card-based grid layout (1 col mobile, 2 col tablet, 3 col desktop), (6) Enhanced hover effects on skill/city cards (scale-105, shadow-lg, color transitions), (7) Added call-to-action text 'Click to view contacts →' on hover. Modal fetches workers via API (/workforce/search with skill_type or city filter), limit set to 500 to show all workers. Clean close functionality with X button and Close button. Ready for testing."
+
+frontend:
+  - task: "Add Google Maps Autocomplete to Advisory Location Fields"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/advisory/AdvisoryChat.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "✅ IMPLEMENTED Google Maps Autocomplete for Advisory: (1) Added Google Maps Places API integration for location auto-suggestions, (2) Autocomplete automatically initializes for all location-related fields (checks if field.key includes 'location' or field.label includes 'location'), (3) Applies to all advisory categories: Budget Advisory (Preferred Location), Location Highlights (Interested Location, Work Location), (4) Configured for Indian cities with componentRestrictions: {country: 'in'}, (5) Users can now type and get instant location suggestions from Google Maps, (6) Selected place auto-fills the input with formatted address, (7) Added prominent '100% FREE - AI-Powered Advisory' badge at top of form, (8) Added subtitle 'Get instant expert advice powered by advanced AI'. Advisory remains FREE for end users - uses EMERGENT_LLM_KEY which is already configured. Response is already optimized to 300-400 words (concise text). Ready for testing."
