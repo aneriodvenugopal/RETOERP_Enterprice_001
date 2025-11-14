@@ -203,21 +203,6 @@ const AdvisoryChat = () => {
 
           {step === 'input' && (
             <form onSubmit={handleGetAdvice}>
-              {/* Language Selection */}
-              <div className="mb-6">
-                <label className="block text-gray-700 font-medium mb-2">
-                  Preferred Language
-                </label>
-                <select
-                  value={selectedLanguage}
-                  onChange={(e) => setSelectedLanguage(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value="en">English</option>
-                  <option value="te">Telugu (తెలుగు)</option>
-                  <option value="hi">Hindi (हिंदी)</option>
-                </select>
-              </div>
               
               {/* 2-column grid for non-textarea fields */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
