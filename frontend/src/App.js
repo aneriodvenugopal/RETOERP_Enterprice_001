@@ -26,6 +26,7 @@ import LayoutsLibrary from "./pages/LayoutsLibrary";
 import AdvancedLayoutViewer from "./pages/AdvancedLayoutViewer";
 import LayoutEditor from "./pages/LayoutEditor";
 import PublicLayoutView from "./pages/PublicLayoutView";
+import EnhancedLayoutEditor from "./pages/EnhancedLayoutEditor";
 import Leads from "./pages/Leads";
 import CalendarPage from "./pages/CalendarPage";
 import Bookings from "./pages/Bookings";
