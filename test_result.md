@@ -1623,3 +1623,16 @@ frontend:
       - working: "NA"
         agent: "main"
         comment: "✅ IMPLEMENTED Google Maps Autocomplete for Advisory: (1) Added Google Maps Places API integration for location auto-suggestions, (2) Autocomplete automatically initializes for all location-related fields (checks if field.key includes 'location' or field.label includes 'location'), (3) Applies to all advisory categories: Budget Advisory (Preferred Location), Location Highlights (Interested Location, Work Location), (4) Configured for Indian cities with componentRestrictions: {country: 'in'}, (5) Users can now type and get instant location suggestions from Google Maps, (6) Selected place auto-fills the input with formatted address, (7) Added prominent '100% FREE - AI-Powered Advisory' badge at top of form, (8) Added subtitle 'Get instant expert advice powered by advanced AI'. Advisory remains FREE for end users - uses EMERGENT_LLM_KEY which is already configured. Response is already optimized to 300-400 words (concise text). Ready for testing."
+
+backend:
+  - task: "Replace paid AI advisory with 100% FREE rule-based advisory"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/services/free_advisory_service.py, /app/backend/routes/advisory.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "✅ IMPLEMENTED 100% FREE Advisory Service: (1) Created new free_advisory_service.py using template-based expert responses (NO API costs), (2) Replaced advisory_service (OpenAI GPT-5) with free_advisory_service in routes/advisory.py, (3) Zero cost solution - no external API calls, no AI credits consumed, (4) Template-based responses for all 5 categories: Budget Advisory (market analysis, project recommendations, financial tips), Location Advisory (connectivity, infrastructure, growth potential), Numerology Advisory (lucky numbers, directional guidance, auspicious timing), Best Project Advisory (top recommendations, comparative analysis), Investment Advisory (ROI strategies, risk mitigation, tax benefits), (5) Dynamic data insertion using user inputs and project database, (6) Professional responses with emojis, structured format, actionable advice, (7) Smart project matching based on location, (8) Comprehensive 400-600 word responses with expert insights. FREE for end users AND SaaS owner - zero ongoing costs! Ready for testing."
