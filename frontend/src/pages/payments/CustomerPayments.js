@@ -139,26 +139,118 @@ const CustomerPayments = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validation
+    if (formData.booking_ids.length === 0) {
+      toast.error('Please select at least one booking');
+      return;
+    }
+    
+    if (!formData.customer_id) {
+      toast.error('Please select a customer/booking');
+      return;
+    }
+    
     setLoading(true);
 
     try {
-      const payload = {
-        ...formData,
-        amount: parseFloat(formData.amount),
-        payment_date: new Date().toISOString()
-      };
-
-      await apiInstance.post('/customer-payments', payload);
+      let payload;
       
-      toast.success('Payment recorded successfully! Commissions calculated automatically.');
-      setShowModal(false);
-      resetForm();
-      fetchPayments();
+      if (formData.payment_method === 'razorpay') {
+        // Create Razorpay order
+        payload = {
+          tenant_id: formData.tenant_id,
+          booking_ids: formData.booking_ids,
+          customer_id: formData.customer_id,
+          amount: parseFloat(formData.amount),
+          currency: formData.currency_id,
+          notes: formData.notes
+        };
+        
+        const orderResponse = await apiInstance.post('/razorpay/create-order', payload);
+        
+        if (orderResponse.data.success) {
+          // Initialize Razorpay checkout
+          const options = {
+            key: orderResponse.data.key_id,
+            amount: orderResponse.data.amount * 100, // Amount in paise
+            currency: orderResponse.data.currency,
+            name: 'RETOERP',
+            description: 'Property Payment',
+            order_id: orderResponse.data.order_id,
+            handler: async function (response) {
+              // Verify payment
+              await verifyRazorpayPayment(response, orderResponse.data.payment_id);
+            },
+            prefill: {
+              name: formData.customer_name,
+              email: formData.customer_email,
+              contact: formData.customer_phone
+            },
+            theme: {
+              color: '#2563eb'
+            }
+          };
+          
+          const razorpay = new window.Razorpay(options);
+          razorpay.open();
+          setShowModal(false);
+        }
+      } else {
+        // Manual payment entry
+        payload = {
+          tenant_id: formData.tenant_id,
+          booking_ids: formData.booking_ids,
+          customer_id: formData.customer_id,
+          amount: parseFloat(formData.amount),
+          currency_id: formData.currency_id,
+          payment_method: formData.payment_method,
+          payment_mode: formData.payment_mode,
+          transaction_id: formData.transaction_id || null,
+          reference_number: formData.reference_number || null,
+          bank_name: formData.bank_name || null,
+          cheque_date: formData.cheque_date || null,
+          payment_screenshot_url: formData.payment_screenshot_url || null,
+          allocation: formData.allocation,
+          notes: formData.notes || null
+        };
+        
+        const response = await apiInstance.post('/manual', payload);
+        
+        if (response.data.success) {
+          toast.success(`Payment recorded successfully! Receipt: ${response.data.receipt_number}`);
+          setShowModal(false);
+          resetForm();
+          fetchPayments();
+        }
+      }
+      
     } catch (error) {
       console.error('Error creating payment:', error);
       toast.error(error.response?.data?.detail || 'Failed to record payment');
     } finally {
       setLoading(false);
+    }
+  };
+  
+  const verifyRazorpayPayment = async (razorpayResponse, paymentId) => {
+    try {
+      const verifyPayload = {
+        razorpay_order_id: razorpayResponse.razorpay_order_id,
+        razorpay_payment_id: razorpayResponse.razorpay_payment_id,
+        razorpay_signature: razorpayResponse.razorpay_signature
+      };
+      
+      const response = await apiInstance.post('/razorpay/verify', verifyPayload);
+      
+      if (response.data.success) {
+        toast.success('Payment verified successfully! Commissions calculated automatically.');
+        resetForm();
+        fetchPayments();
+      }
+    } catch (error) {
+      console.error('Payment verification failed:', error);
+      toast.error('Payment verification failed. Please contact support.');
     }
   };
 
