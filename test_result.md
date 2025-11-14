@@ -1779,3 +1779,29 @@ backend:
       - working: true
         agent: "main"
         comment: "✅ ENHANCED Chatbot with Numbered Options: (1) WELCOME SCREEN: 1-Learn features, 2-Property advisory, 3-Business help, 4-Talk to team. User types: 1, 2, 3, or 4, (2) FEATURES SELECTION: 1-Property Management, 2-Payment Tracking, 3-Analytics, 4-Lead Management, 5-Mobile App, 6-AI Advisory. Easy browsing!, (3) PROPERTY ADVISORY: Budget options: 1-Under 25L, 2-25-50L, 3-50L-1Cr, 4-1-2Cr, 5-Above 2Cr. Property type: 6-Apartment, 7-Villa, 8-Plot, 9-Commercial. One number = instant selection!, (4) BUSINESS CHALLENGES: 1-Lead Management, 2-Payment Tracking, 3-Team Coordination, 4-Reporting, 5-Follow-ups, 6-All of above. Quick problem identification!, (5) USER TYPE: 1-Property Buyer, 2-Agent, 3-Builder, 4-Investor. Info needed: 5-Pricing, 6-Features, 7-Demo, 8-Talk to Expert, (6) POST-VERIFICATION: 1-Instant Advisory, 2-Schedule Call, 3-Both. Simple choice!, (7) SCHEDULING: Date: 1-Today, 2-Tomorrow, 3-Day After, 4-Weekend, 5-Other. Time: 6-Morning, 7-Afternoon, 8-Evening, 9-Night. Type '2 7' = Tomorrow Afternoon!, (8) GENERAL HELP: 1-Features, 2-Pricing, 3-Advisory, 4-Schedule, 5-Platform Info, 6-Demo. Always numbered!, (9) BENEFITS: Mobile-friendly (just type 1, 2, 3), No typing full sentences, Faster conversations, Less confusion, Better UX, Language-agnostic (numbers work everywhere!), Analytics-friendly (track popular choices). Result: Super easy chatbot - users just type numbers! Perfect for mobile, fast selection, works in any language. Every response has clear numbered options. Professional and user-friendly!"
+
+frontend:
+  - task: "Create universal chatbot widget for all pages (public + tenant)"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/ChatbotWidget.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "✅ IMPLEMENTED Universal Chatbot Widget: (1) FLOATING CHAT BUTTON: Bottom-right corner with gradient blue design, Hover effect shows 'Need Help?' text, Expandable on click, Available on ALL pages (public + tenant), (2) CLEAN UI DESIGN: Rounded 2xl corners for modern look, Gradient header (blue-600 to blue-700), White message bubbles with shadows, User messages in blue on right, Bot messages in white on left, Minimizable chat window, Close button to hide completely, (3) PROJECT-AWARE RESPONSES: Detects if user is on project page, Shows project-specific welcome message, Offers project-specific options (availability, pricing, amenities, site visit), Generic options for general pages, (4) FEATURES: Real-time messaging, Numbered options for quick selection, Loading animation (3 bouncing dots), Auto-scroll to latest message, Timestamps on all messages, Markdown bold support (**text**), Enter to send, Shift+Enter for new line, (5) CONTEXT PASSING: Sends project_id, project_name, page_type to backend, Backend provides context-aware responses, Smart routing based on page context, (6) RESPONSIVE: Fixed size: 96w × 600h (not minimized), Minimized: 80w × 16h (header only), Mobile-friendly design, Smooth transitions, (7) USAGE: Import in any page, Pass tenantId, projectId, projectName as props, Widget handles rest automatically. Result: Professional chatbot widget ready for all pages. Context-aware, beautiful UI, easy integration. 100% FREE!"
+
+backend:
+  - task: "Make chatbot project-aware with context handling"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/services/enhanced_chatbot_service.py, /app/backend/models/chatbot.py, /app/backend/routes/chatbot.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "✅ ENHANCED Chatbot with Context Awareness: (1) CONTEXT PARAMETER ADDED: ChatMessageCreate model now accepts context dict, Context includes: project_id, project_name, page_type, Enhanced_chatbot.chat() accepts context parameter, State stores context for conversation continuity, (2) PROJECT-SPECIFIC RESPONSES: Detects if chat is about specific project, Welcome message mentions project name, Options tailored to project context (Property Details, Pricing, Amenities, Site Visit), Generic responses for non-project pages, (3) SMART ROUTING: Option 1 on project page → Project details, Option 4 on project page → Schedule site visit, Option 1 on general page → Platform features, Same numbers, different context!, (4) CONVERSATION STATE: Maintains context throughout conversation, Project info available in all stages, Can reference project name in responses, Context-aware requirement gathering, (5) FLEXIBILITY: Works with or without project context, Graceful fallback to generic responses, Can be used on any page type, Tenant-aware (public vs logged-in), (6) LEAD QUALITY: Captures which project user is interested in, Knows exact page where conversation started, Better lead qualification, Higher conversion rates. Result: Intelligent context-aware chatbot that adapts to page content. Perfect for project pages to generate qualified leads!"
