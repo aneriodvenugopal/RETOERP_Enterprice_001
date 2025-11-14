@@ -11,10 +11,10 @@ const CATEGORIES_CONFIG = {
     name: 'Budget Advisory',
     icon: '💰',
     fields: [
-      { key: 'budget', label: 'Your Budget (₹)', type: 'text', placeholder: 'e.g., 50 Lakhs' },
-      { key: 'location', label: 'Preferred Location', type: 'text', placeholder: 'e.g., Hyderabad' },
+      { key: 'budget', label: 'Your Budget', type: 'budget', placeholder: 'Enter amount' },
+      { key: 'location', label: 'Preferred Location', type: 'text', placeholder: 'e.g., Banjara Hills, Hitech City' },
       { key: 'property_type', label: 'Property Type', type: 'select', options: ['Apartment', 'Villa', 'Plot', 'Farm Land'] },
-      { key: 'description', label: 'Additional Details / Questions', type: 'textarea', placeholder: 'Write any specific requirements or questions you have...', required: false }
+      { key: 'description', label: 'Additional Details', type: 'textarea', placeholder: 'Any specific requirements... (Optional)', required: false, rows: 2 }
     ]
   },
   location: {
