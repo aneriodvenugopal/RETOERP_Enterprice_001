@@ -168,7 +168,15 @@ Your budget positions you well in the {location} market. Consider:
 • Entertainment: Movie theaters, restaurants
 • Sports Facilities: Gyms, sports complexes nearby
 • Security: Well-lit areas with CCTV coverage
+"""
 
+        # Add REAL location data (200+ words of specific info)
+        if real_data_section:
+            response += real_data_section
+        else:
+            response += "\n*Real-time location data will be displayed here once the area is confirmed.*\n\n"
+
+        response += """
 **Investment Perspective:**
 This location offers excellent long-term growth potential with strong appreciation expected due to ongoing infrastructure development.
 
