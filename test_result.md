@@ -1740,3 +1740,16 @@ backend:
       - working: "NA"
         agent: "main"
         comment: "✅ IMPLEMENTED Dual Advisory System (Smart Strategy): (1) AUTHENTICATION CHECK: Checks authorization header in request, If 'Bearer token' present → Authenticated user (tenant/staff), If no token → Public website user, (2) AUTHENTICATED USERS (Tenant/Staff Login): Uses hybrid_advisory_service with Emergent LLM API, Gets AI-powered analysis (100-150 words crispy insights), Real location data from Google Places, Personalized recommendations, RETOERP projects display, Coupon code offer, Cost: ₹0.70-1 per advisory (charged to tenant), Advisory type marked as 'ai_powered', (3) PUBLIC WEBSITE USERS (Free): Uses free_advisory_service (template-based), NO API calls = Zero cost, Rule-based expert templates with dynamic data, Real location data still included (Google Places - free), Shows RETOERP projects, Shows coupon offer, Additional CTA added: 'Want Personalized AI-Powered Analysis? Login to RETOERP for detailed insights!', Advisory type marked as 'template_based', (4) BUSINESS LOGIC: Free users get good advice but generic (lead generation), They see value but want more detail → Contact/Login, Paid tenants get premium AI analysis (value for money), Cost control: Only paying customers consume API credits, Perfect conversion funnel: Free → Impressed → Want More → Login → Paid, (5) Both advisory types include: Real location data (schools, hospitals, malls, metro), Available RETOERP projects, ₹5000 coupon code offer, Professional formatting. Result: Smart dual-tier system - Free tier generates leads, Paid tier provides value. Cost controlled while maximizing conversions! Ready for testing."
+
+backend:
+  - task: "Make CTA more subtle + Confirm RETOERP Assistant is free"
+    implemented: true
+    working: true
+    file: "/app/backend/routes/advisory.py, /app/backend/services/chatbot_service.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "✅ UPDATED & CONFIRMED: (1) ADVISORY CTA MADE SUBTLE: Changed from 'Want Personalized AI-Powered Analysis?' to 'Need More Detailed Advisory?', Removed all mentions of 'AI', 'advanced AI', 'AI-powered', New text: 'For specialized, in-depth analysis tailored to your specific situation, please contact our property consultants or login to your RETOERP account', More professional and subtle approach, (2) RETOERP ASSISTANT ALREADY FREE: Confirmed chatbot is 100% FREE for everyone (public + logged-in), Uses free_ai_chat service with rule-based responses, NO API costs, NO credits consumed, Service: /api/chatbot/message (public endpoint), Smart response matching for common queries (properties, bookings, payments, workers), Generic helpful responses for other queries, Lead capture when phone/email detected, (3) COMPLETE FREE INFRASTRUCTURE: Public website advisory → Template-based (free), Public website chatbot → Rule-based (free), Logged-in tenant advisory → AI-powered (₹0.70-1 per request), Logged-in tenant chatbot → Same free service (rule-based), Result: Zero API costs for public features, Tenants get premium advisory only (value proposition), Chatbot free for everyone (lead generation tool). Professional, subtle messaging without technical jargon. Perfect freemium balance!"
