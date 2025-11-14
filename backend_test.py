@@ -370,7 +370,7 @@ def test_create_payment_scheme():
         return False
 
 def test_list_payment_schemes():
-    """Test 4: GET /api/schemes - List payment schemes with filters"""
+    """Test 5: GET /api/schemes - List payment schemes with filters (requires auth)"""
     try:
         print("\n📋 TESTING: GET /api/schemes")
         
@@ -382,35 +382,33 @@ def test_list_payment_schemes():
             timeout=10
         )
         
-        if response.status_code != 200:
-            results.add_fail("List Payment Schemes", f"Status code: {response.status_code}")
-            print_error_details("List Payment Schemes", response)
-            return False
+        def success_handler(response):
+            data = response.json()
             
-        data = response.json()
+            # Validate response structure
+            required_fields = ['success', 'count', 'schemes']
+            missing_fields = [field for field in required_fields if field not in data]
+            
+            if missing_fields:
+                results.add_fail("List Payment Schemes", f"Missing fields: {missing_fields}")
+                return False
+            
+            if not data.get('success'):
+                results.add_fail("List Payment Schemes", "Response success is False")
+                return False
+            
+            schemes = data.get('schemes', [])
+            
+            results.add_pass("List Payment Schemes")
+            print(f"   ✅ Found {len(schemes)} payment schemes")
+            
+            if schemes:
+                scheme = schemes[0]
+                print(f"   📝 Sample scheme: {scheme.get('scheme_name')} (₹{scheme.get('total_amount', 0):,})")
+            
+            return True
         
-        # Validate response structure
-        required_fields = ['success', 'count', 'schemes']
-        missing_fields = [field for field in required_fields if field not in data]
-        
-        if missing_fields:
-            results.add_fail("List Payment Schemes", f"Missing fields: {missing_fields}")
-            return False
-        
-        if not data.get('success'):
-            results.add_fail("List Payment Schemes", "Response success is False")
-            return False
-        
-        schemes = data.get('schemes', [])
-        
-        results.add_pass("List Payment Schemes")
-        print(f"   ✅ Found {len(schemes)} payment schemes")
-        
-        if schemes:
-            scheme = schemes[0]
-            print(f"   📝 Sample scheme: {scheme.get('scheme_name')} (₹{scheme.get('total_amount', 0):,})")
-        
-        return True
+        return handle_auth_protected_endpoint("List Payment Schemes", response, success_handler)
         
     except Exception as e:
         results.add_fail("List Payment Schemes", f"Exception: {str(e)}")
