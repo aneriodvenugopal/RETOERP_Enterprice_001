@@ -319,6 +319,22 @@ function App() {
                 }
               />
               <Route
+                path="/schemes"
+                element={
+                  <PrivateRoute>
+                    <PaymentSchemes />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/staff-hierarchy"
+                element={
+                  <PrivateRoute>
+                    <StaffHierarchy />
+                  </PrivateRoute>
+                }
+              />
+              <Route
                 path="/reports"
                 element={
                   <PrivateRoute>
