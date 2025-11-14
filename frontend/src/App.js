@@ -104,6 +104,10 @@ import RevenueLossExample from "./pages/examples/RevenueLossExample";
 // Demo Pages
 import CRMDemo from "./pages/demos/CRMDemo";
 
+// Payment & Commission Pages
+import CustomerPayments from "./pages/payments/CustomerPayments";
+import CommissionDashboard from "./pages/commissions/CommissionDashboard";
+
 // PWA Components
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
 import AvatarAssistant from "./components/AvatarAssistant";
