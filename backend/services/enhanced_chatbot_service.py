@@ -148,40 +148,65 @@ Type: 1, 2, 3, or 4"""
         state["requirements"]["user_query"] = msg
         
         # Check what they're interested in
-        if any(word in msg for word in ["property", "buy", "invest", "flat", "plot", "villa"]):
+        if any(word in msg for word in ["property", "buy", "invest", "flat", "plot", "villa", "2", "two"]) or msg in ["2", "6"]:
             response = """Great! I can help you with property advisory. 🏡
 
-Before we proceed, I'd love to understand your needs better:
+**Please share your preferences (type numbers):**
 
-• What's your budget range?
-• Preferred location?
-• Looking for residential or commercial?
+**Budget Range:**
+1️⃣ Under 25 Lakhs
+2️⃣ 25-50 Lakhs
+3️⃣ 50 Lakhs - 1 Crore
+4️⃣ 1-2 Crores
+5️⃣ Above 2 Crores
 
-Feel free to share any specific requirements!"""
+**Property Type:**
+6️⃣ Apartment/Flat
+7️⃣ Villa/Independent House
+8️⃣ Plot/Land
+9️⃣ Commercial Space
+
+**Or type your requirements directly!**
+Example: "50 lakhs budget, looking for flat in Banjara Hills"
+
+"""
             
             state["stage"] = "collecting_feedback"
             
-        elif any(word in msg for word in ["business", "company", "manage", "crm", "erp"]):
+        elif any(word in msg for word in ["business", "company", "manage", "crm", "erp", "3", "three"]) or msg == "3":
             response = """Perfect! RETOERP can streamline your real estate business. 📈
 
-We'd love to show you how we can help!
+**What's your biggest challenge? (Select number)**
 
-Quick question - What's the biggest challenge you face in your business right now?
-• Lead management?
-• Payment tracking?
-• Team coordination?
-• Reporting?"""
+1️⃣ Lead Management - Too many leads getting lost
+2️⃣ Payment Tracking - Hard to track EMIs & dues
+3️⃣ Team Coordination - Communication issues
+4️⃣ Reporting - Need better insights
+5️⃣ Customer Follow-ups - Missing opportunities
+6️⃣ All of the above!
+
+Type: 1, 2, 3, 4, 5, or 6"""
             
             state["stage"] = "collecting_feedback"
         
         else:
             response = f"""Got it! You're interested in: {msg}
 
-That's great! We have comprehensive solutions for that.
+**Before I provide detailed information, please select:**
 
-Before I provide detailed information, may I know:
-• Are you a real estate professional or a property buyer?
-• What specific information would help you most?"""
+**You are a:**
+1️⃣ Property Buyer
+2️⃣ Real Estate Professional/Agent
+3️⃣ Real Estate Company/Builder
+4️⃣ Investor
+
+**What information would help you most:**
+5️⃣ Pricing & Plans
+6️⃣ Feature Details
+7️⃣ Demo/Trial
+8️⃣ Talk to Expert
+
+Type the number(s) that match you!"""
             
             state["stage"] = "collecting_feedback"
         
