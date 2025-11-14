@@ -336,13 +336,7 @@ const CommissionDashboard = () => {
                         <div className="text-xs text-gray-500">{earning.staff_role || 'Agent'}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded ${
-                          earning.commission_type === 'direct' 
-                            ? 'bg-blue-100 text-blue-800' 
-                            : 'bg-purple-100 text-purple-800'
-                        }`}>
-                          {earning.commission_type}
-                        </span>
+                        {getCommissionTypeBadge(earning.commission_type)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                         ₹{earning.payment_amount?.toLocaleString('en-IN')}
