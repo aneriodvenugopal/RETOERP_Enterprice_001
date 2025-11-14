@@ -184,7 +184,7 @@
 
    **మొదటి referrer:**
    ```
-   https://agent-commission-5.preview.emergentagent.com/*
+   https://prop-commission.preview.emergentagent.com/*
    ```
    - Paste చేసి Enter నొక్కండి
 

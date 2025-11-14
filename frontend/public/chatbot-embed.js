@@ -47,7 +47,7 @@
         tenantId: tenantId,
         position: position,
         primaryColor: primaryColor,
-        backendUrl: 'https://agent-commission-5.preview.emergentagent.com/api'
+        backendUrl: 'https://prop-commission.preview.emergentagent.com/api'
       };
       
       // Load chat widget bundle
