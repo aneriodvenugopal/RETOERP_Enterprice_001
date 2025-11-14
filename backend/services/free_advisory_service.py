@@ -108,14 +108,18 @@ Your budget positions you well in the {location} market. Consider:
         
         return response
     
-    def _location_advisory(self, inputs: dict, projects: list) -> str:
-        """Location-focused advisory"""
+    async def _location_advisory(self, inputs: dict, projects: list) -> str:
+        """Location-focused advisory with REAL location data"""
         
         location = inputs.get('location', 'the area')
         work_location = inputs.get('work_location', 'city center')
         priorities = inputs.get('priorities', 'connectivity and amenities')
         
         matched_projects = self._match_projects_by_location(projects, location)
+        
+        # Fetch REAL location insights
+        location_insights = await location_insights_service.get_location_insights(location)
+        real_data_section = location_insights_service.format_insights_for_advisory(location_insights)
         
         response = f"""📍 **Location Highlights Report**
 
