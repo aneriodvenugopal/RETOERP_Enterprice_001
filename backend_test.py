@@ -1236,8 +1236,6 @@ def run_all_tests():
 
 if __name__ == "__main__":
     run_all_tests()
-
-def test_verify_otp_new_user():
     """Test 3: POST /api/incomelands/auth/verify-otp - Verify OTP for new user"""
     global new_user_mobile, new_user_otp
     
