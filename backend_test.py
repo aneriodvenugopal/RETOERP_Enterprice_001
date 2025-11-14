@@ -816,7 +816,7 @@ def test_create_manual_payment():
         return False
 
 def test_list_payments():
-    """Test 13: GET /api/payments - List customer payments with filters"""
+    """Test 13: GET /api/payments - List customer payments with filters (requires auth)"""
     try:
         print("\n📋 TESTING: GET /api/payments")
         
@@ -832,37 +832,7 @@ def test_list_payments():
             timeout=10
         )
         
-        if response.status_code != 200:
-            results.add_fail("List Payments", f"Status code: {response.status_code}")
-            print_error_details("List Payments", response)
-            return False
-            
-        data = response.json()
-        
-        # Validate response structure
-        required_fields = ['success', 'count', 'total_count', 'payments']
-        missing_fields = [field for field in required_fields if field not in data]
-        
-        if missing_fields:
-            results.add_fail("List Payments", f"Missing fields: {missing_fields}")
-            return False
-        
-        if not data.get('success'):
-            results.add_fail("List Payments", "Response success is False")
-            return False
-        
-        payments = data.get('payments', [])
-        total_amount = data.get('total_amount', 0)
-        
-        results.add_pass("List Payments")
-        print(f"   ✅ Found {len(payments)} payments")
-        print(f"   💰 Total amount: ₹{total_amount:,}")
-        
-        if payments:
-            payment = payments[0]
-            print(f"   📝 Sample payment: {payment.get('receipt_number')} (₹{payment.get('amount', 0):,})")
-        
-        return True
+        return handle_auth_protected_endpoint("List Payments", response)
         
     except Exception as e:
         results.add_fail("List Payments", f"Exception: {str(e)}")
