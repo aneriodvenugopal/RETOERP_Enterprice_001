@@ -462,121 +462,242 @@ const CustomerPayments = () => {
       {/* Add Payment Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b">
-              <h2 className="text-2xl font-bold text-gray-900">Record Customer Payment</h2>
-              <p className="text-gray-600 mt-1">Commission will be calculated automatically</p>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b bg-gradient-to-r from-blue-600 to-indigo-600">
+              <h2 className="text-2xl font-bold text-white">Record Customer Payment</h2>
+              <p className="text-blue-100 mt-1">Commission will be calculated automatically upon completion</p>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Customer Name *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.customer_name}
-                    onChange={(e) => setFormData({...formData, customer_name: e.target.value})}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                    placeholder="Enter customer name"
-                  />
-                </div>
+            <form onSubmit={handleSubmit} className="p-6 space-y-5">
+              {/* Booking Selection */}
+              <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                <label className="block text-sm font-semibold text-gray-800 mb-2 flex items-center gap-2">
+                  <Users size={18} className="text-blue-600" />
+                  Select Booking *
+                </label>
+                <select
+                  required
+                  value={formData.booking_ids[0] || ''}
+                  onChange={(e) => handleBookingSelection(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white"
+                >
+                  <option value="">-- Choose a booking --</option>
+                  {bookings.map((booking) => (
+                    <option key={booking.id} value={booking.id}>
+                      {booking.customer_name} | {booking.property_name} | Balance: ₹{(booking.balance_amount || 0).toLocaleString('en-IN')}
+                    </option>
+                  ))}
+                </select>
+                {formData.customer_name && (
+                  <div className="mt-3 p-3 bg-white rounded border border-blue-200">
+                    <p className="text-sm font-medium text-gray-700">Selected Customer:</p>
+                    <p className="text-gray-900 font-semibold">{formData.customer_name}</p>
+                    <p className="text-sm text-gray-600">{formData.customer_phone}</p>
+                  </div>
+                )}
+              </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Customer Phone *
-                  </label>
-                  <input
-                    type="tel"
-                    required
-                    value={formData.customer_phone}
-                    onChange={(e) => setFormData({...formData, customer_phone: e.target.value})}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                    placeholder="10-digit mobile"
-                  />
+              {/* Payment Method Selection */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-800 mb-3">
+                  Payment Method *
+                </label>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setFormData({...formData, payment_method: 'razorpay'})}
+                    className={`p-4 border-2 rounded-lg transition-all ${
+                      formData.payment_method === 'razorpay'
+                        ? 'border-blue-600 bg-blue-50'
+                        : 'border-gray-200 hover:border-blue-300'
+                    }`}
+                  >
+                    <CreditCard className={`mx-auto mb-2 ${formData.payment_method === 'razorpay' ? 'text-blue-600' : 'text-gray-400'}`} />
+                    <p className="font-medium text-sm">Razorpay</p>
+                    <p className="text-xs text-gray-500 mt-1">UPI, Cards, Net Banking</p>
+                  </button>
+                  
+                  <button
+                    type="button"
+                    onClick={() => setFormData({...formData, payment_method: 'manual'})}
+                    className={`p-4 border-2 rounded-lg transition-all ${
+                      formData.payment_method === 'manual'
+                        ? 'border-blue-600 bg-blue-50'
+                        : 'border-gray-200 hover:border-blue-300'
+                    }`}
+                  >
+                    <FileText className={`mx-auto mb-2 ${formData.payment_method === 'manual' ? 'text-blue-600' : 'text-gray-400'}`} />
+                    <p className="font-medium text-sm">Manual Entry</p>
+                    <p className="text-xs text-gray-500 mt-1">NEFT, Cheque, Cash</p>
+                  </button>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
+              {/* Amount & Currency */}
+              <div className="grid grid-cols-3 gap-4">
+                <div className="col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Amount *
+                    Payment Amount *
                   </label>
-                  <input
-                    type="number"
-                    required
-                    step="0.01"
-                    value={formData.amount}
-                    onChange={(e) => setFormData({...formData, amount: e.target.value})}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                    placeholder="Enter amount"
-                  />
+                  <div className="relative">
+                    <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                    <input
+                      type="number"
+                      required
+                      step="0.01"
+                      min="1"
+                      value={formData.amount}
+                      onChange={(e) => setFormData({...formData, amount: e.target.value})}
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      placeholder="Enter amount"
+                    />
+                  </div>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Payment Mode *
+                    Currency
                   </label>
                   <select
-                    value={formData.payment_mode}
-                    onChange={(e) => setFormData({...formData, payment_mode: e.target.value})}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    value={formData.currency_id}
+                    onChange={(e) => setFormData({...formData, currency_id: e.target.value})}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                   >
-                    <option value="NEFT">NEFT</option>
-                    <option value="RTGS">RTGS</option>
-                    <option value="IMPS">IMPS</option>
-                    <option value="Cheque">Cheque</option>
-                    <option value="Cash">Cash</option>
-                    <option value="UPI">UPI</option>
+                    {currencies.map((curr) => (
+                      <option key={curr.code} value={curr.code}>
+                        {curr.code}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Transaction Reference
-                </label>
-                <input
-                  type="text"
-                  value={formData.transaction_reference}
-                  onChange={(e) => setFormData({...formData, transaction_reference: e.target.value})}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  placeholder="UTR/Cheque/Reference number"
-                />
-              </div>
+              {/* Manual Payment Details */}
+              {formData.payment_method === 'manual' && (
+                <div className="space-y-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                  <h3 className="font-semibold text-gray-800 flex items-center gap-2">
+                    <FileText size={18} />
+                    Manual Payment Details
+                  </h3>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Payment Mode *
+                      </label>
+                      <select
+                        value={formData.payment_mode}
+                        onChange={(e) => setFormData({...formData, payment_mode: e.target.value})}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      >
+                        <option value="neft">NEFT</option>
+                        <option value="rtgs">RTGS</option>
+                        <option value="imps">IMPS</option>
+                        <option value="cheque">Cheque</option>
+                        <option value="dd">Demand Draft</option>
+                        <option value="cash">Cash</option>
+                      </select>
+                    </div>
 
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        {formData.payment_mode === 'cheque' || formData.payment_mode === 'dd' ? 'Cheque/DD Number' : 'Transaction ID'}
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.transaction_id}
+                        onChange={(e) => setFormData({...formData, transaction_id: e.target.value})}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        placeholder={formData.payment_mode === 'cheque' ? 'Cheque number' : 'UTR/Transaction ID'}
+                      />
+                    </div>
+                  </div>
+
+                  {(formData.payment_mode === 'neft' || formData.payment_mode === 'rtgs' || formData.payment_mode === 'imps') && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Reference Number (UTR)
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.reference_number}
+                        onChange={(e) => setFormData({...formData, reference_number: e.target.value})}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        placeholder="UTR reference number"
+                      />
+                    </div>
+                  )}
+
+                  {(formData.payment_mode === 'cheque' || formData.payment_mode === 'dd') && (
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Bank Name
+                        </label>
+                        <input
+                          type="text"
+                          value={formData.bank_name}
+                          onChange={(e) => setFormData({...formData, bank_name: e.target.value})}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                          placeholder="Bank name"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-1">
+                          <Calendar size={16} />
+                          Cheque Date
+                        </label>
+                        <input
+                          type="date"
+                          value={formData.cheque_date}
+                          onChange={(e) => setFormData({...formData, cheque_date: e.target.value})}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Notes */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Remarks
+                  Additional Notes
                 </label>
                 <textarea
-                  value={formData.remarks}
-                  onChange={(e) => setFormData({...formData, remarks: e.target.value})}
+                  value={formData.notes}
+                  onChange={(e) => setFormData({...formData, notes: e.target.value})}
                   rows={3}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  placeholder="Additional notes..."
+                  placeholder="Any additional information..."
                 />
               </div>
 
-              <div className="flex gap-3 pt-4">
+              {/* Action Buttons */}
+              <div className="flex gap-3 pt-4 border-t">
                 <button
                   type="button"
                   onClick={() => {
                     setShowModal(false);
                     resetForm();
                   }}
-                  className="flex-1 px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium"
+                  className="flex-1 px-6 py-3 border-2 border-gray-300 rounded-lg hover:bg-gray-50 font-semibold transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium disabled:opacity-50"
+                  className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg"
                 >
-                  {loading ? 'Recording...' : 'Record Payment'}
+                  {loading ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      Processing...
+                    </span>
+                  ) : (
+                    'Record Payment'
+                  )}
                 </button>
               </div>
             </form>
