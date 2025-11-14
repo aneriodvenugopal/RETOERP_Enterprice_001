@@ -1,14 +1,35 @@
 import React, { useState, useEffect } from 'react';
-import { TrendingUp, CheckCircle, XCircle, Clock, DollarSign, Users } from 'lucide-react';
+import { 
+  TrendingUp, Users, DollarSign, CheckCircle, XCircle, Clock, 
+  Eye, ThumbsUp, ThumbsDown, PauseCircle, Wallet, Download,
+  Filter, Search, AlertCircle, BarChart3, ArrowUpRight, ArrowDownRight
+} from 'lucide-react';
 import apiInstance from '../../services/api';
 import { toast } from 'sonner';
 
 const CommissionDashboard = () => {
   const [earnings, setEarnings] = useState([]);
-  const [summary, setSummary] = useState(null);
+  const [payouts, setPayouts] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [filterStatus, setFilterStatus] = useState('all');
+  const [activeTab, setActiveTab] = useState('earnings'); // 'earnings' or 'payouts'
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [showApprovalModal, setShowApprovalModal] = useState(false);
   const [selectedEarning, setSelectedEarning] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterStatus, setFilterStatus] = useState('all');
+  const [filterType, setFilterType] = useState('all');
+  const [tenantId, setTenantId] = useState('');
+  const [currentUser, setCurrentUser] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  
+  // Summary stats
+  const [summary, setSummary] = useState({
+    total_earnings: 0,
+    pending_amount: 0,
+    approved_amount: 0,
+    paid_amount: 0,
+    by_type: { direct: {}, gap: {} }
+  });
 
   useEffect(() => {
     fetchEarnings();
