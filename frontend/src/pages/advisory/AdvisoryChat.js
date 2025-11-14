@@ -21,10 +21,10 @@ const CATEGORIES_CONFIG = {
     name: 'Location Highlights',
     icon: '📍',
     fields: [
-      { key: 'location', label: 'Interested Location', type: 'text', placeholder: 'e.g., Gachibowli' },
-      { key: 'work_location', label: 'Work Location', type: 'text', placeholder: 'e.g., Hi-Tech City' },
-      { key: 'priorities', label: 'Priorities', type: 'text', placeholder: 'e.g., Schools, Hospitals' },
-      { key: 'description', label: 'Additional Details / Questions', type: 'textarea', placeholder: 'Write any specific requirements or questions you have...', required: false }
+      { key: 'location', label: 'Interested Location', type: 'text', placeholder: 'e.g., Gachibowli, Banjara Hills' },
+      { key: 'work_location', label: 'Work Location', type: 'text', placeholder: 'e.g., Hitech City, Madhapur' },
+      { key: 'priorities', label: 'Priorities', type: 'text', placeholder: 'e.g., Schools, Hospitals, Metro' },
+      { key: 'description', label: 'Additional Details', type: 'textarea', placeholder: 'Any specific requirements... (Optional)', required: false, rows: 2 }
     ]
   },
   numerology: {
