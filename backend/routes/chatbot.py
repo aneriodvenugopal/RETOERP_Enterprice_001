@@ -186,11 +186,15 @@ async def send_chat_message(
         # Use ENHANCED chatbot with complete flow
         from services.enhanced_chatbot_service import enhanced_chatbot
         
+        # Get context from request (project info, page type, etc)
+        context = message_data.context if hasattr(message_data, 'context') else {}
+        
         chat_response = await enhanced_chatbot.chat(
             conversation_id=conversation_id,
             user_message=message_data.content,
             conversation_history=[{"role": m['role'], "content": m['content']} for m in messages],
-            user_context=user_context
+            user_context=user_context,
+            context=context
         )
         
         ai_response = chat_response["message"]
