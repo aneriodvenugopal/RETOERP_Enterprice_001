@@ -275,7 +275,7 @@ While numerology guides your choice, ensure the property also follows basic Vast
         
         return response
     
-    def _best_project_advisory(self, inputs: dict, projects: list) -> str:
+    async def _best_project_advisory(self, inputs: dict, projects: list) -> str:
         """Best project recommendation advisory"""
         
         requirements = inputs.get('requirements', 'Quality property')
