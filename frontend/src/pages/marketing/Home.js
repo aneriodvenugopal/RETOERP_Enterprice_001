@@ -108,6 +108,9 @@ const Home = () => {
       {/* Hero Carousel */}
       <HeroCarousel />
       
+      {/* App Install Banner */}
+      <AppInstallBanner />
+      
       {/* Our Story */}
       <OurStoryImproved />
 
