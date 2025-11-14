@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import apiInstance from '../../services/api';
 import PublicLayoutViewer from '../../components/PublicLayoutViewer';
+import PublicLayoutViewerEnhanced from '../../components/PublicLayoutViewerEnhanced';
 import { 
   Building2, MapPin, Phone, Mail, Home, Calendar, ArrowRight, 
   ExternalLink, CheckCircle, Waves, Trees, Dumbbell, Shield,
