@@ -31,7 +31,8 @@ class EnhancedChatbotService:
                    conversation_id: str,
                    user_message: str,
                    conversation_history: List[Dict] = None,
-                   user_context: Dict = None) -> Dict:
+                   user_context: Dict = None,
+                   context: Dict = None) -> Dict:
         """
         Main chat function with intelligent flow
         
