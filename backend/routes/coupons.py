@@ -2,15 +2,18 @@
 Coupon Code Management Routes
 Generate and track ₹5000 discount coupons
 """
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Request
 from models.coupon import CouponCode, CouponRequest, CouponUsage
-from middleware.auth import get_db, require_auth
+from middleware.auth import require_auth
 import uuid
 from datetime import datetime
 import random
 import string
 
 router = APIRouter(prefix="/coupons", tags=["coupons"])
+
+def get_db(request: Request):
+    return request.app.database
 
 def generate_coupon_code() -> str:
     """Generate unique coupon code: RETO5K-XXXXX"""
