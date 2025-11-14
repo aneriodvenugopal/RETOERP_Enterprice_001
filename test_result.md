@@ -1727,3 +1727,16 @@ frontend:
       - working: true
         agent: "main"
         comment: "✅ FIXED Homepage UX Confusion: Problem: Elements like 'Problem', 'Solution', '40X Faster Growth' looked like clickable buttons but were just decorative divs with rounded-pill/rounded-full styling, shadows, and bright colors - causing user confusion. Solution: (1) Changed 'Problem' badge from rounded pill (bg-red-500/90, rounded-full) to clean label style (text-red-400, uppercase, tracking-wider, no background), (2) Changed 'Solution' badge from rounded pill (bg-green-500/90, rounded-full) to clean label style (text-green-400, uppercase, tracking-wider, no background), (3) Changed benefit badge from prominent rounded button look (bg-yellow-400, rounded-lg, font-bold, text-lg) to subtle flat badge (inline-flex, gradient background, smaller padding, no rounded corners), (4) Added semantic labels: '❌ THE PROBLEM' and '✅ OUR SOLUTION' instead of just 'Problem/Solution', (5) Kept actual CTA buttons with proper button styling (rounded-lg, hover effects, shadows). Result: Clear visual hierarchy - labels look like labels, buttons look like buttons. No more confusion about what's clickable! Professional UX that guides users properly."
+
+backend:
+  - task: "Implement DUAL advisory system - AI for logged-in users, Template for public"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/routes/advisory.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "✅ IMPLEMENTED Dual Advisory System (Smart Strategy): (1) AUTHENTICATION CHECK: Checks authorization header in request, If 'Bearer token' present → Authenticated user (tenant/staff), If no token → Public website user, (2) AUTHENTICATED USERS (Tenant/Staff Login): Uses hybrid_advisory_service with Emergent LLM API, Gets AI-powered analysis (100-150 words crispy insights), Real location data from Google Places, Personalized recommendations, RETOERP projects display, Coupon code offer, Cost: ₹0.70-1 per advisory (charged to tenant), Advisory type marked as 'ai_powered', (3) PUBLIC WEBSITE USERS (Free): Uses free_advisory_service (template-based), NO API calls = Zero cost, Rule-based expert templates with dynamic data, Real location data still included (Google Places - free), Shows RETOERP projects, Shows coupon offer, Additional CTA added: 'Want Personalized AI-Powered Analysis? Login to RETOERP for detailed insights!', Advisory type marked as 'template_based', (4) BUSINESS LOGIC: Free users get good advice but generic (lead generation), They see value but want more detail → Contact/Login, Paid tenants get premium AI analysis (value for money), Cost control: Only paying customers consume API credits, Perfect conversion funnel: Free → Impressed → Want More → Login → Paid, (5) Both advisory types include: Real location data (schools, hospitals, malls, metro), Available RETOERP projects, ₹5000 coupon code offer, Professional formatting. Result: Smart dual-tier system - Free tier generates leads, Paid tier provides value. Cost controlled while maximizing conversions! Ready for testing."
