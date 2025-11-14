@@ -245,7 +245,9 @@ async def send_chat_message(
             "conversation_id": conversation_id,
             "user_message": user_msg.model_dump(),
             "assistant_message": assistant_msg.model_dump(),
-            "should_capture_lead": should_capture
+            "should_capture_lead": should_capture,
+            "action": action,
+            "action_data": action_data
         }
         
     except Exception as e:
