@@ -433,6 +433,22 @@ function App() {
                 }
               />
               <Route
+                path="/layout-editor/:layoutId"
+                element={
+                  <PrivateRoute>
+                    <LayoutEditor />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/layouts/enhanced/:layoutId"
+                element={
+                  <PrivateRoute>
+                    <EnhancedLayoutEditor />
+                  </PrivateRoute>
+                }
+              />
+              <Route
                 path="/projects/:projectId/layout/create"
                 element={
                   <PrivateRoute>
