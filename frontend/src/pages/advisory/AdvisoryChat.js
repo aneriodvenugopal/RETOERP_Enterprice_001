@@ -190,8 +190,12 @@ const AdvisoryChat = () => {
       <div className="container mx-auto px-6 py-12 max-w-3xl">
         <div className="bg-white rounded-2xl shadow-lg p-8">
           <div className="text-center mb-8">
+            <div className="inline-block bg-green-100 text-green-800 px-4 py-1 rounded-full text-sm font-bold mb-3">
+              ✨ 100% FREE - AI-Powered Advisory
+            </div>
             <div className="text-6xl mb-4">{config.icon}</div>
             <h1 className="text-3xl font-bold text-gray-900">{config.name}</h1>
+            <p className="text-gray-600 mt-2 text-sm">Get instant expert advice powered by advanced AI</p>
           </div>
 
           {step === 'input' && (
