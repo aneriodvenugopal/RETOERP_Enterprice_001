@@ -52,8 +52,17 @@ class EnhancedChatbotService:
             "user_data": {},
             "requirements": {},
             "feedback": None,
-            "verified": False
+            "verified": False,
+            "context": context or {}
         })
+        
+        # Update context if provided
+        if context:
+            state["context"] = context
+        
+        # Check if this is project-specific chat
+        is_project_chat = context and context.get('project_id') if context else False
+        project_name = context.get('project_name') if context else None
         
         # Stage 1: Initial greeting & feature guidance
         if state["stage"] == "initial":
