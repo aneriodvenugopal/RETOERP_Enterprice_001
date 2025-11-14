@@ -299,54 +299,261 @@ def test_create_payment_scheme():
         traceback.print_exc()
         return False
 
-def test_workforce_skills():
-    """Test 2: GET /api/workforce/skills - Get available skill types"""
-    global available_skills
-    
+def test_list_payment_schemes():
+    """Test 4: GET /api/schemes - List payment schemes with filters"""
     try:
-        print("\n🔧 TESTING: GET /api/workforce/skills")
+        print("\n📋 TESTING: GET /api/schemes")
         
+        headers = get_auth_headers()
         response = requests.get(
-            f"{API_BASE}/workforce/skills",
+            f"{API_BASE}/schemes",
+            headers=headers,
+            params={"tenant_id": DEFAULT_TENANT_ID},
             timeout=10
         )
         
         if response.status_code != 200:
-            results.add_fail("Workforce Skills", f"Status code: {response.status_code}")
-            print_error_details("Workforce Skills", response)
+            results.add_fail("List Payment Schemes", f"Status code: {response.status_code}")
+            print_error_details("List Payment Schemes", response)
             return False
             
         data = response.json()
         
-        # Validate response is a list
-        if not isinstance(data, list):
-            results.add_fail("Workforce Skills", "Response is not a list")
+        # Validate response structure
+        required_fields = ['success', 'count', 'schemes']
+        missing_fields = [field for field in required_fields if field not in data]
+        
+        if missing_fields:
+            results.add_fail("List Payment Schemes", f"Missing fields: {missing_fields}")
             return False
         
-        # Validate skills are strings
-        for skill in data:
-            if not isinstance(skill, str):
-                results.add_fail("Workforce Skills", f"Skill '{skill}' is not a string")
-                return False
-        
-        # Check for expected skills
-        expected_skills = ["Carpenter", "Electrician", "Mason", "Painter", "Plumber"]
-        missing_skills = [skill for skill in expected_skills if skill not in data]
-        
-        if missing_skills:
-            results.add_fail("Workforce Skills", f"Missing expected skills: {missing_skills}")
+        if not data.get('success'):
+            results.add_fail("List Payment Schemes", "Response success is False")
             return False
         
-        available_skills = data
+        schemes = data.get('schemes', [])
         
-        results.add_pass("Workforce Skills")
-        print(f"   ✅ Found {len(data)} skill types")
-        print(f"   🔧 Skills: {', '.join(data[:5])}{'...' if len(data) > 5 else ''}")
+        results.add_pass("List Payment Schemes")
+        print(f"   ✅ Found {len(schemes)} payment schemes")
+        
+        if schemes:
+            scheme = schemes[0]
+            print(f"   📝 Sample scheme: {scheme.get('scheme_name')} (₹{scheme.get('total_amount', 0):,})")
         
         return True
         
     except Exception as e:
-        results.add_fail("Workforce Skills", f"Exception: {str(e)}")
+        results.add_fail("List Payment Schemes", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+def test_get_payment_scheme():
+    """Test 5: GET /api/schemes/{id} - Get single payment scheme"""
+    global test_scheme_id
+    
+    if not test_scheme_id:
+        results.add_fail("Get Payment Scheme", "No test scheme ID available")
+        return False
+    
+    try:
+        print(f"\n📄 TESTING: GET /api/schemes/{test_scheme_id}")
+        
+        headers = get_auth_headers()
+        response = requests.get(
+            f"{API_BASE}/schemes/{test_scheme_id}",
+            headers=headers,
+            timeout=10
+        )
+        
+        if response.status_code != 200:
+            results.add_fail("Get Payment Scheme", f"Status code: {response.status_code}")
+            print_error_details("Get Payment Scheme", response)
+            return False
+            
+        data = response.json()
+        
+        # Validate response structure
+        required_fields = ['success', 'scheme']
+        missing_fields = [field for field in required_fields if field not in data]
+        
+        if missing_fields:
+            results.add_fail("Get Payment Scheme", f"Missing fields: {missing_fields}")
+            return False
+        
+        if not data.get('success'):
+            results.add_fail("Get Payment Scheme", "Response success is False")
+            return False
+        
+        scheme = data.get('scheme', {})
+        
+        results.add_pass("Get Payment Scheme")
+        print(f"   ✅ Retrieved scheme: {scheme.get('scheme_name')}")
+        print(f"   💰 Total amount: ₹{scheme.get('total_amount', 0):,}")
+        print(f"   📅 Duration: {scheme.get('duration_months')} months")
+        
+        return True
+        
+    except Exception as e:
+        results.add_fail("Get Payment Scheme", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+def test_finalize_payment_scheme():
+    """Test 6: POST /api/schemes/{id}/finalize - Finalize payment scheme"""
+    global test_scheme_id
+    
+    if not test_scheme_id:
+        results.add_fail("Finalize Payment Scheme", "No test scheme ID available")
+        return False
+    
+    try:
+        print(f"\n🔒 TESTING: POST /api/schemes/{test_scheme_id}/finalize")
+        
+        headers = get_auth_headers()
+        response = requests.post(
+            f"{API_BASE}/schemes/{test_scheme_id}/finalize",
+            headers=headers,
+            timeout=10
+        )
+        
+        if response.status_code != 200:
+            results.add_fail("Finalize Payment Scheme", f"Status code: {response.status_code}")
+            print_error_details("Finalize Payment Scheme", response)
+            return False
+            
+        data = response.json()
+        
+        if not data.get('success'):
+            results.add_fail("Finalize Payment Scheme", "Response success is False")
+            return False
+        
+        results.add_pass("Finalize Payment Scheme")
+        print(f"   ✅ Scheme finalized successfully")
+        print(f"   🔒 Scheme is now locked from editing")
+        
+        return True
+        
+    except Exception as e:
+        results.add_fail("Finalize Payment Scheme", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+def test_clone_payment_scheme():
+    """Test 7: POST /api/schemes/{id}/clone - Clone existing scheme"""
+    global test_scheme_id
+    
+    if not test_scheme_id:
+        results.add_fail("Clone Payment Scheme", "No test scheme ID available")
+        return False
+    
+    try:
+        print(f"\n📋 TESTING: POST /api/schemes/{test_scheme_id}/clone")
+        
+        headers = get_auth_headers()
+        response = requests.post(
+            f"{API_BASE}/schemes/{test_scheme_id}/clone",
+            headers=headers,
+            params={"tenant_id": DEFAULT_TENANT_ID},
+            timeout=10
+        )
+        
+        if response.status_code != 200:
+            results.add_fail("Clone Payment Scheme", f"Status code: {response.status_code}")
+            print_error_details("Clone Payment Scheme", response)
+            return False
+            
+        data = response.json()
+        
+        # Validate response structure
+        required_fields = ['success', 'new_scheme_id']
+        missing_fields = [field for field in required_fields if field not in data]
+        
+        if missing_fields:
+            results.add_fail("Clone Payment Scheme", f"Missing fields: {missing_fields}")
+            return False
+        
+        if not data.get('success'):
+            results.add_fail("Clone Payment Scheme", "Response success is False")
+            return False
+        
+        new_scheme_id = data.get('new_scheme_id')
+        
+        results.add_pass("Clone Payment Scheme")
+        print(f"   ✅ Scheme cloned successfully")
+        print(f"   🆕 New scheme ID: {new_scheme_id}")
+        
+        return True
+        
+    except Exception as e:
+        results.add_fail("Clone Payment Scheme", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+# ============================================
+# 3. STAFF HIERARCHY APIS TESTS
+# ============================================
+
+def test_create_staff_hierarchy():
+    """Test 8: POST /api/staff-hierarchy - Create staff hierarchy entry"""
+    global test_staff_id
+    
+    try:
+        print("\n👥 TESTING: POST /api/staff-hierarchy")
+        
+        headers = get_auth_headers()
+        
+        # Create a staff hierarchy entry
+        staff_data = {
+            "tenant_id": DEFAULT_TENANT_ID,
+            "staff_id": str(uuid.uuid4()),
+            "staff_name": "Rajesh Kumar",
+            "staff_phone": "9876543210",
+            "staff_email": "rajesh.kumar@retoerp.com",
+            "designation": "Sales Manager",
+            "parent_staff_id": None,  # Top level
+            "direct_commission_percentage": 2.5,
+            "gap_commission_percentage": 1.0,
+            "project_commissions": {},
+            "category_commissions": {}
+        }
+        
+        test_staff_id = staff_data["staff_id"]
+        
+        response = requests.post(
+            f"{API_BASE}/staff-hierarchy",
+            headers=headers,
+            json=staff_data,
+            timeout=10
+        )
+        
+        if response.status_code != 200:
+            results.add_fail("Create Staff Hierarchy", f"Status code: {response.status_code}")
+            print_error_details("Create Staff Hierarchy", response)
+            return False
+            
+        data = response.json()
+        
+        # Validate response structure
+        required_fields = ['success', 'hierarchy_id', 'hierarchy_level']
+        missing_fields = [field for field in required_fields if field not in data]
+        
+        if missing_fields:
+            results.add_fail("Create Staff Hierarchy", f"Missing fields: {missing_fields}")
+            return False
+        
+        if not data.get('success'):
+            results.add_fail("Create Staff Hierarchy", "Response success is False")
+            return False
+        
+        results.add_pass("Create Staff Hierarchy")
+        print(f"   ✅ Staff hierarchy created: {data.get('hierarchy_id')}")
+        print(f"   📊 Hierarchy level: {data.get('hierarchy_level')}")
+        print(f"   👤 Staff: {staff_data['staff_name']} ({staff_data['designation']})")
+        
+        return True
+        
+    except Exception as e:
+        results.add_fail("Create Staff Hierarchy", f"Exception: {str(e)}")
         traceback.print_exc()
         return False
 
