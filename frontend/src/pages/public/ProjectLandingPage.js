@@ -253,11 +253,13 @@ function ProjectLandingPage() {
           </div>
 
           {layout ? (
-            <PublicLayoutViewer
-              layout={layout}
-              properties={properties}
-              onPlotClick={handlePlotClick}
-            />
+            <div className="h-[600px] rounded-xl overflow-hidden shadow-2xl border-2 border-gray-200">
+              <PublicLayoutViewerEnhanced
+                layout={layout}
+                project={project}
+                onPlotSelect={handlePlotClick}
+              />
+            </div>
           ) : (
             <div className="bg-white rounded-xl shadow-lg p-12 text-center">
               <Building2 size={64} className="mx-auto text-gray-400 mb-4" />
