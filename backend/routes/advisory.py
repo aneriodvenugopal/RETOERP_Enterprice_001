@@ -101,6 +101,7 @@ async def get_advisory(request: Request, advisory_request: AdvisoryRequest):
                 advisory_request.user_inputs,
                 projects
             )
+            advisory_type = "ai_powered"
         else:
             # FREE: Public website users get template-based advisory
             from services.free_advisory_service import free_advisory_service
@@ -109,6 +110,9 @@ async def get_advisory(request: Request, advisory_request: AdvisoryRequest):
                 advisory_request.user_inputs,
                 projects
             )
+            # Add contact prompt for free users
+            ai_response += "\n\n---\n\n📞 **Want Personalized AI-Powered Analysis?**\n\nLogin to your RETOERP account to get detailed insights powered by advanced AI, tailored specifically to your situation!\n"
+            advisory_type = "template_based"
         
         # Extract recommended project names from response (simple matching)
         recommended_projects = []
