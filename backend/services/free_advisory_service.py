@@ -101,7 +101,15 @@ Your budget positions you well in the {location} market. Consider:
 • Check RERA registration and builder reputation
 • Negotiate for additional discounts (5-10% possible)
 • Consider resale value and rental yield potential
+"""
 
+        # Add REAL location data
+        if real_data_section:
+            response += real_data_section
+        else:
+            response += "\n*Real-time location amenities data will be displayed once area is confirmed.*\n\n"
+
+        response += """
 **Next Steps:**
 📞 Contact our sales team for site visits
 📋 Get detailed payment schedules
