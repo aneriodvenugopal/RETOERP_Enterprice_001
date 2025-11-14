@@ -80,34 +80,16 @@ class HybridAdvisoryService:
             budget = user_inputs.get('budget', 'Not specified')
             location = user_inputs.get('location', 'Not specified')
             prop_type = user_inputs.get('property_type', 'Any')
-            description = user_inputs.get('description', '')
             
-            # Build context about available projects
-            project_context = ""
-            if projects:
-                matching = [p for p in projects if location.lower() in str(p.get('location', '')).lower()][:2]
-                if matching:
-                    project_context = f"\n\nAvailable projects: {', '.join([p.get('name', 'Project') for p in matching])} in {location}."
-            
-            prompt = f"""Analyze this property buyer's situation:
-- Budget: {budget}
-- Preferred Location: {location}
-- Property Type: {prop_type}"""
-            
-            if description:
-                prompt += f"\n- Additional Context: {description}"
-            
-            prompt += project_context
-            
-            prompt += f"""
+            prompt = f"""Client wants {prop_type} in {location} with {budget} budget.
 
-Based on this, provide your expert analysis:
-1. Is this budget realistic for {location}? What can they expect?
-2. Specific financial strategy (down payment, loan, hidden costs)
-3. What to prioritize in their search given their budget and location
-4. One critical thing they might be missing
+Give 4 bullet points:
+✓ What they can realistically get
+✓ Financial planning tip
+⚠️ Hidden costs to watch
+✓ One key advice
 
-Be specific to their {budget} budget and {location} location. Conversational tone."""
+Keep it short and readable."""
             
             return prompt
         
