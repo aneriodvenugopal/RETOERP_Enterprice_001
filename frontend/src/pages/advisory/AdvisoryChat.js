@@ -69,7 +69,6 @@ const AdvisoryChat = () => {
   const [sessionId, setSessionId] = useState('');
   const [loading, setLoading] = useState(false);
   const [leadData, setLeadData] = useState({ name: '', email: '', phone: '' });
-  const [selectedLanguage, setSelectedLanguage] = useState('en');
   const [loadingMessage, setLoadingMessage] = useState('');
   
   // Budget field state (amount + unit)
