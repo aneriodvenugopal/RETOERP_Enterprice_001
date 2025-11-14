@@ -775,20 +775,24 @@ frontend:
 
 metadata:
   created_by: "main_agent"
-  version: "3.2"
-  test_sequence: 6
+  version: "3.3"
+  test_sequence: 7
   run_ui: false
 
 test_plan:
   current_focus:
-    - "PHASE 1 & 2: Payment and Commission Dashboards - Backend integration testing"
+    - "PHASE 1, 2 & 3: Complete Payment & Commission ERP Module - Backend integration testing"
+    - "Test GET /api/schemes with tenant_id filters"
+    - "Test POST /api/schemes to create payment schemes"
+    - "Test POST /api/schemes/{id}/finalize to lock schemes"
+    - "Test GET /api/staff-hierarchy with tenant_id filters"
+    - "Test POST /api/staff-hierarchy to add staff with hierarchy"
+    - "Test PUT /api/staff-hierarchy/{id} to update and recalculate paths"
     - "Test GET /api/payments endpoint with tenant_id filters"
-    - "Test POST /api/manual payment entry with all modes (NEFT/Cheque/Cash)"
-    - "Test Razorpay integration flow (mock mode)"
-    - "Test GET /commissions/earnings with staff_id and status filters"
-    - "Test POST /commissions/earnings/{id}/approve (approve/reject/hold)"
-    - "Test GET /commissions/staff/{id}/summary for personal stats"
-    - "Verify commission auto-calculation on payment completion"
+    - "Test POST /api/manual payment entry with all modes"
+    - "Test GET /commissions/earnings with filters"
+    - "Test POST /commissions/earnings/{id}/approve workflow"
+    - "Verify end-to-end flow: Scheme → Staff → Payment → Commission"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
