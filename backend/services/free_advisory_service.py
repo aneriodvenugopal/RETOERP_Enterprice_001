@@ -362,7 +362,7 @@ We recommend visiting all three projects and comparing:
         
         return response
     
-    def _investment_advisory(self, inputs: dict, projects: list) -> str:
+    async def _investment_advisory(self, inputs: dict, projects: list) -> str:
         """Investment-focused advisory"""
         
         amount = inputs.get('investment_amount', 'Your budget')
