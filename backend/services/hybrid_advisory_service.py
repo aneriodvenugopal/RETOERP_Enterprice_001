@@ -283,6 +283,60 @@ Send your mobile number to our sales team and get your unique coupon code instan
         
         return text
     
+    def _format_compact_location_data(self, location_data: dict) -> str:
+        """Compact version of location data - only essentials"""
+        
+        if not location_data.get('coordinates'):
+            return ""
+        
+        text = f"\n**📍 Nearby ({location_data['location']}):**\n"
+        
+        # Top 2 schools
+        if location_data.get('schools')[:2]:
+            schools = location_data['schools'][:2]
+            text += f"🏫 Schools: {', '.join([s['name'] for s in schools])}\n"
+        
+        # Top 2 hospitals
+        if location_data.get('hospitals')[:2]:
+            hospitals = location_data['hospitals'][:2]
+            text += f"🏥 Hospitals: {', '.join([h['name'] for h in hospitals])}\n"
+        
+        # Top mall
+        if location_data.get('malls'):
+            text += f"🛍️ Shopping: {location_data['malls'][0]['name']}\n"
+        
+        # Metro if available
+        if location_data.get('metro_stations'):
+            text += f"🚇 Metro: {location_data['metro_stations'][0]['name']}\n"
+        
+        return text + "\n"
+    
+    def _format_retoerp_projects(self, projects: list, location: str) -> str:
+        """Format RETOERP projects available nearby"""
+        
+        # Filter by location
+        location_lower = location.lower()
+        matched = [p for p in projects if location_lower in str(p.get('location', '')).lower()]
+        
+        if not matched:
+            # Show any 2 projects if no exact match
+            matched = projects[:2]
+        
+        text = f"\n**🏘️ RETOERP Projects Near {location}:**\n\n"
+        
+        for i, project in enumerate(matched[:3], 1):
+            text += f"{i}. **{project.get('name', 'Project')}**\n"
+            if project.get('location'):
+                text += f"   📍 {project.get('location')}\n"
+            if project.get('property_count'):
+                text += f"   🏢 {project.get('property_count')} units available\n"
+            text += "   📞 *Contact for details & site visit*\n\n"
+        
+        if len(matched) > 3:
+            text += f"*+{len(matched) - 3} more projects in this area*\n"
+        
+        return text
+    
     def _format_projects(self, projects: list, location: str = None) -> str:
         """Format projects section - conversational"""
         
