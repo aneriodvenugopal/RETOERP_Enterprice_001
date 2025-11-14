@@ -724,14 +724,31 @@ backend:
         agent: "main"
         comment: "Created .env.example with configuration for SMS (MSG91), Email (SendGrid/AWS SES), and WhatsApp providers"
 
+frontend:
+  - task: "PHASE 1: Customer Payment Entry UI"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/payments/CustomerPayments.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "✅ PHASE 1 IMPLEMENTATION COMPLETE - Comprehensive Customer Payment Entry UI: (1) INITIALIZATION: Auto-fetches tenant_id from current user, loads reference data (payment schemes, currencies, bookings) on mount, (2) BOOKING SELECTION: Dropdown populated with confirmed bookings showing customer name, property name, and balance amount, auto-fills customer details (name, phone, email) and payment amount on selection, supports single booking selection with automatic allocation, (3) PAYMENT METHOD: Two-button toggle for Razorpay (online gateway) vs Manual entry with visual indicators and icons, (4) RAZORPAY INTEGRATION: Creates Razorpay order via POST /api/razorpay/create-order, integrates Razorpay Checkout SDK (loaded in index.html), handles payment callback and verification via POST /api/razorpay/verify, supports UPI, Cards, Net Banking through Razorpay, (5) MANUAL PAYMENT FORM: Payment mode dropdown (NEFT/RTGS/IMPS/Cheque/DD/Cash), conditional fields based on mode (transaction_id, reference_number, bank_name, cheque_date), supports payment screenshot upload field, submits via POST /api/manual endpoint, (6) PAYMENTS LIST: Fetches from GET /api/payments with tenant_id and status filters, displays in sortable table with customer info, amount (formatted INR), payment method/mode with icons, transaction reference & receipt number, status badges (pending/completed/failed), commission calculation status indicator, cheque clearance status for pending cheques, (7) FILTERS & SEARCH: Status filter tabs (all/pending/completed/failed), real-time search by customer name, phone, or reference number, (8) UI/UX FEATURES: Professional gradient header (blue to indigo), modern modal with color-coded sections, payment mode icons (CreditCard, Wallet, FileText, Building), responsive design with proper validation, loading states and disabled buttons, success/error toasts with receipt numbers, (9) COMMISSION TRACKING: Visual indicator showing commission status for each payment, auto-calculated message for completed payments. Routes: /payments (main page), integrated into App.js with PrivateRoute. Backend integration: Uses correct API endpoints (/api/razorpay/*, /api/manual, /api/payments, /api/schemes, /api/currencies). Ready for backend testing."
+
 metadata:
   created_by: "main_agent"
-  version: "3.0"
-  test_sequence: 4
+  version: "3.1"
+  test_sequence: 5
   run_ui: false
 
 test_plan:
-  current_focus: []
+  current_focus:
+    - "PHASE 1: Customer Payment Entry UI - Backend integration testing"
+    - "Verify GET /api/payments endpoint with filters"
+    - "Test POST /api/manual payment entry with various modes"
+    - "Test Razorpay integration flow"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
