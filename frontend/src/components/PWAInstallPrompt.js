@@ -54,10 +54,26 @@ function PWAInstallPrompt() {
       }, 5000);
     }
     
+    // Listen for custom event from footer button
+    const handleTriggerInstall = () => {
+      if (isIOSDevice) {
+        setShowIOSInstructions(true);
+        setShowBanner(true);
+      } else if (deferredPrompt) {
+        handleInstallAndroid();
+      } else {
+        // Show banner if install prompt not available yet
+        setShowBanner(true);
+      }
+    };
+    
+    window.addEventListener('trigger-pwa-install', handleTriggerInstall);
+    
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
+      window.removeEventListener('trigger-pwa-install', handleTriggerInstall);
     };
-  }, []);
+  }, [deferredPrompt]);
   
   const handleInstallAndroid = async () => {
     if (!deferredPrompt) return;
