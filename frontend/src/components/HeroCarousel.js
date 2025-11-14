@@ -109,29 +109,35 @@ const HeroCarousel = () => {
           <div className="relative h-full flex items-center">
             <div className="container mx-auto px-6">
               <div className="max-w-4xl">
-                {/* Problem Badge */}
-                <div className="inline-block bg-red-500/90 text-white px-4 py-2 rounded-full font-semibold mb-4 text-sm">
-                  ❌ Problem
+                {/* Problem - Clean Label Style (not button-like) */}
+                <div className="mb-3">
+                  <span className="text-red-400 text-sm font-medium uppercase tracking-wider">
+                    ❌ The Problem
+                  </span>
                 </div>
                 
                 {/* Problem Statement */}
-                <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 leading-tight">
+                <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6 leading-tight">
                   {slide.problem}
                 </h2>
 
-                {/* Solution Badge */}
-                <div className="inline-block bg-green-500/90 text-white px-4 py-2 rounded-full font-semibold mb-3 text-sm">
-                  ✅ Solution
+                {/* Solution - Clean Label Style */}
+                <div className="mb-3">
+                  <span className="text-green-400 text-sm font-medium uppercase tracking-wider">
+                    ✅ Our Solution
+                  </span>
                 </div>
 
                 {/* Solution Description */}
-                <p className="text-xl md:text-2xl text-white/90 mb-4">
+                <p className="text-xl md:text-2xl text-white/90 mb-6">
                   {slide.solution}
                 </p>
 
-                {/* Benefit */}
-                <div className="inline-block bg-yellow-400 text-gray-900 px-6 py-2 rounded-lg font-bold text-lg mb-6">
-                  🚀 {slide.benefit}
+                {/* Benefit - Clean Badge (not button-like) */}
+                <div className="mb-6">
+                  <span className="inline-flex items-center gap-2 bg-gradient-to-r from-yellow-400 to-orange-400 text-gray-900 px-4 py-1.5 text-base font-bold">
+                    🚀 {slide.benefit}
+                  </span>
                 </div>
 
                 {/* CTA Buttons */}
