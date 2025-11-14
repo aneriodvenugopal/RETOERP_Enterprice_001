@@ -1250,7 +1250,10 @@ def run_all_tests():
         # Health check
         ("API Health Check", test_health_check),
         
-        # Supporting APIs
+        # Public APIs (no auth required)
+        ("Public Tenant Landing", test_public_tenant_landing),
+        
+        # Supporting APIs (may require auth)
         ("Currencies API", test_currencies_api),
         ("Bookings API", test_bookings_api),
         
