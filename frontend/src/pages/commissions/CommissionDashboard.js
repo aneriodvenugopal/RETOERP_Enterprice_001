@@ -32,23 +32,92 @@ const CommissionDashboard = () => {
   });
 
   useEffect(() => {
-    fetchEarnings();
-  }, [filterStatus]);
+    initializeComponent();
+  }, []);
+
+  useEffect(() => {
+    if (tenantId && currentUser) {
+      fetchEarnings();
+      if (isAdmin) {
+        fetchPayouts();
+      }
+    }
+  }, [filterStatus, filterType, tenantId, currentUser]);
+
+  const initializeComponent = async () => {
+    try {
+      // Get current user info
+      const userResponse = await apiInstance.get('/user/me');
+      const user = userResponse.data;
+      setCurrentUser(user);
+      
+      const currentTenantId = user.tenant_id || localStorage.getItem('tenant_id');
+      setTenantId(currentTenantId);
+      
+      // Check if user is admin (can approve commissions)
+      const adminRoles = ['tenant_admin', 'super_admin'];
+      setIsAdmin(adminRoles.includes(user.role));
+      
+    } catch (error) {
+      console.error('Error initializing:', error);
+      toast.error('Failed to initialize commission dashboard');
+    }
+  };
 
   const fetchEarnings = async () => {
     setLoading(true);
     try {
-      const params = {};
+      const params = { 
+        tenant_id: tenantId, 
+        limit: 100 
+      };
+      
+      // For non-admin users, fetch only their commissions
+      if (!isAdmin && currentUser) {
+        params.staff_id = currentUser.id;
+      }
+      
       if (filterStatus !== 'all') params.status = filterStatus;
+      if (filterType !== 'all') params.commission_type = filterType;
       
       const response = await apiInstance.get('/commissions/earnings', { params });
       setEarnings(response.data.earnings || []);
-      setSummary(response.data.summary || {});
+      
+      // Fetch summary for current user
+      if (currentUser) {
+        fetchSummary();
+      }
+      
     } catch (error) {
       console.error('Error fetching earnings:', error);
-      toast.error('Failed to load commissions');
+      toast.error('Failed to load commission earnings');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchSummary = async () => {
+    try {
+      const staffId = isAdmin ? null : currentUser.id;
+      if (staffId) {
+        const response = await apiInstance.get(`/commissions/staff/${staffId}/summary`, {
+          params: { tenant_id: tenantId }
+        });
+        setSummary(response.data);
+      }
+    } catch (error) {
+      console.error('Error fetching summary:', error);
+    }
+  };
+
+  const fetchPayouts = async () => {
+    try {
+      const response = await apiInstance.get('/commissions/payouts', {
+        params: { tenant_id: tenantId, limit: 100 }
+      });
+      setPayouts(response.data.payouts || []);
+    } catch (error) {
+      console.error('Error fetching payouts:', error);
     }
   };
 
