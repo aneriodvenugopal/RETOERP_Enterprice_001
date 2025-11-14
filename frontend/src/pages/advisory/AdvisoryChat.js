@@ -80,6 +80,51 @@ const AdvisoryChat = () => {
     return <div className="p-8 text-center">Invalid advisory category</div>;
   }
 
+  // Initialize Google Maps API
+  useEffect(() => {
+    if (!window.google && GOOGLE_MAPS_KEY) {
+      const script = document.createElement('script');
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_KEY}&libraries=places`;
+      script.async = true;
+      script.defer = true;
+      script.onload = () => initializeAutocomplete();
+      document.head.appendChild(script);
+    } else if (window.google) {
+      initializeAutocomplete();
+    }
+  }, [category]);
+
+  const initializeAutocomplete = () => {
+    if (!window.google) return;
+
+    // Find all location-related fields
+    const locationFields = config.fields.filter(field => 
+      field.key.includes('location') || field.label.toLowerCase().includes('location')
+    );
+
+    locationFields.forEach(field => {
+      const inputRef = locationInputRefs.current[field.key];
+      if (inputRef && window.google) {
+        const autocomplete = new window.google.maps.places.Autocomplete(inputRef, {
+          types: ['(cities)'],
+          componentRestrictions: { country: 'in' }
+        });
+
+        autocomplete.addListener('place_changed', () => {
+          const place = autocomplete.getPlace();
+          if (place.formatted_address || place.name) {
+            setFormData(prev => ({
+              ...prev,
+              [field.key]: place.formatted_address || place.name
+            }));
+          }
+        });
+
+        autocompleteRefs.current[field.key] = autocomplete;
+      }
+    });
+  };
+
   const handleInputChange = (key, value) => {
     setFormData({ ...formData, [key]: value });
   };
