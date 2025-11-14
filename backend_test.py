@@ -97,10 +97,17 @@ def test_health_check():
         results.add_fail("API Health Check", f"Connection error: {str(e)}")
         return False
 
-# Test data constants - not needed for auth tests but keeping for compatibility
+# Test data constants
 DEFAULT_TENANT_ID = "f18f7bd6-3a1f-472d-acf9-c2fb181787e7"
-HYDERABAD_LAT = 17.385
-HYDERABAD_LON = 78.486
+DEFAULT_CURRENCY_ID = "INR"
+
+# Global variables to store test data
+test_scheme_id = None
+test_staff_id = None
+test_payment_id = None
+test_commission_id = None
+test_payout_id = None
+test_booking_id = None
 
 # ============================================
 # WORKFORCE API TESTS
