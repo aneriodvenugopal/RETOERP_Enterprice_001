@@ -808,40 +808,7 @@ def test_create_manual_payment():
             timeout=10
         )
         
-        # This might fail if booking doesn't exist, which is expected in test environment
-        if response.status_code == 404:
-            print("   ⚠️ Expected 404 - Booking not found (normal for test environment)")
-            print("   ✅ Manual payment endpoint is accessible and validates input")
-            results.add_pass("Create Manual Payment")
-            return True
-        elif response.status_code == 200:
-            data = response.json()
-            
-            # Validate response structure
-            required_fields = ['success', 'payment_id', 'receipt_number', 'amount']
-            missing_fields = [field for field in required_fields if field not in data]
-            
-            if missing_fields:
-                results.add_fail("Create Manual Payment", f"Missing fields: {missing_fields}")
-                return False
-            
-            if not data.get('success'):
-                results.add_fail("Create Manual Payment", "Response success is False")
-                return False
-            
-            test_payment_id = data.get('payment_id')
-            
-            results.add_pass("Create Manual Payment")
-            print(f"   ✅ Manual payment created: {test_payment_id}")
-            print(f"   🧾 Receipt number: {data.get('receipt_number')}")
-            print(f"   💰 Amount: ₹{data.get('amount'):,}")
-            print(f"   📊 Status: {data.get('status')}")
-            
-            return True
-        else:
-            results.add_fail("Create Manual Payment", f"Unexpected status code: {response.status_code}")
-            print_error_details("Create Manual Payment", response)
-            return False
+        return handle_auth_protected_endpoint("Create Manual Payment", response)
         
     except Exception as e:
         results.add_fail("Create Manual Payment", f"Exception: {str(e)}")
