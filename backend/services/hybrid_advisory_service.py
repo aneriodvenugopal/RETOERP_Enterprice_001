@@ -45,27 +45,27 @@ class HybridAdvisoryService:
     
     async def _get_ai_insights(self, category: str, user_inputs: dict, projects: list) -> str:
         """
-        Get expert AI analysis - personalized and analytical
-        150-200 words for quality insights (still cheap with mini)
+        Get AI insights - clean and readable format
+        100-150 words with bullet points
         """
         
         try:
-            # Analytical prompt with context
-            prompt = self._get_analytical_prompt(category, user_inputs, projects)
+            # Clean prompt for readable response
+            prompt = self._get_clean_prompt(category, user_inputs, projects)
             
             chat = LlmChat(
                 api_key=self.api_key,
                 session_id=f"advisory_{category}",
-                system_message="You are an experienced real estate consultant. Analyze the client's specific situation and give personalized advice. Be conversational, analytical, and actionable. 150-200 words max. Avoid generic advice - be specific to their inputs."
-            ).with_model("openai", "gpt-4o-mini")  # Mini is cheap but smart enough
+                system_message="You are a real estate expert. Give advice in clean bullet points or short paragraphs. 100-150 words max. Use ✓ for benefits, ⚠️ for cautions. Be direct and specific."
+            ).with_model("openai", "gpt-4o-mini")
             
             user_message = UserMessage(text=prompt)
             response = await chat.send_message(user_message)
             
-            # Limit to 200 words max for cost control
+            # Limit to 150 words for cost control
             words = response.split()
-            if len(words) > 200:
-                response = ' '.join(words[:200]) + '...'
+            if len(words) > 150:
+                response = ' '.join(words[:150]) + '...'
             
             return response
             
