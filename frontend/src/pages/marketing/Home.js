@@ -4,6 +4,7 @@ import { MessageSquare, Building2, MapPin, ArrowRight, Building } from 'lucide-r
 import ChatWidget from '../../components/ChatWidget';
 import ChatbotWidget from '../../components/ChatbotWidget';
 import HeroCarousel from '../../components/HeroCarousel';
+import AppInstallBanner from '../../components/AppInstallBanner';
 import StickyNavbar from '../../components/StickyNavbar';
 import FloatingWhatsApp from '../../components/FloatingWhatsApp';
 import SuccessStories from '../../components/SuccessStories';
