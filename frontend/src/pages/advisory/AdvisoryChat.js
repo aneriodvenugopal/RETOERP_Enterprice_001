@@ -219,49 +219,88 @@ const AdvisoryChat = () => {
                 </select>
               </div>
               
-              {config.fields.map((field) => (
+              {/* 2-column grid for non-textarea fields */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                {config.fields.filter(f => f.type !== 'textarea').map((field) => (
+                  <div key={field.key}>
+                    <label className="block text-gray-700 font-medium mb-2">
+                      {field.label}
+                      {field.required === false && <span className="text-gray-400 text-sm ml-2">(Optional)</span>}
+                    </label>
+                    {field.type === 'budget' ? (
+                      <div className="flex gap-2">
+                        <input
+                          type="number"
+                          step="0.01"
+                          required={field.required !== false}
+                          value={formData[field.key]?.split(' ')[0] || ''}
+                          onChange={(e) => {
+                            const unit = budgetUnits[field.key] || 'Lakhs';
+                            handleInputChange(field.key, `${e.target.value} ${unit}`);
+                          }}
+                          placeholder={field.placeholder}
+                          className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        />
+                        <select
+                          value={budgetUnits[field.key] || 'Lakhs'}
+                          onChange={(e) => {
+                            setBudgetUnits({...budgetUnits, [field.key]: e.target.value});
+                            const amount = formData[field.key]?.split(' ')[0] || '';
+                            if (amount) handleInputChange(field.key, `${amount} ${e.target.value}`);
+                          }}
+                          className="px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white"
+                        >
+                          <option value="Thousand">Thousand</option>
+                          <option value="Lakhs">Lakhs</option>
+                          <option value="Crores">Crores</option>
+                        </select>
+                      </div>
+                    ) : field.type === 'select' ? (
+                      <select
+                        required={field.required !== false}
+                        value={formData[field.key] || ''}
+                        onChange={(e) => handleInputChange(field.key, e.target.value)}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      >
+                        <option value="">Select...</option>
+                        {field.options.map((opt) => (
+                          <option key={opt} value={opt}>{opt}</option>
+                        ))}
+                      </select>
+                    ) : (
+                      <input
+                        type={field.type}
+                        required={field.required !== false}
+                        value={formData[field.key] || ''}
+                        onChange={(e) => handleInputChange(field.key, e.target.value)}
+                        placeholder={field.placeholder}
+                        ref={(el) => {
+                          if (field.key.includes('location') || field.label.toLowerCase().includes('location')) {
+                            locationInputRefs.current[field.key] = el;
+                          }
+                        }}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    )}
+                  </div>
+                ))}
+              </div>
+              
+              {/* Textarea fields full width */}
+              {config.fields.filter(f => f.type === 'textarea').map((field) => (
                 <div key={field.key} className="mb-6">
                   <label className="block text-gray-700 font-medium mb-2">
                     {field.label}
                     {field.required === false && <span className="text-gray-400 text-sm ml-2">(Optional)</span>}
                   </label>
-                  {field.type === 'select' ? (
-                    <select
-                      required={field.required !== false}
-                      value={formData[field.key] || ''}
-                      onChange={(e) => handleInputChange(field.key, e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    >
-                      <option value="">Select...</option>
-                      {field.options.map((opt) => (
-                        <option key={opt} value={opt}>{opt}</option>
-                      ))}
-                    </select>
-                  ) : field.type === 'textarea' ? (
-                    <textarea
-                      required={field.required !== false}
-                      value={formData[field.key] || ''}
-                      onChange={(e) => handleInputChange(field.key, e.target.value)}
-                      placeholder={field.placeholder}
-                      rows={4}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                  ) : (
-                    <input
-                      type={field.type}
-                      required={field.required !== false}
-                      value={formData[field.key] || ''}
-                      onChange={(e) => handleInputChange(field.key, e.target.value)}
-                      placeholder={field.placeholder}
-                      ref={(el) => {
-                        // Add ref for location fields for Google Maps autocomplete
-                        if (field.key.includes('location') || field.label.toLowerCase().includes('location')) {
-                          locationInputRefs.current[field.key] = el;
-                        }
-                      }}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                  )}
+                  <textarea
+                    required={field.required !== false}
+                    value={formData[field.key] || ''}
+                    onChange={(e) => handleInputChange(field.key, e.target.value)}
+                    placeholder={field.placeholder}
+                    rows={field.rows || 2}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
                 </div>
               ))}
               
