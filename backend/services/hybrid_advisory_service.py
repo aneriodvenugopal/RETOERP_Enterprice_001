@@ -146,26 +146,16 @@ Keep it actionable."""
             amount = user_inputs.get('investment_amount', 'Not specified')
             timeline = user_inputs.get('timeline', 'Not specified')
             roi = user_inputs.get('roi_expectations', 'Market standard')
-            description = user_inputs.get('description', '')
             
-            prompt = f"""Analyze this real estate investment plan:
-- Investment Amount: {amount}
-- Investment Timeline: {timeline}
-- ROI Expectation: {roi}"""
-            
-            if description:
-                prompt += f"\n- Additional Context: {description}"
-            
-            prompt += f"""
+            prompt = f"""Investment: {amount}, Timeline: {timeline}, Expected ROI: {roi}.
 
-Provide investment analysis:
-1. Is {roi} expectation realistic for {timeline}? Be honest.
-2. Best strategy given their {amount} and {timeline}
-3. Biggest risk they're not considering
-4. Tax optimization specific to their case
-5. Exit strategy - when and how to book profits
+Give 4 points:
+✓ Is ROI realistic? 
+✓ Best strategy for this timeline
+⚠️ Main risk factor
+✓ Exit strategy tip
 
-Be specific to their {amount} investment and {timeline}. Include current market reality."""
+Be direct."""
             
             return prompt
         
