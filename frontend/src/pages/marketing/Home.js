@@ -1240,8 +1240,8 @@ const Home = () => {
       {/* Floating WhatsApp Button */}
       <FloatingWhatsApp />
       
-      {/* Chat Widget */}
-      <ChatWidget />
+      {/* Smart Chatbot Widget - Lead Generation */}
+      <ChatbotWidget />
     </div>
   );
 };
