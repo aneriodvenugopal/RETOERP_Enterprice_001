@@ -20,21 +20,32 @@ class FreeAdvisoryService:
     async def get_advisory(self, category: str, user_inputs: dict, projects: list) -> str:
         """
         Get FREE expert advisory based on category
-        Uses rule-based templates + dynamic data
+        Uses rule-based templates + real location data
         """
         
+        # Get language preference
+        language = user_inputs.get('language', 'en')
+        
+        # Generate advisory
         if category == "budget":
-            return self._budget_advisory(user_inputs, projects)
+            advisory = await self._budget_advisory(user_inputs, projects)
         elif category == "location":
-            return self._location_advisory(user_inputs, projects)
+            advisory = await self._location_advisory(user_inputs, projects)
         elif category == "numerology":
-            return self._numerology_advisory(user_inputs, projects)
+            advisory = await self._numerology_advisory(user_inputs, projects)
         elif category == "best_project":
-            return self._best_project_advisory(user_inputs, projects)
+            advisory = await self._best_project_advisory(user_inputs, projects)
         elif category == "investment":
-            return self._investment_advisory(user_inputs, projects)
+            advisory = await self._investment_advisory(user_inputs, projects)
         else:
-            return self._generic_advisory(user_inputs, projects)
+            advisory = await self._generic_advisory(user_inputs, projects)
+        
+        # Add language note if not English
+        if language != 'en':
+            lang_name = {'te': 'Telugu', 'hi': 'Hindi'}.get(language, language)
+            advisory += f"\n\n*Note: For {lang_name} translation, please use Google Translate for now. Native {lang_name} support coming soon!*"
+        
+        return advisory
     
     def _budget_advisory(self, inputs: dict, projects: list) -> str:
         """Budget-focused advisory"""
