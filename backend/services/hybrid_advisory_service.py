@@ -298,40 +298,42 @@ Be specific to their {amount} investment and {timeline}. Include current market 
         
         return response
     
-    def _format_user_inputs(self, category: str, inputs: dict) -> str:
-        """Format user inputs section"""
-        
-        text = "**Your Requirements:**\n"
+    def _format_situation_summary(self, category: str, inputs: dict) -> str:
+        """Format situation summary - conversational style"""
         
         if category == "budget":
-            text += f"• Budget: {inputs.get('budget', 'Not specified')}\n"
-            text += f"• Location: {inputs.get('location', 'Any')}\n"
-            text += f"• Property Type: {inputs.get('property_type', 'Any')}\n"
-        
+            budget = inputs.get('budget', 'your budget')
+            location = inputs.get('location', 'preferred location')
+            prop_type = inputs.get('property_type', 'property')
+            text = f"Looking for a **{prop_type}** in **{location}** with a budget of **{budget}**"
+            
         elif category == "location":
-            text += f"• Interested Location: {inputs.get('location', 'Not specified')}\n"
-            text += f"• Work Location: {inputs.get('work_location', 'Not specified')}\n"
-            text += f"• Priorities: {inputs.get('priorities', 'Not specified')}\n"
-        
+            location = inputs.get('location', 'location')
+            work_loc = inputs.get('work_location', 'work location')
+            text = f"Evaluating **{location}** as a potential location (commuting from **{work_loc}**)"
+            
         elif category == "numerology":
-            text += f"• Date of Birth: {inputs.get('dob', 'Not provided')}\n"
-            text += f"• Lucky Numbers: {inputs.get('lucky_numbers', 'Not specified')}\n"
-            text += f"• Preferred Direction: {inputs.get('direction', 'Any')}\n"
-        
+            dob = inputs.get('dob', 'your birth date')
+            lucky = inputs.get('lucky_numbers', 'your lucky numbers')
+            text = f"Birth date: **{dob}**, Lucky numbers: **{lucky}**"
+            
         elif category == "best_project":
-            text += f"• Requirements: {inputs.get('requirements', 'Quality property')}\n"
-            text += f"• Timeline: {inputs.get('timeline', 'Flexible')}\n"
-            text += f"• Priorities: {inputs.get('priorities', 'Investment value')}\n"
-        
+            reqs = inputs.get('requirements', 'quality property')
+            timeline = inputs.get('timeline', 'flexible timeline')
+            text = f"Searching for: **{reqs}** with **{timeline}**"
+            
         elif category == "investment":
-            text += f"• Investment Amount: {inputs.get('investment_amount', 'Not specified')}\n"
-            text += f"• Timeline: {inputs.get('timeline', 'Not specified')}\n"
-            text += f"• Expected ROI: {inputs.get('roi_expectations', 'Market standard')}\n"
+            amount = inputs.get('investment_amount', 'investment amount')
+            timeline = inputs.get('timeline', 'investment horizon')
+            text = f"Planning to invest **{amount}** with **{timeline}**"
+        
+        else:
+            return ""
         
         # Add description if provided
         description = inputs.get('description', '').strip()
         if description:
-            text += f"• Additional Details: {description}\n"
+            text += f"\n\n*Your note: \"{description}\"*"
         
         return text
     
