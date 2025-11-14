@@ -319,14 +319,14 @@ const CommissionDashboard = () => {
                       </div>
                     </td>
                   </tr>
-                ) : earnings.length === 0 ? (
+                ) : filteredEarnings.length === 0 ? (
                   <tr>
                     <td colSpan="9" className="px-6 py-12 text-center text-gray-500">
                       No commission earnings found
                     </td>
                   </tr>
                 ) : (
-                  earnings.map((earning) => (
+                  filteredEarnings.map((earning) => (
                     <tr key={earning.id} className="hover:bg-gray-50 transition-colors">
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {new Date(earning.earned_date).toLocaleDateString()}
