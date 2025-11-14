@@ -160,7 +160,7 @@ async def verify_coupon(
 @router.get("/stats")
 async def get_coupon_stats(
     db = Depends(get_db),
-    current_user: dict = Depends(require_auth)
+    current_user: dict = Depends(get_current_user)
 ):
     """
     Get coupon usage statistics
