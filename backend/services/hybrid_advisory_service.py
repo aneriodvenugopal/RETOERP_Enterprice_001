@@ -73,32 +73,165 @@ class HybridAdvisoryService:
             print(f"AI insights error: {e}")
             return self._get_fallback_insights(category)
     
-    def _get_short_prompt(self, category: str, user_inputs: dict, projects: list) -> str:
-        """Ultra-short prompts to save tokens"""
+    def _get_analytical_prompt(self, category: str, user_inputs: dict, projects: list) -> str:
+        """Analytical prompts that ask AI to actually think about the case"""
         
         if category == "budget":
             budget = user_inputs.get('budget', 'Not specified')
             location = user_inputs.get('location', 'Not specified')
-            return f"Budget: {budget}, Location: {location}. Give 3 key tips for property buying. 50 words max."
+            prop_type = user_inputs.get('property_type', 'Any')
+            description = user_inputs.get('description', '')
+            
+            # Build context about available projects
+            project_context = ""
+            if projects:
+                matching = [p for p in projects if location.lower() in str(p.get('location', '')).lower()][:2]
+                if matching:
+                    project_context = f"\n\nAvailable projects: {', '.join([p.get('name', 'Project') for p in matching])} in {location}."
+            
+            prompt = f"""Analyze this property buyer's situation:
+- Budget: {budget}
+- Preferred Location: {location}
+- Property Type: {prop_type}"""
+            
+            if description:
+                prompt += f"\n- Additional Context: {description}"
+            
+            prompt += project_context
+            
+            prompt += f"""
+
+Based on this, provide your expert analysis:
+1. Is this budget realistic for {location}? What can they expect?
+2. Specific financial strategy (down payment, loan, hidden costs)
+3. What to prioritize in their search given their budget and location
+4. One critical thing they might be missing
+
+Be specific to their {budget} budget and {location} location. Conversational tone."""
+            
+            return prompt
         
         elif category == "location":
             location = user_inputs.get('location', 'Not specified')
-            return f"Location: {location}. Why good for investment? 3 key points. 50 words max."
+            work_location = user_inputs.get('work_location', 'Not specified')
+            priorities = user_inputs.get('priorities', 'Not specified')
+            description = user_inputs.get('description', '')
+            
+            prompt = f"""Analyze this location choice for a property buyer:
+- Interested Location: {location}
+- They work at: {work_location}
+- Priorities: {priorities}"""
+            
+            if description:
+                prompt += f"\n- Additional Context: {description}"
+            
+            prompt += f"""
+
+Provide expert analysis:
+1. Is {location} smart choice given they work at {work_location}? Commute reality?
+2. Current market status in {location} - hot or cooling?
+3. 3-5 year outlook - will their investment appreciate?
+4. Hidden factors about {location} they should know
+5. Better alternatives if any?
+
+Be honest and specific. Don't sugarcoat if location has issues."""
+            
+            return prompt
         
         elif category == "numerology":
+            dob = user_inputs.get('dob', 'Not provided')
             lucky_nums = user_inputs.get('lucky_numbers', 'Not specified')
-            return f"Lucky numbers: {lucky_nums}. Property selection tips based on numerology. 50 words max."
+            direction = user_inputs.get('direction', 'Any')
+            description = user_inputs.get('description', '')
+            
+            prompt = f"""Client seeking numerology guidance for property:
+- Date of Birth: {dob}
+- Lucky Numbers: {lucky_nums}
+- Preferred Direction: {direction}"""
+            
+            if description:
+                prompt += f"\n- Additional Context: {description}"
+            
+            prompt += f"""
+
+Provide numerological analysis:
+1. Based on {dob}, what's their life path number and its property significance?
+2. How to practically use lucky numbers {lucky_nums} in property selection?
+3. {direction} direction - is it compatible with their numerology?
+4. Timing - is current period auspicious for them to buy?
+5. One practical tip to balance numerology with real estate reality
+
+Blend mystical with practical advice."""
+            
+            return prompt
         
         elif category == "best_project":
             requirements = user_inputs.get('requirements', 'Quality property')
-            return f"Need: {requirements}. Top 3 factors for project selection. 50 words max."
+            timeline = user_inputs.get('timeline', 'Flexible')
+            priorities = user_inputs.get('priorities', 'Investment value')
+            description = user_inputs.get('description', '')
+            
+            # Get actual project data
+            project_context = ""
+            if projects:
+                top_projects = projects[:3]
+                project_context = f"\n\nAvailable options: " + ", ".join([
+                    f"{p.get('name', 'Project')} ({p.get('location', 'Location')})"
+                    for p in top_projects
+                ])
+            
+            prompt = f"""Client seeking best project recommendation:
+- Requirements: {requirements}
+- Timeline: {timeline}
+- Priorities: {priorities}"""
+            
+            if description:
+                prompt += f"\n- Additional Context: {description}"
+            
+            prompt += project_context
+            
+            prompt += f"""
+
+Provide project selection analysis:
+1. Given their '{requirements}' need and '{timeline}' timeline - what type of project suits?
+2. Red flags to watch for when evaluating projects
+3. How to verify builder credibility (specific steps)
+4. Price negotiation strategy - how much discount realistic?
+5. One insider tip for getting best deal
+
+Be practical and specific to their timeline and priorities."""
+            
+            return prompt
         
         elif category == "investment":
             amount = user_inputs.get('investment_amount', 'Not specified')
             timeline = user_inputs.get('timeline', 'Not specified')
-            return f"Investment: {amount}, Timeline: {timeline}. Best strategy? 3 key points. 50 words max."
+            roi = user_inputs.get('roi_expectations', 'Market standard')
+            description = user_inputs.get('description', '')
+            
+            prompt = f"""Analyze this real estate investment plan:
+- Investment Amount: {amount}
+- Investment Timeline: {timeline}
+- ROI Expectation: {roi}"""
+            
+            if description:
+                prompt += f"\n- Additional Context: {description}"
+            
+            prompt += f"""
+
+Provide investment analysis:
+1. Is {roi} expectation realistic for {timeline}? Be honest.
+2. Best strategy given their {amount} and {timeline}
+3. Biggest risk they're not considering
+4. Tax optimization specific to their case
+5. Exit strategy - when and how to book profits
+
+Be specific to their {amount} investment and {timeline}. Include current market reality."""
+            
+            return prompt
         
-        return "Real estate investment tips. 50 words max."
+        # Generic fallback
+        return f"Analyze this client's real estate situation and provide specific, actionable advice in 150-200 words: {user_inputs}"
     
     def _get_fallback_insights(self, category: str) -> str:
         """Fallback insights if AI fails"""
