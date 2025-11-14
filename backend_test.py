@@ -568,7 +568,7 @@ def test_clone_payment_scheme():
 # ============================================
 
 def test_create_staff_hierarchy():
-    """Test 8: POST /api/staff-hierarchy - Create staff hierarchy entry"""
+    """Test 9: POST /api/staff-hierarchy - Create staff hierarchy entry (requires auth)"""
     global test_staff_id
     
     try:
@@ -600,31 +600,29 @@ def test_create_staff_hierarchy():
             timeout=10
         )
         
-        if response.status_code != 200:
-            results.add_fail("Create Staff Hierarchy", f"Status code: {response.status_code}")
-            print_error_details("Create Staff Hierarchy", response)
-            return False
+        def success_handler(response):
+            data = response.json()
             
-        data = response.json()
+            # Validate response structure
+            required_fields = ['success', 'hierarchy_id', 'hierarchy_level']
+            missing_fields = [field for field in required_fields if field not in data]
+            
+            if missing_fields:
+                results.add_fail("Create Staff Hierarchy", f"Missing fields: {missing_fields}")
+                return False
+            
+            if not data.get('success'):
+                results.add_fail("Create Staff Hierarchy", "Response success is False")
+                return False
+            
+            results.add_pass("Create Staff Hierarchy")
+            print(f"   ✅ Staff hierarchy created: {data.get('hierarchy_id')}")
+            print(f"   📊 Hierarchy level: {data.get('hierarchy_level')}")
+            print(f"   👤 Staff: {staff_data['staff_name']} ({staff_data['designation']})")
+            
+            return True
         
-        # Validate response structure
-        required_fields = ['success', 'hierarchy_id', 'hierarchy_level']
-        missing_fields = [field for field in required_fields if field not in data]
-        
-        if missing_fields:
-            results.add_fail("Create Staff Hierarchy", f"Missing fields: {missing_fields}")
-            return False
-        
-        if not data.get('success'):
-            results.add_fail("Create Staff Hierarchy", "Response success is False")
-            return False
-        
-        results.add_pass("Create Staff Hierarchy")
-        print(f"   ✅ Staff hierarchy created: {data.get('hierarchy_id')}")
-        print(f"   📊 Hierarchy level: {data.get('hierarchy_level')}")
-        print(f"   👤 Staff: {staff_data['staff_name']} ({staff_data['designation']})")
-        
-        return True
+        return handle_auth_protected_endpoint("Create Staff Hierarchy", response, success_handler)
         
     except Exception as e:
         results.add_fail("Create Staff Hierarchy", f"Exception: {str(e)}")
