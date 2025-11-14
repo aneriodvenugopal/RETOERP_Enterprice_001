@@ -113,26 +113,16 @@ Short and direct."""
             dob = user_inputs.get('dob', 'Not provided')
             lucky_nums = user_inputs.get('lucky_numbers', 'Not specified')
             direction = user_inputs.get('direction', 'Any')
-            description = user_inputs.get('description', '')
             
-            prompt = f"""Client seeking numerology guidance for property:
-- Date of Birth: {dob}
-- Lucky Numbers: {lucky_nums}
-- Preferred Direction: {direction}"""
-            
-            if description:
-                prompt += f"\n- Additional Context: {description}"
-            
-            prompt += f"""
+            prompt = f"""Numerology for DOB: {dob}, Lucky: {lucky_nums}, Direction: {direction}.
 
-Provide numerological analysis:
-1. Based on {dob}, what's their life path number and its property significance?
-2. How to practically use lucky numbers {lucky_nums} in property selection?
-3. {direction} direction - is it compatible with their numerology?
-4. Timing - is current period auspicious for them to buy?
-5. One practical tip to balance numerology with real estate reality
+Give 4 tips:
+✓ Life path number significance
+✓ How to use lucky numbers {lucky_nums}
+✓ {direction} direction compatibility
+✓ Property selection tip
 
-Blend mystical with practical advice."""
+Brief and practical."""
             
             return prompt
         
