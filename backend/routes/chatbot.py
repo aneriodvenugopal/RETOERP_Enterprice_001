@@ -174,15 +174,6 @@ async def send_chat_message(
         # Reverse to get chronological order
         messages.reverse()
         
-        # Build context
-        user_context = {}
-        if isinstance(conversation, dict):
-            user_context = {
-                'name': conversation.get('visitor_name'),
-                'phone': conversation.get('visitor_phone'),
-                'interest': conversation.get('lead_interest')
-            }
-        
         # Use SIMPLE chatbot - sharp and quick!
         from services.simple_chatbot_service import simple_chatbot
         
