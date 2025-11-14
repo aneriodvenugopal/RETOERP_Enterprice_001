@@ -1636,3 +1636,29 @@ backend:
       - working: "NA"
         agent: "main"
         comment: "✅ IMPLEMENTED 100% FREE Advisory Service: (1) Created new free_advisory_service.py using template-based expert responses (NO API costs), (2) Replaced advisory_service (OpenAI GPT-5) with free_advisory_service in routes/advisory.py, (3) Zero cost solution - no external API calls, no AI credits consumed, (4) Template-based responses for all 5 categories: Budget Advisory (market analysis, project recommendations, financial tips), Location Advisory (connectivity, infrastructure, growth potential), Numerology Advisory (lucky numbers, directional guidance, auspicious timing), Best Project Advisory (top recommendations, comparative analysis), Investment Advisory (ROI strategies, risk mitigation, tax benefits), (5) Dynamic data insertion using user inputs and project database, (6) Professional responses with emojis, structured format, actionable advice, (7) Smart project matching based on location, (8) Comprehensive 400-600 word responses with expert insights. FREE for end users AND SaaS owner - zero ongoing costs! Ready for testing."
+
+frontend:
+  - task: "Advisory UI Improvements - 2-column layout, better budget field, compact forms"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/advisory/AdvisoryChat.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "✅ IMPLEMENTED Advisory UI Improvements: (1) Changed form layout from vertical to 2-column grid for non-textarea fields (responsive: 1 col mobile, 2 cols desktop), (2) Enhanced Budget/Investment Amount fields with split input: Number input (supports decimals) + Dropdown selector (Thousand/Lakhs/Crores), (3) Reduced textarea rows from 4 to 2 for compact design, (4) Updated location autocomplete from types: ['(cities)'] to types: ['geocode', 'establishment'] to show localities like Banjara Hills, Hitech City, Gachibowli, Madhapur, etc., (5) Better placeholder text with examples (e.g., 'Banjara Hills, Hitech City'), (6) Improved labels (removed repetitive text, made cleaner). Form is now more compact, easier to fill, and properly shows all Indian localities. Ready for testing."
+
+backend:
+  - task: "Add real location-specific data using Google Places API (FREE)"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/services/location_insights_service.py, /app/backend/services/free_advisory_service.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "✅ IMPLEMENTED Real Location Insights: (1) Created location_insights_service.py using Google Places API (uses existing GOOGLE_MAPS_KEY - no additional cost), (2) Fetches REAL nearby places within 3km radius: Schools (top 5 with ratings), Hospitals (top 3 with ratings), Shopping Malls (top 3 with ratings), Restaurants (top 5 with 4+ star ratings), Banks (count), Metro stations (names), (3) Returns actual place names, star ratings, user rating counts, vicinity info, (4) Geocodes location to get exact coordinates, (5) Updated free_advisory_service.py to integrate real location data, (6) Budget Advisory now shows real nearby amenities for the location, (7) Location Advisory includes 200+ words of REAL location-specific data (actual school names, hospital names, mall names with ratings), (8) Data clearly marked as 'Data powered by Google Places - Real-time information', (9) Fallback handling if API fails or location not found, (10) Language note added for Telugu/Hindi (suggests Google Translate until native support). Advisory responses now include actual verifiable data instead of generic templates. Makes advisory much more valuable and trustworthy!"
