@@ -189,41 +189,58 @@ Be direct."""
             return None
     
     def _format_response(self, category: str, user_inputs: dict, ai_insights: str, location_data: dict, projects: list) -> str:
-        """Format final response - conversational, not template-like"""
+        """Format final response with RETOERP projects and coupon"""
         
         # Category icons and titles
         titles = {
-            "budget": "💰 Your Budget Analysis",
-            "location": "📍 Location Deep-Dive",
-            "numerology": "🔢 Your Numerology Profile",
-            "best_project": "⭐ Project Selection Guide",
-            "investment": "📈 Investment Breakdown"
+            "budget": "💰 Budget Advisory",
+            "location": "📍 Location Analysis",
+            "numerology": "🔢 Numerology Guidance",
+            "best_project": "⭐ Project Selection",
+            "investment": "📈 Investment Strategy"
         }
         
-        title = titles.get(category, "🏡 Your Property Advisory")
+        title = titles.get(category, "🏡 Property Advisory")
         
-        # Start conversationally
         response = f"**{title}**\n\n"
         
-        # Quick summary of their situation (conversational)
+        # Situation summary
         response += self._format_situation_summary(category, user_inputs)
         
-        # AI Expert Analysis (main content - 150-200 words)
-        response += f"\n\n**📊 Our Analysis:**\n\n{ai_insights}\n"
+        # AI Insights (100-150 words, readable format)
+        response += f"\n\n**💡 Expert Advice:**\n\n{ai_insights}\n"
         
-        # Real location data (if available) - positioned as "Ground Reality"
+        # Real location data (compact version)
         if location_data and location_data.get('coordinates'):
-            location_text = location_insights_service.format_insights_for_advisory(location_data)
-            if location_text:
-                response += f"\n**🔍 Ground Reality - What's Actually There:**\n"
-                response += location_text
+            response += self._format_compact_location_data(location_data)
         
-        # Available projects - positioned as "Your Options"
-        if projects:
-            response += self._format_projects(projects, user_inputs.get('location'))
+        # RETOERP Projects nearby
+        location = user_inputs.get('location') or user_inputs.get('work_location')
+        if projects and location:
+            response += self._format_retoerp_projects(projects, location)
         
-        # Personal call to action
-        response += "\n\n**💬 Want to discuss this further?** Our property consultants are available to dive deeper into your specific situation.\n"
+        # Coupon Code Strategy
+        response += """
+
+---
+
+🎁 **SPECIAL OFFER - ₹5,000 DISCOUNT!**
+
+Get exclusive **₹5,000 OFF** on any property purchase through RETOERP!
+
+📱 **How to claim:**
+Send your mobile number to our sales team and get your unique coupon code instantly.
+
+✓ Valid on all RETOERP projects
+✓ Can be used for booking or final payment
+✓ Limited time offer!
+
+**📞 Contact now to get your coupon code and explore properties!**
+
+---
+
+*Note: RETOERP has projects across Telangana, AP, and India. Even if we don't have a project in your exact location, we'll help you find the perfect property nearby.*
+"""
         
         return response
     
