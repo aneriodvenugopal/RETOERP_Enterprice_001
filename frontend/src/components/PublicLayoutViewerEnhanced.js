@@ -260,6 +260,8 @@ const PublicLayoutViewerEnhanced = ({ layout, project, onPlotSelect }) => {
       <div className="absolute inset-0 top-24 overflow-auto">
         <svg
           ref={svgRef}
+          viewBox="0 0 1000 1000"
+          preserveAspectRatio="xMidYMid meet"
           className="w-full h-full"
           style={{
             transform: `scale(${zoom})`,
@@ -269,7 +271,7 @@ const PublicLayoutViewerEnhanced = ({ layout, project, onPlotSelect }) => {
         >
           {/* Background */}
           {layout?.svg_url && (
-            <image href={layout.svg_url} width="100%" height="100%" opacity="0.2" />
+            <image href={layout.svg_url} x="0" y="0" width="1000" height="1000" opacity="0.2" preserveAspectRatio="xMidYMid meet" />
           )}
           
           {/* Plots */}
