@@ -488,7 +488,7 @@ Month 2: Complete purchase and registration
         
         return response
     
-    def _generic_advisory(self, inputs: dict, projects: list) -> str:
+    async def _generic_advisory(self, inputs: dict, projects: list) -> str:
         """Generic advisory for unknown categories"""
         
         response = """🏡 **Real Estate Advisory**
