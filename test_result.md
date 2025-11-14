@@ -1818,3 +1818,16 @@ backend:
       - working: true
         agent: "main"
         comment: "✅ SIMPLIFIED Chatbot - Sharp & Direct: (1) 3-STAGE SIMPLE FLOW: Stage 1 - Answering (max 2 questions): Quick template-based answers for common queries (price, location, amenities, availability, payment, site visit, legal, construction). Project-aware responses if project context provided. After 2 questions, automatically asks for contact details. Stage 2 - Contact Capture: Asks for Name + Mobile Number in one go. Extracts phone using regex. Extracts name from remaining text. Simple, no OTP (optional feature). Stage 3 - Schedule Preference: Nice numbered options for Date (1-Today, 2-Tomorrow, 3-Day After, 4-Weekend, 5-Next Week). Time slots (6-Morning 10-12, 7-Afternoon 2-4, 8-Evening 5-7, 9-Anytime). Can type '2 7' or 'Tomorrow afternoon'. Confirms appointment with thank you message. (2) TEMPLATE ANSWERS COVER: Pricing (competitive, varies by unit/floor), Location (connectivity, infrastructure), Amenities (pool, gym, security, parking), Availability (multiple options, ready/under construction), Payment (flexible plans, EMI, loan assistance), Site Visit (free tour with expert), Documentation (RERA approved, clear title), Construction Status (progress updates, quality builder). All answers end with 'Want to know more?' to keep conversation flowing. (3) SHARP & DIRECT: No long conversations, Gets to point quickly, 2 questions → Contact capture, Template-based = instant responses, No complex logic or state management, Clean and professional tone. (4) PROJECT-AWARE: If project context provided, mentions project name in answers, 'Pricing - Prestige High Fields', 'Location - Prestige High Fields', Generic fallback if no project context. (5) UI-FRIENDLY RESPONSES: Returns stage info (answering/contact_capture/schedule_preference/completed), Returns action (continue/show_date_picker/completed), Frontend can show appropriate UI based on stage, Clean numbered options for date/time selection. Result: Super simple chatbot - answers questions quickly, captures contact after 2 Q&A, nice date/time selection, says thank you and done. Perfect for lead generation without complex flows!"
+
+frontend:
+  - task: "Integrate ChatbotWidget into homepage"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/pages/marketing/Home.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "✅ INTEGRATED ChatbotWidget on Homepage: Replaced old ChatWidget with new ChatbotWidget component. Widget now appears on homepage as floating button in bottom-right corner. Provides simple 3-stage lead capture flow (Answer questions → Contact capture → Date/time selection). Template-based responses for instant answers. 100% FREE, no API costs. Ready for user interaction and lead generation!"
