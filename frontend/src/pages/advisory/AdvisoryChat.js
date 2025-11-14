@@ -51,10 +51,10 @@ const CATEGORIES_CONFIG = {
     name: 'Future Investment Advisory',
     icon: '📈',
     fields: [
-      { key: 'investment_amount', label: 'Investment Amount (₹)', type: 'text', placeholder: 'e.g., 1 Crore' },
+      { key: 'investment_amount', label: 'Investment Amount', type: 'budget', placeholder: 'Enter amount' },
       { key: 'timeline', label: 'Investment Timeline', type: 'select', options: ['Short-term (1-2 years)', 'Medium-term (3-5 years)', 'Long-term (5+ years)'] },
       { key: 'roi_expectations', label: 'Expected ROI', type: 'text', placeholder: 'e.g., 20% in 3 years' },
-      { key: 'description', label: 'Additional Details / Questions', type: 'textarea', placeholder: 'Write any specific requirements or questions you have...', required: false }
+      { key: 'description', label: 'Additional Details', type: 'textarea', placeholder: 'Any specific requirements... (Optional)', required: false, rows: 2 }
     ]
   }
 };
