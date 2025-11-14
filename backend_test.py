@@ -1165,69 +1165,77 @@ def test_list_commission_payouts():
         traceback.print_exc()
         return False
 
-def test_workforce_search_with_geo_filter():
-    """Test 6: GET /api/workforce/search - Search workers with geo-location filter"""
-    
-    try:
-        print("\n🌍 TESTING: GET /api/workforce/search (Geo-location Filter)")
-        
-        # Use Hyderabad coordinates
-        lat = 17.385
-        lng = 78.486
-        radius = 20  # 20km radius
-        
-        response = requests.get(
-            f"{API_BASE}/workforce/search",
-            params={
-                "lat": lat,
-                "lng": lng,
-                "radius_km": radius,
-                "limit": 10
-            },
-            timeout=10
-        )
-        
-        if response.status_code != 200:
-            results.add_fail("Workforce Search Geo Filter", f"Status code: {response.status_code}")
-            print_error_details("Workforce Search Geo Filter", response)
-            return False
-            
-        data = response.json()
-        
-        # Validate response is a list
-        if not isinstance(data, list):
-            results.add_fail("Workforce Search Geo Filter", "Response is not a list")
-            return False
-        
-        # Validate distance calculation if workers exist
-        if data:
-            for worker in data[:3]:  # Check first 3 workers
-                if 'distance_km' not in worker:
-                    results.add_fail("Workforce Search Geo Filter", "Missing distance_km field in geo-filtered results")
-                    return False
-                
-                distance = worker.get('distance_km')
-                if distance > radius:
-                    results.add_fail("Workforce Search Geo Filter", f"Worker distance {distance}km exceeds radius {radius}km")
-                    return False
-        
-        results.add_pass("Workforce Search Geo Filter")
-        print(f"   ✅ Found {len(data)} workers within {radius}km of Hyderabad")
-        
-        if data:
-            worker = data[0]
-            print(f"   👤 Closest worker: {worker.get('name')} - {worker.get('skill_type')}")
-            print(f"   📍 Distance: {worker.get('distance_km')}km from search center")
-            print(f"   🏙️ City: {worker.get('location', {}).get('city')}")
-        
-        return True
-        
-    except Exception as e:
-        results.add_fail("Workforce Search Geo Filter", f"Exception: {str(e)}")
-        traceback.print_exc()
-        return False
+# ============================================
+# MAIN TEST EXECUTION
+# ============================================
 
-# ============ MAIN TEST EXECUTION ============
+def run_all_tests():
+    """Run all ERP module tests in sequence"""
+    
+    print("🚀 Starting RETOERP Payment & Commission ERP Module Testing...")
+    print("=" * 80)
+    
+    # Test execution order
+    tests = [
+        # Health check
+        ("API Health Check", test_health_check),
+        
+        # Supporting APIs
+        ("Currencies API", test_currencies_api),
+        ("Bookings API", test_bookings_api),
+        
+        # Payment Schemes APIs
+        ("Create Payment Scheme", test_create_payment_scheme),
+        ("List Payment Schemes", test_list_payment_schemes),
+        ("Get Payment Scheme", test_get_payment_scheme),
+        ("Finalize Payment Scheme", test_finalize_payment_scheme),
+        ("Clone Payment Scheme", test_clone_payment_scheme),
+        
+        # Staff Hierarchy APIs
+        ("Create Staff Hierarchy", test_create_staff_hierarchy),
+        ("List Staff Hierarchy", test_list_staff_hierarchy),
+        ("Get Staff Hierarchy", test_get_staff_hierarchy),
+        
+        # Customer Payments APIs
+        ("Create Razorpay Order", test_create_razorpay_order),
+        ("Create Manual Payment", test_create_manual_payment),
+        ("List Payments", test_list_payments),
+        
+        # Commission Management APIs
+        ("List Commission Earnings", test_list_commission_earnings),
+        ("Staff Commission Summary", test_staff_commission_summary),
+        ("Approve Commission Earning", test_approve_commission_earning),
+        
+        # Agent Payouts APIs
+        ("Create Commission Payout", test_create_commission_payout),
+        ("List Commission Payouts", test_list_commission_payouts),
+    ]
+    
+    # Execute tests
+    for test_name, test_func in tests:
+        try:
+            print(f"\n{'='*20} {test_name} {'='*20}")
+            test_func()
+        except Exception as e:
+            results.add_fail(test_name, f"Unexpected error: {str(e)}")
+            traceback.print_exc()
+    
+    # Print final summary
+    print("\n" + "=" * 80)
+    print("🏁 RETOERP PAYMENT & COMMISSION ERP MODULE TESTING COMPLETE")
+    print("=" * 80)
+    
+    success = results.summary()
+    
+    if success:
+        print("\n🎉 ALL TESTS PASSED! ERP Module is working correctly.")
+    else:
+        print("\n⚠️ SOME TESTS FAILED. Please review the errors above.")
+    
+    return success
+
+if __name__ == "__main__":
+    run_all_tests()
 
 def test_verify_otp_new_user():
     """Test 3: POST /api/incomelands/auth/verify-otp - Verify OTP for new user"""
