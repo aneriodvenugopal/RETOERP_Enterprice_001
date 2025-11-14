@@ -1,14 +1,15 @@
 """
 AI Advisory System Routes
-100% FREE - No API costs
+Hybrid: AI insights (crispy) + Real location data
+Minimal cost: ~₹0.50-1 per advisory
 """
 from fastapi import APIRouter, HTTPException, Request
 from typing import List, Optional
 import uuid
 from datetime import datetime
 from models.advisory import AdvisorySession, AdvisoryRequest, AdvisoryLeadCapture
-# Use FREE advisory service (zero cost)
-from services.free_advisory_service import free_advisory_service
+# Use HYBRID advisory service (AI + real data, minimal cost)
+from services.hybrid_advisory_service import hybrid_advisory_service
 
 router = APIRouter(prefix="/advisory", tags=["advisory"])
 
