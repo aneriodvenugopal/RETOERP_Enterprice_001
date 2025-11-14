@@ -1,15 +1,14 @@
 """
 AI Advisory System Routes
-Hybrid: AI insights (crispy) + Real location data
-Minimal cost: ~₹0.50-1 per advisory
+DUAL SYSTEM:
+- Authenticated users (tenant/staff login) → AI-powered (Emergent LLM)
+- Public website users → Template-based (Free, no cost)
 """
 from fastapi import APIRouter, HTTPException, Request
 from typing import List, Optional
 import uuid
 from datetime import datetime
 from models.advisory import AdvisorySession, AdvisoryRequest, AdvisoryLeadCapture
-# Use HYBRID advisory service (AI + real data, minimal cost)
-from services.hybrid_advisory_service import hybrid_advisory_service
 
 router = APIRouter(prefix="/advisory", tags=["advisory"])
 
