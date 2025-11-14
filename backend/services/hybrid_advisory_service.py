@@ -73,7 +73,7 @@ class HybridAdvisoryService:
             print(f"AI insights error: {e}")
             return self._get_fallback_insights(category)
     
-    def _get_analytical_prompt(self, category: str, user_inputs: dict, projects: list) -> str:
+    def _get_clean_prompt(self, category: str, user_inputs: dict, projects: list) -> str:
         """Analytical prompts that ask AI to actually think about the case"""
         
         if category == "budget":
