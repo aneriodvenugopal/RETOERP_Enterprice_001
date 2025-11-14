@@ -338,7 +338,7 @@ Be specific to their {amount} investment and {timeline}. Include current market 
         return text
     
     def _format_projects(self, projects: list, location: str = None) -> str:
-        """Format projects section"""
+        """Format projects section - conversational"""
         
         if not projects:
             return ""
@@ -350,18 +350,21 @@ Be specific to their {amount} investment and {timeline}. Include current market 
             if matched:
                 projects = matched
         
-        text = "\n\n**🏘️ Available Projects:**\n"
+        if not projects:
+            return ""
+        
+        text = "\n\n**🏘️ Projects Worth Checking Out:**\n\n"
         
         for i, project in enumerate(projects[:3], 1):
-            text += f"{i}. **{project.get('name', 'Project')}**"
+            text += f"**{i}. {project.get('name', 'Project')}**"
             if project.get('location'):
-                text += f" - {project.get('location')}"
+                text += f" • {project.get('location')}"
             if project.get('property_count'):
-                text += f" ({project.get('property_count')} units)"
+                text += f" • {project.get('property_count')} units available"
             text += "\n"
         
         if len(projects) > 3:
-            text += f"\n*+{len(projects) - 3} more projects available*\n"
+            text += f"\n*Plus {len(projects) - 3} more options we can show you*\n"
         
         return text
 
