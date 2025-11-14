@@ -197,10 +197,22 @@ const WorkforceMap = () => {
       return;
     }
 
+    console.log('Adding markers for workers:', workersList.length);
+
     // Add new markers
     workersList.forEach(worker => {
+      // Handle both location formats: worker.location.lat or worker.lat
+      const lat = worker.location?.lat || worker.lat;
+      const lng = worker.location?.lng || worker.lng;
+      const city = worker.location?.city || worker.city;
+
+      if (!lat || !lng) {
+        console.warn('Worker missing coordinates:', worker);
+        return;
+      }
+
       const marker = new window.google.maps.Marker({
-        position: { lat: worker.location.lat, lng: worker.location.lng },
+        position: { lat, lng },
         map: googleMapRef.current,
         icon: {
           path: window.google.maps.SymbolPath.CIRCLE,
@@ -219,7 +231,7 @@ const WorkforceMap = () => {
           <div style="padding: 8px;">
             <h3 style="font-weight: bold; margin-bottom: 4px;">${worker.name}</h3>
             <p style="color: #0066cc; margin-bottom: 4px;">${worker.skill_type}</p>
-            <p style="font-size: 12px; color: #666;">${worker.location.city || ''}</p>
+            <p style="font-size: 12px; color: #666;">${city || ''}</p>
           </div>
         `
       });
@@ -227,19 +239,27 @@ const WorkforceMap = () => {
       marker.addListener('click', () => {
         infoWindow.open(googleMapRef.current, marker);
         setSelectedWorker(worker);
-        googleMapRef.current.panTo({ lat: worker.location.lat, lng: worker.location.lng });
+        googleMapRef.current.panTo({ lat, lng });
       });
 
       markersRef.current.push(marker);
     });
 
+    console.log('Markers added:', markersRef.current.length);
+
     // Fit bounds to show all markers
     if (workersList.length > 0) {
       const bounds = new window.google.maps.LatLngBounds();
       workersList.forEach(worker => {
-        bounds.extend({ lat: worker.location.lat, lng: worker.location.lng });
+        const lat = worker.location?.lat || worker.lat;
+        const lng = worker.location?.lng || worker.lng;
+        if (lat && lng) {
+          bounds.extend({ lat, lng });
+        }
       });
-      googleMapRef.current.fitBounds(bounds);
+      if (!bounds.isEmpty()) {
+        googleMapRef.current.fitBounds(bounds);
+      }
     }
   };
 
