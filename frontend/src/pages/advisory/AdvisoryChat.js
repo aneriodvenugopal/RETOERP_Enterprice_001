@@ -72,6 +72,9 @@ const AdvisoryChat = () => {
   const [selectedLanguage, setSelectedLanguage] = useState('en');
   const [loadingMessage, setLoadingMessage] = useState('');
   
+  // Budget field state (amount + unit)
+  const [budgetUnits, setBudgetUnits] = useState({});
+  
   // Refs for Google Maps autocomplete
   const locationInputRefs = useRef({});
   const autocompleteRefs = useRef({});
