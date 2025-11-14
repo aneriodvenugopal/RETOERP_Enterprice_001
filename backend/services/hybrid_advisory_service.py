@@ -129,38 +129,16 @@ Brief and practical."""
         elif category == "best_project":
             requirements = user_inputs.get('requirements', 'Quality property')
             timeline = user_inputs.get('timeline', 'Flexible')
-            priorities = user_inputs.get('priorities', 'Investment value')
-            description = user_inputs.get('description', '')
             
-            # Get actual project data
-            project_context = ""
-            if projects:
-                top_projects = projects[:3]
-                project_context = f"\n\nAvailable options: " + ", ".join([
-                    f"{p.get('name', 'Project')} ({p.get('location', 'Location')})"
-                    for p in top_projects
-                ])
-            
-            prompt = f"""Client seeking best project recommendation:
-- Requirements: {requirements}
-- Timeline: {timeline}
-- Priorities: {priorities}"""
-            
-            if description:
-                prompt += f"\n- Additional Context: {description}"
-            
-            prompt += project_context
-            
-            prompt += f"""
+            prompt = f"""Project selection for: {requirements}, Timeline: {timeline}.
 
-Provide project selection analysis:
-1. Given their '{requirements}' need and '{timeline}' timeline - what type of project suits?
-2. Red flags to watch for when evaluating projects
-3. How to verify builder credibility (specific steps)
-4. Price negotiation strategy - how much discount realistic?
-5. One insider tip for getting best deal
+Give 4 tips:
+✓ What type of project to target
+✓ Builder verification checklist
+⚠️ Red flags to avoid
+✓ Negotiation strategy
 
-Be practical and specific to their timeline and priorities."""
+Keep it actionable."""
             
             return prompt
         
