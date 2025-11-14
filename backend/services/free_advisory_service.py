@@ -1,11 +1,12 @@
 """
 100% FREE Advisory Service
 NO AI API COSTS - Uses rule-based expert templates
-Zero cost for SaaS owner and end users
+Enhanced with real location data from Google Places API
 """
 import random
 from typing import Dict, List
 from datetime import datetime
+from services.location_insights_service import location_insights_service
 
 class FreeAdvisoryService:
     """
