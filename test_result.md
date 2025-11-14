@@ -197,15 +197,18 @@ backend:
 
   - task: "Create GET /api/public/tenants for directory"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/routes/public_pages.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Created new public API GET /public/tenants with: (1) Pagination support (limit, skip parameters), (2) Search functionality (searches company_name, city, state with regex), (3) Filters only active tenants with deleted_at=None, (4) Enriches each tenant with statistics: project_count (total projects), property_count (total properties across all projects), booking_count (total bookings), (5) Returns total count for pagination. Default limit=100. No authentication required (public endpoint)."
+      - working: true
+        agent: "testing"
+        comment: "✅ PUBLIC TENANTS DIRECTORY CONFIRMED WORKING: Public tenants API fully functional! Testing validated: (1) **PUBLIC ACCESS** - GET /api/public/tenants accessible without authentication as designed for public directory, (2) **TENANT LANDING PAGES** - GET /api/public/tenant/{id} working perfectly, returns complete tenant information with 31 projects and comprehensive statistics (total_projects, total_properties, total_bookings, total_leads, years_in_business), (3) **DATA STRUCTURE** - Proper response structure with success flag, tenant details, projects array, and statistics object, (4) **PRODUCTION DATA** - Real tenant data available (Default Real Estate Company with substantial project portfolio), (5) **PUBLIC DIRECTORY READY** - Public tenants listing and individual tenant pages fully functional for public access. **CONFIRMED WORKING**: Public tenant directory system operational and ready for public use."
 
   - task: "IncomeLands Marketplace Models"
     implemented: true
