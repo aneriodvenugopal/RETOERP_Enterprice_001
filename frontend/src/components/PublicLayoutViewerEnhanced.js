@@ -293,7 +293,7 @@ const PublicLayoutViewerEnhanced = ({ layout, project, onPlotSelect }) => {
       <div className="absolute inset-0 top-24 overflow-auto">
         <svg
           ref={svgRef}
-          viewBox="0 0 1000 1000"
+          viewBox={`0 0 ${svgDimensions.width} ${svgDimensions.height}`}
           preserveAspectRatio="xMidYMid meet"
           className="w-full h-full"
           style={{
@@ -304,7 +304,7 @@ const PublicLayoutViewerEnhanced = ({ layout, project, onPlotSelect }) => {
         >
           {/* Background */}
           {layout?.svg_url && (
-            <image href={layout.svg_url} x="0" y="0" width="1000" height="1000" opacity="0.2" preserveAspectRatio="xMidYMid meet" />
+            <image href={layout.svg_url} x="0" y="0" width={svgDimensions.width} height={svgDimensions.height} opacity="0.2" preserveAspectRatio="xMidYMid meet" />
           )}
           
           {/* Plots */}
