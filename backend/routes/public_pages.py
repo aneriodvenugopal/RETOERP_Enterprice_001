@@ -347,3 +347,52 @@ async def get_all_public_layouts(
         "limit": limit,
         "skip": skip
     }
+
+
+@router.get("/layouts/{layout_id}")
+async def get_public_layout_by_id(
+    layout_id: str,
+    request: Request
+):
+    """
+    Get a single public layout by ID for public viewing
+    No authentication required
+    """
+    db = get_db(request)
+    
+    # Find layout
+    layout = await db.master_layouts.find_one(
+        {
+            'id': layout_id,
+            'deleted_at': None,
+            '$or': [
+                {'is_template': True},
+                {'is_public': True}
+            ]
+        },
+        {'_id': 0}
+    )
+    
+    if not layout:
+        raise HTTPException(status_code=404, detail="Layout not found or not public")
+    
+    # Get tenant/project info if exists
+    project_data = None
+    if layout.get('tenant_id'):
+        tenant = await db.tenants.find_one(
+            {'id': layout['tenant_id']},
+            {'_id': 0, 'company_name': 1, 'website': 1, 'contact_email': 1}
+        )
+        if tenant:
+            project_data = {
+                'name': tenant.get('company_name'),
+                'website': tenant.get('website'),
+                'contact_email': tenant.get('contact_email')
+            }
+    
+    return {
+        "success": True,
+        "layout": layout,
+        "project": project_data
+    }
+
