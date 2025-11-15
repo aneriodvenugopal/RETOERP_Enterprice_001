@@ -579,7 +579,7 @@ backend:
     file: "/app/backend/services/dxf_parser.py, /app/backend/services/svg_parser.py, /app/backend/services/pdf_parser.py, /app/backend/services/cv_ocr_parser.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
@@ -587,6 +587,12 @@ backend:
       - working: true
         agent: "testing"
         comment: "✅ TESTED: All parser services working correctly. SVGParser successfully tested with sathhenapally.svg file - detected 30 plots with proper coordinates, areas, block names, and confidence scores. All dependencies verified: ezdxf (DXF), BeautifulSoup (SVG), PyMuPDF (PDF), OpenCV+Tesseract (OCR). Parser returns standardized format with display_name, block, coordinates, area, confidence. Minor warnings in logs about complex SVG text positioning don't affect core functionality."
+      - working: "NA"
+        agent: "user"
+        comment: "USER REPORTED: SVG parser extracting unwanted text elements like 'VELUKAVAL SAI' (titles, headers, road names) as plot labels. Parser should only extract actual plot labels like 'A-1', '10', 'Plot 5', not decorative text."
+      - working: "NA"
+        agent: "main"
+        comment: "✅ FIX IMPLEMENTED: Added intelligent text filtering to SVGParser._find_nearest_text(): (1) Created _is_plot_label() function with pattern matching for valid plot labels: A-1, B-12, Plot 5, just numbers (1, 10), A1/B23 format, (2) Rejects text longer than 20 characters (likely titles/headers), (3) Rejects common keywords: 'road', 'phase', 'plots', 'existing', 'wide', 'feet', 'area', 'project', 'nagar', 'avenue', etc., (4) Updated _find_nearest_text() to skip non-plot text before calculating distances. This prevents titles like 'VELUKAVAL SAI', road labels like 'EXISTING 40 ROAD', and phase labels like 'PHASE-I' from being incorrectly assigned as plot names. Ready for backend testing."
   
   - task: "Create API endpoint for file parsing"
     implemented: true
