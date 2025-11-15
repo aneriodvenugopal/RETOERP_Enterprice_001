@@ -1614,8 +1614,8 @@ backend:
 
 frontend:
   - task: "Fix SVG plot coordinate scaling bug in AdvancedLayoutViewer"
-    implemented: false
-    working: false
+    implemented: true
+    working: "NA"
     file: "/app/frontend/src/pages/AdvancedLayoutViewer.js"
     stuck_count: 0
     priority: "critical"
@@ -1627,6 +1627,9 @@ frontend:
       - working: "NA"
         agent: "main"
         comment: "ANALYSIS: Root cause identified. EnhancedLayoutEditor.js works correctly because it: (1) Detects actual SVG viewBox by fetching and parsing the SVG file, (2) Stores dimensions in svgDimensions state, (3) Uses dynamic viewBox=`0 0 ${svgDimensions.width} ${svgDimensions.height}`. AdvancedLayoutViewer.js fails because it has hardcoded viewBox at line 495. Need to apply same detection logic from EnhancedLayoutEditor to AdvancedLayoutViewer. FIX PLAN: (1) Add svgDimensions state, (2) Add useEffect to detect actual SVG viewBox when layout loads, (3) Replace hardcoded viewBox with dynamic one."
+      - working: "NA"
+        agent: "main"
+        comment: "✅ FIX IMPLEMENTED: Applied coordinate scaling solution to AdvancedLayoutViewer.js: (1) Added svgDimensions state with default values { width: 1122.6667, height: 793.33331 }, (2) Added useEffect hook that fetches the actual SVG file when layout loads, parses it with DOMParser, extracts viewBox or width/height attributes, and updates svgDimensions state accordingly, (3) Replaced hardcoded viewBox='0 0 1122.6667 793.33331' with dynamic viewBox={`0 0 ${svgDimensions.width} ${svgDimensions.height}`}, (4) Added console logging to track dimension detection. This fix ensures the SVG overlay coordinate system matches the actual uploaded SVG's internal coordinate system, preventing plots from clustering in the corner. Ready for testing with user's SVG files."
 
   - task: "Fix page scroll issue - pages opening at bottom"
     implemented: true
