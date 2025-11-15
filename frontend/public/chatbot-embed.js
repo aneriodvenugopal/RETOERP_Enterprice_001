@@ -47,7 +47,7 @@
         tenantId: tenantId,
         position: position,
         primaryColor: primaryColor,
-        backendUrl: 'https://erp-plotsystem.preview.emergentagent.com/api'
+        backendUrl: 'https://layout-manager.preview.emergentagent.com/api'
       };
       
       // Load chat widget bundle

@@ -184,7 +184,7 @@
 
    **మొదటి referrer:**
    ```
-   https://erp-plotsystem.preview.emergentagent.com/*
+   https://layout-manager.preview.emergentagent.com/*
    ```
    - Paste చేసి Enter నొక్కండి
 
