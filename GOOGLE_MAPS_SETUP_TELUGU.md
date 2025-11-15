@@ -184,7 +184,7 @@
 
    **మొదటి referrer:**
    ```
-   https://prop-commission.preview.emergentagent.com/*
+   https://erp-plotsystem.preview.emergentagent.com/*
    ```
    - Paste చేసి Enter నొక్కండి
 
