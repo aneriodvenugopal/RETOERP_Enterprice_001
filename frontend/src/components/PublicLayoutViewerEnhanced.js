@@ -21,7 +21,40 @@ const PublicLayoutViewerEnhanced = ({ layout, project, onPlotSelect }) => {
     message: ''
   });
   
+  // SVG Coordinate System - CRITICAL FIX for coordinate scaling bug
+  const [svgDimensions, setSvgDimensions] = useState({ width: 1000, height: 1000 });
+  
   const plots = layout?.plots || [];
+  
+  // Detect SVG dimensions when layout loads - FIX for coordinate system mismatch
+  useEffect(() => {
+    if (layout?.svg_url) {
+      fetch(layout.svg_url)
+        .then(r => r.text())
+        .then(svgText => {
+          const parser = new DOMParser();
+          const svgDoc = parser.parseFromString(svgText, 'image/svg+xml');
+          const svgEl = svgDoc.querySelector('svg');
+          
+          if (svgEl) {
+            const viewBox = svgEl.getAttribute('viewBox');
+            if (viewBox) {
+              const [, , w, h] = viewBox.split(' ').map(Number);
+              setSvgDimensions({ width: w, height: h });
+              console.log('✅ PUBLIC VIEWER - SVG ViewBox detected:', w, 'x', h);
+            } else {
+              const w = parseFloat(svgEl.getAttribute('width')) || 1000;
+              const h = parseFloat(svgEl.getAttribute('height')) || 1000;
+              setSvgDimensions({ width: w, height: h });
+              console.log('✅ PUBLIC VIEWER - SVG dimensions detected:', w, 'x', h);
+            }
+          }
+        })
+        .catch(err => {
+          console.log('⚠️ PUBLIC VIEWER - Using default SVG dimensions', err);
+        });
+    }
+  }, [layout?.svg_url]);
   
   // Zoom Controls
   const handleZoomIn = () => setZoom(Math.min(zoom * 1.2, 3));
