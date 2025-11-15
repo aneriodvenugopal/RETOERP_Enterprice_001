@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { MessageSquare, Building2, MapPin, ArrowRight, Building } from 'lucide-react';
+import { MessageSquare, Building2, MapPin, ArrowRight, Building, CheckCircle } from 'lucide-react';
 import ChatWidget from '../../components/ChatWidget';
 import ChatbotWidget from '../../components/ChatbotWidget';
 import HeroCarousel from '../../components/HeroCarousel';
