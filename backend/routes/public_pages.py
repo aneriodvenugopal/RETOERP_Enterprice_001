@@ -338,7 +338,7 @@ async def get_all_public_layouts(
         layout.pop('plots', None)
     
     # Get total count
-    total = await db.layouts.count_documents(query)
+    total = await db.master_layouts.count_documents(query)
     
     return {
         "success": True,
