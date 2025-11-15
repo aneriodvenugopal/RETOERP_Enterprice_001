@@ -1613,6 +1613,21 @@ backend:
         comment: "Removed Emergent tracking scripts (rrweb recorder and visual edit scripts) from index.html. Replaced with comment 'Custom tracking scripts for RETOERP only'. This should eliminate emergent links/branding in deployed PWA."
 
 frontend:
+  - task: "Fix SVG plot coordinate scaling bug in AdvancedLayoutViewer"
+    implemented: false
+    working: false
+    file: "/app/frontend/src/pages/AdvancedLayoutViewer.js"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "user"
+        comment: "USER REPORTED: SVG plots from uploaded files rendering incorrectly - all clustered in top-left corner. User showed example: text x='22.166666666666668' y='4.166666666666667' going to corner. This is a coordinate system mismatch where uploaded SVGs use large internal coordinates (thousands or millions) but AdvancedLayoutViewer has hardcoded viewBox='0 0 1122.6667 793.33331' at line 495."
+      - working: "NA"
+        agent: "main"
+        comment: "ANALYSIS: Root cause identified. EnhancedLayoutEditor.js works correctly because it: (1) Detects actual SVG viewBox by fetching and parsing the SVG file, (2) Stores dimensions in svgDimensions state, (3) Uses dynamic viewBox=`0 0 ${svgDimensions.width} ${svgDimensions.height}`. AdvancedLayoutViewer.js fails because it has hardcoded viewBox at line 495. Need to apply same detection logic from EnhancedLayoutEditor to AdvancedLayoutViewer. FIX PLAN: (1) Add svgDimensions state, (2) Add useEffect to detect actual SVG viewBox when layout loads, (3) Replace hardcoded viewBox with dynamic one."
+
   - task: "Fix page scroll issue - pages opening at bottom"
     implemented: true
     working: true
