@@ -17,7 +17,7 @@ async def make_layouts_public():
     
     try:
         # Update all non-deleted layouts to be public
-        result = await db.layouts.update_many(
+        result = await db.master_layouts.update_many(
             {'deleted_at': None},
             {'$set': {'is_public': True}}
         )
@@ -25,7 +25,7 @@ async def make_layouts_public():
         print(f"\n✅ Updated {result.modified_count} layouts to be public")
         
         # Show some examples
-        layouts = await db.layouts.find(
+        layouts = await db.master_layouts.find(
             {'deleted_at': None, 'is_public': True},
             {'layout_name': 1, 'id': 1, '_id': 0}
         ).limit(10).to_list(length=10)
