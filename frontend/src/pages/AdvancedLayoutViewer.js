@@ -58,9 +58,42 @@ const AdvancedLayoutViewer = () => {
     notes: ''
   });
 
+  // SVG Coordinate System - CRITICAL FIX for coordinate scaling bug
+  const [svgDimensions, setSvgDimensions] = useState({ width: 1122.6667, height: 793.33331 });
+
   useEffect(() => {
     loadLayout();
   }, [layoutId]);
+
+  // Detect SVG dimensions when layout loads - FIX for coordinate system mismatch
+  useEffect(() => {
+    if (layout?.svg_url) {
+      fetch(layout.svg_url)
+        .then(r => r.text())
+        .then(svgText => {
+          const parser = new DOMParser();
+          const svgDoc = parser.parseFromString(svgText, 'image/svg+xml');
+          const svgEl = svgDoc.querySelector('svg');
+          
+          if (svgEl) {
+            const viewBox = svgEl.getAttribute('viewBox');
+            if (viewBox) {
+              const [, , w, h] = viewBox.split(' ').map(Number);
+              setSvgDimensions({ width: w, height: h });
+              console.log('✅ SVG ViewBox detected:', w, 'x', h);
+            } else {
+              const w = parseFloat(svgEl.getAttribute('width')) || 1122.6667;
+              const h = parseFloat(svgEl.getAttribute('height')) || 793.33331;
+              setSvgDimensions({ width: w, height: h });
+              console.log('✅ SVG dimensions detected:', w, 'x', h);
+            }
+          }
+        })
+        .catch(err => {
+          console.log('⚠️ Using default SVG dimensions', err);
+        });
+    }
+  }, [layout?.svg_url]);
 
   useEffect(() => {
     const handleKeyPress = (e) => {
