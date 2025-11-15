@@ -276,3 +276,74 @@ async def get_all_tenants(
         "limit": limit,
         "skip": skip
     }
+
+
+
+@router.get("/layouts")
+async def get_all_public_layouts(
+    request: Request,
+    limit: int = 50,
+    skip: int = 0
+):
+    """
+    Get all public layouts for homepage display
+    Shows layouts that are marked as templates or public
+    """
+    db = get_db(request)
+    
+    # Get layouts that are templates or have is_public=True
+    query = {
+        'deleted_at': None,
+        '$or': [
+            {'is_template': True},
+            {'is_public': True}
+        ]
+    }
+    
+    # Get layouts with basic info
+    layouts = await db.layouts.find(
+        query,
+        {
+            "_id": 0,
+            "id": 1,
+            "layout_name": 1,
+            "layout_type": 1,
+            "svg_url": 1,
+            "thumbnail_url": 1,
+            "created_at": 1,
+            "tenant_id": 1,
+            "plots": 1
+        }
+    ).sort('created_at', -1).skip(skip).limit(limit).to_list(length=limit)
+    
+    # Enrich with plot count and tenant info
+    for layout in layouts:
+        # Count plots
+        layout['plot_count'] = len(layout.get('plots', []))
+        
+        # Get available plots count
+        available_count = sum(1 for p in layout.get('plots', []) if p.get('status') == 'available')
+        layout['available_plots'] = available_count
+        
+        # Get tenant name if exists
+        if layout.get('tenant_id'):
+            tenant = await db.tenants.find_one(
+                {'id': layout['tenant_id']},
+                {'company_name': 1, '_id': 0}
+            )
+            if tenant:
+                layout['tenant_name'] = tenant.get('company_name')
+        
+        # Remove plots array to reduce payload size
+        layout.pop('plots', None)
+    
+    # Get total count
+    total = await db.layouts.count_documents(query)
+    
+    return {
+        "success": True,
+        "layouts": layouts,
+        "total": total,
+        "limit": limit,
+        "skip": skip
+    }
