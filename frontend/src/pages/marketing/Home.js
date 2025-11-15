@@ -709,6 +709,96 @@ const Home = () => {
         </div>
       </section>
 
+      {/* Available Layouts Section */}
+      {availableLayouts.length > 0 && (
+        <section className="py-20 bg-white">
+          <div className="container mx-auto px-6">
+            <div className="text-center mb-12">
+              <h2 className="text-4xl font-bold text-gray-900 mb-4">
+                Explore Available Layouts
+              </h2>
+              <p className="text-xl text-gray-600">
+                View interactive plot layouts from real estate projects across India
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {availableLayouts.slice(0, 12).map((layout) => (
+                <div
+                  key={layout.id}
+                  onClick={() => window.open(`/public/layout/${layout.id}`, '_blank')}
+                  className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-2xl transition-all cursor-pointer border-2 border-transparent hover:border-blue-500 group"
+                >
+                  {/* Layout Preview/Thumbnail */}
+                  <div className="relative h-48 bg-gradient-to-br from-blue-100 to-cyan-100 flex items-center justify-center overflow-hidden">
+                    {layout.svg_url ? (
+                      <div className="w-full h-full flex items-center justify-center p-4">
+                        <img 
+                          src={layout.svg_url} 
+                          alt={layout.layout_name}
+                          className="max-w-full max-h-full object-contain opacity-80 group-hover:opacity-100 transition-opacity"
+                        />
+                      </div>
+                    ) : (
+                      <MapPin size={64} className="text-blue-400" />
+                    )}
+                    
+                    {/* Overlay Badge */}
+                    <div className="absolute top-3 right-3 bg-white rounded-full px-3 py-1 shadow-md">
+                      <span className="text-xs font-bold text-blue-600">
+                        {layout.plot_count || 0} Plots
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Layout Info */}
+                  <div className="p-4">
+                    <h3 className="font-bold text-lg text-gray-900 mb-2 truncate group-hover:text-blue-600 transition-colors">
+                      {layout.layout_name}
+                    </h3>
+                    
+                    {layout.tenant_name && (
+                      <p className="text-sm text-gray-600 mb-3 truncate">
+                        by {layout.tenant_name}
+                      </p>
+                    )}
+                    
+                    <div className="flex items-center justify-between text-sm">
+                      <div className="flex items-center gap-1 text-green-600">
+                        <CheckCircle size={16} />
+                        <span className="font-medium">{layout.available_plots || 0} Available</span>
+                      </div>
+                      
+                      <span className="text-gray-500 capitalize text-xs">
+                        {layout.layout_type?.replace('_', ' ') || 'Layout'}
+                      </span>
+                    </div>
+                    
+                    <button className="w-full mt-4 py-2 bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-semibold rounded-lg hover:shadow-lg transition-all flex items-center justify-center gap-2 group-hover:scale-105">
+                      <MapPin size={16} />
+                      View Layout
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {availableLayouts.length > 12 && (
+              <div className="text-center mt-12">
+                <button
+                  onClick={() => navigate('/layouts')}
+                  className="px-8 py-4 bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-semibold rounded-lg hover:shadow-xl transition-all inline-flex items-center gap-2"
+                >
+                  <MapPin size={20} />
+                  View All Layouts
+                  <ArrowRight size={20} />
+                </button>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
       {/* Success Stories */}
       <SuccessStories />
 
