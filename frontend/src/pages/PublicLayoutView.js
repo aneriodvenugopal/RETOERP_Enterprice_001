@@ -7,19 +7,24 @@ import { Waves } from 'lucide-react';
 import { toast } from 'sonner';
 
 const PublicLayoutView = () => {
-  const { projectId } = useParams();
+  const { projectId, layoutId } = useParams();
   const [layoutData, setLayoutData] = useState(null);
   const [projectData, setProjectData] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadLayout();
-  }, [projectId]);
+  }, [projectId, layoutId]);
 
   const loadLayout = async () => {
     setLoading(true);
     try {
-      const data = await layoutService.getPublicLayout(projectId);
+      // If layoutId is provided, use new public endpoint
+      // Otherwise use old project-based endpoint
+      const data = layoutId 
+        ? await layoutService.getPublicLayoutById(layoutId)
+        : await layoutService.getPublicLayout(projectId);
+      
       setLayoutData(data.layout);
       setProjectData(data.project);
     } catch (error) {
