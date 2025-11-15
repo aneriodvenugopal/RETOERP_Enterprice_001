@@ -556,6 +556,11 @@ export const layoutService = {
     return response.data;
   },
 
+  getPublicLayoutById: async (layoutId) => {
+    const response = await apiInstance.get(`/public/layouts/${layoutId}`);
+    return response.data;
+  },
+
   // Update plot status
   updatePlotStatus: async (projectId, plotId, statusData) => {
     const response = await api.patch(`/layouts/projects/${projectId}/layout/plots/${plotId}`, statusData);
