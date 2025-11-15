@@ -154,17 +154,27 @@ class SVGParser:
                         centroid_y = sum(c['y'] for c in coordinates) / len(coordinates)
                         plot_number = SVGParser._find_nearest_text(centroid_x, centroid_y, text_elements)
                         
-                        area = SVGParser._calculate_polygon_area(coordinates)
+                        area = abs(int(SVGParser._calculate_polygon_area(coordinates)))
+                        
+                        # Skip very small shapes (likely decorative elements)
+                        if area < 100:
+                            logger.info(f"Skipping tiny path (area={area} sq.ft) - likely decorative element")
+                            continue
+                        
+                        # Skip if no valid plot label found
+                        if not plot_number:
+                            logger.info(f"Skipping path with no valid plot label")
+                            continue
                         
                         block = 'A'
                         if plot_number and '-' in plot_number:
                             block = plot_number.split('-')[0]
                         
                         plots.append({
-                            'display_name': plot_number or f"Plot-{len(plots)+1}",
+                            'display_name': plot_number,
                             'block': block,
                             'coordinates': coordinates,
-                            'area': abs(int(area)),
+                            'area': area,
                             'confidence': 90
                         })
                         
