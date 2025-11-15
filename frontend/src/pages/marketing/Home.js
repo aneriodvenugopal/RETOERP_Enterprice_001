@@ -726,7 +726,7 @@ const Home = () => {
               {availableLayouts.slice(0, 12).map((layout) => (
                 <div
                   key={layout.id}
-                  onClick={() => window.open(`/public/layout/${layout.id}`, '_blank')}
+                  onClick={() => window.open(`/public/layout-view/${layout.id}`, '_blank')}
                   className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-2xl transition-all cursor-pointer border-2 border-transparent hover:border-blue-500 group"
                 >
                   {/* Layout Preview/Thumbnail */}
