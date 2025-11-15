@@ -301,7 +301,7 @@ async def get_all_public_layouts(
     }
     
     # Get layouts with basic info
-    layouts = await db.layouts.find(
+    layouts = await db.master_layouts.find(
         query,
         {
             "_id": 0,
