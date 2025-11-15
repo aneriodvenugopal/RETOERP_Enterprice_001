@@ -709,90 +709,176 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Available Layouts Section */}
+      {/* Available Layouts Section - REDESIGNED */}
       {availableLayouts.length > 0 && (
-        <section className="py-20 bg-white">
-          <div className="container mx-auto px-6">
-            <div className="text-center mb-12">
-              <h2 className="text-4xl font-bold text-gray-900 mb-4">
+        <section className="py-20 bg-gradient-to-b from-gray-50 to-white relative overflow-hidden">
+          {/* Background Pattern */}
+          <div className="absolute inset-0 opacity-5">
+            <div className="absolute top-0 left-0 w-96 h-96 bg-blue-500 rounded-full blur-3xl"></div>
+            <div className="absolute bottom-0 right-0 w-96 h-96 bg-cyan-500 rounded-full blur-3xl"></div>
+          </div>
+
+          <div className="container mx-auto px-6 relative z-10">
+            {/* Header */}
+            <div className="text-center mb-16">
+              <div className="inline-block mb-4">
+                <span className="px-4 py-2 bg-blue-100 text-blue-600 rounded-full text-sm font-semibold">
+                  Featured Projects
+                </span>
+              </div>
+              <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
                 Explore Available Layouts
               </h2>
-              <p className="text-xl text-gray-600">
-                View interactive plot layouts from real estate projects across India
+              <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+                Interactive plot layouts from premium real estate projects
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {availableLayouts.slice(0, 12).map((layout) => (
-                <div
-                  key={layout.id}
-                  onClick={() => window.open(`/public/layout-view/${layout.id}`, '_blank')}
-                  className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-2xl transition-all cursor-pointer border-2 border-transparent hover:border-blue-500 group"
-                >
-                  {/* Layout Preview/Thumbnail */}
-                  <div className="relative h-48 bg-gradient-to-br from-blue-100 to-cyan-100 flex items-center justify-center overflow-hidden">
-                    {layout.svg_url ? (
-                      <div className="w-full h-full flex items-center justify-center p-4">
+            {/* Featured Layout - Hero Style */}
+            {availableLayouts[0] && (
+              <div 
+                onClick={() => window.open(`/public/layout-view/${availableLayouts[0].id}`, '_blank')}
+                className="mb-12 cursor-pointer group"
+              >
+                <div className="bg-white rounded-3xl shadow-xl overflow-hidden hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2">
+                  <div className="grid md:grid-cols-2 gap-0">
+                    {/* Image Side */}
+                    <div className="relative h-[400px] bg-gradient-to-br from-blue-100 via-cyan-50 to-blue-100 overflow-hidden">
+                      {availableLayouts[0].svg_url ? (
                         <img 
-                          src={layout.svg_url} 
-                          alt={layout.layout_name}
-                          className="max-w-full max-h-full object-contain opacity-80 group-hover:opacity-100 transition-opacity"
+                          src={availableLayouts[0].svg_url} 
+                          alt={availableLayouts[0].layout_name}
+                          className="w-full h-full object-contain p-8 opacity-90 group-hover:opacity-100 transition-opacity group-hover:scale-105 duration-500"
                         />
+                      ) : (
+                        <div className="flex items-center justify-center h-full">
+                          <MapPin size={120} className="text-blue-300" />
+                        </div>
+                      )}
+                      {/* Overlay Badge */}
+                      <div className="absolute top-6 left-6 bg-white/90 backdrop-blur-sm rounded-2xl px-4 py-2 shadow-lg">
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                          <span className="text-sm font-bold text-gray-900">Featured Project</span>
+                        </div>
                       </div>
-                    ) : (
-                      <MapPin size={64} className="text-blue-400" />
-                    )}
-                    
-                    {/* Overlay Badge */}
-                    <div className="absolute top-3 right-3 bg-white rounded-full px-3 py-1 shadow-md">
-                      <span className="text-xs font-bold text-blue-600">
-                        {layout.plot_count || 0} Plots
-                      </span>
                     </div>
-                  </div>
 
-                  {/* Layout Info */}
-                  <div className="p-4">
-                    <h3 className="font-bold text-lg text-gray-900 mb-2 truncate group-hover:text-blue-600 transition-colors">
-                      {layout.layout_name}
-                    </h3>
-                    
-                    {layout.tenant_name && (
-                      <p className="text-sm text-gray-600 mb-3 truncate">
-                        by {layout.tenant_name}
-                      </p>
-                    )}
-                    
-                    <div className="flex items-center justify-between text-sm">
-                      <div className="flex items-center gap-1 text-green-600">
-                        <CheckCircle size={16} />
-                        <span className="font-medium">{layout.available_plots || 0} Available</span>
-                      </div>
+                    {/* Info Side */}
+                    <div className="p-8 md:p-12 flex flex-col justify-center">
+                      <h3 className="text-3xl font-bold text-gray-900 mb-4 group-hover:text-blue-600 transition-colors">
+                        {availableLayouts[0].layout_name}
+                      </h3>
                       
-                      <span className="text-gray-500 capitalize text-xs">
-                        {layout.layout_type?.replace('_', ' ') || 'Layout'}
-                      </span>
+                      {availableLayouts[0].tenant_name && (
+                        <p className="text-gray-600 mb-6 flex items-center gap-2">
+                          <Building size={18} />
+                          <span>{availableLayouts[0].tenant_name}</span>
+                        </p>
+                      )}
+
+                      {/* Stats Grid */}
+                      <div className="grid grid-cols-3 gap-4 mb-8">
+                        <div className="bg-green-50 rounded-xl p-4 text-center">
+                          <div className="text-2xl font-bold text-green-600">
+                            {availableLayouts[0].plot_count || 0}
+                          </div>
+                          <div className="text-xs text-gray-600 mt-1">Total Plots</div>
+                        </div>
+                        <div className="bg-blue-50 rounded-xl p-4 text-center">
+                          <div className="text-2xl font-bold text-blue-600">
+                            {availableLayouts[0].available_plots || 0}
+                          </div>
+                          <div className="text-xs text-gray-600 mt-1">Available</div>
+                        </div>
+                        <div className="bg-purple-50 rounded-xl p-4 text-center">
+                          <div className="text-2xl font-bold text-purple-600">
+                            {availableLayouts[0].layout_type?.split('_')[0] || 'Pro'}
+                          </div>
+                          <div className="text-xs text-gray-600 mt-1">Type</div>
+                        </div>
+                      </div>
+
+                      <button className="w-full py-4 bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-bold rounded-xl hover:shadow-xl transition-all flex items-center justify-center gap-3 group-hover:scale-105 duration-300">
+                        <MapPin size={20} />
+                        View Interactive Layout
+                        <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                      </button>
                     </div>
-                    
-                    <button className="w-full mt-4 py-2 bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-semibold rounded-lg hover:shadow-lg transition-all flex items-center justify-center gap-2 group-hover:scale-105">
-                      <MapPin size={16} />
-                      View Layout
-                    </button>
                   </div>
                 </div>
-              ))}
-            </div>
+              </div>
+            )}
 
-            {availableLayouts.length > 12 && (
-              <div className="text-center mt-12">
-                <button
-                  onClick={() => navigate('/layouts')}
-                  className="px-8 py-4 bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-semibold rounded-lg hover:shadow-xl transition-all inline-flex items-center gap-2"
-                >
-                  <MapPin size={20} />
-                  View All Layouts
-                  <ArrowRight size={20} />
-                </button>
+            {/* More Layouts - Compact List */}
+            {availableLayouts.length > 1 && (
+              <div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+                  <Layers size={24} />
+                  More Available Layouts
+                </h3>
+                
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {availableLayouts.slice(1, 7).map((layout) => (
+                    <div
+                      key={layout.id}
+                      onClick={() => window.open(`/public/layout-view/${layout.id}`, '_blank')}
+                      className="bg-white rounded-2xl p-4 shadow-md hover:shadow-xl transition-all cursor-pointer border-2 border-transparent hover:border-blue-500 group"
+                    >
+                      <div className="flex items-center gap-4">
+                        {/* Mini Thumbnail */}
+                        <div className="w-20 h-20 rounded-xl bg-gradient-to-br from-blue-100 to-cyan-100 flex-shrink-0 overflow-hidden">
+                          {layout.svg_url ? (
+                            <img 
+                              src={layout.svg_url} 
+                              alt={layout.layout_name}
+                              className="w-full h-full object-contain p-2 opacity-70 group-hover:opacity-100 transition-opacity"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center">
+                              <MapPin size={32} className="text-blue-400" />
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Info */}
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-bold text-gray-900 truncate group-hover:text-blue-600 transition-colors">
+                            {layout.layout_name}
+                          </h4>
+                          {layout.tenant_name && (
+                            <p className="text-xs text-gray-500 truncate">{layout.tenant_name}</p>
+                          )}
+                          <div className="flex items-center gap-3 mt-2 text-xs">
+                            <span className="text-gray-600">
+                              <span className="font-semibold text-gray-900">{layout.plot_count || 0}</span> plots
+                            </span>
+                            <span className="text-green-600 font-semibold">
+                              {layout.available_plots || 0} available
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Arrow */}
+                        <div className="text-blue-600 group-hover:translate-x-1 transition-transform">
+                          <ArrowRight size={20} />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {availableLayouts.length > 7 && (
+                  <div className="text-center mt-8">
+                    <button
+                      onClick={() => navigate('/layouts')}
+                      className="px-8 py-4 bg-gray-900 text-white font-semibold rounded-xl hover:bg-gray-800 hover:shadow-xl transition-all inline-flex items-center gap-3"
+                    >
+                      View All {availableLayouts.length} Layouts
+                      <ArrowRight size={20} />
+                    </button>
+                  </div>
+                )}
               </div>
             )}
           </div>
