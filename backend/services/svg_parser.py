@@ -67,12 +67,23 @@ class SVGParser:
                     # Calculate area
                     area = abs(int(width * height))
                     
+                    # Skip very small shapes (likely decorative elements or text boxes)
+                    # Real plots are typically at least 100 sq.ft minimum
+                    if area < 100:
+                        logger.info(f"Skipping tiny rectangle (area={area} sq.ft) - likely decorative element")
+                        continue
+                    
+                    # Skip if no valid plot label found
+                    if not plot_number:
+                        logger.info(f"Skipping rectangle with no valid plot label")
+                        continue
+                    
                     block = 'A'
                     if plot_number and '-' in plot_number:
                         block = plot_number.split('-')[0]
                     
                     plots.append({
-                        'display_name': plot_number or f"Plot-{len(plots)+1}",
+                        'display_name': plot_number,
                         'block': block,
                         'coordinates': coordinates,
                         'area': area,
