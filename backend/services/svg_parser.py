@@ -190,12 +190,67 @@ class SVGParser:
         return coordinates
     
     @staticmethod
+    def _is_plot_label(text: str) -> bool:
+        """
+        Determine if text is likely a plot label vs decorative text
+        Plot labels are typically short and contain numbers/letters
+        """
+        if not text:
+            return False
+        
+        # Remove whitespace
+        text = text.strip()
+        
+        # Too long to be a plot label (likely title/header)
+        if len(text) > 20:
+            return False
+        
+        # Common patterns for plot labels:
+        # - "A-1", "B-12", "Plot 5"
+        # - Just numbers: "1", "10", "123"
+        # - Block + number: "A1", "B23"
+        
+        # Pattern 1: Contains hyphen with letter-number (A-1, Block-5)
+        if re.match(r'^[A-Z]+-?\d+$', text, re.IGNORECASE):
+            return True
+        
+        # Pattern 2: Just a number (1, 10, 123)
+        if re.match(r'^\d+$', text):
+            return True
+        
+        # Pattern 3: "Plot" followed by number
+        if re.match(r'^(Plot|P)\s*-?\d+$', text, re.IGNORECASE):
+            return True
+        
+        # Pattern 4: Letter + number without separator (A1, B12)
+        if re.match(r'^[A-Z]\d+$', text, re.IGNORECASE):
+            return True
+        
+        # Reject common non-plot text patterns
+        reject_keywords = [
+            'road', 'phase', 'plots', 'layout', 'existing', 'wide',
+            'feet', 'sqft', 'area', 'total', 'project', 'colony',
+            'nagar', 'avenue', 'estate', 'garden', 'park', 'enclave'
+        ]
+        
+        text_lower = text.lower()
+        for keyword in reject_keywords:
+            if keyword in text_lower:
+                return False
+        
+        return False
+    
+    @staticmethod
     def _find_nearest_text(x: float, y: float, text_elements: List[Dict], max_distance: float = 100) -> str:
-        """Find nearest text to a point"""
+        """Find nearest text to a point that looks like a plot label"""
         nearest_text = None
         min_distance = max_distance
         
         for text in text_elements:
+            # Filter out non-plot labels
+            if not SVGParser._is_plot_label(text['text']):
+                continue
+            
             distance = ((text['x'] - x) ** 2 + (text['y'] - y) ** 2) ** 0.5
             if distance < min_distance:
                 min_distance = distance
