@@ -25,10 +25,12 @@ const Home = () => {
   const [subscribed, setSubscribed] = useState(false);
   const [subscribeError, setSubscribeError] = useState('');
   const [featuredTenants, setFeaturedTenants] = useState([]);
+  const [availableLayouts, setAvailableLayouts] = useState([]);
 
-  // Fetch featured tenants on component mount
+  // Fetch featured tenants and layouts on component mount
   useEffect(() => {
     fetchFeaturedTenants();
+    fetchAvailableLayouts();
   }, []);
 
   const fetchFeaturedTenants = async () => {
@@ -39,6 +41,17 @@ const Home = () => {
       }
     } catch (error) {
       console.error('Failed to load featured tenants:', error);
+    }
+  };
+
+  const fetchAvailableLayouts = async () => {
+    try {
+      const response = await apiInstance.get('/public/layouts?limit=12');
+      if (response.data.success) {
+        setAvailableLayouts(response.data.layouts);
+      }
+    } catch (error) {
+      console.error('Failed to load layouts:', error);
     }
   };
 
