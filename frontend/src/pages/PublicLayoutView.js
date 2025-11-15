@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { layoutService } from '../services';
-import InteractiveLayoutViewer from '../components/InteractiveLayoutViewer';
+import FullscreenLayoutViewer from '../components/FullscreenLayoutViewer';
 import { Card, CardContent } from '@/components/ui/card';
 import { Waves } from 'lucide-react';
 import { toast } from 'sonner';
