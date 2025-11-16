@@ -32,7 +32,7 @@ const ArticleManagement = () => {
 
   const fetchStats = async () => {
     try {
-      const response = await apiInstance.get('/admin/articles/stats/overview');
+      const response = await api.get('/admin/articles/stats/overview');
       if (response.data.success) {
         setStats(response.data.stats);
       }
