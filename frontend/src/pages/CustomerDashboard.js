@@ -527,7 +527,7 @@ const CustomerDashboard = () => {
                         </div>
                         <div>
                           <p className="text-sm text-gray-600">Asking Price</p>
-                          <p className="font-semibold">₹{request.asking_price.toLocaleString()}</p>
+                          <p className="font-semibold">₹{formatCurrency(request.asking_price)}</p>
                         </div>
                         <div>
                           <p className="text-sm text-gray-600">Status</p>
