@@ -64,7 +64,7 @@ const ArticleManagement = () => {
       setAiGenerating(true);
       const keywords = aiForm.keywords.split(',').map(k => k.trim()).filter(k => k);
       
-      const response = await apiInstance.post('/admin/articles/ai/generate', {
+      const response = await api.post('/admin/articles/ai/generate', {
         topic: aiForm.topic,
         category: aiForm.category,
         sub_category: aiForm.sub_category,
