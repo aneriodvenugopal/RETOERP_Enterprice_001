@@ -291,6 +291,10 @@ function App() {
                 element={<PublicLayoutView />}
               />
               <Route
+                path="/article/:slug"
+                element={<ArticleDetail />}
+              />
+              <Route
                 path="/leads"
                 element={
                   <PrivateRoute>
