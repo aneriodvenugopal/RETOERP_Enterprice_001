@@ -5,7 +5,7 @@ import {
   Twitter, Facebook, Linkedin, Link as LinkIcon,
   Tag, User
 } from 'lucide-react';
-import apiInstance from '../services';
+import apiInstance from '../../services';
 import ReactMarkdown from 'react-markdown';
 
 const ArticleDetail = () => {
