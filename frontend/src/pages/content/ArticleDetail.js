@@ -28,7 +28,7 @@ const ArticleDetail = () => {
         setArticle(response.data.article);
         
         // Fetch related articles
-        const relatedResponse = await apiInstance.get(`/public/articles?category=${response.data.article.category}&limit=3`);
+        const relatedResponse = await api.get(`/public/articles?category=${response.data.article.category}&limit=3`);
         if (relatedResponse.data.success) {
           // Filter out current article
           const filtered = relatedResponse.data.articles.filter(a => a.id !== response.data.article.id);
