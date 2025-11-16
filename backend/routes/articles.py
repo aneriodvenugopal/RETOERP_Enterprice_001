@@ -1,12 +1,14 @@
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Request
 from typing import List, Optional
 from datetime import datetime
 from models.article import Article, ArticleCreate, ArticleUpdate, AIArticleRequest, BulkArticleGenerationRequest
 from services.article_generator import ArticleGenerator
-from database import db
 import re
 
 router = APIRouter()
+
+def get_db(request: Request):
+    return request.app.state.db
 
 # Helper function to create slug
 def create_slug(title: str) -> str:
