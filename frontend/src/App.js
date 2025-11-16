@@ -64,6 +64,7 @@ import AdvisoryChat from "./pages/advisory/AdvisoryChat";
 import ContentManagement from "./pages/admin/ContentManagement";
 import ResaleManagement from "./pages/admin/ResaleManagement";
 import EnhancedSaaSDashboard from "./pages/admin/EnhancedSaaSDashboard";
+import ArticleManagement from "./pages/admin/ArticleManagement";
 import PackageManagement from "./pages/admin/PackageManagement";
 import TenantManagement from "./pages/admin/TenantManagement";
 import ChatManagement from "./pages/admin/ChatManagement";
