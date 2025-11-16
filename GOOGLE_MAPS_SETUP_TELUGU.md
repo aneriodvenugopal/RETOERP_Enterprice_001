@@ -184,7 +184,7 @@
 
    **మొదటి referrer:**
    ```
-   https://layout-manager.preview.emergentagent.com/*
+   https://plotmanage-app.preview.emergentagent.com/*
    ```
    - Paste చేసి Enter నొక్కండి
 

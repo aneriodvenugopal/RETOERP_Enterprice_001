@@ -47,7 +47,7 @@
         tenantId: tenantId,
         position: position,
         primaryColor: primaryColor,
-        backendUrl: 'https://layout-manager.preview.emergentagent.com/api'
+        backendUrl: 'https://plotmanage-app.preview.emergentagent.com/api'
       };
       
       // Load chat widget bundle
