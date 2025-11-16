@@ -318,6 +318,14 @@ function App() {
                 }
               />
               <Route
+                path="/bank-accounts"
+                element={
+                  <PrivateRoute>
+                    <BankAccounts />
+                  </PrivateRoute>
+                }
+              />
+              <Route
                 path="/commissions"
                 element={
                   <PrivateRoute>
