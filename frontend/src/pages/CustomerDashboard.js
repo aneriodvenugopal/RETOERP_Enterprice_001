@@ -238,9 +238,9 @@ const CustomerDashboard = () => {
                 <div>
                   <p className="text-sm font-medium text-gray-600">Pending Payment</p>
                   <p className="text-3xl font-bold mt-2 text-yellow-600">
-                    ₹{dashboardData.overview.total_pending.toLocaleString()}
+                    ₹{formatCurrency(dashboardData.overview.total_pending)}
                   </p>
-                  <p className="text-xs text-gray-600 mt-1">Paid: ₹{dashboardData.overview.total_paid.toLocaleString()}</p>
+                  <p className="text-xs text-gray-600 mt-1">Paid: ₹{formatCurrency(dashboardData.overview.total_paid)}</p>
                 </div>
                 <div className="p-4 rounded-xl bg-gradient-to-br from-yellow-500 to-orange-500 shadow-lg">
                   <CreditCard className="w-7 h-7 text-white" />
