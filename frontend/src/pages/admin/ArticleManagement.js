@@ -48,7 +48,7 @@ const ArticleManagement = () => {
       if (selectedCategory !== 'all') params.append('category', selectedCategory);
       if (selectedStatus !== 'all') params.append('status', selectedStatus);
       
-      const response = await apiInstance.get(`/admin/articles?${params.toString()}`);
+      const response = await api.get(`/admin/articles?${params.toString()}`);
       if (response.data.success) {
         setArticles(response.data.articles);
       }
