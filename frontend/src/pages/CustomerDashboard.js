@@ -296,7 +296,7 @@ const CustomerDashboard = () => {
                   {dashboardData.upcoming_payments.map((schedule, idx) => (
                     <div key={idx} className="flex justify-between items-center p-3 bg-gray-50 rounded">
                       <div>
-                        <p className="font-medium">₹{schedule.amount.toLocaleString()}</p>
+                        <p className="font-medium">₹{formatCurrency(schedule.amount)}</p>
                         <p className="text-sm text-gray-600">Due: {schedule.due_date}</p>
                       </div>
                       <Badge>{schedule.status}</Badge>
