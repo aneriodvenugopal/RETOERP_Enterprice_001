@@ -320,7 +320,7 @@ const CustomerDashboard = () => {
                   {dashboardData.recent_payments.map((payment, idx) => (
                     <div key={idx} className="flex justify-between items-center p-3 border-b last:border-0">
                       <div>
-                        <p className="font-medium">₹{payment.amount.toLocaleString()}</p>
+                        <p className="font-medium">₹{formatCurrency(payment.amount)}</p>
                         <p className="text-sm text-gray-600">{payment.payment_date}</p>
                       </div>
                       <Badge variant="success">
