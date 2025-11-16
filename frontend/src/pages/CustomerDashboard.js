@@ -455,7 +455,7 @@ const CustomerDashboard = () => {
                       <p className="text-sm text-gray-600">{property.project?.name || 'N/A'}</p>
                       <div className="mt-3 space-y-1">
                         <p className="text-sm"><span className="text-gray-600">Area:</span> {property.area} {property.unit}</p>
-                        <p className="text-sm"><span className="text-gray-600">Price:</span> ₹{property.price.toLocaleString()}</p>
+                        <p className="text-sm"><span className="text-gray-600">Price:</span> ₹{formatCurrency(property.price)}</p>
                         <p className="text-sm"><span className="text-gray-600">Payment:</span> {property.payment_status}</p>
                       </div>
                       <Button 
