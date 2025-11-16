@@ -356,8 +356,8 @@ const CustomerDashboard = () => {
                         </div>
                         <div>
                           <p className="text-sm text-gray-600">Total Amount</p>
-                          <p className="font-semibold">₹{booking.total_amount.toLocaleString()}</p>
-                          <p className="text-sm text-gray-600">Paid: ₹{booking.paid_amount?.toLocaleString() || 0}</p>
+                          <p className="font-semibold">₹{formatCurrency(booking.total_amount)}</p>
+                          <p className="text-sm text-gray-600">Paid: ₹{formatCurrency(booking.paid_amount)}</p>
                         </div>
                         <div>
                           <p className="text-sm text-gray-600">Status</p>
