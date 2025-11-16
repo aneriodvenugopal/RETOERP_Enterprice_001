@@ -46,7 +46,7 @@ const ArticleDetail = () => {
     if (liked || !article) return;
     
     try {
-      await apiInstance.post(`/public/articles/${article.id}/like`);
+      await api.post(`/public/articles/${article.id}/like`);
       setArticle({ ...article, likes: article.likes + 1 });
       setLiked(true);
     } catch (error) {
