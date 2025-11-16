@@ -516,6 +516,14 @@ function App() {
                 }
               />
               <Route
+                path="/admin/articles"
+                element={
+                  <PrivateRoute>
+                    <ArticleManagement />
+                  </PrivateRoute>
+                }
+              />
+              <Route
                 path="/admin/tenants"
                 element={
                   <PrivateRoute>
