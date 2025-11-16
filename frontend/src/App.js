@@ -327,6 +327,14 @@ function App() {
                 }
               />
               <Route
+                path="/vendors"
+                element={
+                  <PrivateRoute>
+                    <VendorsManagement />
+                  </PrivateRoute>
+                }
+              />
+              <Route
                 path="/commissions"
                 element={
                   <PrivateRoute>
