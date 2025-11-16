@@ -1,35 +1,40 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Clock, Eye, Share2, Facebook, Linkedin, Twitter, Mail } from 'lucide-react';
-import { toast } from 'sonner';
-import LanguageSelector from '../../components/LanguageSelector';
-
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+import { useParams, useNavigate } from 'react-router-dom';
+import { 
+  ArrowLeft, Calendar, Clock, Eye, Heart, Share2, 
+  Twitter, Facebook, Linkedin, Link as LinkIcon,
+  Tag, User
+} from 'lucide-react';
+import apiInstance from '../services';
+import ReactMarkdown from 'react-markdown';
 
 const ArticleDetail = () => {
   const { slug } = useParams();
+  const navigate = useNavigate();
   const [article, setArticle] = useState(null);
   const [relatedArticles, setRelatedArticles] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [showLeadForm, setShowLeadForm] = useState(false);
-  const [leadData, setLeadData] = useState({ name: '', email: '', phone: '', message: '' });
+  const [liked, setLiked] = useState(false);
 
   useEffect(() => {
     fetchArticle();
-    trackView();
   }, [slug]);
 
   const fetchArticle = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${BACKEND_URL}/api/content/articles/${slug}`);
-      const data = await response.json();
-      setArticle(data);
-      
-      // Fetch related articles
-      const relatedResponse = await fetch(`${BACKEND_URL}/api/content/articles?category_id=${data.category_id}&limit=3`);
-      const relatedData = await relatedResponse.json();
-      setRelatedArticles(relatedData.filter(a => a.id !== data.id).slice(0, 3));
+      const response = await apiInstance.get(`/public/articles/slug/${slug}`);
+      if (response.data.success) {
+        setArticle(response.data.article);
+        
+        // Fetch related articles
+        const relatedResponse = await apiInstance.get(`/public/articles?category=${response.data.article.category}&limit=3`);
+        if (relatedResponse.data.success) {
+          // Filter out current article
+          const filtered = relatedResponse.data.articles.filter(a => a.id !== response.data.article.id);
+          setRelatedArticles(filtered.slice(0, 3));
+        }
+      }
     } catch (error) {
       console.error('Error fetching article:', error);
     } finally {
@@ -37,71 +42,33 @@ const ArticleDetail = () => {
     }
   };
 
-  const trackView = async () => {
+  const handleLike = async () => {
+    if (liked || !article) return;
+    
     try {
-      await fetch(`${BACKEND_URL}/api/content/track-view`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ article_id: slug, referrer: document.referrer })
-      });
+      await apiInstance.post(`/public/articles/${article.id}/like`);
+      setArticle({ ...article, likes: article.likes + 1 });
+      setLiked(true);
     } catch (error) {
-      console.error('Error tracking view:', error);
+      console.error('Error liking article:', error);
     }
   };
 
-  const handleShare = async (platform) => {
+  const shareArticle = (platform) => {
     const url = window.location.href;
     const title = article?.title || '';
     
-    let shareUrl = '';
-    switch(platform) {
-      case 'facebook':
-        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
-        break;
-      case 'twitter':
-        shareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`;
-        break;
-      case 'linkedin':
-        shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`;
-        break;
-      case 'whatsapp':
-        shareUrl = `https://wa.me/?text=${encodeURIComponent(title + ' ' + url)}`;
-        break;
-      case 'email':
-        shareUrl = `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(url)}`;
-        break;
-    }
-    
-    if (shareUrl) {
-      window.open(shareUrl, '_blank', 'width=600,height=400');
-      
-      // Track share
-      try {
-        await fetch(`${BACKEND_URL}/api/content/track-share`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ article_id: article.id, platform })
-        });
-        toast.success('Thanks for sharing!');
-      } catch (error) {
-        console.error('Error tracking share:', error);
-      }
-    }
-  };
+    const shareUrls = {
+      twitter: `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`,
+      facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
+      linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`
+    };
 
-  const handleLeadSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      await fetch(`${BACKEND_URL}/api/content/capture-lead`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...leadData, article_id: article.id })
-      });
-      toast.success("Thank you! We'll contact you soon.");
-      setShowLeadForm(false);
-      setLeadData({ name: '', email: '', phone: '', message: '' });
-    } catch (error) {
-      toast.error('Failed to submit. Please try again.');
+    if (shareUrls[platform]) {
+      window.open(shareUrls[platform], '_blank', 'width=600,height=400');
+    } else if (platform === 'copy') {
+      navigator.clipboard.writeText(url);
+      alert('Link copied to clipboard!');
     }
   };
 
@@ -109,7 +76,7 @@ const ArticleDetail = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading article...</p>
         </div>
       </div>
@@ -120,174 +87,193 @@ const ArticleDetail = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-2xl text-gray-600">Article not found</p>
-          <Link to="/content" className="mt-4 inline-block text-blue-600 hover:underline">
-            ← Back to Knowledge Hub
-          </Link>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Article Not Found</h2>
+          <button
+            onClick={() => navigate('/')}
+            className="text-blue-600 hover:text-blue-700 flex items-center gap-2 mx-auto"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to Home
+          </button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Language Selector */}
-      <div className="fixed top-6 right-6 z-50">
-        <LanguageSelector />
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <div className="bg-white border-b border-gray-200">
+        <div className="max-w-4xl mx-auto px-4 py-6">
+          <button
+            onClick={() => navigate(-1)}
+            className="text-blue-600 hover:text-blue-700 flex items-center gap-2 mb-4"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back
+          </button>
+
+          {/* Category Badge */}
+          <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium mb-4 ${
+            article.category === 'saas' ? 'bg-blue-100 text-blue-700' :
+            article.category === 'tenant' ? 'bg-green-100 text-green-700' :
+            'bg-purple-100 text-purple-700'
+          }`}>
+            {article.category.toUpperCase()}
+          </span>
+
+          {/* Title */}
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            {article.title}
+          </h1>
+
+          {/* Excerpt */}
+          <p className="text-xl text-gray-600 mb-6">
+            {article.excerpt}
+          </p>
+
+          {/* Meta */}
+          <div className="flex flex-wrap items-center gap-6 text-sm text-gray-500">
+            <div className="flex items-center gap-2">
+              <User className="w-4 h-4" />
+              <span>{article.author}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Calendar className="w-4 h-4" />
+              <span>{new Date(article.published_at).toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+              })}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Clock className="w-4 h-4" />
+              <span>{article.reading_time} min read</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Eye className="w-4 h-4" />
+              <span>{article.views} views</span>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Header */}
-      <header className="bg-white border-b sticky top-0 z-40">
-        <div className="container mx-auto px-6 py-4">
-          <Link to="/content" className="inline-flex items-center text-gray-600 hover:text-blue-600">
-            <ArrowLeft className="mr-2 w-5 h-5" />
-            Back to Knowledge Hub
-          </Link>
-        </div>
-      </header>
-
-      {/* Article Content */}
-      <article className="container mx-auto px-6 py-12 max-w-4xl">
-        {/* Title */}
-        <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-          {article.title}
-        </h1>
-
-        {/* Meta */}
-        <div className="flex items-center justify-between mb-8 pb-8 border-b">
-          <div className="flex items-center space-x-6 text-gray-600">
-            <span className="flex items-center">
-              <Clock className="w-5 h-5 mr-2" />
-              {article.reading_time} min read
-            </span>
-            <span className="flex items-center">
-              <Eye className="w-5 h-5 mr-2" />
-              {article.view_count} views
-            </span>
+      {/* Main Content */}
+      <div className="max-w-4xl mx-auto px-4 py-12">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
+          {/* Article Content */}
+          <div className="prose prose-lg max-w-none mb-8">
+            <ReactMarkdown>{article.content}</ReactMarkdown>
           </div>
-          
-          {/* Share Buttons */}
-          <div className="flex items-center space-x-3">
-            <button onClick={() => handleShare('facebook')} className="p-2 hover:bg-blue-50 rounded-full">
-              <Facebook className="w-5 h-5 text-blue-600" />
-            </button>
-            <button onClick={() => handleShare('twitter')} className="p-2 hover:bg-blue-50 rounded-full">
-              <Twitter className="w-5 h-5 text-blue-400" />
-            </button>
-            <button onClick={() => handleShare('linkedin')} className="p-2 hover:bg-blue-50 rounded-full">
-              <Linkedin className="w-5 h-5 text-blue-700" />
-            </button>
-            <button onClick={() => handleShare('whatsapp')} className="p-2 hover:bg-green-50 rounded-full">
-              <Share2 className="w-5 h-5 text-green-600" />
-            </button>
-          </div>
-        </div>
 
-        {/* Content */}
-        <div className="prose prose-lg max-w-none">
-          <div className="bg-blue-50 border-l-4 border-blue-600 p-6 mb-8">
-            <p className="text-lg text-gray-700">{article.excerpt}</p>
-          </div>
-          
-          <div className="whitespace-pre-wrap text-gray-700 leading-relaxed">
-            {article.content}
-          </div>
-        </div>
+          {/* Tags */}
+          {article.tags && article.tags.length > 0 && (
+            <div className="border-t border-gray-200 pt-6 mb-6">
+              <div className="flex items-center gap-2 mb-3">
+                <Tag className="w-5 h-5 text-gray-400" />
+                <span className="text-sm font-medium text-gray-700">Tags:</span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {article.tags.map((tag, idx) => (
+                  <span
+                    key={idx}
+                    className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm hover:bg-gray-200 cursor-pointer transition"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
 
-        {/* CTA Section */}
-        <div className="mt-12 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-2xl p-8 text-center text-white">
-          <h2 className="text-3xl font-bold mb-4">
-            Ready to Transform Your Real Estate Business?
-          </h2>
-          <p className="text-xl mb-6 opacity-90">
-            See how RETOERP can help you achieve 40X faster growth
-          </p>
-          <div className="flex justify-center gap-4">
-            <Link
-              to="/register"
-              className="px-8 py-3 bg-white text-blue-600 font-bold rounded-lg hover:bg-gray-100 transition-all"
-            >
-              Start Free Trial
-            </Link>
+          {/* Actions */}
+          <div className="border-t border-gray-200 pt-6 flex items-center justify-between">
             <button
-              onClick={() => setShowLeadForm(true)}
-              className="px-8 py-3 bg-blue-700 text-white font-bold rounded-lg hover:bg-blue-800 transition-all"
+              onClick={handleLike}
+              disabled={liked}
+              className={`flex items-center gap-2 px-6 py-3 rounded-lg transition ${
+                liked 
+                  ? 'bg-pink-100 text-pink-700 cursor-not-allowed' 
+                  : 'bg-pink-50 text-pink-600 hover:bg-pink-100'
+              }`}
             >
-              Talk to Sales
+              <Heart className={`w-5 h-5 ${liked ? 'fill-current' : ''}`} />
+              <span className="font-medium">{article.likes} Likes</span>
             </button>
+
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-gray-600 mr-2 flex items-center gap-2">
+                <Share2 className="w-4 h-4" />
+                Share:
+              </span>
+              <button
+                onClick={() => shareArticle('twitter')}
+                className="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition"
+              >
+                <Twitter className="w-5 h-5" />
+              </button>
+              <button
+                onClick={() => shareArticle('facebook')}
+                className="p-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition"
+              >
+                <Facebook className="w-5 h-5" />
+              </button>
+              <button
+                onClick={() => shareArticle('linkedin')}
+                className="p-2 bg-blue-50 text-blue-800 rounded-lg hover:bg-blue-100 transition"
+              >
+                <Linkedin className="w-5 h-5" />
+              </button>
+              <button
+                onClick={() => shareArticle('copy')}
+                className="p-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition"
+              >
+                <LinkIcon className="w-5 h-5" />
+              </button>
+            </div>
           </div>
         </div>
 
         {/* Related Articles */}
         {relatedArticles.length > 0 && (
-          <div className="mt-16">
-            <h3 className="text-2xl font-bold text-gray-900 mb-6">Related Articles</h3>
+          <div className="mt-12">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">Related Articles</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {relatedArticles.map((related) => (
-                <Link
+                <div
                   key={related.id}
-                  to={`/content/${related.slug}`}
-                  className="bg-white border rounded-lg overflow-hidden hover:shadow-lg transition-all"
+                  onClick={() => navigate(`/article/${related.slug}`)}
+                  className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 cursor-pointer hover:shadow-md transition"
                 >
-                  <div className="p-4">
-                    <h4 className="font-bold text-gray-900 mb-2">{related.title}</h4>
-                    <p className="text-sm text-gray-600 line-clamp-2">{related.excerpt}</p>
+                  <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium mb-3 ${
+                    related.category === 'saas' ? 'bg-blue-100 text-blue-700' :
+                    related.category === 'tenant' ? 'bg-green-100 text-green-700' :
+                    'bg-purple-100 text-purple-700'
+                  }`}>
+                    {related.category.toUpperCase()}
+                  </span>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
+                    {related.title}
+                  </h3>
+                  <p className="text-sm text-gray-600 mb-4 line-clamp-3">
+                    {related.excerpt}
+                  </p>
+                  <div className="flex items-center text-xs text-gray-500 gap-4">
+                    <div className="flex items-center gap-1">
+                      <Clock className="w-3 h-3" />
+                      {related.reading_time} min
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Eye className="w-3 h-3" />
+                      {related.views}
+                    </div>
                   </div>
-                </Link>
+                </div>
               ))}
             </div>
           </div>
         )}
-      </article>
-
-      {/* Lead Form Modal */}
-      {showLeadForm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl p-8 max-w-md w-full">
-            <h3 className="text-2xl font-bold mb-4">Get in Touch</h3>
-            <form onSubmit={handleLeadSubmit}>
-              <input
-                type="text"
-                placeholder="Name *"
-                required
-                value={leadData.name}
-                onChange={(e) => setLeadData({...leadData, name: e.target.value})}
-                className="w-full px-4 py-2 border rounded-lg mb-3"
-              />
-              <input
-                type="email"
-                placeholder="Email *"
-                required
-                value={leadData.email}
-                onChange={(e) => setLeadData({...leadData, email: e.target.value})}
-                className="w-full px-4 py-2 border rounded-lg mb-3"
-              />
-              <input
-                type="tel"
-                placeholder="Phone"
-                value={leadData.phone}
-                onChange={(e) => setLeadData({...leadData, phone: e.target.value})}
-                className="w-full px-4 py-2 border rounded-lg mb-3"
-              />
-              <textarea
-                placeholder="Message"
-                value={leadData.message}
-                onChange={(e) => setLeadData({...leadData, message: e.target.value})}
-                className="w-full px-4 py-2 border rounded-lg mb-4"
-                rows={3}
-              />
-              <div className="flex gap-3">
-                <button type="submit" className="flex-1 bg-blue-600 text-white py-2 rounded-lg font-bold">
-                  Submit
-                </button>
-                <button type="button" onClick={() => setShowLeadForm(false)} className="flex-1 bg-gray-200 py-2 rounded-lg">
-                  Cancel
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      </div>
     </div>
   );
 };
