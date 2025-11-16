@@ -221,7 +221,7 @@ const CustomerDashboard = () => {
                 <div>
                   <p className="text-sm font-medium text-gray-600">Total Invested</p>
                   <p className="text-3xl font-bold mt-2 text-ocean-secondary">
-                    ₹{dashboardData.overview.total_invested.toLocaleString()}
+                    ₹{formatCurrency(dashboardData.overview.total_invested)}
                   </p>
                   <p className="text-xs text-green-600 mt-1">Portfolio Value</p>
                 </div>
