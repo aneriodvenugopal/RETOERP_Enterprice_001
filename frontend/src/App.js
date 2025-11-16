@@ -109,6 +109,8 @@ import CRMDemo from "./pages/demos/CRMDemo";
 import CustomerPayments from "./pages/payments/CustomerPayments";
 import BankAccounts from "./pages/banking/BankAccounts";
 import VendorsManagement from "./pages/vendors/VendorsManagement";
+import VendorBills from "./pages/vendors/VendorBills";
+import PaymentTransfer from "./pages/vendors/PaymentTransfer";
 import CommissionDashboard from "./pages/commissions/CommissionDashboard";
 import PaymentSchemes from "./pages/schemes/PaymentSchemes";
 import StaffHierarchy from "./pages/staff/StaffHierarchy";
