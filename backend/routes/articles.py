@@ -18,6 +18,7 @@ def create_slug(title: str) -> str:
 
 @router.get("/public/articles", response_model=dict)
 async def get_public_articles(
+    request: Request,
     category: Optional[str] = None,
     sub_category: Optional[str] = None,
     tag: Optional[str] = None,
@@ -26,6 +27,7 @@ async def get_public_articles(
 ):
     """Get published articles for public view"""
     
+    db = get_db(request)
     query = {"deleted_at": None, "status": "published"}
     
     if category:
