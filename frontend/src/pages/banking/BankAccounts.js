@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../contexts/AuthContext';
 import { toast } from 'sonner';
 import { Plus, Building2, Wallet, Edit2, Trash2, Share2, Eye, DollarSign } from 'lucide-react';
 import axios from 'axios';
