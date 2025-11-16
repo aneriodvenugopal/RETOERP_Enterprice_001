@@ -49,10 +49,9 @@ async def get_public_articles(
     }
 
 @router.get("/public/articles/{article_id}", response_model=dict)
-async def get_public_article(request: Request, article_id: str):
+async def get_public_article(article_id: str):
     """Get single article by ID"""
     
-    db = get_db(request)
     article = await db.articles.find_one({
         "id": article_id,
         "deleted_at": None,
@@ -71,10 +70,9 @@ async def get_public_article(request: Request, article_id: str):
     return {"success": True, "article": article}
 
 @router.get("/public/articles/slug/{slug}", response_model=dict)
-async def get_public_article_by_slug(request: Request, slug: str):
+async def get_public_article_by_slug(slug: str):
     """Get single article by slug"""
     
-    db = get_db(request)
     article = await db.articles.find_one({
         "slug": slug,
         "deleted_at": None,
@@ -93,10 +91,9 @@ async def get_public_article_by_slug(request: Request, slug: str):
     return {"success": True, "article": article}
 
 @router.post("/public/articles/{article_id}/like", response_model=dict)
-async def like_article(request: Request, article_id: str):
+async def like_article(article_id: str):
     """Like an article"""
     
-    db = get_db(request)
     result = await db.articles.update_one(
         {"id": article_id, "deleted_at": None},
         {"$inc": {"likes": 1}}
@@ -108,10 +105,9 @@ async def like_article(request: Request, article_id: str):
     return {"success": True, "message": "Article liked"}
 
 @router.get("/public/articles/featured/list", response_model=dict)
-async def get_featured_articles(request: Request, limit: int = Query(6, ge=1, le=20)):
+async def get_featured_articles(limit: int = Query(6, ge=1, le=20)):
     """Get featured articles (most viewed)"""
     
-    db = get_db(request)
     articles = await db.articles.find({
         "deleted_at": None,
         "status": "published"
@@ -122,10 +118,9 @@ async def get_featured_articles(request: Request, limit: int = Query(6, ge=1, le
 # ====== ADMIN ENDPOINTS (Protected) ======
 
 @router.post("/admin/articles", response_model=dict)
-async def create_article(request: Request, article: ArticleCreate):
+async def create_article(article: ArticleCreate):
     """Create new article manually"""
     
-    db = get_db(request)
     # Check if slug already exists
     existing = await db.articles.find_one({"slug": article.slug, "deleted_at": None})
     if existing:
@@ -152,7 +147,6 @@ async def create_article(request: Request, article: ArticleCreate):
 
 @router.get("/admin/articles", response_model=dict)
 async def get_all_articles(
-    request: Request,
     category: Optional[str] = None,
     status: Optional[str] = None,
     limit: int = Query(50, ge=1, le=200),
@@ -160,7 +154,6 @@ async def get_all_articles(
 ):
     """Get all articles (admin view)"""
     
-    db = get_db(request)
     query = {"deleted_at": None}
     
     if category:
@@ -180,10 +173,9 @@ async def get_all_articles(
     }
 
 @router.get("/admin/articles/{article_id}", response_model=dict)
-async def get_article(request: Request, article_id: str):
+async def get_article(article_id: str):
     """Get single article (admin)"""
     
-    db = get_db(request)
     article = await db.articles.find_one({"id": article_id, "deleted_at": None})
     
     if not article:
@@ -192,10 +184,9 @@ async def get_article(request: Request, article_id: str):
     return {"success": True, "article": article}
 
 @router.put("/admin/articles/{article_id}", response_model=dict)
-async def update_article(request: Request, article_id: str, article_update: ArticleUpdate):
+async def update_article(article_id: str, article_update: ArticleUpdate):
     """Update article"""
     
-    db = get_db(request)
     existing = await db.articles.find_one({"id": article_id, "deleted_at": None})
     if not existing:
         raise HTTPException(status_code=404, detail="Article not found")
@@ -221,10 +212,9 @@ async def update_article(request: Request, article_id: str, article_update: Arti
     }
 
 @router.delete("/admin/articles/{article_id}", response_model=dict)
-async def delete_article(request: Request, article_id: str):
+async def delete_article(article_id: str):
     """Soft delete article"""
     
-    db = get_db(request)
     result = await db.articles.update_one(
         {"id": article_id, "deleted_at": None},
         {"$set": {"deleted_at": datetime.now()}}
@@ -236,10 +226,9 @@ async def delete_article(request: Request, article_id: str):
     return {"success": True, "message": "Article deleted successfully"}
 
 @router.get("/admin/articles/stats/overview", response_model=dict)
-async def get_articles_stats(request: Request):
+async def get_articles_stats():
     """Get article statistics"""
     
-    db = get_db(request)
     total_articles = await db.articles.count_documents({"deleted_at": None})
     published = await db.articles.count_documents({"deleted_at": None, "status": "published"})
     draft = await db.articles.count_documents({"deleted_at": None, "status": "draft"})
@@ -281,18 +270,17 @@ async def get_articles_stats(request: Request):
 # ====== AI ARTICLE GENERATION ENDPOINTS ======
 
 @router.post("/admin/articles/ai/generate", response_model=dict)
-async def generate_ai_article(request: Request, article_request: AIArticleRequest):
+async def generate_ai_article(request: AIArticleRequest):
     """Generate a single article using AI"""
     
-    db = get_db(request)
     try:
         generator = ArticleGenerator()
         article_data = await generator.generate_article(
-            topic=article_request.topic,
-            category=article_request.category,
-            sub_category=article_request.sub_category,
-            keywords=article_request.keywords,
-            target_word_count=article_request.target_word_count
+            topic=request.topic,
+            category=request.category,
+            sub_category=request.sub_category,
+            keywords=request.keywords,
+            target_word_count=request.target_word_count
         )
         
         # Add additional fields
@@ -317,7 +305,7 @@ async def generate_ai_article(request: Request, article_request: AIArticleReques
         raise HTTPException(status_code=500, detail=f"Failed to generate article: {str(e)}")
 
 @router.post("/admin/articles/ai/bulk-generate", response_model=dict)
-async def bulk_generate_articles(request: Request, bulk_request: BulkArticleGenerationRequest):
+async def bulk_generate_articles(request: BulkArticleGenerationRequest):
     """Generate multiple articles using AI - returns immediately, processes in background"""
     
     # This endpoint will be called from frontend to start bulk generation
@@ -325,7 +313,7 @@ async def bulk_generate_articles(request: Request, bulk_request: BulkArticleGene
     
     return {
         "success": True,
-        "message": f"Bulk generation started for {bulk_request.count} articles in category {bulk_request.category}",
-        "category": bulk_request.category,
-        "count": bulk_request.count
+        "message": f"Bulk generation started for {request.count} articles in category {request.category}",
+        "category": request.category,
+        "count": request.count
     }
