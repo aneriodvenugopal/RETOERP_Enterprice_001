@@ -414,7 +414,7 @@ const CustomerDashboard = () => {
                     {payments.map((payment) => (
                       <tr key={payment.id} className="border-t">
                         <td className="px-4 py-3 text-sm">{payment.payment_date}</td>
-                        <td className="px-4 py-3 font-medium">₹{payment.amount.toLocaleString()}</td>
+                        <td className="px-4 py-3 font-medium">₹{formatCurrency(payment.amount)}</td>
                         <td className="px-4 py-3 text-sm">{payment.property_number || 'N/A'}</td>
                         <td className="px-4 py-3 text-sm">{payment.mode_id || 'N/A'}</td>
                         <td className="px-4 py-3">
