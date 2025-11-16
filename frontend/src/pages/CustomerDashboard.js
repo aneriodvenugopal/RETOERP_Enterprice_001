@@ -258,7 +258,7 @@ const CustomerDashboard = () => {
                     {dashboardData.overview.overdue_count > 0 ? dashboardData.overview.overdue_count : '0'}
                   </p>
                   <p className="text-xs text-red-600 mt-1">
-                    {dashboardData.overview.overdue_count > 0 ? `₹${dashboardData.overview.overdue_amount.toLocaleString()}` : 'No overdue'}
+                    {dashboardData.overview.overdue_count > 0 ? `₹${formatCurrency(dashboardData.overview.overdue_amount)}` : 'No overdue'}
                   </p>
                 </div>
                 <div className="p-4 rounded-xl bg-gradient-to-br from-red-500 to-red-600 shadow-lg">
