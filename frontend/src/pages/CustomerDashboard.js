@@ -371,7 +371,7 @@ const CustomerDashboard = () => {
                           <div className="flex gap-2 flex-wrap">
                             {booking.payment_schedules.slice(0, 3).map((schedule, idx) => (
                               <Badge key={idx} variant={schedule.status === 'paid' ? 'success' : 'secondary'}>
-                                ₹{schedule.amount.toLocaleString()} - {schedule.due_date}
+                                ₹{formatCurrency(schedule.amount)} - {schedule.due_date}
                               </Badge>
                             ))}
                             {booking.payment_schedules.length > 3 && (
