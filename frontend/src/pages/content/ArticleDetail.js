@@ -23,7 +23,7 @@ const ArticleDetail = () => {
   const fetchArticle = async () => {
     try {
       setLoading(true);
-      const response = await apiInstance.get(`/public/articles/slug/${slug}`);
+      const response = await api.get(`/public/articles/slug/${slug}`);
       if (response.data.success) {
         setArticle(response.data.article);
         
