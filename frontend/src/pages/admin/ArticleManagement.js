@@ -96,7 +96,7 @@ const ArticleManagement = () => {
     if (!window.confirm('Are you sure you want to delete this article?')) return;
 
     try {
-      const response = await apiInstance.delete(`/admin/articles/${articleId}`);
+      const response = await api.delete(`/admin/articles/${articleId}`);
       if (response.data.success) {
         alert('✅ Article deleted successfully!');
         fetchArticles();
