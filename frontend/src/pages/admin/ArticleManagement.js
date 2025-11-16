@@ -3,7 +3,7 @@ import {
   FileText, Plus, Edit, Trash2, Eye, Search, Filter, 
   Sparkles, BarChart3, TrendingUp, Users, Calendar 
 } from 'lucide-react';
-import apiInstance from '../../services';
+import { api } from '../../services';
 
 const ArticleManagement = () => {
   const [articles, setArticles] = useState([]);
