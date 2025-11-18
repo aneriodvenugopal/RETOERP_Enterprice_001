@@ -40,6 +40,11 @@ async def get_public_articles(
     articles = await db.articles.find(query).sort("published_at", -1).skip(skip).limit(limit).to_list(length=None)
     total = await db.articles.count_documents(query)
     
+    # Remove MongoDB _id field to avoid serialization issues
+    for article in articles:
+        if '_id' in article:
+            del article['_id']
+    
     return {
         "success": True,
         "articles": articles,
