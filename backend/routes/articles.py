@@ -130,6 +130,11 @@ async def get_featured_articles(request: Request, limit: int = Query(6, ge=1, le
         "status": "published"
     }).sort("views", -1).limit(limit).to_list(length=None)
     
+    # Remove MongoDB _id
+    for article in articles:
+        if '_id' in article:
+            del article['_id']
+    
     return {"success": True, "articles": articles}
 
 # ====== ADMIN ENDPOINTS (Protected) ======
