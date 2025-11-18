@@ -129,7 +129,7 @@ function TenantManagement() {
 
   const handleToggleStatus = async (tenantId) => {
     try {
-      await api.post(`/api/saas-admin/tenants/${tenantId}/toggle-status`);
+      await api.post(`/saas-admin/tenants/${tenantId}/toggle-status`);
       alert('Tenant status updated!');
       fetchTenants();
     } catch (err) {
