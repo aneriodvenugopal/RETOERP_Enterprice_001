@@ -170,11 +170,11 @@ const ContentLibrary = () => {
                       <div className="flex items-center space-x-3">
                         <span className="flex items-center">
                           <Clock className="w-3 h-3 mr-1" />
-                          {article.reading_time} min
+                          {article.reading_time || 5} min
                         </span>
                         <span className="flex items-center">
                           <Eye className="w-3 h-3 mr-1" />
-                          {article.view_count}
+                          {article.views || article.view_count || 0}
                         </span>
                       </div>
                       <span className="text-blue-600 font-medium">Read →</span>
