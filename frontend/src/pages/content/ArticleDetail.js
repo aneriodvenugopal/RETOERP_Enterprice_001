@@ -247,13 +247,15 @@ const ArticleDetail = () => {
                   onClick={() => navigate(`/article/${related.slug}`)}
                   className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 cursor-pointer hover:shadow-md transition"
                 >
-                  <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium mb-3 ${
-                    related.category === 'saas' ? 'bg-blue-100 text-blue-700' :
-                    related.category === 'tenant' ? 'bg-green-100 text-green-700' :
-                    'bg-purple-100 text-purple-700'
-                  }`}>
-                    {related.category.toUpperCase()}
-                  </span>
+                  {related.category && (
+                    <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium mb-3 ${
+                      related.category === 'saas' ? 'bg-blue-100 text-blue-700' :
+                      related.category === 'tenant' ? 'bg-green-100 text-green-700' :
+                      'bg-purple-100 text-purple-700'
+                    }`}>
+                      {related.category.toUpperCase()}
+                    </span>
+                  )}
                   <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
                     {related.title}
                   </h3>
