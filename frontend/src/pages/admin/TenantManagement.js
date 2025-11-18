@@ -112,7 +112,7 @@ function TenantManagement() {
     
     try {
       if (editingTenant) {
-        await api.put(`/api/saas-admin/tenants/${editingTenant.id}`, formData);
+        await api.put(`/saas-admin/tenants/${editingTenant.id}`, formData);
         alert('Tenant updated successfully!');
       } else {
         await api.post('/saas-admin/tenants', formData);
