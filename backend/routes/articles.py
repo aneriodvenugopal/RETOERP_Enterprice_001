@@ -162,6 +162,10 @@ async def create_article(request: Request, article: ArticleCreate):
     
     await db.articles.insert_one(article_dict)
     
+    # Remove MongoDB _id
+    if '_id' in article_dict:
+        del article_dict['_id']
+    
     return {
         "success": True,
         "message": "Article created successfully",
