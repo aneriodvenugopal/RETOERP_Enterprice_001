@@ -342,6 +342,10 @@ async def generate_ai_article(request: Request, article_request: AIArticleReques
         # Save to database
         await db.articles.insert_one(article_data)
         
+        # Remove MongoDB _id
+        if '_id' in article_data:
+            del article_data['_id']
+        
         return {
             "success": True,
             "message": "Article generated successfully",
