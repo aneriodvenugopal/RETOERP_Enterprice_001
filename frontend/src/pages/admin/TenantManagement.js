@@ -140,7 +140,7 @@ function TenantManagement() {
 
   const handleViewDetails = async (tenantId) => {
     try {
-      const response = await api.get(`/api/saas-admin/tenants/${tenantId}`);
+      const response = await api.get(`/saas-admin/tenants/${tenantId}`);
       if (response.data.success) {
         setViewingTenant(response.data.tenant);
       }
