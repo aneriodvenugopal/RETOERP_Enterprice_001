@@ -265,11 +265,11 @@ const ArticleDetail = () => {
                   <div className="flex items-center text-xs text-gray-500 gap-4">
                     <div className="flex items-center gap-1">
                       <Clock className="w-3 h-3" />
-                      {related.reading_time} min
+                      {related.reading_time || 5} min
                     </div>
                     <div className="flex items-center gap-1">
                       <Eye className="w-3 h-3" />
-                      {related.views}
+                      {related.views || related.view_count || 0}
                     </div>
                   </div>
                 </div>
