@@ -294,6 +294,10 @@ function App() {
                 element={<ArticleDetail />}
               />
               <Route
+                path="/content/:slug"
+                element={<ArticleDetail />}
+              />
+              <Route
                 path="/leads"
                 element={
                   <PrivateRoute>
