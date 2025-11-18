@@ -99,6 +99,10 @@ async def get_public_article_by_slug(request: Request, slug: str):
         {"$inc": {"views": 1}}
     )
     
+    # Remove MongoDB _id
+    if '_id' in article:
+        del article['_id']
+    
     return {"success": True, "article": article}
 
 @router.post("/public/articles/{article_id}/like", response_model=dict)
