@@ -216,6 +216,10 @@ async def get_article(request: Request, article_id: str):
     if not article:
         raise HTTPException(status_code=404, detail="Article not found")
     
+    # Remove MongoDB _id
+    if '_id' in article:
+        del article['_id']
+    
     return {"success": True, "article": article}
 
 @router.put("/admin/articles/{article_id}", response_model=dict)
