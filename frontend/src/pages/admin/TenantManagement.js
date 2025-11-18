@@ -61,7 +61,7 @@ function TenantManagement() {
       if (filters.package_id) params.append('package_id', filters.package_id);
       if (filters.timeline) params.append('timeline', filters.timeline);
 
-      const response = await api.get(`/api/saas-admin/tenants?${params.toString()}`);
+      const response = await api.get(`/saas-admin/tenants?${params.toString()}`);
       if (response.data.success) {
         setTenants(response.data.tenants);
       }
