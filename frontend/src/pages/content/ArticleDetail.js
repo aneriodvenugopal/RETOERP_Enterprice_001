@@ -114,13 +114,15 @@ const ArticleDetail = () => {
           </button>
 
           {/* Category Badge */}
-          <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium mb-4 ${
-            article.category === 'saas' ? 'bg-blue-100 text-blue-700' :
-            article.category === 'tenant' ? 'bg-green-100 text-green-700' :
-            'bg-purple-100 text-purple-700'
-          }`}>
-            {article.category.toUpperCase()}
-          </span>
+          {article.category && (
+            <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium mb-4 ${
+              article.category === 'saas' ? 'bg-blue-100 text-blue-700' :
+              article.category === 'tenant' ? 'bg-green-100 text-green-700' :
+              'bg-purple-100 text-purple-700'
+            }`}>
+              {article.category.toUpperCase()}
+            </span>
+          )}
 
           {/* Title */}
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
