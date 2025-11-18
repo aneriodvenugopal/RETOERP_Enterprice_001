@@ -29,15 +29,26 @@ const ContentLibrary = () => {
   const fetchArticles = async () => {
     try {
       setLoading(true);
-      const url = selectedCategory 
-        ? `${BACKEND_URL}/api/content/articles?category_id=${selectedCategory}`
-        : `${BACKEND_URL}/api/content/articles`;
+      
+      // Try new API first, fallback to old API
+      let url = `${BACKEND_URL}/api/public/articles?limit=50`;
+      if (selectedCategory) {
+        url += `&category=${selectedCategory}`;
+      }
       
       const response = await fetch(url);
       const data = await response.json();
-      setArticles(data);
+      
+      // New API returns data in {success, articles} format
+      if (data.success && data.articles) {
+        setArticles(data.articles);
+      } else {
+        // Fallback to old API format
+        setArticles(data);
+      }
     } catch (error) {
       console.error('Error fetching articles:', error);
+      setArticles([]);
     } finally {
       setLoading(false);
     }
