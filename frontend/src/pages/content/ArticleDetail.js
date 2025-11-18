@@ -150,11 +150,11 @@ const ArticleDetail = () => {
             </div>
             <div className="flex items-center gap-2">
               <Clock className="w-4 h-4" />
-              <span>{article.reading_time} min read</span>
+              <span>{article.reading_time || 5} min read</span>
             </div>
             <div className="flex items-center gap-2">
               <Eye className="w-4 h-4" />
-              <span>{article.views} views</span>
+              <span>{article.views || article.view_count || 0} views</span>
             </div>
           </div>
         </div>
