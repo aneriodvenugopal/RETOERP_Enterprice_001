@@ -200,7 +200,7 @@ const ArticleDetail = () => {
               }`}
             >
               <Heart className={`w-5 h-5 ${liked ? 'fill-current' : ''}`} />
-              <span className="font-medium">{article.likes} Likes</span>
+              <span className="font-medium">{article.likes || 0} Likes</span>
             </button>
 
             <div className="flex items-center gap-3">
