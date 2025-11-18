@@ -141,12 +141,12 @@ const ContentLibrary = () => {
                     {/* Category Badge */}
                     <div className="absolute top-3 right-3">
                       <span className="px-3 py-1 bg-white rounded-full text-xs font-semibold text-gray-700 shadow-sm">
-                        {categories.find(c => c.id === article.category_id)?.name}
+                        {article.category || categories.find(c => c.id === article.category_id)?.name || 'Article'}
                       </span>
                     </div>
 
                     {/* Trending Badge */}
-                    {article.view_count > 100 && (
+                    {(article.views || article.view_count || 0) > 100 && (
                       <div className="absolute top-3 left-3">
                         <span className="px-2 py-1 bg-blue-600 rounded-full text-xs font-bold text-white shadow-sm flex items-center">
                           <TrendingUp className="w-3 h-3 mr-1" />
