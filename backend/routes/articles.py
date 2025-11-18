@@ -245,6 +245,10 @@ async def update_article(request: Request, article_id: str, article_update: Arti
     
     updated_article = await db.articles.find_one({"id": article_id})
     
+    # Remove MongoDB _id
+    if updated_article and '_id' in updated_article:
+        del updated_article['_id']
+    
     return {
         "success": True,
         "message": "Article updated successfully",
