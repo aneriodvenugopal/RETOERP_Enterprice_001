@@ -126,7 +126,7 @@ const ContentLibrary = () => {
             {articles.map((article, index) => (
               <Link
                 key={article.id}
-                to={`/content/${article.slug}`}
+                to={`/article/${article.slug}`}
                 className="group"
               >
                 <div className="bg-white rounded-xl overflow-hidden border border-gray-200 hover:border-blue-400 hover:shadow-xl transition-all duration-300 h-full">
