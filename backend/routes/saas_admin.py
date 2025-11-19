@@ -271,8 +271,19 @@ async def create_tenant(
     request: Request,
     _: dict = Depends(require_saas_admin)
 ):
-    """Create new tenant"""
+    """Create new tenant with auto user creation"""
     db = get_db(request)
+    
+    # If no package specified, assign default "Starter" package
+    if not tenant_data.package_id:
+        default_package = await db.packages.find_one({'name': 'Starter'}, {"_id": 0})
+        if default_package:
+            tenant_data.package_id = default_package['id']
+        else:
+            # Get any active package as fallback
+            fallback = await db.packages.find_one({'is_active': True}, {"_id": 0})
+            if fallback:
+                tenant_data.package_id = fallback['id']
     
     # Validate package exists
     package = await db.packages.find_one({'id': tenant_data.package_id}, {"_id": 0})
@@ -283,6 +294,12 @@ async def create_tenant(
     existing = await db.tenants.find_one({'email': tenant_data.email, 'deleted_at': None}, {"_id": 0})
     if existing:
         raise HTTPException(status_code=400, detail="Tenant with this email already exists")
+    
+    # Check if phone number already exists
+    if hasattr(tenant_data, 'phone') and tenant_data.phone:
+        existing_phone = await db.users.find_one({'phone': tenant_data.phone}, {"_id": 0})
+        if existing_phone:
+            raise HTTPException(status_code=400, detail="Phone number already registered")
     
     # Create tenant with subscription dates and credits
     tenant = Tenant(**tenant_data.model_dump())
@@ -309,10 +326,35 @@ async def create_tenant(
     tenant_doc = serialize_doc(tenant.model_dump())
     await db.tenants.insert_one(tenant_doc)
     
+    # AUTO-CREATE ADMIN USER FOR THIS TENANT
+    import uuid
+    import bcrypt
+    
+    user_data = {
+        'id': str(uuid.uuid4()),
+        'name': tenant_data.company_name + ' Admin',
+        'phone': tenant_data.phone,
+        'email': tenant_data.email,
+        'password': bcrypt.hashpw('admin123'.encode('utf-8'), bcrypt.gensalt()).decode('utf-8'),  # Default password
+        'role': 'tenant_admin',
+        'tenant_id': tenant.id,
+        'is_active': True,
+        'created_at': datetime.now(timezone.utc).isoformat(),
+        'updated_at': datetime.now(timezone.utc).isoformat(),
+        'deleted_at': None
+    }
+    
+    await db.users.insert_one(user_data)
+    
     return {
         "success": True,
-        "message": "Tenant created successfully",
-        "tenant": tenant.model_dump()
+        "message": "Tenant and admin user created successfully",
+        "tenant": tenant.model_dump(),
+        "user": {
+            "phone": user_data['phone'],
+            "default_password": "admin123",
+            "message": "Please change password after first login"
+        }
     }
 
 
