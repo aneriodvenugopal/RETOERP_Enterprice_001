@@ -293,7 +293,7 @@ const ArticleManagement = () => {
                           <div className="font-medium text-gray-900">{article.title}</div>
                           <div className="text-sm text-gray-500 mt-1">{article.excerpt}</div>
                           <div className="flex flex-wrap gap-2 mt-2">
-                            {article.keywords.slice(0, 3).map((keyword, idx) => (
+                            {article.keywords && article.keywords.length > 0 && article.keywords.slice(0, 3).map((keyword, idx) => (
                               <span
                                 key={idx}
                                 className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded"
