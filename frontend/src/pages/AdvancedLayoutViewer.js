@@ -58,6 +58,9 @@ const AdvancedLayoutViewer = () => {
     payment_plan: 'full',
     notes: ''
   });
+  
+  // Plot Editor State
+  const [showPlotEditor, setShowPlotEditor] = useState(false);
 
   // SVG Coordinate System - CRITICAL FIX for coordinate scaling bug
   const [svgDimensions, setSvgDimensions] = useState({ width: 1122.6667, height: 793.33331 });
