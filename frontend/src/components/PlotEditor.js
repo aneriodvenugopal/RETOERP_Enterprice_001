@@ -204,8 +204,9 @@ const PlotEditor = ({ layout, onSave, onCancel }) => {
   
   // Render plot boundary
   const renderPlot = (plot) => {
-    const isSelected = selectedPlot?.plot_number === plot.plot_number;
-    const boundary = plot.boundary || [];
+    const plotId = plot.id || plot.plot_number || plot.display_name;
+    const isSelected = selectedPlot?.id === plot.id || selectedPlot?.display_name === plot.display_name;
+    const boundary = plot.boundary || plot.coordinates || [];
     
     if (boundary.length < 3) return null;
     
@@ -218,8 +219,12 @@ const PlotEditor = ({ layout, onSave, onCancel }) => {
       plot.status === 'booked' ? '#f59e0b' :
       plot.status === 'sold' ? '#8b5cf6' : '#6b7280';
     
+    // Calculate centroid for label
+    const centerX = boundary.reduce((sum, pt) => sum + pt.x, 0) / boundary.length;
+    const centerY = boundary.reduce((sum, pt) => sum + pt.y, 0) / boundary.length;
+    
     return (
-      <g key={plot.plot_number}>
+      <g key={plotId}>
         <path
           d={pathData}
           fill={color}
@@ -232,15 +237,17 @@ const PlotEditor = ({ layout, onSave, onCancel }) => {
         
         {/* Plot number label */}
         <text
-          x={boundary.reduce((sum, pt) => sum + pt.x, 0) / boundary.length}
-          y={boundary.reduce((sum, pt) => sum + pt.y, 0) / boundary.length}
+          x={centerX}
+          y={centerY}
           textAnchor="middle"
+          dominantBaseline="middle"
           fill="#000"
-          fontSize="12"
+          fontSize="14"
           fontWeight="bold"
-          className="pointer-events-none"
+          className="pointer-events-none select-none"
+          style={{ userSelect: 'none' }}
         >
-          {plot.plot_number}
+          {plot.display_name || plot.plot_number || plot.id}
         </text>
         
         {/* Control points for selected plot */}
