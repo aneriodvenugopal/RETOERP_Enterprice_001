@@ -3,6 +3,7 @@ import {
   Move, Edit3, Save, X, Undo, Redo, ZoomIn, ZoomOut, 
   RotateCcw, Hand, MousePointer
 } from 'lucide-react';
+import { toast } from 'react-toastify';
 
 const PlotEditor = ({ layout, onSave, onCancel }) => {
   const svgRef = useRef(null);
