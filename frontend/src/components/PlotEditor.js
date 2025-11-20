@@ -109,7 +109,7 @@ const PlotEditor = ({ layout, onSave, onCancel }) => {
     } else if (editMode === 'edit' && plot) {
       // Edit boundary mode
       setSelectedPlot(plot);
-      setTempBoundary(plot.boundary);
+      setTempBoundary(plot.boundary || plot.coordinates || []);
       setIsDragging(true);
       setDragStart(point);
     } else if (editMode === 'select' && plot) {
