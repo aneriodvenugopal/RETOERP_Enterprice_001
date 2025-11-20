@@ -193,17 +193,24 @@ const AdvancedLayoutViewer = () => {
   // Save plot changes from editor
   const handleSavePlotChanges = async (updatedPlots) => {
     try {
-      // Update local state
-      setLayout(prev => ({ ...prev, plots: updatedPlots }));
+      // Call API to save updated plot coordinates
+      const response = await layoutService.updatePlotCoordinates(layoutId, updatedPlots);
       
-      // TODO: API call to save updated plot boundaries
-      // await layoutService.updatePlots(layoutId, updatedPlots);
-      
-      setShowPlotEditor(false);
-      toast.success('Plot changes saved successfully!');
+      if (response.data.success) {
+        // Update local state
+        setLayout(prev => ({ ...prev, plots: updatedPlots }));
+        
+        setShowPlotEditor(false);
+        toast.success(`✅ ${response.data.plots_updated} plots updated successfully!`);
+        
+        // Refresh layout data
+        fetchLayout();
+      } else {
+        throw new Error('Update failed');
+      }
     } catch (error) {
       console.error('Error saving plot changes:', error);
-      toast.error('Failed to save plot changes');
+      toast.error('Failed to save plot changes: ' + (error.response?.data?.detail || error.message));
     }
   };
 
