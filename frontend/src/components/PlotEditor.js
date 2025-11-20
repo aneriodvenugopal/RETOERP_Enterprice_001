@@ -3,21 +3,19 @@ import {
   Move, Edit3, Save, X, Undo, Redo, ZoomIn, ZoomOut, 
   RotateCcw, Hand, MousePointer
 } from 'lucide-react';
-import { toast } from 'react-toastify';
 
 const PlotEditor = ({ layout, onSave, onCancel }) => {
   const svgRef = useRef(null);
   const containerRef = useRef(null);
   
   // Editor state
-  const [editMode, setEditMode] = useState('select'); // select, move, edit
+  const [editMode, setEditMode] = useState('select');
   const [selectedPlot, setSelectedPlot] = useState(null);
   const [plots, setPlots] = useState(layout.plots || []);
-  const [history, setHistory] = useState([]);
-  const [historyIndex, setHistoryIndex] = useState(-1);
+  const [history, setHistory] = useState([plots]);
+  const [historyIndex, setHistoryIndex] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState(null);
-  const [tempBoundary, setTempBoundary] = useState(null);
   
   // View state
   const [zoom, setZoom] = useState(1);
@@ -32,7 +30,6 @@ const PlotEditor = ({ layout, onSave, onCancel }) => {
   });
   
   useEffect(() => {
-    // Load SVG and detect dimensions
     if (layout?.svg_url) {
       fetch(layout.svg_url)
         .then(r => r.text())
@@ -52,7 +49,6 @@ const PlotEditor = ({ layout, onSave, onCancel }) => {
     }
   }, [layout?.svg_url]);
   
-  // Add to history
   const addToHistory = (newPlots) => {
     const newHistory = history.slice(0, historyIndex + 1);
     newHistory.push(JSON.parse(JSON.stringify(newPlots)));
@@ -60,25 +56,20 @@ const PlotEditor = ({ layout, onSave, onCancel }) => {
     setHistoryIndex(newHistory.length - 1);
   };
   
-  // Undo
   const handleUndo = () => {
     if (historyIndex > 0) {
       setHistoryIndex(historyIndex - 1);
       setPlots(JSON.parse(JSON.stringify(history[historyIndex - 1])));
-      toast.success('Undo successful');
     }
   };
   
-  // Redo
   const handleRedo = () => {
     if (historyIndex < history.length - 1) {
       setHistoryIndex(historyIndex + 1);
       setPlots(JSON.parse(JSON.stringify(history[historyIndex + 1])));
-      toast.success('Redo successful');
     }
   };
   
-  // Get SVG point from mouse event
   const getSVGPoint = (evt) => {
     if (!svgRef.current) return null;
     
@@ -89,34 +80,27 @@ const PlotEditor = ({ layout, onSave, onCancel }) => {
     return { x, y };
   };
   
-  // Mouse down handler
   const handleMouseDown = (evt, plot = null) => {
     evt.preventDefault();
     
     const point = getSVGPoint(evt);
     
     if (editMode === 'pan' || evt.button === 1 || evt.shiftKey) {
-      // Pan mode
       setIsPanning(true);
       setPanStart({ x: evt.clientX - pan.x, y: evt.clientY - pan.y });
     } else if (editMode === 'move' && plot) {
-      // Move plot mode
       setSelectedPlot(plot);
       setIsDragging(true);
       setDragStart(point);
     } else if (editMode === 'edit' && plot) {
-      // Edit boundary mode
       setSelectedPlot(plot);
-      setTempBoundary(plot.boundary || plot.coordinates || []);
       setIsDragging(true);
       setDragStart(point);
     } else if (editMode === 'select' && plot) {
-      // Select plot
       setSelectedPlot(plot);
     }
   };
   
-  // Mouse move handler
   const handleMouseMove = (evt) => {
     if (isPanning) {
       setPan({
@@ -129,91 +113,49 @@ const PlotEditor = ({ layout, onSave, onCancel }) => {
       const dy = point.y - dragStart.y;
       
       if (editMode === 'move') {
-        // Move entire plot
         const updatedPlots = plots.map(p => {
           if (p.id === selectedPlot.id || p.display_name === selectedPlot.display_name) {
-            const boundary = p.boundary || p.coordinates || [];
+            const boundary = p.coordinates || p.boundary || [];
             const newBoundary = boundary.map(pt => ({
               x: pt.x + dx,
               y: pt.y + dy
             }));
-            // Update both fields if they exist
-            const updated = { ...p };
-            if (p.boundary) updated.boundary = newBoundary;
-            if (p.coordinates) updated.coordinates = newBoundary;
-            return updated;
+            return { ...p, coordinates: newBoundary, boundary: newBoundary };
           }
           return p;
         });
         
         setPlots(updatedPlots);
         setDragStart(point);
-      } else if (editMode === 'edit' && tempBoundary) {
-        // Edit boundary (for now, scale uniformly)
-        const centerX = tempBoundary.reduce((sum, pt) => sum + pt.x, 0) / tempBoundary.length;
-        const centerY = tempBoundary.reduce((sum, pt) => sum + pt.y, 0) / tempBoundary.length;
-        
-        const scale = 1 + (dx / 100); // Adjust sensitivity
-        
-        const newBoundary = tempBoundary.map(pt => ({
-          x: centerX + (pt.x - centerX) * scale,
-          y: centerY + (pt.y - centerY) * scale
-        }));
-        
-        const updatedPlots = plots.map(p => {
-          if (p.id === selectedPlot.id || p.display_name === selectedPlot.display_name) {
-            // Update both fields if they exist
-            const updated = { ...p };
-            if (p.boundary) updated.boundary = newBoundary;
-            if (p.coordinates) updated.coordinates = newBoundary;
-            return updated;
-          }
-          return p;
-        });
-        
-        setPlots(updatedPlots);
       }
     }
   };
   
-  // Mouse up handler
   const handleMouseUp = () => {
     if (isDragging && selectedPlot) {
       addToHistory(plots);
-      toast.success('Plot updated');
     }
     
     setIsPanning(false);
     setIsDragging(false);
     setDragStart(null);
-    setTempBoundary(null);
   };
   
-  // Zoom handlers
-  const handleZoomIn = () => {
-    setZoom(prev => Math.min(prev * 1.2, 5));
-  };
-  
-  const handleZoomOut = () => {
-    setZoom(prev => Math.max(prev / 1.2, 0.1));
-  };
-  
+  const handleZoomIn = () => setZoom(prev => Math.min(prev * 1.2, 5));
+  const handleZoomOut = () => setZoom(prev => Math.max(prev / 1.2, 0.1));
   const handleResetView = () => {
     setZoom(1);
     setPan({ x: 0, y: 0 });
   };
   
-  // Save changes
   const handleSave = () => {
     onSave(plots);
-    toast.success('Changes saved successfully!');
   };
   
-  // Render plot boundary
   const renderPlot = (plot) => {
     const plotId = plot.id || plot.plot_number || plot.display_name;
     const isSelected = selectedPlot?.id === plot.id || selectedPlot?.display_name === plot.display_name;
-    const boundary = plot.boundary || plot.coordinates || [];
+    const boundary = plot.coordinates || plot.boundary || [];
     
     if (boundary.length < 3) return null;
     
@@ -226,7 +168,6 @@ const PlotEditor = ({ layout, onSave, onCancel }) => {
       plot.status === 'booked' ? '#f59e0b' :
       plot.status === 'sold' ? '#8b5cf6' : '#6b7280';
     
-    // Calculate centroid for label
     const centerX = boundary.reduce((sum, pt) => sum + pt.x, 0) / boundary.length;
     const centerY = boundary.reduce((sum, pt) => sum + pt.y, 0) / boundary.length;
     
@@ -238,11 +179,12 @@ const PlotEditor = ({ layout, onSave, onCancel }) => {
           fillOpacity={isSelected ? 0.4 : 0.3}
           stroke={isSelected ? '#3b82f6' : color}
           strokeWidth={isSelected ? 3 : 2}
-          className="cursor-pointer transition-all hover:opacity-60"
+          style={{ cursor: 'pointer', transition: 'all 0.2s' }}
           onMouseDown={(e) => handleMouseDown(e, plot)}
+          onMouseEnter={(e) => e.currentTarget.style.opacity = '0.6'}
+          onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
         />
         
-        {/* Plot number label */}
         <text
           x={centerX}
           y={centerY}
@@ -251,37 +193,54 @@ const PlotEditor = ({ layout, onSave, onCancel }) => {
           fill="#000"
           fontSize="14"
           fontWeight="bold"
-          className="pointer-events-none select-none"
-          style={{ userSelect: 'none' }}
+          style={{ pointerEvents: 'none', userSelect: 'none' }}
         >
           {plot.display_name || plot.plot_number || plot.id}
         </text>
-        
-        {/* Control points for selected plot */}
-        {isSelected && editMode === 'edit' && boundary.map((point, idx) => (
-          <circle
-            key={idx}
-            cx={point.x}
-            cy={point.y}
-            r="5"
-            fill="#3b82f6"
-            stroke="#fff"
-            strokeWidth="2"
-            className="cursor-move"
-          />
-        ))}
       </g>
     );
   };
   
+  const btnClass = (active) => `px-4 py-2 rounded-lg flex items-center gap-2 text-sm font-medium transition ${
+    active 
+      ? 'bg-blue-600 text-white' 
+      : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
+  }`;
+  
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-lg w-full h-full max-w-7xl max-h-[95vh] flex flex-col">
+    <div style={{
+      position: 'fixed',
+      inset: 0,
+      backgroundColor: 'rgba(0,0,0,0.5)',
+      zIndex: 9999,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '1rem'
+    }}>
+      <div style={{
+        backgroundColor: 'white',
+        borderRadius: '0.5rem',
+        width: '100%',
+        height: '100%',
+        maxWidth: '80rem',
+        maxHeight: '95vh',
+        display: 'flex',
+        flexDirection: 'column'
+      }}>
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b">
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '1rem',
+          borderBottom: '1px solid #e5e7eb'
+        }}>
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Plot Editor</h2>
-            <p className="text-sm text-gray-600 mt-1">
+            <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '0.25rem' }}>
+              Plot Editor
+            </h2>
+            <p style={{ fontSize: '0.875rem', color: '#6b7280' }}>
               {editMode === 'select' && 'Click on plots to select them'}
               {editMode === 'move' && 'Drag plots to move their position'}
               {editMode === 'edit' && 'Drag to resize plot boundaries'}
@@ -289,116 +248,127 @@ const PlotEditor = ({ layout, onSave, onCancel }) => {
             </p>
           </div>
           
-          <button 
+          <button
             onClick={onCancel}
-            className="p-2 hover:bg-gray-100 rounded-lg transition"
+            style={{
+              padding: '0.5rem',
+              borderRadius: '0.5rem',
+              border: 'none',
+              background: 'transparent',
+              cursor: 'pointer'
+            }}
           >
-            <X className="w-5 h-5" />
+            <X style={{ width: '1.25rem', height: '1.25rem' }} />
           </button>
         </div>
         
         {/* Toolbar */}
-        <div className="flex items-center justify-between p-4 border-b bg-gray-50">
-          <div className="flex gap-2">
-            {/* Mode buttons */}
-            <button
-              onClick={() => setEditMode('select')}
-              variant={editMode === 'select' ? 'default' : 'outline'}
-              size="sm"
-              title="Select Mode"
-            >
-              <MousePointer className="w-4 h-4 mr-1" />
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '1rem',
+          borderBottom: '1px solid #e5e7eb',
+          backgroundColor: '#f9fafb'
+        }}>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <button onClick={() => setEditMode('select')} className={btnClass(editMode === 'select')}>
+              <MousePointer style={{ width: '1rem', height: '1rem' }} />
               Select
             </button>
             
-            <button
-              onClick={() => setEditMode('move')}
-              variant={editMode === 'move' ? 'default' : 'outline'}
-              size="sm"
-              title="Move Plots"
-            >
-              <Move className="w-4 h-4 mr-1" />
+            <button onClick={() => setEditMode('move')} className={btnClass(editMode === 'move')}>
+              <Move style={{ width: '1rem', height: '1rem' }} />
               Move
             </button>
             
-            <button
-              onClick={() => setEditMode('edit')}
-              variant={editMode === 'edit' ? 'default' : 'outline'}
-              size="sm"
-              title="Edit Boundaries"
-            >
-              <Edit3 className="w-4 h-4 mr-1" />
+            <button onClick={() => setEditMode('edit')} className={btnClass(editMode === 'edit')}>
+              <Edit3 style={{ width: '1rem', height: '1rem' }} />
               Edit
             </button>
             
-            <button
-              onClick={() => setEditMode('pan')}
-              variant={editMode === 'pan' ? 'default' : 'outline'}
-              size="sm"
-              title="Pan View"
-            >
-              <Hand className="w-4 h-4 mr-1" />
+            <button onClick={() => setEditMode('pan')} className={btnClass(editMode === 'pan')}>
+              <Hand style={{ width: '1rem', height: '1rem' }} />
               Pan
             </button>
             
-            <div className="w-px h-8 bg-gray-300 mx-2" />
+            <div style={{ width: '1px', height: '2rem', backgroundColor: '#d1d5db', margin: '0 0.5rem' }} />
             
-            {/* History buttons */}
-            <button
-              onClick={handleUndo}
-              disabled={historyIndex <= 0}
-              variant="outline"
-              size="sm"
-              title="Undo"
-            >
-              <Undo className="w-4 h-4" />
+            <button onClick={handleUndo} disabled={historyIndex <= 0} className={btnClass(false)}>
+              <Undo style={{ width: '1rem', height: '1rem' }} />
             </button>
             
-            <button
-              onClick={handleRedo}
-              disabled={historyIndex >= history.length - 1}
-              variant="outline"
-              size="sm"
-              title="Redo"
-            >
-              <Redo className="w-4 h-4" />
+            <button onClick={handleRedo} disabled={historyIndex >= history.length - 1} className={btnClass(false)}>
+              <Redo style={{ width: '1rem', height: '1rem' }} />
             </button>
           </div>
           
-          <div className="flex gap-2">
-            {/* Zoom controls */}
-            <button onClick={handleZoomOut} size="sm" variant="outline">
-              <ZoomOut className="w-4 h-4" />
+          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+            <button onClick={handleZoomOut} className={btnClass(false)}>
+              <ZoomOut style={{ width: '1rem', height: '1rem' }} />
             </button>
             
-            <span className="px-3 py-2 bg-white border rounded text-sm">
+            <span style={{
+              padding: '0.5rem 0.75rem',
+              backgroundColor: 'white',
+              border: '1px solid #d1d5db',
+              borderRadius: '0.375rem',
+              fontSize: '0.875rem'
+            }}>
               {(zoom * 100).toFixed(0)}%
             </span>
             
-            <button onClick={handleZoomIn} size="sm" variant="outline">
-              <ZoomIn className="w-4 h-4" />
+            <button onClick={handleZoomIn} className={btnClass(false)}>
+              <ZoomIn style={{ width: '1rem', height: '1rem' }} />
             </button>
             
-            <button onClick={handleResetView} size="sm" variant="outline">
-              <RotateCcw className="w-4 h-4" />
+            <button onClick={handleResetView} className={btnClass(false)}>
+              <RotateCcw style={{ width: '1rem', height: '1rem' }} />
             </button>
             
-            <div className="w-px h-8 bg-gray-300 mx-2" />
+            <div style={{ width: '1px', height: '2rem', backgroundColor: '#d1d5db', margin: '0 0.5rem' }} />
             
-            {/* Save button */}
-            <button onClick={handleSave} size="sm" className="bg-green-600 hover:bg-green-700">
-              <Save className="w-4 h-4 mr-1" />
+            <button 
+              onClick={handleSave}
+              style={{
+                padding: '0.5rem 1rem',
+                backgroundColor: '#16a34a',
+                color: 'white',
+                borderRadius: '0.375rem',
+                border: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                fontSize: '0.875rem',
+                fontWeight: '500',
+                cursor: 'pointer'
+              }}
+            >
+              <Save style={{ width: '1rem', height: '1rem' }} />
               Save Changes
             </button>
           </div>
         </div>
         
         {/* Canvas */}
-        <div className="flex-1 overflow-hidden bg-gray-100 p-4">
+        <div style={{
+          flex: 1,
+          overflow: 'hidden',
+          backgroundColor: '#f3f4f6',
+          padding: '1rem'
+        }}>
           <div 
             ref={containerRef}
-            className="w-full h-full bg-white rounded-lg border-2 border-gray-300 overflow-hidden relative"
-            style={{ cursor: isPanning ? 'grabbing' : editMode === 'pan' ? 'grab' : 'default' }}
+            style={{
+              width: '100%',
+              height: '100%',
+              backgroundColor: 'white',
+              borderRadius: '0.5rem',
+              border: '2px solid #d1d5db',
+              overflow: 'hidden',
+              position: 'relative',
+              cursor: isPanning ? 'grabbing' : editMode === 'pan' ? 'grab' : 'default'
+            }}
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
             onMouseLeave={handleMouseUp}
@@ -413,7 +383,6 @@ const PlotEditor = ({ layout, onSave, onCancel }) => {
                 transformOrigin: '0 0'
               }}
             >
-              {/* Background image */}
               {layout.svg_url && (
                 <image
                   href={layout.svg_url}
@@ -423,27 +392,28 @@ const PlotEditor = ({ layout, onSave, onCancel }) => {
                 />
               )}
               
-              {/* Plots */}
               {plots.map(plot => renderPlot(plot))}
             </svg>
             
-            {/* Selected plot info */}
             {selectedPlot && (
-              <div className="absolute top-4 right-4 bg-white p-4 rounded-lg shadow-lg border">
-                <div className="text-sm">
-                  <div className="font-bold text-lg mb-2">
+              <div style={{
+                position: 'absolute',
+                top: '1rem',
+                right: '1rem',
+                backgroundColor: 'white',
+                padding: '1rem',
+                borderRadius: '0.5rem',
+                boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                border: '1px solid #d1d5db'
+              }}>
+                <div style={{ fontSize: '0.875rem' }}>
+                  <div style={{ fontWeight: 'bold', fontSize: '1.125rem', marginBottom: '0.5rem' }}>
                     Plot {selectedPlot.display_name || selectedPlot.plot_number || selectedPlot.id}
                   </div>
-                  <div className="space-y-1 text-gray-600">
-                    <div>Status: <span className={`px-2 py-1 rounded text-xs ${
-                      selectedPlot.status === 'available' ? 'bg-green-100 text-green-700' :
-                      selectedPlot.status === 'booked' ? 'bg-orange-100 text-orange-700' :
-                      selectedPlot.status === 'sold' ? 'bg-purple-100 text-purple-700' :
-                      'bg-gray-100 text-gray-700'
-                    }`}>{selectedPlot.status}</span></div>
+                  <div style={{ color: '#6b7280' }}>
+                    <div>Status: {selectedPlot.status}</div>
                     {selectedPlot.area && <div>Area: {selectedPlot.area} sq.ft</div>}
                     {selectedPlot.price && <div>Price: ₹{selectedPlot.price.toLocaleString()}</div>}
-                    {selectedPlot.block && <div>Block: {selectedPlot.block}</div>}
                   </div>
                 </div>
               </div>
