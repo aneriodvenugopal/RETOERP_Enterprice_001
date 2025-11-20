@@ -1079,6 +1079,15 @@ const AdvancedLayoutViewer = () => {
           )}
         </DialogContent>
       </Dialog>
+      
+      {/* Plot Editor Modal */}
+      {showPlotEditor && (
+        <PlotEditor
+          layout={layout}
+          onSave={handleSavePlotChanges}
+          onCancel={() => setShowPlotEditor(false)}
+        />
+      )}
     </div>
   );
 };
