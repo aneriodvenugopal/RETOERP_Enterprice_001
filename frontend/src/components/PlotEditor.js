@@ -133,12 +133,17 @@ const PlotEditor = ({ layout, onSave, onCancel }) => {
       if (editMode === 'move') {
         // Move entire plot
         const updatedPlots = plots.map(p => {
-          if (p.plot_number === selectedPlot.plot_number) {
-            const newBoundary = p.boundary.map(pt => ({
+          if (p.id === selectedPlot.id || p.display_name === selectedPlot.display_name) {
+            const boundary = p.boundary || p.coordinates || [];
+            const newBoundary = boundary.map(pt => ({
               x: pt.x + dx,
               y: pt.y + dy
             }));
-            return { ...p, boundary: newBoundary };
+            // Update both fields if they exist
+            const updated = { ...p };
+            if (p.boundary) updated.boundary = newBoundary;
+            if (p.coordinates) updated.coordinates = newBoundary;
+            return updated;
           }
           return p;
         });
@@ -158,8 +163,12 @@ const PlotEditor = ({ layout, onSave, onCancel }) => {
         }));
         
         const updatedPlots = plots.map(p => {
-          if (p.plot_number === selectedPlot.plot_number) {
-            return { ...p, boundary: newBoundary };
+          if (p.id === selectedPlot.id || p.display_name === selectedPlot.display_name) {
+            // Update both fields if they exist
+            const updated = { ...p };
+            if (p.boundary) updated.boundary = newBoundary;
+            if (p.coordinates) updated.coordinates = newBoundary;
+            return updated;
           }
           return p;
         });
