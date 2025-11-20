@@ -301,7 +301,7 @@ const PlotEditor = ({ layout, onSave, onCancel }) => {
         <div className="flex items-center justify-between p-4 border-b bg-gray-50">
           <div className="flex gap-2">
             {/* Mode buttons */}
-            <Button
+            <button
               onClick={() => setEditMode('select')}
               variant={editMode === 'select' ? 'default' : 'outline'}
               size="sm"
@@ -309,9 +309,9 @@ const PlotEditor = ({ layout, onSave, onCancel }) => {
             >
               <MousePointer className="w-4 h-4 mr-1" />
               Select
-            </Button>
+            </button>
             
-            <Button
+            <button
               onClick={() => setEditMode('move')}
               variant={editMode === 'move' ? 'default' : 'outline'}
               size="sm"
@@ -319,9 +319,9 @@ const PlotEditor = ({ layout, onSave, onCancel }) => {
             >
               <Move className="w-4 h-4 mr-1" />
               Move
-            </Button>
+            </button>
             
-            <Button
+            <button
               onClick={() => setEditMode('edit')}
               variant={editMode === 'edit' ? 'default' : 'outline'}
               size="sm"
@@ -329,9 +329,9 @@ const PlotEditor = ({ layout, onSave, onCancel }) => {
             >
               <Edit3 className="w-4 h-4 mr-1" />
               Edit
-            </Button>
+            </button>
             
-            <Button
+            <button
               onClick={() => setEditMode('pan')}
               variant={editMode === 'pan' ? 'default' : 'outline'}
               size="sm"
@@ -339,12 +339,12 @@ const PlotEditor = ({ layout, onSave, onCancel }) => {
             >
               <Hand className="w-4 h-4 mr-1" />
               Pan
-            </Button>
+            </button>
             
             <div className="w-px h-8 bg-gray-300 mx-2" />
             
             {/* History buttons */}
-            <Button
+            <button
               onClick={handleUndo}
               disabled={historyIndex <= 0}
               variant="outline"
@@ -352,9 +352,9 @@ const PlotEditor = ({ layout, onSave, onCancel }) => {
               title="Undo"
             >
               <Undo className="w-4 h-4" />
-            </Button>
+            </button>
             
-            <Button
+            <button
               onClick={handleRedo}
               disabled={historyIndex >= history.length - 1}
               variant="outline"
@@ -362,34 +362,34 @@ const PlotEditor = ({ layout, onSave, onCancel }) => {
               title="Redo"
             >
               <Redo className="w-4 h-4" />
-            </Button>
+            </button>
           </div>
           
           <div className="flex gap-2">
             {/* Zoom controls */}
-            <Button onClick={handleZoomOut} size="sm" variant="outline">
+            <button onClick={handleZoomOut} size="sm" variant="outline">
               <ZoomOut className="w-4 h-4" />
-            </Button>
+            </button>
             
             <span className="px-3 py-2 bg-white border rounded text-sm">
               {(zoom * 100).toFixed(0)}%
             </span>
             
-            <Button onClick={handleZoomIn} size="sm" variant="outline">
+            <button onClick={handleZoomIn} size="sm" variant="outline">
               <ZoomIn className="w-4 h-4" />
-            </Button>
+            </button>
             
-            <Button onClick={handleResetView} size="sm" variant="outline">
+            <button onClick={handleResetView} size="sm" variant="outline">
               <RotateCcw className="w-4 h-4" />
-            </Button>
+            </button>
             
             <div className="w-px h-8 bg-gray-300 mx-2" />
             
             {/* Save button */}
-            <Button onClick={handleSave} size="sm" className="bg-green-600 hover:bg-green-700">
+            <button onClick={handleSave} size="sm" className="bg-green-600 hover:bg-green-700">
               <Save className="w-4 h-4 mr-1" />
               Save Changes
-            </Button>
+            </button>
           </div>
         </div>
         
