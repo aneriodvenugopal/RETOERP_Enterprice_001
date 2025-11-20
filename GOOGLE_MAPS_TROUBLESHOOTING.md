@@ -39,7 +39,7 @@ Your API key needs to allow your domain.
 
 **Current Domain:**
 ```
-https://plotmanage-app.preview.emergentagent.com/*
+https://realestate-saas-4.preview.emergentagent.com/*
 ```
 
 **Action Required:**
@@ -48,7 +48,7 @@ https://plotmanage-app.preview.emergentagent.com/*
 3. Under "Application restrictions" → "HTTP referrers"
 4. Add these referrers:
    ```
-   https://plotmanage-app.preview.emergentagent.com/*
+   https://realestate-saas-4.preview.emergentagent.com/*
    https://*.emergentagent.com/*
    http://localhost:3000/*
    ```

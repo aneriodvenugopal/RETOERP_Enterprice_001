@@ -47,7 +47,7 @@
         tenantId: tenantId,
         position: position,
         primaryColor: primaryColor,
-        backendUrl: 'https://plotmanage-app.preview.emergentagent.com/api'
+        backendUrl: 'https://realestate-saas-4.preview.emergentagent.com/api'
       };
       
       // Load chat widget bundle

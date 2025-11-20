@@ -184,7 +184,7 @@
 
    **మొదటి referrer:**
    ```
-   https://plotmanage-app.preview.emergentagent.com/*
+   https://realestate-saas-4.preview.emergentagent.com/*
    ```
    - Paste చేసి Enter నొక్కండి
 
