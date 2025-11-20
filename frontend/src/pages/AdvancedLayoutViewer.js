@@ -491,6 +491,15 @@ const AdvancedLayoutViewer = () => {
                 {!layout.is_template && (
                   <>
                     <Button
+                      onClick={() => setShowPlotEditor(true)}
+                      size="sm"
+                      className="bg-gradient-to-r from-green-500 to-green-600 text-white"
+                      title="Edit Plot Points & Boundaries"
+                    >
+                      <Edit3 className="w-4 h-4 mr-1" />
+                      Edit Plots
+                    </Button>
+                    <Button
                       onClick={() => navigate(`/layouts/${layoutId}/edit`)}
                       size="sm"
                       className="bg-gradient-to-r from-ocean-primary to-ocean-secondary text-white"
