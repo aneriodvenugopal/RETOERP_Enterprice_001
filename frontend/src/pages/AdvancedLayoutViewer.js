@@ -189,6 +189,23 @@ const AdvancedLayoutViewer = () => {
     navigator.clipboard.writeText(url);
     toast.success('Layout link copied to clipboard!');
   };
+  
+  // Save plot changes from editor
+  const handleSavePlotChanges = async (updatedPlots) => {
+    try {
+      // Update local state
+      setLayout(prev => ({ ...prev, plots: updatedPlots }));
+      
+      // TODO: API call to save updated plot boundaries
+      // await layoutService.updatePlots(layoutId, updatedPlots);
+      
+      setShowPlotEditor(false);
+      toast.success('Plot changes saved successfully!');
+    } catch (error) {
+      console.error('Error saving plot changes:', error);
+      toast.error('Failed to save plot changes');
+    }
+  };
 
   // Submit Interest
   const handleSubmitInterest = async (e) => {
