@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { 
-  ArrowLeft, Edit, Trash2, Download, Share2, Building2, MapPin, Trees, Warehouse, LayoutGrid,
+  ArrowLeft, Edit, Edit3, Trash2, Download, Share2, Building2, MapPin, Trees, Warehouse, LayoutGrid,
   Maximize2, Minimize2, ZoomIn, ZoomOut, RotateCcw, Search, Filter, X, 
   Home, IndianRupee, Ruler, Calendar, User, Phone, Mail, MessageSquare,
   Image as ImageIcon, Video, FileText, Heart, ShoppingCart, CheckCircle
