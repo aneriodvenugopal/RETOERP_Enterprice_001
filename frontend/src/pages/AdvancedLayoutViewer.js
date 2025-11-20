@@ -197,14 +197,11 @@ const AdvancedLayoutViewer = () => {
       const response = await layoutService.updatePlotCoordinates(layoutId, updatedPlots);
       
       if (response.data.success) {
-        // Update local state
-        setLayout(prev => ({ ...prev, plots: updatedPlots }));
-        
         setShowPlotEditor(false);
         toast.success(`✅ ${response.data.plots_updated} plots updated successfully!`);
         
-        // Refresh layout data
-        fetchLayout();
+        // Refresh layout data from backend to get the latest state
+        await loadLayout();
       } else {
         throw new Error('Update failed');
       }
