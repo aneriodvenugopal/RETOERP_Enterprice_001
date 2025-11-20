@@ -330,13 +330,19 @@ async def create_tenant(
     import uuid
     import bcrypt
     
+    # Get tenant_admin role_id
+    tenant_admin_role = await db.roles.find_one({'slug': 'tenant_admin'}, {"_id": 0})
+    if not tenant_admin_role:
+        raise HTTPException(status_code=500, detail="Tenant admin role not found in system")
+    
     user_data = {
         'id': str(uuid.uuid4()),
         'name': tenant_data.company_name + ' Admin',
         'phone': tenant_data.phone,
         'email': tenant_data.email,
         'password': bcrypt.hashpw('admin123'.encode('utf-8'), bcrypt.gensalt()).decode('utf-8'),  # Default password
-        'role': 'tenant_admin',
+        'role': 'tenant_admin',  # Keep for backward compatibility
+        'role_id': tenant_admin_role['id'],  # Required for auth
         'tenant_id': tenant.id,
         'is_active': True,
         'created_at': datetime.now(timezone.utc).isoformat(),
