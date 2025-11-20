@@ -289,9 +289,12 @@ const PlotEditor = ({ layout, onSave, onCancel }) => {
             </p>
           </div>
           
-          <Button onClick={onCancel} variant="ghost" size="sm">
+          <button 
+            onClick={onCancel}
+            className="p-2 hover:bg-gray-100 rounded-lg transition"
+          >
             <X className="w-5 h-5" />
-          </Button>
+          </button>
         </div>
         
         {/* Toolbar */}
