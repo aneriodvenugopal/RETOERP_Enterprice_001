@@ -566,6 +566,12 @@ export const layoutService = {
     const response = await api.patch(`/layouts/projects/${projectId}/layout/plots/${plotId}`, statusData);
     return response.data;
   },
+  
+  // Update plot coordinates/boundaries
+  updatePlotCoordinates: async (layoutId, plots) => {
+    const response = await apiInstance.put(`/layouts/${layoutId}/plots/coordinates`, { plots });
+    return response;
+  },
 
   // Delete layout
   deleteLayout: async (projectId) => {
