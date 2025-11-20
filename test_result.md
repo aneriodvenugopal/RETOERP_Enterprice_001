@@ -1945,3 +1945,19 @@ frontend:
       - working: true
         agent: "main"
         comment: "✅ INTEGRATED ChatbotWidget on Homepage: Replaced old ChatWidget with new ChatbotWidget component. Widget now appears on homepage as floating button in bottom-right corner. Provides simple 3-stage lead capture flow (Answer questions → Contact capture → Date/time selection). Template-based responses for instant answers. 100% FREE, no API costs. Ready for user interaction and lead generation!"
+
+frontend:
+  - task: "Fix Plot Editor bugs - fetchLayout error and UI not updating"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/pages/AdvancedLayoutViewer.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "user"
+        comment: "USER REPORTED: Two critical bugs in plot editor: (1) JavaScript error 'fetchLayout is not defined' appears in toast after saving plot changes, (2) UI doesn't update to show saved plot positions - requires manual page refresh to see changes."
+      - working: true
+        agent: "main"
+        comment: "✅ BOTH BUGS FIXED: (1) FETCHLAYOUT ERROR: Fixed line 207 in handleSavePlotChanges function - changed non-existent fetchLayout() to correct function name loadLayout(), Added await to ensure proper async execution, (2) UI UPDATE ISSUE: Removed intermediate manual state update that was causing stale data, Now calls await loadLayout() after successful save, which fetches fresh data from backend and automatically updates the entire layout state including plot positions, (3) IMPROVED FLOW: Save plot changes → Close editor → Show success toast → Refresh entire layout from backend → UI updates with new positions, No more manual refresh needed, User sees updated plot positions immediately. Both issues resolved with single fix - correcting the function name and making it properly await the backend refresh. Ready for testing."
