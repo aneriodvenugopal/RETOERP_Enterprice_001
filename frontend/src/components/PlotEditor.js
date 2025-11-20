@@ -1,11 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { 
   Move, Edit3, Save, X, Undo, Redo, ZoomIn, ZoomOut, 
   RotateCcw, Hand, MousePointer
 } from 'lucide-react';
-import { toast } from 'sonner';
 
 const PlotEditor = ({ layout, onSave, onCancel }) => {
   const svgRef = useRef(null);
