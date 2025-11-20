@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { layoutService } from '../services';
+import PlotEditor from '../components/PlotEditor';
 
 const AdvancedLayoutViewer = () => {
   const { layoutId } = useParams();
