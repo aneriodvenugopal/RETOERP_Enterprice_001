@@ -430,11 +430,19 @@ const PlotEditor = ({ layout, onSave, onCancel }) => {
             {selectedPlot && (
               <div className="absolute top-4 right-4 bg-white p-4 rounded-lg shadow-lg border">
                 <div className="text-sm">
-                  <div className="font-bold text-lg mb-2">Plot {selectedPlot.plot_number}</div>
+                  <div className="font-bold text-lg mb-2">
+                    Plot {selectedPlot.display_name || selectedPlot.plot_number || selectedPlot.id}
+                  </div>
                   <div className="space-y-1 text-gray-600">
-                    <div>Status: <Badge>{selectedPlot.status}</Badge></div>
+                    <div>Status: <span className={`px-2 py-1 rounded text-xs ${
+                      selectedPlot.status === 'available' ? 'bg-green-100 text-green-700' :
+                      selectedPlot.status === 'booked' ? 'bg-orange-100 text-orange-700' :
+                      selectedPlot.status === 'sold' ? 'bg-purple-100 text-purple-700' :
+                      'bg-gray-100 text-gray-700'
+                    }`}>{selectedPlot.status}</span></div>
                     {selectedPlot.area && <div>Area: {selectedPlot.area} sq.ft</div>}
                     {selectedPlot.price && <div>Price: ₹{selectedPlot.price.toLocaleString()}</div>}
+                    {selectedPlot.block && <div>Block: {selectedPlot.block}</div>}
                   </div>
                 </div>
               </div>
