@@ -190,6 +190,51 @@ async def update_plot_status(
     
     return {"message": "Plot status updated successfully"}
 
+@router.put("/{layout_id}/plots/coordinates")
+async def update_plot_coordinates(
+    layout_id: str,
+    plots_data: dict,
+    request: Request
+):
+    """Update coordinates/boundaries for multiple plots"""
+    db = get_db(request)
+    
+    try:
+        # Get layout
+        layout = await db.master_layouts.find_one({
+            'id': layout_id,
+            'deleted_at': None
+        })
+        
+        if not layout:
+            raise HTTPException(status_code=404, detail="Layout not found")
+        
+        # Get updated plots from request
+        updated_plots = plots_data.get('plots', [])
+        
+        if not updated_plots:
+            raise HTTPException(status_code=400, detail="No plots data provided")
+        
+        # Update layout with new plot coordinates
+        await db.master_layouts.update_one(
+            {'id': layout_id},
+            {
+                '$set': {
+                    'plots': updated_plots,
+                    'updated_at': datetime.now(timezone.utc).isoformat()
+                }
+            }
+        )
+        
+        return {
+            "success": True,
+            "message": "Plot coordinates updated successfully",
+            "plots_updated": len(updated_plots)
+        }
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to update plots: {str(e)}")
+
 @router.delete("/projects/{project_id}/layout")
 async def delete_project_layout(project_id: str, request: Request):
     """Soft delete a project layout"""
