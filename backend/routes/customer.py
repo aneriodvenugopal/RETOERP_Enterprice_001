@@ -89,8 +89,17 @@ async def get_customer_dashboard(request: Request):
     overdue_amount = sum(p.get('amount', 0) for p in overdue_payments)
     
     # Recent payments
+    if user_role in ['super_admin', 'tenant_admin', 'admin']:
+        # For admins: show all payments in tenant
+        payments_filter = {'deleted_at': None}
+        if user.get('tenant_id'):
+            payments_filter['tenant_id'] = user.get('tenant_id')
+    else:
+        # For customers: show only their payments
+        payments_filter = {'customer_id': user_id, 'deleted_at': None}
+    
     recent_payments = await db.payments.find(
-        {'customer_id': user_id, 'deleted_at': None},
+        payments_filter,
         {'_id': 0}
     ).sort('payment_date', -1).limit(5).to_list(length=5)
     
