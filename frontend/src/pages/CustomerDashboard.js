@@ -673,7 +673,15 @@ const CustomerDashboard = () => {
                         <p className="text-sm"><span className="text-gray-600">Price:</span> ₹{formatCurrency(property.price)}</p>
                         <p className="text-sm"><span className="text-gray-600">Payment:</span> {property.payment_status}</p>
                       </div>
-                      {propertyResaleStatus[property.id]?.hasRequest ? (
+                      {!property.booking_id ? (
+                        <Button 
+                          className="w-full mt-4 bg-gray-100 text-gray-500 border-gray-300" 
+                          variant="outline"
+                          disabled
+                        >
+                          No Booking Record
+                        </Button>
+                      ) : propertyResaleStatus[property.id]?.hasRequest ? (
                         <Button 
                           className="w-full mt-4 bg-green-100 text-green-700 hover:bg-green-200 border-green-300" 
                           variant="outline"
@@ -686,6 +694,8 @@ const CustomerDashboard = () => {
                           className="w-full mt-4" 
                           variant="outline"
                           onClick={() => {
+                            console.log('Property selected for resale:', property);
+                            console.log('Booking ID:', property.booking_id);
                             setSelectedProperty(property);
                             setShowResaleDialog(true);
                           }}
