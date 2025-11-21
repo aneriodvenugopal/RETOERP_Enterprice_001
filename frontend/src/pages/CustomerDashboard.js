@@ -657,8 +657,8 @@ const CustomerDashboard = () => {
                     </div>
                   </div>
                 ))}
-                {paymentSchedules.length === 0 && (
-                  <p className="text-gray-500 text-center py-8">No payment schedules</p>
+                {paymentSchedules.filter(s => filterStatus === 'all' || s.status === filterStatus).length === 0 && (
+                  <p className="text-gray-500 text-center py-8">No {filterStatus !== 'all' ? filterStatus : ''} payment schedules</p>
                 )}
               </div>
             </CardContent>
