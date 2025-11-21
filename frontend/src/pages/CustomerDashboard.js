@@ -55,10 +55,18 @@ const CustomerDashboard = () => {
     try {
       const data = await customerService.getDashboard();
       console.log('Dashboard data received:', data);
+      console.log('Dashboard properties count:', data?.properties?.length || 0);
+      console.log('Dashboard upcoming_payments count:', data?.upcoming_payments?.length || 0);
       
       // Check if data has the expected structure
       if (data && data.overview) {
         setDashboardData(data);
+        
+        // If properties are included in dashboard data, use them as initial state
+        if (data.properties && data.properties.length > 0) {
+          console.log('Setting properties from dashboard data:', data.properties.length);
+          setProperties(data.properties);
+        }
       } else {
         console.error('Invalid dashboard data structure:', data);
         // Set empty data structure to prevent errors
