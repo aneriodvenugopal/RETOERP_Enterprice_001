@@ -314,6 +314,8 @@ async def get_customer_payment_schedules(request: Request, status: Optional[str]
     # Get schedules
     schedules = await db.payment_schedules.find(query, {'_id': 0}).sort('due_date', 1).to_list(length=None)
     
+    print(f"[SCHEDULES API] Found {len(schedules)} payment schedules")
+    
     # Enrich with property details
     for schedule in schedules:
         booking = await db.bookings.find_one(
