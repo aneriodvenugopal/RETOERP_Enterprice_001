@@ -99,36 +99,44 @@ const CustomerDashboard = () => {
   const loadBookings = async () => {
     try {
       const data = await customerService.getBookings();
+      console.log('Bookings data:', data);
       setBookings(data.bookings || []);
     } catch (error) {
       console.error('Error loading bookings:', error);
+      setBookings([]);
     }
   };
 
   const loadPayments = async () => {
     try {
       const data = await customerService.getPayments();
+      console.log('Payments data:', data);
       setPayments(data.payments || []);
     } catch (error) {
       console.error('Error loading payments:', error);
+      setPayments([]);
     }
   };
 
   const loadProperties = async () => {
     try {
       const data = await customerService.getProperties();
+      console.log('Properties data:', data);
       setProperties(data.properties || []);
     } catch (error) {
       console.error('Error loading properties:', error);
+      setProperties([]);
     }
   };
 
   const loadPaymentSchedules = async () => {
     try {
       const data = await customerService.getPaymentSchedules();
+      console.log('Payment schedules data:', data);
       setPaymentSchedules(data.schedules || []);
     } catch (error) {
       console.error('Error loading schedules:', error);
+      setPaymentSchedules([]);
     }
   };
 
