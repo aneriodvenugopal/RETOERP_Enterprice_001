@@ -360,3 +360,244 @@ async def delete_tenant_subcategory(
         "success": True,
         "message": "Subcategory deleted successfully"
     }
+
+
+# ============= SAAS ADMIN - MASTER CATEGORIES CRUD =============
+
+@router.post("/categories/master", response_model=dict)
+async def create_master_category(
+    category: PropertyCategoryCreate,
+    current_user: dict = Depends(get_current_user)
+):
+    """Create master property category (SaaS Admin only)"""
+    
+    # Check if user is SaaS admin
+    if current_user.get("phone") != "9948303060":
+        raise HTTPException(status_code=403, detail="Only SaaS admin can create master categories")
+    
+    # Check if already exists
+    existing = await db.master_property_categories.find_one({
+        "slug": category.slug
+    })
+    
+    if existing:
+        raise HTTPException(
+            status_code=400,
+            detail="Master category with this slug already exists"
+        )
+    
+    import uuid
+    category_dict = category.dict()
+    category_dict["id"] = str(uuid.uuid4())
+    category_dict["is_active"] = True
+    category_dict["created_at"] = datetime.now(timezone.utc)
+    category_dict["updated_at"] = datetime.now(timezone.utc)
+    
+    await db.master_property_categories.insert_one(category_dict)
+    
+    return {
+        "success": True,
+        "message": "Master category created successfully",
+        "category_id": category_dict["id"]
+    }
+
+
+@router.put("/categories/master/{category_id}", response_model=dict)
+async def update_master_category(
+    category_id: str,
+    update_data: dict,
+    current_user: dict = Depends(get_current_user)
+):
+    """Update master category (SaaS Admin only)"""
+    
+    # Check if user is SaaS admin
+    if current_user.get("phone") != "9948303060":
+        raise HTTPException(status_code=403, detail="Only SaaS admin can update master categories")
+    
+    category = await db.master_property_categories.find_one({
+        "id": category_id
+    })
+    
+    if not category:
+        raise HTTPException(status_code=404, detail="Category not found")
+    
+    update_data["updated_at"] = datetime.now(timezone.utc)
+    
+    await db.master_property_categories.update_one(
+        {"id": category_id},
+        {"$set": update_data}
+    )
+    
+    return {
+        "success": True,
+        "message": "Master category updated successfully"
+    }
+
+
+@router.delete("/categories/master/{category_id}", response_model=dict)
+async def delete_master_category(
+    category_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Delete master category (SaaS Admin only)"""
+    
+    # Check if user is SaaS admin
+    if current_user.get("phone") != "9948303060":
+        raise HTTPException(status_code=403, detail="Only SaaS admin can delete master categories")
+    
+    category = await db.master_property_categories.find_one({
+        "id": category_id
+    })
+    
+    if not category:
+        raise HTTPException(status_code=404, detail="Category not found")
+    
+    # Check if has subcategories
+    subcat_count = await db.master_property_subcategories.count_documents({
+        "master_category_id": category_id,
+        "is_active": True
+    })
+    
+    if subcat_count > 0:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Cannot delete category. It has {subcat_count} subcategories"
+        )
+    
+    # Check if used by tenants
+    tenant_usage = await db.tenant_property_categories.count_documents({
+        "master_category_id": category_id,
+        "deleted_at": None
+    })
+    
+    if tenant_usage > 0:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Cannot delete category. It is being used by {tenant_usage} tenants"
+        )
+    
+    await db.master_property_categories.update_one(
+        {"id": category_id},
+        {"$set": {"is_active": False, "updated_at": datetime.now(timezone.utc)}}
+    )
+    
+    return {
+        "success": True,
+        "message": "Master category deleted successfully"
+    }
+
+
+# ============= SAAS ADMIN - MASTER SUBCATEGORIES CRUD =============
+
+@router.post("/categories/master/{category_id}/subcategories", response_model=dict)
+async def create_master_subcategory(
+    category_id: str,
+    subcategory_data: dict,
+    current_user: dict = Depends(get_current_user)
+):
+    """Create master subcategory (SaaS Admin only)"""
+    
+    # Check if user is SaaS admin
+    if current_user.get("phone") != "9948303060":
+        raise HTTPException(status_code=403, detail="Only SaaS admin can create master subcategories")
+    
+    # Validate parent category exists
+    category = await db.master_property_categories.find_one({
+        "id": category_id,
+        "is_active": True
+    })
+    
+    if not category:
+        raise HTTPException(status_code=404, detail="Parent category not found")
+    
+    import uuid
+    subcategory_data["id"] = str(uuid.uuid4())
+    subcategory_data["master_category_id"] = category_id
+    subcategory_data["is_active"] = True
+    subcategory_data["created_at"] = datetime.now(timezone.utc)
+    subcategory_data["updated_at"] = datetime.now(timezone.utc)
+    
+    # Ensure additional_fields exists
+    if "additional_fields" not in subcategory_data:
+        subcategory_data["additional_fields"] = []
+    
+    await db.master_property_subcategories.insert_one(subcategory_data)
+    
+    return {
+        "success": True,
+        "message": "Master subcategory created successfully",
+        "subcategory_id": subcategory_data["id"]
+    }
+
+
+@router.put("/categories/master/subcategories/{subcategory_id}", response_model=dict)
+async def update_master_subcategory(
+    subcategory_id: str,
+    update_data: dict,
+    current_user: dict = Depends(get_current_user)
+):
+    """Update master subcategory (SaaS Admin only)"""
+    
+    # Check if user is SaaS admin
+    if current_user.get("phone") != "9948303060":
+        raise HTTPException(status_code=403, detail="Only SaaS admin can update master subcategories")
+    
+    subcategory = await db.master_property_subcategories.find_one({
+        "id": subcategory_id
+    })
+    
+    if not subcategory:
+        raise HTTPException(status_code=404, detail="Subcategory not found")
+    
+    update_data["updated_at"] = datetime.now(timezone.utc)
+    
+    await db.master_property_subcategories.update_one(
+        {"id": subcategory_id},
+        {"$set": update_data}
+    )
+    
+    return {
+        "success": True,
+        "message": "Master subcategory updated successfully"
+    }
+
+
+@router.delete("/categories/master/subcategories/{subcategory_id}", response_model=dict)
+async def delete_master_subcategory(
+    subcategory_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Delete master subcategory (SaaS Admin only)"""
+    
+    # Check if user is SaaS admin
+    if current_user.get("phone") != "9948303060":
+        raise HTTPException(status_code=403, detail="Only SaaS admin can delete master subcategories")
+    
+    subcategory = await db.master_property_subcategories.find_one({
+        "id": subcategory_id
+    })
+    
+    if not subcategory:
+        raise HTTPException(status_code=404, detail="Subcategory not found")
+    
+    # Check if used by tenants
+    tenant_usage = await db.tenant_property_subcategories.count_documents({
+        "master_subcategory_id": subcategory_id,
+        "deleted_at": None
+    })
+    
+    if tenant_usage > 0:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Cannot delete subcategory. It is being used by {tenant_usage} tenants"
+        )
+    
+    await db.master_property_subcategories.update_one(
+        {"id": subcategory_id},
+        {"$set": {"is_active": False, "updated_at": datetime.now(timezone.utc)}}
+    )
+    
+    return {
+        "success": True,
+        "message": "Master subcategory deleted successfully"
+    }
