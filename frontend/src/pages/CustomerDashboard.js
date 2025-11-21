@@ -317,19 +317,27 @@ const CustomerDashboard = () => {
             </CardContent>
           </Card>
 
-          <Card className="glass-card hover-lift">
+          <Card 
+            className="glass-card hover-lift cursor-pointer transition-all hover:shadow-xl hover:scale-105"
+            onClick={() => {
+              setActiveTab('schedules');
+              setFilterStatus('overdue');
+            }}
+          >
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600">Overdue Amount</p>
-                  <p className={`text-3xl font-bold mt-2 ${dashboardData.overview.overdue_count > 0 ? 'text-red-600' : 'text-gray-600'}`}>
-                    {dashboardData.overview.overdue_count > 0 ? dashboardData.overview.overdue_count : '0'}
+                  <p className="text-3xl font-bold mt-2 text-red-600">
+                    {dashboardData.overview.overdue_count}
                   </p>
-                  <p className="text-xs text-red-600 mt-1">
-                    {dashboardData.overview.overdue_count > 0 ? `₹${formatCurrency(dashboardData.overview.overdue_amount)}` : 'No overdue'}
+                  <p className="text-xs text-gray-600 mt-1">
+                    {dashboardData.overview.overdue_count > 0 
+                      ? `₹${formatCurrency(dashboardData.overview.overdue_amount)}` 
+                      : 'No overdue'}
                   </p>
                 </div>
-                <div className="p-4 rounded-xl bg-gradient-to-br from-red-500 to-red-600 shadow-lg">
+                <div className="p-4 rounded-xl bg-gradient-to-br from-red-500 to-pink-500 shadow-lg">
                   <AlertCircle className="w-7 h-7 text-white" />
                 </div>
               </div>
