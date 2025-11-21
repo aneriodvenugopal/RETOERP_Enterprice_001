@@ -274,6 +274,8 @@ const CustomerDashboard = () => {
           <Card 
             className="glass-card hover-lift cursor-pointer transition-all hover:shadow-xl hover:scale-105"
             onClick={() => {
+              console.log('Total Invested card clicked - navigating to properties tab');
+              console.log('Properties data:', properties);
               setActiveTab('properties');
               setFilterStatus('all');
             }}
