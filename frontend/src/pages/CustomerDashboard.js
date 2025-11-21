@@ -50,9 +50,47 @@ const CustomerDashboard = () => {
     setLoading(true);
     try {
       const data = await customerService.getDashboard();
-      setDashboardData(data);
+      console.log('Dashboard data received:', data);
+      
+      // Check if data has the expected structure
+      if (data && data.overview) {
+        setDashboardData(data);
+      } else {
+        console.error('Invalid dashboard data structure:', data);
+        // Set empty data structure to prevent errors
+        setDashboardData({
+          overview: {
+            total_bookings: 0,
+            active_bookings: 0,
+            total_invested: 0,
+            total_paid: 0,
+            total_pending: 0,
+            overdue_amount: 0,
+            overdue_count: 0
+          },
+          properties: [],
+          upcoming_payments: [],
+          recent_payments: []
+        });
+      }
     } catch (error) {
-      toast.error('Failed to load dashboard');
+      console.error('Error loading dashboard:', error);
+      toast.error('Failed to load dashboard: ' + (error.response?.data?.detail || error.message));
+      // Set empty data structure
+      setDashboardData({
+        overview: {
+          total_bookings: 0,
+          active_bookings: 0,
+          total_invested: 0,
+          total_paid: 0,
+          total_pending: 0,
+          overdue_amount: 0,
+          overdue_count: 0
+        },
+        properties: [],
+        upcoming_payments: [],
+        recent_payments: []
+      });
     } finally {
       setLoading(false);
     }
