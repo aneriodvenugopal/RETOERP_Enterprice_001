@@ -2092,3 +2092,32 @@ frontend:
       - working: true
         agent: "main"
         comment: "✅ REACT RENDERING ERROR FIXED + RESALE BUTTON STATES IMPLEMENTED: (1) **REACT ERROR FIX** - Root Cause: Error objects being passed directly to toast.error() were rendering as React children, Pydantic validation errors return objects like {type, loc, msg, input, url} which can't be rendered, Solution: Added proper error type checking in ALL error handlers, Now extracts string from error.response?.data?.detail if it's a string, Falls back to error.message or generic message if not, Applied to: loadDashboard(), loadProperties(), loadPaymentSchedules(), handleResaleRequest(), (2) **RESALE REQUEST BUTTON STATES** - Added propertyResaleStatus state to track resale requests per property, loadResaleRequests() now builds a status map of all properties with requests, Button now has 3 states: DEFAULT: 'Request Resale' (outline style, clickable), SUBMITTED: '✓ Request Submitted (status)' (green background, disabled), Shows actual status (pending/approved/rejected), (3) **BUTTON STYLING** - Default: White background, outline, clickable, Submitted: Green background (bg-green-100), green text (text-green-700), green border (border-green-300), disabled state, Checkmark (✓) indicator for visual confirmation, (4) **USER EXPERIENCE** - User requests resale → Button changes immediately after success, Shows 'Request Submitted (pending)' with green styling, Button disabled to prevent duplicate requests, Status updates when admin approves/rejects, Clear visual feedback with color change. (5) **ERROR HANDLING IMPROVED** - All error messages now guaranteed to be strings, No more React object rendering errors, Proper fallback messages for all error types, Console logging maintained for debugging. Ready for production!"
+
+backend:
+  - task: "Fix 'Booking not found' error for Admin resale requests"
+    implemented: true
+    working: true
+    file: "/app/backend/routes/customer.py"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "user"
+        comment: "USER REPORTED: Critical blocking issue - 'Booking not found' error when admins try to request resales. Data inconsistency between My Properties (240 items) and My Bookings (312 items). Properties without booking records causing errors. Cannot test resale functionality."
+      - working: true
+        agent: "main"
+        comment: "✅ BOOKING NOT FOUND ERROR FIXED FOR ADMINS: (1) **ROOT CAUSE** - POST /customer/resale-request was checking: booking.customer_id == current_user_id, When admin views customer portal, user_id is admin's ID not customer's ID, So booking lookup failed even though booking exists, (2) **FIX APPLIED** - Added role-based booking verification: Admins: Can create resale requests for any booking in their tenant (filter by tenant_id), Customers: Can only create for their own bookings (filter by customer_id), Same pattern as other customer APIs, (3) **CODE CHANGES** - Added user_role extraction, Conditional booking_filter based on role, Added debug logging for failed booking lookups, Prints: booking_id, user_id, role when not found, (4) **IMPACT** - Admins can now test resale functionality, Can create requests for any property in their tenant, Maintains security (customers still limited to own bookings), Consistent with other customer portal APIs. Backend restarted successfully."
+
+frontend:
+  - task: "Add validation and UI states for properties without booking records"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/pages/CustomerDashboard.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "✅ PROPERTIES WITHOUT BOOKINGS HANDLED GRACEFULLY: (1) **4 BUTTON STATES IMPLEMENTED** - No Booking: 'No Booking Record' (gray, disabled), Default: 'Request Resale' (white, clickable), Submitted: '✓ Request Submitted (status)' (green, disabled), No Data: Properties without booking_id show disabled state, (2) **FRONTEND VALIDATION** - Checks property.booking_id before showing button, Shows gray disabled button if no booking_id, Added validation in handleResaleRequest, Prevents submission if booking_id missing, Shows user-friendly error message, (3) **CONSOLE DEBUGGING** - Logs property object when button clicked, Logs booking_id value, Logs submission payload, Helps identify data issues quickly, (4) **USER EXPERIENCE** - Properties with bookings: Can request resale normally, Properties without bookings: See gray disabled button, Clear visual distinction between states, Prevents confusing 'Booking not found' errors, (5) **BUTTON STATES SUMMARY** - Gray disabled: No booking record exists, White active: Can request resale, Green disabled: Request already submitted, Transparent visual feedback for all states. Ready for testing with proper error handling!"
