@@ -87,7 +87,10 @@ const CustomerDashboard = () => {
       }
     } catch (error) {
       console.error('Error loading dashboard:', error);
-      toast.error('Failed to load dashboard: ' + (error.response?.data?.detail || error.message));
+      const errorMsg = typeof error.response?.data?.detail === 'string' 
+        ? error.response.data.detail 
+        : error.message || 'Failed to load dashboard';
+      toast.error(errorMsg);
       // Set empty data structure
       setDashboardData({
         overview: {
