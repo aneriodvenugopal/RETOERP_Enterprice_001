@@ -199,6 +199,13 @@ function EnhancedSaaSDashboard() {
                 Workforce
               </button>
               <button
+                onClick={() => navigate('/admin/master-categories')}
+                className="px-4 py-2.5 bg-gradient-to-r from-orange-600 to-orange-700 text-white rounded-lg hover:shadow-lg transition-all flex items-center gap-2 font-medium"
+              >
+                <Building2 size={18} />
+                Categories
+              </button>
+              <button
                 onClick={() => navigate('/dashboard')}
                 className="px-4 py-2.5 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-all font-medium"
               >
