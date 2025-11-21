@@ -141,10 +141,15 @@ const CustomerDashboard = () => {
   const loadPaymentSchedules = async () => {
     try {
       const data = await customerService.getPaymentSchedules();
-      console.log('Payment schedules data:', data);
+      console.log('Payment schedules API response:', data);
+      console.log('Schedules array length:', data?.schedules?.length || 0);
+      if (data?.schedules && data.schedules.length > 0) {
+        console.log('First schedule sample:', data.schedules[0]);
+      }
       setPaymentSchedules(data.schedules || []);
     } catch (error) {
       console.error('Error loading schedules:', error);
+      console.error('Error details:', error.response?.data);
       setPaymentSchedules([]);
     }
   };
