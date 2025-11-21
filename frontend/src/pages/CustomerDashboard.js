@@ -145,6 +145,10 @@ const CustomerDashboard = () => {
     } catch (error) {
       console.error('Error loading properties:', error);
       console.error('Error details:', error.response?.data);
+      const errorMsg = typeof error.response?.data?.detail === 'string' 
+        ? error.response.data.detail 
+        : 'Failed to load properties';
+      toast.error(errorMsg);
       setProperties([]);
     }
   };
