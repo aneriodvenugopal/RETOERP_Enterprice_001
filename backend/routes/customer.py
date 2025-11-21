@@ -31,10 +31,22 @@ async def get_customer_dashboard(request: Request):
         raise HTTPException(status_code=401, detail="Not authenticated")
     
     user_id = user.get('user_id')
+    user_role = user.get('role', '')
+    
+    # If admin/super_admin, show all bookings, else show only user's bookings
+    if user_role in ['super_admin', 'tenant_admin', 'admin']:
+        # For admins: Get all bookings in their tenant
+        tenant_id = user.get('tenant_id')
+        bookings_filter = {'deleted_at': None}
+        if tenant_id:
+            bookings_filter['tenant_id'] = tenant_id
+    else:
+        # For customers: Get only their bookings
+        bookings_filter = {'customer_id': user_id, 'deleted_at': None}
     
     # Get customer's bookings
     bookings = await db.bookings.find(
-        {'customer_id': user_id, 'deleted_at': None},
+        bookings_filter,
         {'_id': 0}
     ).to_list(length=None)
     
