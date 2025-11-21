@@ -2076,3 +2076,19 @@ frontend:
       - working: "NA"
         agent: "main"
         comment: "✅ PENDING PAYMENT NAVIGATION FIXED & PAYMENT HISTORY FILTERING ADDED: (1) **PENDING PAYMENT CARD FIX** - Changed navigation from 'payments' tab to 'schedules' tab, Reason: 'Pending Payment ₹17.3B' refers to unpaid installments (payment schedules), not payment history, Payment history only shows completed payments, Now correctly navigates to schedules tab with 'pending' filter, (2) **PAYMENT HISTORY TAB ENHANCEMENT** - Added filter buttons: All, Pending, Success, Added dynamic count in header based on filter, Implemented filter logic for payment status, Shows appropriate message when no filtered payments found, (3) **CONSOLE DEBUGGING** - Added detailed console.log statements for all card clicks, Logs: Tab navigation, Data arrays, Dashboard summary values, Helps debug any future issues, (4) **CORRECT NAVIGATION NOW** - Active Bookings → Bookings tab (active filter), Total Invested → Properties tab (all properties), Pending Payment → Payment Schedules tab (pending filter) ✅ FIXED, Overdue Amount → Payment Schedules tab (overdue filter). All cards now navigate to correct tabs with appropriate filters. Ready for testing!"
+
+frontend:
+  - task: "Fix React Object Rendering Error and Resale Request Button States"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/pages/CustomerDashboard.js"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "user"
+        comment: "USER REPORTED: Critical React error - 'Objects are not valid as a React child (found: object with keys {type, loc, msg, input, url})'. Also requested to change resale request button color and label after submission."
+      - working: true
+        agent: "main"
+        comment: "✅ REACT RENDERING ERROR FIXED + RESALE BUTTON STATES IMPLEMENTED: (1) **REACT ERROR FIX** - Root Cause: Error objects being passed directly to toast.error() were rendering as React children, Pydantic validation errors return objects like {type, loc, msg, input, url} which can't be rendered, Solution: Added proper error type checking in ALL error handlers, Now extracts string from error.response?.data?.detail if it's a string, Falls back to error.message or generic message if not, Applied to: loadDashboard(), loadProperties(), loadPaymentSchedules(), handleResaleRequest(), (2) **RESALE REQUEST BUTTON STATES** - Added propertyResaleStatus state to track resale requests per property, loadResaleRequests() now builds a status map of all properties with requests, Button now has 3 states: DEFAULT: 'Request Resale' (outline style, clickable), SUBMITTED: '✓ Request Submitted (status)' (green background, disabled), Shows actual status (pending/approved/rejected), (3) **BUTTON STYLING** - Default: White background, outline, clickable, Submitted: Green background (bg-green-100), green text (text-green-700), green border (border-green-300), disabled state, Checkmark (✓) indicator for visual confirmation, (4) **USER EXPERIENCE** - User requests resale → Button changes immediately after success, Shows 'Request Submitted (pending)' with green styling, Button disabled to prevent duplicate requests, Status updates when admin approves/rejects, Clear visual feedback with color change. (5) **ERROR HANDLING IMPROVED** - All error messages now guaranteed to be strings, No more React object rendering errors, Proper fallback messages for all error types, Console logging maintained for debugging. Ready for production!"
