@@ -409,18 +409,26 @@ async def create_resale_request(resale_data: ResaleRequest, request: Request):
         raise HTTPException(status_code=401, detail="Not authenticated")
     
     user_id = user.get('user_id')
+    user_role = user.get('role', '')
     tenant_id = user.get('tenant_id')
     
     # Get user details
     customer = await db.users.find_one({'id': user_id}, {'_id': 0})
     
-    # Verify booking belongs to customer
-    booking = await db.bookings.find_one(
-        {'id': resale_data.booking_id, 'customer_id': user_id, 'deleted_at': None},
-        {'_id': 0}
-    )
+    # Verify booking exists and belongs to customer (or admin viewing)
+    if user_role in ['super_admin', 'tenant_admin', 'admin']:
+        # Admin can create resale request for any booking in their tenant
+        booking_filter = {'id': resale_data.booking_id, 'deleted_at': None}
+        if tenant_id:
+            booking_filter['tenant_id'] = tenant_id
+    else:
+        # Customer can only create for their own bookings
+        booking_filter = {'id': resale_data.booking_id, 'customer_id': user_id, 'deleted_at': None}
+    
+    booking = await db.bookings.find_one(booking_filter, {'_id': 0})
     
     if not booking:
+        print(f"[RESALE REQUEST] Booking not found - ID: {resale_data.booking_id}, User: {user_id}, Role: {user_role}")
         raise HTTPException(status_code=404, detail="Booking not found")
     
     # Get property details
