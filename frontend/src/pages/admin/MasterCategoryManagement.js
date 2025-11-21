@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Plus, Edit, Trash2, Save, X, Building2, ChevronRight, ChevronDown } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
-import apiInstance from '../../services';
+import { api as apiInstance } from '../../services';
 
 const MasterCategoryManagement = () => {
   const navigate = useNavigate();
