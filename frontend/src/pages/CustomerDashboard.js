@@ -719,6 +719,147 @@ const CustomerDashboard = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Booking Detail Dialog */}
+      <Dialog open={showBookingDetail} onOpenChange={setShowBookingDetail}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold text-ocean-primary">
+              Booking Details
+            </DialogTitle>
+          </DialogHeader>
+          {selectedBooking && (
+            <div className="space-y-6">
+              {/* Property & Project Info */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Card className="border-2 border-ocean-primary/20">
+                  <CardHeader>
+                    <CardTitle className="text-lg text-ocean-primary">Property Information</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Property Number:</span>
+                      <span className="font-semibold">{selectedBooking.property?.property_number || 'N/A'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Project:</span>
+                      <span className="font-semibold">{selectedBooking.project?.name || 'N/A'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Type:</span>
+                      <span className="font-semibold">{selectedBooking.property?.property_type || 'N/A'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Area:</span>
+                      <span className="font-semibold">{selectedBooking.property?.area || 'N/A'} sq.ft</span>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="border-2 border-ocean-secondary/20">
+                  <CardHeader>
+                    <CardTitle className="text-lg text-ocean-secondary">Booking Information</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Booking ID:</span>
+                      <span className="font-semibold">{selectedBooking.id?.slice(0, 8) || 'N/A'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Booking Date:</span>
+                      <span className="font-semibold">{selectedBooking.booking_date || 'N/A'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Status:</span>
+                      <Badge className="capitalize">{selectedBooking.status}</Badge>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Financial Information */}
+              <Card className="border-2 border-green-500/20">
+                <CardHeader>
+                  <CardTitle className="text-lg text-green-600">Financial Summary</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="text-center p-4 bg-blue-50 rounded-lg">
+                      <p className="text-sm text-gray-600">Total Amount</p>
+                      <p className="text-2xl font-bold text-blue-600">₹{formatCurrency(selectedBooking.total_amount)}</p>
+                    </div>
+                    <div className="text-center p-4 bg-green-50 rounded-lg">
+                      <p className="text-sm text-gray-600">Amount Paid</p>
+                      <p className="text-2xl font-bold text-green-600">₹{formatCurrency(selectedBooking.paid_amount)}</p>
+                    </div>
+                    <div className="text-center p-4 bg-yellow-50 rounded-lg">
+                      <p className="text-sm text-gray-600">Balance Due</p>
+                      <p className="text-2xl font-bold text-yellow-600">₹{formatCurrency(selectedBooking.total_amount - selectedBooking.paid_amount)}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Payment Schedule */}
+              {selectedBooking.payment_schedules && selectedBooking.payment_schedules.length > 0 && (
+                <Card className="border-2 border-purple-500/20">
+                  <CardHeader>
+                    <CardTitle className="text-lg text-purple-600">
+                      Payment Schedule ({selectedBooking.payment_schedules.length} Installments)
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2 max-h-60 overflow-y-auto">
+                      {selectedBooking.payment_schedules.map((schedule, idx) => (
+                        <div 
+                          key={idx} 
+                          className={`flex justify-between items-center p-3 rounded-lg ${
+                            schedule.status === 'paid' 
+                              ? 'bg-green-50 border border-green-200' 
+                              : schedule.status === 'overdue' 
+                              ? 'bg-red-50 border border-red-200'
+                              : 'bg-gray-50 border border-gray-200'
+                          }`}
+                        >
+                          <div>
+                            <p className="font-semibold">Installment #{idx + 1}</p>
+                            <p className="text-sm text-gray-600">Due: {schedule.due_date}</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="font-bold text-lg">₹{formatCurrency(schedule.amount)}</p>
+                            <Badge variant={schedule.status === 'paid' ? 'success' : schedule.status === 'overdue' ? 'destructive' : 'secondary'}>
+                              {schedule.status}
+                            </Badge>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Action Buttons */}
+              <div className="flex gap-3 justify-end">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowBookingDetail(false)}
+                >
+                  Close
+                </Button>
+                <Button 
+                  className="bg-gradient-to-r from-ocean-primary to-ocean-secondary text-white"
+                  onClick={() => {
+                    setShowBookingDetail(false);
+                    setActiveTab('schedules');
+                  }}
+                >
+                  View Payment Schedule
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
       </div>
     </div>
   );
