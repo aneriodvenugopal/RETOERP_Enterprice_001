@@ -294,7 +294,12 @@ async def get_customer_payment_schedules(request: Request, status: Optional[str]
     
     booking_ids = [b['id'] for b in bookings]
     
+    print(f"[SCHEDULES API] User: {user_id}, Role: {user_role}, Status filter: {status}")
+    print(f"[SCHEDULES API] Found {len(bookings)} bookings")
+    print(f"[SCHEDULES API] Extracted {len(booking_ids)} booking_ids")
+    
     if not booking_ids:
+        print("[SCHEDULES API] No booking_ids found, returning empty")
         return {'schedules': []}
     
     # Build query
