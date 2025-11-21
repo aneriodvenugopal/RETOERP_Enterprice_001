@@ -669,16 +669,26 @@ const CustomerDashboard = () => {
                         <p className="text-sm"><span className="text-gray-600">Price:</span> ₹{formatCurrency(property.price)}</p>
                         <p className="text-sm"><span className="text-gray-600">Payment:</span> {property.payment_status}</p>
                       </div>
-                      <Button 
-                        className="w-full mt-4" 
-                        variant="outline"
-                        onClick={() => {
-                          setSelectedProperty(property);
-                          setShowResaleDialog(true);
-                        }}
-                      >
-                        Request Resale
-                      </Button>
+                      {propertyResaleStatus[property.id]?.hasRequest ? (
+                        <Button 
+                          className="w-full mt-4 bg-green-100 text-green-700 hover:bg-green-200 border-green-300" 
+                          variant="outline"
+                          disabled
+                        >
+                          ✓ Request Submitted ({propertyResaleStatus[property.id]?.status})
+                        </Button>
+                      ) : (
+                        <Button 
+                          className="w-full mt-4" 
+                          variant="outline"
+                          onClick={() => {
+                            setSelectedProperty(property);
+                            setShowResaleDialog(true);
+                          }}
+                        >
+                          Request Resale
+                        </Button>
+                      )}
                     </CardContent>
                   </Card>
                 ))}
