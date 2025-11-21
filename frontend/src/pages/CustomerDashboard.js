@@ -23,6 +23,10 @@ const CustomerDashboard = () => {
   const [resaleRequests, setResaleRequests] = useState([]);
   const [showResaleDialog, setShowResaleDialog] = useState(false);
   const [selectedProperty, setSelectedProperty] = useState(null);
+  const [activeTab, setActiveTab] = useState('overview');
+  const [filterStatus, setFilterStatus] = useState('all');
+  const [selectedBooking, setSelectedBooking] = useState(null);
+  const [showBookingDetail, setShowBookingDetail] = useState(false);
   const [resaleForm, setResaleForm] = useState({
     asking_price: '',
     reason: '',
