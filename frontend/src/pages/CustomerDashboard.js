@@ -299,10 +299,10 @@ const CustomerDashboard = () => {
           <Card 
             className="glass-card hover-lift cursor-pointer transition-all hover:shadow-xl hover:scale-105"
             onClick={() => {
-              console.log('Pending Payment card clicked - navigating to payments tab');
-              console.log('Payments data:', payments);
+              console.log('Pending Payment card clicked - navigating to schedules tab (pending filter)');
+              console.log('Payment Schedules data:', paymentSchedules);
               console.log('Dashboard pending amount:', dashboardData.overview.total_pending);
-              setActiveTab('payments');
+              setActiveTab('schedules');
               setFilterStatus('pending');
             }}
           >
