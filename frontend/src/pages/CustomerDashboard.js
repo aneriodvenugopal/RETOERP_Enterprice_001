@@ -325,6 +325,10 @@ const CustomerDashboard = () => {
           <Card 
             className="glass-card hover-lift cursor-pointer transition-all hover:shadow-xl hover:scale-105"
             onClick={() => {
+              console.log('Overdue Amount card clicked - navigating to schedules tab');
+              console.log('Payment Schedules data:', paymentSchedules);
+              console.log('Dashboard overdue count:', dashboardData.overview.overdue_count);
+              console.log('Dashboard overdue amount:', dashboardData.overview.overdue_amount);
               setActiveTab('schedules');
               setFilterStatus('overdue');
             }}
