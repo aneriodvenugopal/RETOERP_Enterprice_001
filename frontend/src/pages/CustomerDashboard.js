@@ -165,6 +165,10 @@ const CustomerDashboard = () => {
     } catch (error) {
       console.error('Error loading schedules:', error);
       console.error('Error details:', error.response?.data);
+      const errorMsg = typeof error.response?.data?.detail === 'string' 
+        ? error.response.data.detail 
+        : 'Failed to load payment schedules';
+      toast.error(errorMsg);
       setPaymentSchedules([]);
     }
   };
