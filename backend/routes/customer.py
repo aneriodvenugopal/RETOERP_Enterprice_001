@@ -356,7 +356,12 @@ async def get_customer_properties(request: Request):
     
     property_ids = [b['property_id'] for b in bookings if b.get('property_id')]
     
+    print(f"[PROPERTIES API] User: {user_id}, Role: {user_role}")
+    print(f"[PROPERTIES API] Found {len(bookings)} bookings")
+    print(f"[PROPERTIES API] Extracted {len(property_ids)} property_ids")
+    
     if not property_ids:
+        print("[PROPERTIES API] No property_ids found, returning empty")
         return {'properties': []}
     
     # Get properties
@@ -364,6 +369,8 @@ async def get_customer_properties(request: Request):
         {'id': {'$in': property_ids}, 'deleted_at': None},
         {'_id': 0}
     ).to_list(length=None)
+    
+    print(f"[PROPERTIES API] Found {len(properties)} properties in database")
     
     # Enrich with project and booking details
     for prop in properties:
