@@ -581,8 +581,13 @@ const CustomerDashboard = () => {
                     ))}
                   </tbody>
                 </table>
-                {payments.length === 0 && (
-                  <p className="text-gray-500 text-center py-8">No payment history</p>
+                {payments.filter(p => {
+                  if (filterStatus === 'all') return true;
+                  if (filterStatus === 'pending') return p.status !== 'Success';
+                  if (filterStatus === 'success') return p.status === 'Success';
+                  return true;
+                }).length === 0 && (
+                  <p className="text-gray-500 text-center py-8">No {filterStatus !== 'all' ? filterStatus : ''} payment history</p>
                 )}
               </div>
             </CardContent>
