@@ -515,7 +515,34 @@ const CustomerDashboard = () => {
         <TabsContent value="payments">
           <Card className="glass-card">
             <CardHeader>
-              <CardTitle className="text-ocean-primary">Payment History ({payments.length})</CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-ocean-primary">
+                  Payment History ({payments.filter(p => filterStatus === 'all' || (filterStatus === 'pending' && p.status !== 'Success')).length})
+                </CardTitle>
+                <div className="flex gap-2">
+                  <Button 
+                    variant={filterStatus === 'all' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setFilterStatus('all')}
+                  >
+                    All
+                  </Button>
+                  <Button 
+                    variant={filterStatus === 'pending' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setFilterStatus('pending')}
+                  >
+                    Pending
+                  </Button>
+                  <Button 
+                    variant={filterStatus === 'success' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setFilterStatus('success')}
+                  >
+                    Success
+                  </Button>
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
               <div className="overflow-x-auto">
@@ -531,7 +558,14 @@ const CustomerDashboard = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {payments.map((payment) => (
+                    {payments
+                      .filter(p => {
+                        if (filterStatus === 'all') return true;
+                        if (filterStatus === 'pending') return p.status !== 'Success';
+                        if (filterStatus === 'success') return p.status === 'Success';
+                        return true;
+                      })
+                      .map((payment) => (
                       <tr key={payment.id} className="border-t">
                         <td className="px-4 py-3 text-sm">{payment.payment_date}</td>
                         <td className="px-4 py-3 font-medium">₹{formatCurrency(payment.amount)}</td>
