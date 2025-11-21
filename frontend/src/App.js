@@ -69,6 +69,8 @@ import PackageManagement from "./pages/admin/PackageManagement";
 import TenantManagement from "./pages/admin/TenantManagement";
 import ChatManagement from "./pages/admin/ChatManagement";
 import IncomeLandsAdminDashboard from "./pages/admin/IncomeLandsAdminDashboard";
+import MasterCategoryManagement from "./pages/admin/MasterCategoryManagement";
+import TenantCategoryManagement from "./pages/admin/TenantCategoryManagement";
 
 // Public Landing Pages
 import TenantLandingPage from "./pages/public/TenantLandingPage";
