@@ -389,6 +389,7 @@ async def get_customer_properties(request: Request):
             prop['booking_date'] = booking.get('booking_date')
             prop['payment_status'] = 'Fully Paid' if booking.get('balance_amount', 0) <= 0 else 'Pending'
     
+    print(f"[PROPERTIES API] Returning {len(properties)} properties")
     return {'properties': properties}
 
 @router.post("/resale-request")
