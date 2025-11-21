@@ -499,8 +499,12 @@ const CustomerDashboard = () => {
                     </CardContent>
                   </Card>
                 ))}
-                {bookings.length === 0 && (
-                  <p className="text-gray-500 text-center py-8">No bookings found</p>
+                {bookings.filter(b => {
+                  if (filterStatus === 'all') return true;
+                  if (filterStatus === 'active') return b.status !== 'cancelled';
+                  return b.status === filterStatus;
+                }).length === 0 && (
+                  <p className="text-gray-500 text-center py-8">No {filterStatus !== 'all' ? filterStatus : ''} bookings found</p>
                 )}
               </div>
             </CardContent>
