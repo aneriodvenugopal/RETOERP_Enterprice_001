@@ -202,6 +202,17 @@ const CustomerDashboard = () => {
       return;
     }
 
+    if (!selectedProperty.booking_id) {
+      toast.error('No booking record found for this property. Please contact support.');
+      return;
+    }
+
+    console.log('Submitting resale request:', {
+      property_id: selectedProperty.id,
+      booking_id: selectedProperty.booking_id,
+      asking_price: resaleForm.asking_price
+    });
+
     try {
       await customerService.createResaleRequest({
         property_id: selectedProperty.id,
