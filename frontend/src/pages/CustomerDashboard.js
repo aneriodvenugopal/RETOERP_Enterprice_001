@@ -271,7 +271,13 @@ const CustomerDashboard = () => {
             </CardContent>
           </Card>
 
-          <Card className="glass-card hover-lift">
+          <Card 
+            className="glass-card hover-lift cursor-pointer transition-all hover:shadow-xl hover:scale-105"
+            onClick={() => {
+              setActiveTab('properties');
+              setFilterStatus('all');
+            }}
+          >
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
