@@ -216,7 +216,11 @@ const CustomerDashboard = () => {
       setSelectedProperty(null);
       loadResaleRequests();
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Failed to submit resale request');
+      console.error('Error submitting resale request:', error);
+      const errorMsg = typeof error.response?.data?.detail === 'string' 
+        ? error.response.data.detail 
+        : error.message || 'Failed to submit resale request';
+      toast.error(errorMsg);
     }
   };
 
