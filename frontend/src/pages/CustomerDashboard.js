@@ -603,11 +603,47 @@ const CustomerDashboard = () => {
         <TabsContent value="schedules">
           <Card className="glass-card">
             <CardHeader>
-              <CardTitle className="text-ocean-primary">Payment Schedule ({paymentSchedules.length})</CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-ocean-primary">
+                  Payment Schedule ({paymentSchedules.filter(s => filterStatus === 'all' || s.status === filterStatus).length})
+                </CardTitle>
+                <div className="flex gap-2">
+                  <Button 
+                    variant={filterStatus === 'all' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setFilterStatus('all')}
+                  >
+                    All
+                  </Button>
+                  <Button 
+                    variant={filterStatus === 'pending' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setFilterStatus('pending')}
+                  >
+                    Pending
+                  </Button>
+                  <Button 
+                    variant={filterStatus === 'overdue' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setFilterStatus('overdue')}
+                  >
+                    Overdue
+                  </Button>
+                  <Button 
+                    variant={filterStatus === 'paid' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setFilterStatus('paid')}
+                  >
+                    Paid
+                  </Button>
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {paymentSchedules.map((schedule) => (
+                {paymentSchedules
+                  .filter(s => filterStatus === 'all' || s.status === filterStatus)
+                  .map((schedule) => (
                   <div key={schedule.id} className="flex justify-between items-center p-4 border rounded">
                     <div className="flex-1">
                       <p className="font-medium">₹{schedule.amount.toLocaleString()}</p>
