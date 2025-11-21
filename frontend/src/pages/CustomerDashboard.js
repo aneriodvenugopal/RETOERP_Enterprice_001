@@ -178,6 +178,19 @@ const CustomerDashboard = () => {
     try {
       const data = await customerService.getResaleRequests();
       setResaleRequests(data.requests || []);
+      
+      // Track which properties have resale requests
+      const statusMap = {};
+      (data.requests || []).forEach(request => {
+        if (request.property_id) {
+          statusMap[request.property_id] = {
+            hasRequest: true,
+            status: request.status,
+            requestId: request.id
+          };
+        }
+      });
+      setPropertyResaleStatus(statusMap);
     } catch (error) {
       console.error('Error loading resale requests:', error);
     }
