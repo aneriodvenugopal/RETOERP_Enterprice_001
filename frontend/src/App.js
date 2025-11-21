@@ -550,6 +550,22 @@ function App() {
                 }
               />
               <Route
+                path="/admin/master-categories"
+                element={
+                  <PrivateRoute>
+                    <MasterCategoryManagement />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/settings/categories"
+                element={
+                  <PrivateRoute>
+                    <TenantCategoryManagement />
+                  </PrivateRoute>
+                }
+              />
+              <Route
                 path="/admin/incomelands"
                 element={
                   <PrivateRoute>
