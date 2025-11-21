@@ -32,6 +32,7 @@ const CustomerDashboard = () => {
     reason: '',
     notes: ''
   });
+  const [propertyResaleStatus, setPropertyResaleStatus] = useState({});
 
   // Helper function to safely format numbers
   const formatCurrency = (value) => {
