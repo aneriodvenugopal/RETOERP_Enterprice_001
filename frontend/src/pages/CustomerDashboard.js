@@ -417,12 +417,52 @@ const CustomerDashboard = () => {
         <TabsContent value="bookings">
           <Card className="glass-card">
             <CardHeader>
-              <CardTitle className="text-ocean-primary">My Bookings ({bookings.length})</CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-ocean-primary">
+                  My Bookings ({bookings.filter(b => filterStatus === 'all' || (filterStatus === 'active' && b.status !== 'cancelled')).length})
+                </CardTitle>
+                <div className="flex gap-2">
+                  <Button 
+                    variant={filterStatus === 'all' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setFilterStatus('all')}
+                  >
+                    All
+                  </Button>
+                  <Button 
+                    variant={filterStatus === 'active' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setFilterStatus('active')}
+                  >
+                    Active
+                  </Button>
+                  <Button 
+                    variant={filterStatus === 'cancelled' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setFilterStatus('cancelled')}
+                  >
+                    Cancelled
+                  </Button>
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {bookings.map((booking) => (
-                  <Card key={booking.id} className="border">
+                {bookings
+                  .filter(b => {
+                    if (filterStatus === 'all') return true;
+                    if (filterStatus === 'active') return b.status !== 'cancelled';
+                    return b.status === filterStatus;
+                  })
+                  .map((booking) => (
+                  <Card 
+                    key={booking.id} 
+                    className="border cursor-pointer hover:shadow-lg transition-all"
+                    onClick={() => {
+                      setSelectedBooking(booking);
+                      setShowBookingDetail(true);
+                    }}
+                  >
                     <CardContent className="pt-6">
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
