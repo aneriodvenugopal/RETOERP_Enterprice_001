@@ -2047,3 +2047,32 @@ frontend:
       - working: true
         agent: "main"
         comment: "✅ CLICKABLE DASHBOARD CARDS WITH NAVIGATION IMPLEMENTED: (1) **ADDED STATE MANAGEMENT** - Added activeTab state to control tab switching, Added filterStatus state for filtering data, Added selectedBooking state for detail view, Added showBookingDetail state for modal control, (2) **MADE ALL 4 OVERVIEW CARDS CLICKABLE** - Active Bookings Card: Clicks navigate to 'bookings' tab with 'active' filter (shows non-cancelled bookings), Total Invested Card: Clicks navigate to 'properties' tab (shows portfolio), Pending Payment Card: Clicks navigate to 'payments' tab with 'pending' filter, Overdue Amount Card: Clicks navigate to 'schedules' tab with 'overdue' filter, (3) **ADDED HOVER EFFECTS** - Cards now have cursor-pointer, hover:shadow-xl, hover:scale-105 transitions, Professional visual feedback on interaction, (4) **IMPLEMENTED TAB FILTERING** - Bookings Tab: Added filter buttons (All, Active, Cancelled), Dynamic count in header based on filter, Made individual bookings clickable to show details, Payment Schedule Tab: Added filter buttons (All, Pending, Overdue, Paid), Dynamic count in header based on filter, (5) **CREATED BOOKING DETAIL MODAL** - Comprehensive detail view when clicking any booking, Shows: Property Info (number, project, type, area), Booking Info (ID, date, status), Financial Summary (total, paid, balance) with color-coded cards, Complete Payment Schedule with status indicators, Action buttons: Close, View Payment Schedule, Beautiful responsive design with grid layout, Scrollable for long payment schedules, (6) **CONTROLLED TABS** - Changed from defaultValue to value={activeTab}, Added onValueChange={setActiveTab} for programmatic control, Enables card clicks to switch tabs automatically, (7) **FEATURES SUMMARY** - One-click navigation from overview cards, Contextual filtering applied automatically, Drill-down to booking details, Professional UI with smooth transitions, Handles large datasets (312+ bookings) efficiently. **USER EXPERIENCE**: Click 'Active Bookings (312)' → Bookings tab opens filtered to active only, Click 'Overdue Amount (12)' → Payment Schedule tab opens filtered to overdue only, Click any booking row → Detailed modal with full info + payment schedule, Intuitive breadcrumb-like navigation flow. Ready for testing with improved UX for large datasets!"
+
+backend:
+  - task: "Fix Customer Portal API endpoints for Admin access to Properties, Payments, and Payment Schedules"
+    implemented: true
+    working: true
+    file: "/app/backend/routes/customer.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "user"
+        comment: "USER REPORTED: Clicking on dashboard cards (Total Invested, Pending Payment, Overdue Amount) not showing any results. Cards are clickable but tabs show empty data."
+      - working: true
+        agent: "main"
+        comment: "✅ ALL CUSTOMER PORTAL APIs FIXED FOR ADMIN ACCESS: (1) **ROOT CAUSE**: Three more customer API endpoints were filtering by customer_id only, so admins saw empty results: GET /customer/properties, GET /customer/payments, GET /customer/payment-schedules. (2) **FIXES APPLIED** - GET /customer/properties: Added role-based filtering (admins see all tenant properties, customers see only their properties), GET /customer/payments: Added role-based filtering (admins see all tenant payments, customers see only their payments), GET /customer/payment-schedules: Added role-based filtering (admins see all tenant schedules, customers see only their schedules). (3) **CONSISTENT PATTERN**: All customer APIs now follow same role-based access pattern: super_admin/tenant_admin/admin: See ALL data in their tenant, customer: See only their own data. (4) **ENDPOINTS FIXED**: Total: 6 customer endpoints now support admin access (dashboard, bookings, payments, properties, payment-schedules + previous fixes). Backend restarted successfully."
+
+frontend:
+  - task: "Fix Pending Payment card navigation and add Payment History filtering"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/pages/CustomerDashboard.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "✅ PENDING PAYMENT NAVIGATION FIXED & PAYMENT HISTORY FILTERING ADDED: (1) **PENDING PAYMENT CARD FIX** - Changed navigation from 'payments' tab to 'schedules' tab, Reason: 'Pending Payment ₹17.3B' refers to unpaid installments (payment schedules), not payment history, Payment history only shows completed payments, Now correctly navigates to schedules tab with 'pending' filter, (2) **PAYMENT HISTORY TAB ENHANCEMENT** - Added filter buttons: All, Pending, Success, Added dynamic count in header based on filter, Implemented filter logic for payment status, Shows appropriate message when no filtered payments found, (3) **CONSOLE DEBUGGING** - Added detailed console.log statements for all card clicks, Logs: Tab navigation, Data arrays, Dashboard summary values, Helps debug any future issues, (4) **CORRECT NAVIGATION NOW** - Active Bookings → Bookings tab (active filter), Total Invested → Properties tab (all properties), Pending Payment → Payment Schedules tab (pending filter) ✅ FIXED, Overdue Amount → Payment Schedules tab (overdue filter). All cards now navigate to correct tabs with appropriate filters. Ready for testing!"
