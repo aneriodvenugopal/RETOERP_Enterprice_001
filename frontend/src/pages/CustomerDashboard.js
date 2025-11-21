@@ -125,10 +125,15 @@ const CustomerDashboard = () => {
   const loadProperties = async () => {
     try {
       const data = await customerService.getProperties();
-      console.log('Properties data:', data);
+      console.log('Properties API response:', data);
+      console.log('Properties array length:', data?.properties?.length || 0);
+      if (data?.properties && data.properties.length > 0) {
+        console.log('First property sample:', data.properties[0]);
+      }
       setProperties(data.properties || []);
     } catch (error) {
       console.error('Error loading properties:', error);
+      console.error('Error details:', error.response?.data);
       setProperties([]);
     }
   };
