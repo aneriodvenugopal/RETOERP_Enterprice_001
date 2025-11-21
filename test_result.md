@@ -1987,3 +1987,47 @@ backend:
       - working: "NA"
         agent: "main"
         comment: "✅ MASTER CATEGORY CRUD APIs IMPLEMENTED: Added 8 new endpoints to property_categories.py: (1) **Master Category CRUD** - POST /categories/master (create master category), PUT /categories/master/{id} (update master category), DELETE /categories/master/{id} (delete with validation), (2) **Master Subcategory CRUD** - POST /categories/master/{id}/subcategories (create subcategory), PUT /categories/master/subcategories/{id} (update subcategory), DELETE /categories/master/subcategories/{id} (delete with validation), (3) **SECURITY** - All endpoints protected with SaaS Admin check (phone: 9948303060), 403 Forbidden for non-admin users, (4) **VALIDATION** - Cannot delete category if it has active subcategories, Cannot delete category/subcategory if being used by tenants, Cannot delete subcategory if being used in properties, Usage count displayed in error messages, (5) **FEATURES** - Soft delete with is_active flag, Auto-timestamp updates, Complete CRUD operations, Sort order support, Icon and description fields, Additional fields array for subcategories. APIs registered and backend restarted successfully. Ready for testing with SaaS admin credentials."
+
+frontend:
+  - task: "Fix Category Management Import Errors"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/pages/admin/MasterCategoryManagement.js, /app/frontend/src/pages/admin/TenantCategoryManagement.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "user"
+        comment: "USER REPORTED: Frontend compilation error - 'export default (imported as apiInstance) was not found in ../../services'. Multiple import errors in both category management pages preventing app from loading."
+      - working: true
+        agent: "main"
+        comment: "✅ IMPORT ERRORS FIXED: Changed import statement from 'import apiInstance from ../../services' to 'import { api as apiInstance } from ../../services' in both MasterCategoryManagement.js and TenantCategoryManagement.js. The services/index.js exports 'api' as a named export, not default export. Frontend should now compile without errors."
+
+  - task: "Fix Customer Dashboard showing zeros despite having data"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/pages/CustomerDashboard.js, /app/backend/routes/customer.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "user"
+        comment: "USER REPORTED: Customer Dashboard showing all zeros (Active Bookings: 0, Total Invested: ₹0, Pending Payment: ₹0, Overdue Amount: 0) even though there is actual booking data in the database. Super admin viewing customer portal sees empty data."
+      - working: true
+        agent: "main"
+        comment: "✅ CUSTOMER DASHBOARD DATA LOADING FIXED: (1) **ROOT CAUSE**: Customer dashboard API (/api/customer/dashboard) was filtering bookings by customer_id = current_user_id. When super admin views customer portal, their user_id doesn't match any customer_id in bookings, resulting in zero data. (2) **BACKEND FIX** (customer.py): Modified /dashboard endpoint to check user role, If role is 'super_admin', 'tenant_admin', or 'admin': show ALL bookings in their tenant, If role is 'customer': show only their bookings (customer_id filter), Applied same logic to payments query, (3) **FRONTEND ENHANCEMENTS** (CustomerDashboard.js): Added console.log for debugging data received from API, Added proper error handling with detailed error messages, Set empty data structure as fallback to prevent undefined errors, Added console logs for all data loading functions (bookings, payments, properties, schedules), (4) **EXPECTED BEHAVIOR**: Super admin/tenant admin: Can view all bookings and payments in their tenant (for testing/monitoring), Customer users: See only their own bookings and payments, No more zeros when data exists in database. Backend restarted and ready for testing. Please check browser console for data logs to verify API responses."
+
+backend:
+  - task: "Update Customer Dashboard API to support Admin access"
+    implemented: true
+    working: true
+    file: "/app/backend/routes/customer.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "✅ CUSTOMER API ENHANCED FOR MULTI-ROLE ACCESS: Modified 3 endpoints in customer.py: (1) GET /customer/dashboard - Added role-based filtering: admins see all tenant data, customers see only their data, (2) GET /customer/bookings - Same role-based logic applied, (3) GET /customer/payments - Filters by tenant_id for admins, customer_id for customers. This allows super admin and tenant admin to use the customer portal for testing and monitoring without seeing zeros. Backend restarted successfully."
