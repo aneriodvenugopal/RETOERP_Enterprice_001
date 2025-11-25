@@ -26,10 +26,15 @@ class ProjectStaffBase(BaseModel):
     status: str = "active"  # active, inactive, suspended
     
 class ProjectStaff(ProjectStaffBase):
-    """Project staff with all fields"""
+    """
+    Flexible role assignment with all fields.
+    Examples:
+    - Ramu as agent in Tenant1-ProjectA: {user_id: "ramu", tenant_id: "t1", project_id: "pA", role_id: "agent", context_metadata: {commission_percentage: 5.0}}
+    - Ramu as customer in Tenant1-ProjectA: {user_id: "ramu", tenant_id: "t1", project_id: "pA", role_id: "customer", context_metadata: {property_ids: ["p1"]}}
+    - Ramu as supervisor in Tenant1-ProjectB: {user_id: "ramu", tenant_id: "t1", project_id: "pB", role_id: "supervisor", context_metadata: {commission_percentage: 7.0}}
+    """
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    tenant_id: str
-    assigned_by: Optional[str] = None  # User ID who assigned this staff
+    assigned_by: Optional[str] = None  # User ID who assigned this role
     created_at: datetime = Field(default_factory=datetime.now)
     updated_at: datetime = Field(default_factory=datetime.now)
     deleted_at: Optional[datetime] = None
