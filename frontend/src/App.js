@@ -72,6 +72,14 @@ import IncomeLandsAdminDashboard from "./pages/admin/IncomeLandsAdminDashboard";
 import MasterCategoryManagement from "./pages/admin/MasterCategoryManagement";
 import TenantCategoryManagement from "./pages/admin/TenantCategoryManagement";
 
+// Settings Pages
+import RoleAssignments from "./pages/settings/RoleAssignments";
+import MasterCategories from "./pages/settings/MasterCategories";
+import MasterSubcategories from "./pages/settings/MasterSubcategories";
+import TenantCategories from "./pages/settings/TenantCategories";
+import TenantSubcategories from "./pages/settings/TenantSubcategories";
+import BankAccountsSettings from "./pages/settings/BankAccountsSettings";
+
 // Public Landing Pages
 import TenantLandingPage from "./pages/public/TenantLandingPage";
 import ProjectLandingPage from "./pages/public/ProjectLandingPage";
