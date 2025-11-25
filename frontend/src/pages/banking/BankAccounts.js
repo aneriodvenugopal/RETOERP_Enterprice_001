@@ -72,6 +72,12 @@ const BankAccounts = () => {
   const handleCreateAccount = async (e) => {
     e.preventDefault();
     
+    // Validate project_id
+    if (!formData.project_id) {
+      toast.error('Please select a project');
+      return;
+    }
+    
     try {
       const response = await axios.post(
         `${process.env.REACT_APP_BACKEND_URL}/api/bank-accounts`,
@@ -90,7 +96,16 @@ const BankAccounts = () => {
         loadAccounts();
       }
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Failed to create account');
+      // Handle validation errors (array of error objects)
+      if (error.response?.data?.detail && Array.isArray(error.response.data.detail)) {
+        const errorMessages = error.response.data.detail.map(err => err.msg || JSON.stringify(err)).join(', ');
+        toast.error(errorMessages);
+      } else if (typeof error.response?.data?.detail === 'string') {
+        toast.error(error.response.data.detail);
+      } else {
+        toast.error('Failed to create account');
+      }
+      console.error('Account creation error:', error.response?.data);
     }
   };
 
