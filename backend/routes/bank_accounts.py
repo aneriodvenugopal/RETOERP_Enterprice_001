@@ -347,7 +347,15 @@ async def update_bank_account(
     account_update: BankAccountUpdate,
     current_user: dict = Depends(get_current_user)
 ):
-    """Update bank account details"""
+    """
+    Update bank account details with access control.
+    
+    Access Control:
+    - Tenant Admin: Can update any account in their tenant
+    - Project Admin: Can only update accounts in their assigned project(s)
+    """
+    user_id = current_user.get("user_id")
+    tenant_id = current_user.get("tenant_id")
     
     account = await db.bank_accounts.find_one(
         {"id": account_id, "deleted_at": None}
@@ -356,12 +364,33 @@ async def update_bank_account(
     if not account:
         raise HTTPException(status_code=404, detail="Account not found")
     
+    # Verify access
+    is_tenant_admin = await RoleContextService.is_tenant_admin(user_id, tenant_id)
+    
+    if not is_tenant_admin:
+        is_project_admin = await RoleContextService.is_project_admin(
+            user_id, 
+            tenant_id, 
+            account["project_id"]
+        )
+        
+        if not is_project_admin:
+            raise HTTPException(
+                status_code=403,
+                detail="You don't have permission to update this bank account"
+            )
+    
     update_data = {k: v for k, v in account_update.dict(exclude_unset=True).items()}
     
-    # If marking as primary online, unmark others
+    # If marking as primary online, unmark others in the SAME PROJECT
     if update_data.get("is_primary_online"):
         await db.bank_accounts.update_many(
-            {"tenant_id": account["tenant_id"], "id": {"$ne": account_id}, "deleted_at": None},
+            {
+                "tenant_id": account["tenant_id"],
+                "project_id": account["project_id"],
+                "id": {"$ne": account_id},
+                "deleted_at": None
+            },
             {"$set": {"is_primary_online": False}}
         )
     
@@ -383,7 +412,15 @@ async def delete_bank_account(
     account_id: str,
     current_user: dict = Depends(get_current_user)
 ):
-    """Soft delete bank account"""
+    """
+    Soft delete bank account with access control.
+    
+    Access Control:
+    - Tenant Admin: Can delete any account in their tenant
+    - Project Admin: Can only delete accounts in their assigned project(s)
+    """
+    user_id = current_user.get("user_id")
+    tenant_id = current_user.get("tenant_id")
     
     account = await db.bank_accounts.find_one(
         {"id": account_id, "deleted_at": None}
@@ -391,6 +428,22 @@ async def delete_bank_account(
     
     if not account:
         raise HTTPException(status_code=404, detail="Account not found")
+    
+    # Verify access
+    is_tenant_admin = await RoleContextService.is_tenant_admin(user_id, tenant_id)
+    
+    if not is_tenant_admin:
+        is_project_admin = await RoleContextService.is_project_admin(
+            user_id, 
+            tenant_id, 
+            account["project_id"]
+        )
+        
+        if not is_project_admin:
+            raise HTTPException(
+                status_code=403,
+                detail="You don't have permission to delete this bank account"
+            )
     
     # Check if account has balance
     if account["current_balance"] != 0:
