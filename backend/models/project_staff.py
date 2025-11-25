@@ -1,16 +1,28 @@
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Optional, Dict, Any
 from datetime import datetime
 import uuid
 
 class ProjectStaffBase(BaseModel):
-    """Base model for project staff assignment"""
+    """
+    Base model for flexible role assignment system.
+    Supports: one-one, one-many, many-many, many-one relationships.
+    Same user can have multiple roles in same/different projects and tenants.
+    """
     user_id: str
-    project_id: Optional[str] = None  # NULL = tenant-level staff, otherwise project-specific
-    role: str  # "manager", "sales", "admin", etc.
-    commission_rate: float = 0.0  # Commission percentage
-    can_create_staff: bool = False  # Can this staff create sub-staff
-    can_view_all_projects: bool = False  # Tenant-level access
+    tenant_id: str  # Which tenant this role assignment belongs to
+    project_id: Optional[str] = None  # NULL = tenant-level role, otherwise project-specific
+    role_id: str  # Reference to roles collection (agent, customer, staff, vendor, supervisor, project_admin, etc.)
+    role_name: Optional[str] = None  # Cached role name for quick access (agent, customer, etc.)
+    
+    # Context-specific metadata (different for each role assignment)
+    context_metadata: Dict[str, Any] = Field(default_factory=dict)  # {commission_percentage: 5.0, permissions: [...], etc.}
+    
+    # Legacy fields for backward compatibility
+    commission_rate: float = 0.0  # Deprecated: use context_metadata.commission_percentage
+    can_create_staff: bool = False  
+    can_view_all_projects: bool = False  # True for tenant-level roles like tenant_admin
+    
     status: str = "active"  # active, inactive, suspended
     
 class ProjectStaff(ProjectStaffBase):
