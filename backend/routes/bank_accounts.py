@@ -466,16 +466,23 @@ async def delete_bank_account(
     }
 
 
-@router.get("/bank-accounts/primary-online/{tenant_id}", response_model=dict)
+@router.get("/bank-accounts/primary-online/{project_id}", response_model=dict)
 async def get_primary_online_account(
-    tenant_id: str,
+    project_id: str,
     current_user: dict = Depends(get_current_user)
 ):
-    """Get primary account for online payment gateway"""
+    """
+    Get primary account for online payment gateway for a specific project.
     
+    Updated: Now project-specific instead of tenant-level.
+    """
+    tenant_id = current_user.get("tenant_id")
+    
+    # First, look for primary online account in the project
     account = await db.bank_accounts.find_one(
         {
             "tenant_id": tenant_id,
+            "project_id": project_id,
             "is_primary_online": True,
             "is_active": True,
             "deleted_at": None
@@ -484,10 +491,11 @@ async def get_primary_online_account(
     )
     
     if not account:
-        # Return first active bank account
+        # Return first active bank account in the project (not cash)
         account = await db.bank_accounts.find_one(
             {
                 "tenant_id": tenant_id,
+                "project_id": project_id,
                 "account_number": {"$ne": "1111111"},
                 "is_active": True,
                 "deleted_at": None
@@ -498,7 +506,7 @@ async def get_primary_online_account(
     if not account:
         raise HTTPException(
             status_code=404,
-            detail="No active bank account found for online payments"
+            detail=f"No active bank account found for online payments in project {project_id}"
         )
     
     return {
