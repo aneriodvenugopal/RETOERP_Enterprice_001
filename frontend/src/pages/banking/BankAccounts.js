@@ -120,7 +120,8 @@ const BankAccounts = () => {
       account_holder_name: user.tenant_name || 'Cash',
       opening_balance: 0,
       is_primary_online: false,
-      notes: 'Main cash account'
+      notes: 'Main cash account',
+      project_id: projects.length > 0 ? projects[0].id : ''
     });
     setShowAddModal(true);
   };
