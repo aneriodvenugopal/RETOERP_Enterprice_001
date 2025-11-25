@@ -159,7 +159,8 @@ const BankAccounts = () => {
       account_holder_name: '',
       opening_balance: 0,
       is_primary_online: false,
-      notes: ''
+      notes: '',
+      project_id: ''
     });
   };
 
