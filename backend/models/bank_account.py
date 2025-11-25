@@ -17,6 +17,7 @@ class BankAccountBase(BaseModel):
 
 class BankAccountCreate(BankAccountBase):
     tenant_id: str
+    project_id: str  # REQUIRED: Bank accounts are now project-specific
 
 class BankAccountUpdate(BaseModel):
     account_name: Optional[str] = None
