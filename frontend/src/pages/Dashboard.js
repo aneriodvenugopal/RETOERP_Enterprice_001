@@ -255,25 +255,80 @@ const TenantAdminDashboard = () => {
         />
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <ActionCard
-          icon={UserCog}
-          title="Users & Staff"
-          description="Manage team members and roles"
-          onClick={() => navigate('/users')}
-        />
-        <ActionCard
-          icon={Home}
-          title="Customer Portal"
-          description="View customer experience"
-          onClick={() => navigate('/customer-dashboard')}
-        />
-        <ActionCard
-          icon={Building2}
-          title="Property Categories"
-          description="Manage property types and categories"
-          onClick={() => navigate('/settings/categories')}
-        />
+      {/* Settings & Management Section */}
+      <div className="mt-8">
+        <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+          <Settings className="w-5 h-5" />
+          Settings & Management
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <ActionCard
+            icon={UserCog}
+            title="Users & Staff"
+            description="Manage team members and roles"
+            onClick={() => navigate('/users')}
+            gradient="from-blue-500 to-cyan-500"
+          />
+          <ActionCard
+            icon={Shield}
+            title="Role Assignments"
+            description="Manage multi-role assignments & permissions"
+            onClick={() => navigate('/settings/role-assignments')}
+            gradient="from-purple-500 to-pink-500"
+          />
+          <ActionCard
+            icon={Wallet}
+            title="Bank Accounts"
+            description="Project-wise banking & accounts"
+            onClick={() => navigate('/settings/bank-accounts')}
+            gradient="from-green-500 to-emerald-500"
+          />
+          <ActionCard
+            icon={Home}
+            title="Customer Portal"
+            description="View customer experience"
+            onClick={() => navigate('/customer-dashboard')}
+            gradient="from-orange-500 to-amber-500"
+          />
+        </div>
+      </div>
+      
+      {/* Category Management Section */}
+      <div className="mt-8">
+        <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+          <FolderTree className="w-5 h-5" />
+          Category Management
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <ActionCard
+            icon={Tags}
+            title="Master Categories"
+            description="System-wide property categories"
+            onClick={() => navigate('/settings/master-categories')}
+            gradient="from-indigo-500 to-purple-500"
+          />
+          <ActionCard
+            icon={Tags}
+            title="Master Subcategories"
+            description="System-wide property subcategories"
+            onClick={() => navigate('/settings/master-subcategories')}
+            gradient="from-purple-500 to-fuchsia-500"
+          />
+          <ActionCard
+            icon={Building2}
+            title="Tenant Categories"
+            description="Your custom property categories"
+            onClick={() => navigate('/settings/tenant-categories')}
+            gradient="from-cyan-500 to-blue-500"
+          />
+          <ActionCard
+            icon={Building2}
+            title="Tenant Subcategories"
+            description="Your custom property subcategories"
+            onClick={() => navigate('/settings/tenant-subcategories')}
+            gradient="from-blue-500 to-indigo-500"
+          />
+        </div>
       </div>
     </div>
   );
