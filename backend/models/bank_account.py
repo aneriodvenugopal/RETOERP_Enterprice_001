@@ -33,6 +33,7 @@ class BankAccountUpdate(BaseModel):
 class BankAccount(BankAccountBase):
     id: str
     tenant_id: str
+    project_id: str  # Project-specific bank account
     current_balance: float
     available_balance: float
     created_at: datetime
