@@ -184,7 +184,7 @@
 
    **మొదటి referrer:**
    ```
-   https://realestate-saas-4.preview.emergentagent.com/*
+   https://realtyfinance.preview.emergentagent.com/*
    ```
    - Paste చేసి Enter నొక్కండి
 
