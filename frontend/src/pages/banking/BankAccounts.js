@@ -349,6 +349,28 @@ const BankAccounts = () => {
             
             <form onSubmit={handleCreateAccount} className="p-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Project * <span className="text-xs text-gray-500">(Bank accounts are project-specific)</span>
+                  </label>
+                  <select
+                    value={formData.project_id}
+                    onChange={(e) => setFormData({...formData, project_id: e.target.value})}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    required
+                  >
+                    <option value="">Select Project</option>
+                    {projects.map((project) => (
+                      <option key={project.id} value={project.id}>
+                        {project.project_name}
+                      </option>
+                    ))}
+                  </select>
+                  {projects.length === 0 && (
+                    <p className="text-xs text-red-600 mt-1">No projects found. Please create a project first.</p>
+                  )}
+                </div>
+                
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Account Type *
