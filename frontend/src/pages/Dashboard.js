@@ -130,6 +130,39 @@ const SuperAdminDashboard = () => {
           onClick={() => navigate('/customer-dashboard')}
         />
       </div>
+      
+      {/* System Settings Section - SaaS Admin Only */}
+      {isSaaSAdmin && (
+        <div className="mt-8">
+          <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <Settings className="w-5 h-5" />
+            System Settings
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <ActionCard
+              icon={Tags}
+              title="Master Categories"
+              description="Manage system-wide property categories"
+              onClick={() => navigate('/settings/master-categories')}
+              gradient="from-indigo-500 to-purple-500"
+            />
+            <ActionCard
+              icon={FolderTree}
+              title="Master Subcategories"
+              description="Manage system-wide subcategories"
+              onClick={() => navigate('/settings/master-subcategories')}
+              gradient="from-purple-500 to-fuchsia-500"
+            />
+            <ActionCard
+              icon={Shield}
+              title="System Roles"
+              description="Manage system-wide roles & permissions"
+              onClick={() => navigate('/settings/system-roles')}
+              gradient="from-red-500 to-rose-500"
+            />
+          </div>
+        </div>
+      )}
 
       <Card className="glass-card">
         <CardHeader>
