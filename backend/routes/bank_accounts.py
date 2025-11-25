@@ -224,7 +224,15 @@ async def get_bank_account(
     account_id: str,
     current_user: dict = Depends(get_current_user)
 ):
-    """Get bank account details"""
+    """
+    Get bank account details with access control.
+    
+    Access Control:
+    - Tenant Admin: Can view any account in their tenant
+    - Project Admin: Can only view accounts in their assigned project(s)
+    """
+    user_id = current_user.get("user_id")
+    tenant_id = current_user.get("tenant_id")
     
     account = await db.bank_accounts.find_one(
         {"id": account_id, "deleted_at": None},
@@ -233,6 +241,33 @@ async def get_bank_account(
     
     if not account:
         raise HTTPException(status_code=404, detail="Account not found")
+    
+    # Verify access
+    is_tenant_admin = await RoleContextService.is_tenant_admin(user_id, tenant_id)
+    
+    if not is_tenant_admin:
+        # Check if user has access to the account's project
+        is_project_admin = await RoleContextService.is_project_admin(
+            user_id, 
+            tenant_id, 
+            account["project_id"]
+        )
+        
+        if not is_project_admin:
+            # Check if user has ANY role in the project
+            user_projects = await RoleContextService.get_user_projects(user_id, tenant_id)
+            if account["project_id"] not in user_projects:
+                raise HTTPException(
+                    status_code=403,
+                    detail="You don't have access to this bank account"
+                )
+    
+    # Get project information
+    project = await db.projects.find_one(
+        {"id": account["project_id"], "deleted_at": None},
+        {"_id": 0, "project_name": 1}
+    )
+    account["project_name"] = project.get("project_name") if project else "Unknown"
     
     # Get recent transactions
     transactions = await db.transactions.find(
