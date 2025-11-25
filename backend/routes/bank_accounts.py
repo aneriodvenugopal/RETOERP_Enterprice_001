@@ -7,6 +7,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 
 from models.bank_account import BankAccountCreate, BankAccountUpdate, BankAccount
 from middleware.auth import get_current_user
+from services.role_context_service import RoleContextService
 
 router = APIRouter()
 
@@ -21,7 +22,42 @@ async def create_bank_account(
     account: BankAccountCreate,
     current_user: dict = Depends(get_current_user)
 ):
-    """Create new bank account or cash account"""
+    """
+    Create new bank account or cash account for a project.
+    
+    Access Control:
+    - Tenant Admin: Can create bank accounts for any project in their tenant
+    - Project Admin: Can only create bank accounts for their assigned project(s)
+    """
+    user_id = current_user.get("user_id")
+    tenant_id = current_user.get("tenant_id")
+    
+    # Verify tenant matches
+    if account.tenant_id != tenant_id:
+        raise HTTPException(
+            status_code=403,
+            detail="Cannot create bank account for different tenant"
+        )
+    
+    # Check if user has permission to create account in this project
+    is_tenant_admin = await RoleContextService.is_tenant_admin(user_id, tenant_id)
+    is_project_admin = await RoleContextService.is_project_admin(user_id, tenant_id, account.project_id)
+    
+    if not (is_tenant_admin or is_project_admin):
+        raise HTTPException(
+            status_code=403,
+            detail="You don't have permission to create bank accounts in this project. Required: Tenant Admin or Project Admin role."
+        )
+    
+    # Verify project exists and belongs to tenant
+    project = await db.projects.find_one({
+        "id": account.project_id,
+        "tenant_id": tenant_id,
+        "deleted_at": None
+    }, {"_id": 0})
+    
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
     
     # Generate account ID
     account_id = str(uuid.uuid4())
@@ -29,10 +65,14 @@ async def create_bank_account(
     # If account_number is "1111111", it's cash account
     is_cash = account.account_number == "1111111"
     
-    # If marking as primary online, unmark others
+    # If marking as primary online, unmark others in the SAME PROJECT
     if account.is_primary_online:
         await db.bank_accounts.update_many(
-            {"tenant_id": account.tenant_id, "deleted_at": None},
+            {
+                "tenant_id": account.tenant_id,
+                "project_id": account.project_id,
+                "deleted_at": None
+            },
             {"$set": {"is_primary_online": False}}
         )
     
@@ -52,18 +92,20 @@ async def create_bank_account(
         "is_active": account.is_active,
         "notes": account.notes,
         "tenant_id": account.tenant_id,
+        "project_id": account.project_id,
         "created_at": datetime.now(timezone.utc),
         "updated_at": None,
         "deleted_at": None,
-        "created_by": current_user["id"]
+        "created_by": user_id
     }
     
     await db.bank_accounts.insert_one(account_data)
     
     return {
         "success": True,
-        "message": f"{'Cash account' if is_cash else 'Bank account'} created successfully",
-        "account_id": account_id
+        "message": f"{'Cash account' if is_cash else 'Bank account'} created successfully for project {project.get('project_name', account.project_id)}",
+        "account_id": account_id,
+        "project_id": account.project_id
     }
 
 
