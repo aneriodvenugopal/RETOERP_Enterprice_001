@@ -111,15 +111,31 @@ async def create_bank_account(
 
 @router.get("/bank-accounts", response_model=dict)
 async def get_bank_accounts(
-    tenant_id: Optional[str] = None,
+    project_id: Optional[str] = None,
     include_inactive: bool = False,
     current_user: dict = Depends(get_current_user)
 ):
-    """Get all bank accounts for tenant"""
+    """
+    Get bank accounts based on user's role and permissions.
+    
+    Access Control:
+    - Tenant Admin: Can view bank accounts across ALL projects in their tenant
+    - Project Admin: Can only view bank accounts for their assigned project(s)
+    
+    Query Parameters:
+    - project_id: Filter by specific project (optional for Tenant Admin, required for Project Admin)
+    - include_inactive: Include inactive accounts
+    """
+    user_id = current_user.get("user_id")
+    tenant_id = current_user.get("tenant_id")
     
     if not tenant_id:
-        tenant_id = current_user.get("tenant_id")
+        raise HTTPException(status_code=400, detail="Tenant context required")
     
+    # Check if user is tenant admin
+    is_tenant_admin = await RoleContextService.is_tenant_admin(user_id, tenant_id)
+    
+    # Base query
     query = {
         "tenant_id": tenant_id,
         "deleted_at": None
@@ -128,10 +144,55 @@ async def get_bank_accounts(
     if not include_inactive:
         query["is_active"] = True
     
+    if is_tenant_admin:
+        # Tenant Admin: Can see all accounts across all projects
+        # If project_id provided, filter by it
+        if project_id:
+            query["project_id"] = project_id
+    else:
+        # Project Admin or staff: Can only see accounts for their assigned projects
+        user_projects = await RoleContextService.get_user_projects(user_id, tenant_id)
+        
+        if not user_projects:
+            return {
+                "success": True,
+                "accounts": [],
+                "cash_accounts": [],
+                "bank_accounts": [],
+                "summary": {
+                    "total_accounts": 0,
+                    "total_balance": 0,
+                    "total_available": 0,
+                    "cash_balance": 0,
+                    "bank_balance": 0
+                },
+                "access_level": "no_projects"
+            }
+        
+        # If project_id specified, verify user has access to it
+        if project_id:
+            if project_id not in user_projects:
+                raise HTTPException(
+                    status_code=403,
+                    detail="You don't have access to this project"
+                )
+            query["project_id"] = project_id
+        else:
+            # Return accounts for all projects user has access to
+            query["project_id"] = {"$in": user_projects}
+    
     accounts = await db.bank_accounts.find(
         query,
         {"_id": 0}
     ).sort("account_number", 1).to_list(length=None)
+    
+    # Enrich accounts with project information
+    for account in accounts:
+        project = await db.projects.find_one(
+            {"id": account["project_id"], "deleted_at": None},
+            {"_id": 0, "project_name": 1}
+        )
+        account["project_name"] = project.get("project_name") if project else "Unknown"
     
     # Calculate totals
     total_balance = sum(acc["current_balance"] for acc in accounts)
@@ -152,7 +213,9 @@ async def get_bank_accounts(
             "total_available": total_available,
             "cash_balance": sum(acc["current_balance"] for acc in cash_accounts),
             "bank_balance": sum(acc["current_balance"] for acc in bank_accounts)
-        }
+        },
+        "access_level": "tenant_admin" if is_tenant_admin else "project_level",
+        "accessible_projects": await RoleContextService.get_user_projects(user_id, tenant_id) if not is_tenant_admin else "all"
     }
 
 
