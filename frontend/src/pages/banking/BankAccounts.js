@@ -13,6 +13,7 @@ const BankAccounts = () => {
   const [showShareModal, setShowShareModal] = useState(false);
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [shareableDetails, setShareableDetails] = useState(null);
+  const [projects, setProjects] = useState([]);
   
   const [formData, setFormData] = useState({
     account_number: '',
@@ -24,7 +25,8 @@ const BankAccounts = () => {
     account_holder_name: '',
     opening_balance: 0,
     is_primary_online: false,
-    notes: ''
+    notes: '',
+    project_id: ''
   });
 
   useEffect(() => {
