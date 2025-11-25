@@ -31,7 +31,23 @@ const BankAccounts = () => {
 
   useEffect(() => {
     loadAccounts();
+    loadProjects();
   }, []);
+
+  const loadProjects = async () => {
+    try {
+      const response = await axios.get(
+        `${process.env.REACT_APP_BACKEND_URL}/api/projects?tenant_id=${user.tenant_id}`,
+        { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+      );
+      
+      if (response.data.success) {
+        setProjects(response.data.projects || []);
+      }
+    } catch (error) {
+      console.error('Failed to load projects:', error);
+    }
+  };
 
   const loadAccounts = async () => {
     setLoading(true);
