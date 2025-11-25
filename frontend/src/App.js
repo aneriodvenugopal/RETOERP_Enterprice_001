@@ -573,6 +573,65 @@ function App() {
                   </PrivateRoute>
                 }
               />
+              
+              {/* Settings Routes */}
+              <Route
+                path="/settings/role-assignments"
+                element={
+                  <PrivateRoute>
+                    <RoleAssignments />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/settings/master-categories"
+                element={
+                  <PrivateRoute>
+                    <MasterCategories />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/settings/master-subcategories"
+                element={
+                  <PrivateRoute>
+                    <MasterSubcategories />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/settings/tenant-categories"
+                element={
+                  <PrivateRoute>
+                    <TenantCategories />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/settings/tenant-subcategories"
+                element={
+                  <PrivateRoute>
+                    <TenantSubcategories />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/settings/bank-accounts"
+                element={
+                  <PrivateRoute>
+                    <BankAccountsSettings />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/settings/system-roles"
+                element={
+                  <PrivateRoute>
+                    <MasterCategories />
+                  </PrivateRoute>
+                }
+              />
+              
               <Route
                 path="/admin/incomelands"
                 element={
