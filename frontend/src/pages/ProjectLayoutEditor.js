@@ -9,7 +9,7 @@ import {
   Upload, Save, Undo, Trash2, Check, Edit2, MapPin, 
   ArrowLeft, Layers, Home
 } from 'lucide-react';
-import { toast } from 'react-hot-toast';
+import { toast } from 'sonner';
 import { useAuth } from '../contexts/AuthContext';
 import { layoutService } from '../services';
 import axios from 'axios';
