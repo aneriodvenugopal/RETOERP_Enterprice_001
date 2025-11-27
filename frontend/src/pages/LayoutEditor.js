@@ -9,9 +9,18 @@ import { Upload, Save, Trash2, Undo, ArrowLeft, ZoomIn, ZoomOut, Check, Edit2 } 
 import { toast } from 'sonner';
 import { layoutService } from '../services';
 
-const LayoutEditor = () => {
+const LayoutEditor = ({ mode = 'edit' }) => {
+  // mode can be: 'edit', 'view', 'display'
+  // edit: Full editing capabilities (default)
+  // view: View only, no editing
+  // display: Frontend display for customers (minimal controls)
+  
   const { layoutId } = useParams();
   const navigate = useNavigate();
+  
+  const isEditMode = mode === 'edit';
+  const isViewMode = mode === 'view';
+  const isDisplayMode = mode === 'display';
   
   // State
   const [layoutName, setLayoutName] = useState('');
