@@ -523,6 +523,20 @@ const LayoutEditor = () => {
               </CardContent>
             </Card>
 
+            {/* Debug Info */}
+            {plots.length > 0 && (
+              <Card className="glass-card bg-green-50 border-green-200">
+                <CardContent className="pt-4">
+                  <p className="text-sm text-green-800">
+                    ✅ <strong>{plots.length} plots loaded</strong> from database
+                  </p>
+                  <p className="text-xs text-green-600 mt-1">
+                    SVG ViewBox: {svgDimensions.width} x {svgDimensions.height}
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+            
             {/* Plots List */}
             <Card className="glass-card">
               <CardHeader>
