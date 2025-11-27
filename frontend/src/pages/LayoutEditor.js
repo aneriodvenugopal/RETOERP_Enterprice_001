@@ -52,6 +52,9 @@ const LayoutEditor = () => {
       const response = await layoutService.getMasterLayout(layoutId);
       const layout = response.layout;
       
+      console.log('📊 Layout loaded:', layout);
+      console.log('📍 Plots loaded:', layout.plots);
+      
       setOriginalLayout(layout);
       setLayoutName(layout.layout_name);
       setLayoutType(layout.layout_type);
@@ -61,6 +64,8 @@ const LayoutEditor = () => {
         setSvgUrl(layout.svg_url);
         setSvgFileInfo({ file_url: layout.svg_url });
       }
+      
+      toast.success(`Layout loaded with ${layout.plots?.length || 0} plots`);
       
     } catch (error) {
       console.error('Error loading layout:', error);
