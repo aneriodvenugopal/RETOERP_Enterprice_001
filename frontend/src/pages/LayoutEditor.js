@@ -670,14 +670,14 @@ const LayoutEditor = ({ mode = 'edit' }) => {
                         
                         <svg
                           ref={svgRef}
-                          onClick={handleSvgClick}
+                          onClick={isEditMode ? handleSvgClick : undefined}
                           style={{
                             position: 'absolute',
                             top: 0,
                             left: 0,
                             width: '100%',
                             height: '100%',
-                            cursor: 'crosshair'
+                            cursor: isEditMode ? 'crosshair' : 'default'
                           }}
                           viewBox={`0 0 ${svgDimensions.width} ${svgDimensions.height}`}
                           preserveAspectRatio="xMidYMid meet"
