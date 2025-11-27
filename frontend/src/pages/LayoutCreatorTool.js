@@ -546,7 +546,9 @@ const LayoutCreatorTool = () => {
       <Dialog open={showPlotForm} onOpenChange={setShowPlotForm}>
         <DialogContent className="glass-modal max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-ocean-primary">Plot Details</DialogTitle>
+            <DialogTitle className="text-ocean-primary">
+              Plot Details ({currentPoints.length} points marked)
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>
