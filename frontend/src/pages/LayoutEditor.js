@@ -646,27 +646,63 @@ const LayoutEditor = () => {
                           viewBox={`0 0 ${svgDimensions.width} ${svgDimensions.height}`}
                           preserveAspectRatio="xMidYMid meet"
                         >
+                          {/* TEST: Render a visible test rectangle */}
+                          <rect
+                            x="50"
+                            y="50"
+                            width="100"
+                            height="100"
+                            fill="rgba(255, 0, 0, 0.3)"
+                            stroke="red"
+                            strokeWidth="2"
+                          />
+                          <text
+                            x="100"
+                            y="100"
+                            textAnchor="middle"
+                            fill="red"
+                            fontSize="12"
+                            fontWeight="bold"
+                          >
+                            TEST
+                          </text>
+                          
                           {/* Show saved plots */}
-                          {plots.length > 0 && console.log('🎨 Rendering plots:', plots)}
-                          {plots.map((plot) => {
-                            console.log('🔷 Rendering plot:', plot.display_name, plot.coordinates);
+                          {plots.length > 0 && console.log('🎨 Rendering plots:', plots.length, 'plots')}
+                          {plots.map((plot, index) => {
+                            const polygonPoints = getPolygonPoints(plot.coordinates);
+                            const centerX = plot.coordinates.reduce((sum, c) => sum + c.x, 0) / plot.coordinates.length;
+                            const centerY = plot.coordinates.reduce((sum, c) => sum + c.y, 0) / plot.coordinates.length;
+                            
+                            console.log(`🔷 Plot ${index + 1}:`, {
+                              name: plot.display_name,
+                              points: plot.coordinates.length,
+                              coordinates: plot.coordinates,
+                              polygonPoints: polygonPoints,
+                              center: { x: centerX, y: centerY }
+                            });
+                            
                             return (
                               <g key={plot.id} onClick={() => handleEditPlot(plot)} style={{ cursor: 'pointer' }}>
                                 <polygon
-                                  points={getPolygonPoints(plot.coordinates)}
+                                  points={polygonPoints}
                                   fill={getStatusColor(plot.status)}
                                   stroke="#0891b2"
-                                  strokeWidth="2"
+                                  strokeWidth="3"
+                                  strokeDasharray="5,5"
                                 />
                                 <text
-                                  x={plot.coordinates.reduce((sum, c) => sum + c.x, 0) / plot.coordinates.length}
-                                  y={plot.coordinates.reduce((sum, c) => sum + c.y, 0) / plot.coordinates.length}
+                                  x={centerX}
+                                  y={centerY}
                                   textAnchor="middle"
                                   dominantBaseline="middle"
                                   fill="#000"
-                                  fontSize="14"
+                                  fontSize="16"
                                   fontWeight="bold"
                                   pointerEvents="none"
+                                  stroke="#fff"
+                                  strokeWidth="3"
+                                  paintOrder="stroke"
                                 >
                                   {plot.display_name}
                                 </text>
