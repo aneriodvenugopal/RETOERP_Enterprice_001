@@ -434,20 +434,21 @@ const LayoutEditor = ({ mode = 'edit' }) => {
           {/* Left Panel - Controls */}
           <div className="lg:col-span-1 space-y-6">
             
-            {/* Layout Info Section */}
-            <Card className="glass-card">
-              <CardHeader>
-                <CardTitle className="text-ocean-primary">Layout Info</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <label className="text-sm font-semibold mb-1 block">Layout Name *</label>
-                  <Input
-                    type="text"
-                    placeholder="e.g., Green Valley Phase 1"
-                    value={layoutName}
-                    onChange={(e) => setLayoutName(e.target.value)}
-                    className="glass-input"
+            {/* Layout Info Section - Show only in edit mode */}
+            {isEditMode && (
+              <Card className="glass-card">
+                <CardHeader>
+                  <CardTitle className="text-ocean-primary">Layout Info</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <label className="text-sm font-semibold mb-1 block">Layout Name *</label>
+                    <Input
+                      type="text"
+                      placeholder="e.g., Green Valley Phase 1"
+                      value={layoutName}
+                      onChange={(e) => setLayoutName(e.target.value)}
+                      className="glass-input"
                   />
                 </div>
                 
