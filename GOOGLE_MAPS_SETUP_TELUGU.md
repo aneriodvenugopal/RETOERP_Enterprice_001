@@ -184,7 +184,7 @@
 
    **మొదటి referrer:**
    ```
-   https://realtyfinance.preview.emergentagent.com/*
+   https://land-atlas.preview.emergentagent.com/*
    ```
    - Paste చేసి Enter నొక్కండి
 
