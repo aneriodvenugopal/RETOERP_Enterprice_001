@@ -716,7 +716,7 @@ const LayoutEditor = ({ mode = 'edit' }) => {
                             return (
                               <g 
                                 key={plot.id} 
-                                onClick={isEditMode ? () => handleEditPlot(plot) : undefined} 
+                                onClick={isEditMode ? () => handleEditPlotDetails(plot) : undefined} 
                                 style={{ cursor: isEditMode ? 'pointer' : 'default' }}
                               >
                                 <polygon
