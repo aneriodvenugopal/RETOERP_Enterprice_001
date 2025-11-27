@@ -234,6 +234,22 @@ const LayoutEditor = () => {
     }
   };
 
+  // Clear all points and start over
+  const clearPoints = () => {
+    setCurrentPoints([]);
+    toast.info('Points cleared. Start marking again.');
+  };
+
+  // Handle point click for editing (click to remove)
+  const handlePointClick = (e, pointIndex) => {
+    e.stopPropagation();
+    
+    // Remove point on click
+    const newPoints = currentPoints.filter((_, idx) => idx !== pointIndex);
+    setCurrentPoints(newPoints);
+    toast.success(`Point ${pointIndex + 1} removed`);
+  };
+
   // Save layout to database
   const saveLayout = async () => {
     if (!layoutName.trim()) {
