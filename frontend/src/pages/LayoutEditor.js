@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Upload, Save, Trash2, Undo, ArrowLeft, ZoomIn, ZoomOut, Check, Edit2 } from 'lucide-react';
+import { Upload, Save, Trash2, Undo, ArrowLeft, ZoomIn, ZoomOut, Check, Edit2, MapPin } from 'lucide-react';
 import { toast } from 'sonner';
 import { layoutService } from '../services';
 
