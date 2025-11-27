@@ -609,9 +609,13 @@ const LayoutCreatorTool = () => {
               </select>
             </div>
             
+            <div className="p-2 bg-blue-50 border border-blue-200 rounded text-xs text-blue-800">
+              💡 Need to adjust points? Click "Cancel" to go back and edit the marked points.
+            </div>
+            
             <div className="flex gap-2">
               <Button onClick={cancelPlot} variant="outline" className="flex-1">
-                Cancel
+                Cancel & Edit Points
               </Button>
               <Button onClick={savePlot} className="flex-1 bg-gradient-to-r from-ocean-primary to-ocean-secondary text-white">
                 <Check className="w-4 h-4 mr-2" />
