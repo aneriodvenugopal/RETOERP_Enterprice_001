@@ -682,27 +682,6 @@ const LayoutEditor = ({ mode = 'edit' }) => {
                           viewBox={`0 0 ${svgDimensions.width} ${svgDimensions.height}`}
                           preserveAspectRatio="xMidYMid meet"
                         >
-                          {/* TEST: Render a visible test rectangle */}
-                          <rect
-                            x="50"
-                            y="50"
-                            width="100"
-                            height="100"
-                            fill="rgba(255, 0, 0, 0.3)"
-                            stroke="red"
-                            strokeWidth="2"
-                          />
-                          <text
-                            x="100"
-                            y="100"
-                            textAnchor="middle"
-                            fill="red"
-                            fontSize="12"
-                            fontWeight="bold"
-                          >
-                            TEST
-                          </text>
-                          
                           {/* Show saved plots */}
                           {plots.length > 0 && console.log('🎨 Rendering plots:', plots.length, 'plots')}
                           {plots.map((plot, index) => {
