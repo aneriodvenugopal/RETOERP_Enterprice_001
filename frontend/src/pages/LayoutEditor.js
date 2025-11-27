@@ -468,38 +468,42 @@ const LayoutEditor = ({ mode = 'edit' }) => {
                 </div>
               </CardContent>
             </Card>
+            )}
             
-            {/* Upload Section */}
-            <Card className="glass-card">
-              <CardHeader>
-                <CardTitle className="text-ocean-primary">Change SVG (Optional)</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept=".svg,image/svg+xml"
-                  onChange={handleFileUpload}
-                  className="hidden"
-                />
-                
-                <Button
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={uploading}
-                  className="w-full bg-gradient-to-r from-ocean-primary to-ocean-secondary text-white"
-                >
-                  <Upload className="w-4 h-4 mr-2" />
-                  {uploading ? 'Uploading...' : 'Upload New SVG'}
-                </Button>
-                
-                {svgFile && (
-                  <p className="text-xs text-green-600">✓ {svgFile.name} uploaded</p>
-                )}
-              </CardContent>
-            </Card>
+            {/* Upload Section - Edit mode only */}
+            {isEditMode && (
+              <Card className="glass-card">
+                <CardHeader>
+                  <CardTitle className="text-ocean-primary">Change SVG (Optional)</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept=".svg,image/svg+xml"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                  />
+                  
+                  <Button
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploading}
+                    className="w-full bg-gradient-to-r from-ocean-primary to-ocean-secondary text-white"
+                  >
+                    <Upload className="w-4 h-4 mr-2" />
+                    {uploading ? 'Uploading...' : 'Upload New SVG'}
+                  </Button>
+                  
+                  {svgFile && (
+                    <p className="text-xs text-green-600">✓ {svgFile.name} uploaded</p>
+                  )}
+                </CardContent>
+              </Card>
+            )}
 
-            {/* Current Drawing */}
-            <Card className="glass-card">
+            {/* Current Drawing - Edit mode only */}
+            {isEditMode && (
+              <Card className="glass-card">
               <CardHeader>
                 <CardTitle className="text-ocean-primary">Add New Plot</CardTitle>
               </CardHeader>
