@@ -95,6 +95,10 @@ const LayoutEditor = () => {
       
       console.log('📊 Layout loaded:', layout);
       console.log('📍 Plots loaded:', layout.plots);
+      console.log('📐 Each plot coordinates:');
+      layout.plots?.forEach((plot, idx) => {
+        console.log(`  Plot ${idx + 1} (${plot.display_name}):`, plot.coordinates);
+      });
       
       setOriginalLayout(layout);
       setLayoutName(layout.layout_name);
@@ -106,7 +110,11 @@ const LayoutEditor = () => {
         setSvgFileInfo({ file_url: layout.svg_url });
       }
       
-      toast.success(`Layout loaded with ${layout.plots?.length || 0} plots`);
+      if (layout.plots && layout.plots.length > 0) {
+        toast.success(`Layout loaded with ${layout.plots.length} plots`);
+      } else {
+        toast.warning('Layout has no plots yet');
+      }
       
     } catch (error) {
       console.error('Error loading layout:', error);
