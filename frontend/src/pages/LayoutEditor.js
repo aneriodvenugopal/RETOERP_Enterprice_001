@@ -47,6 +47,46 @@ const LayoutEditor = () => {
     loadLayout();
   }, [layoutId]);
 
+  // Extract SVG dimensions when URL changes
+  useEffect(() => {
+    if (svgUrl) {
+      const img = new Image();
+      img.onload = () => {
+        // Try to read actual SVG dimensions
+        fetch(svgUrl)
+          .then(res => res.text())
+          .then(svgText => {
+            const parser = new DOMParser();
+            const svgDoc = parser.parseFromString(svgText, 'image/svg+xml');
+            const svgElement = svgDoc.querySelector('svg');
+            
+            if (svgElement) {
+              const viewBox = svgElement.getAttribute('viewBox');
+              if (viewBox) {
+                const [x, y, width, height] = viewBox.split(' ').map(Number);
+                setSvgDimensions({ width, height });
+                console.log('📐 SVG ViewBox detected:', { width, height });
+              } else {
+                const width = svgElement.getAttribute('width');
+                const height = svgElement.getAttribute('height');
+                if (width && height) {
+                  setSvgDimensions({ 
+                    width: parseFloat(width), 
+                    height: parseFloat(height) 
+                  });
+                  console.log('📐 SVG Dimensions detected:', { width, height });
+                }
+              }
+            }
+          })
+          .catch(err => {
+            console.warn('Could not read SVG dimensions:', err);
+          });
+      };
+      img.src = svgUrl;
+    }
+  }, [svgUrl]);
+
   const loadLayout = async () => {
     setLoading(true);
     try {
