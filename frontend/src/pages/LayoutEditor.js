@@ -851,8 +851,13 @@ const LayoutEditor = ({ mode = 'edit' }) => {
         <DialogContent className="glass-modal max-w-md">
           <DialogHeader>
             <DialogTitle className="text-ocean-primary">
-              {editingPlotId ? 'Edit Plot Details' : 'Plot Details'}
+              {editingPlotId ? 'Edit Plot Details' : 'Add New Plot'} ({currentPoints.length} points)
             </DialogTitle>
+            {editingPlotId && currentPoints.length === 0 && (
+              <p className="text-sm text-purple-600 mt-2">
+                💜 Re-marking boundaries: Click on SVG to mark new points, then save
+              </p>
+            )}
           </DialogHeader>
           <div className="space-y-4">
             <div>
