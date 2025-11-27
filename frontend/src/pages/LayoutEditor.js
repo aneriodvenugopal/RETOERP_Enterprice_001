@@ -633,27 +633,32 @@ const LayoutEditor = () => {
                           preserveAspectRatio="xMidYMid meet"
                         >
                           {/* Show saved plots */}
-                          {plots.map((plot) => (
-                            <g key={plot.id}>
-                              <polygon
-                                points={getPolygonPoints(plot.coordinates)}
-                                fill={getStatusColor(plot.status)}
-                                stroke="#0891b2"
-                                strokeWidth="2"
-                              />
-                              <text
-                                x={plot.coordinates.reduce((sum, c) => sum + c.x, 0) / plot.coordinates.length}
-                                y={plot.coordinates.reduce((sum, c) => sum + c.y, 0) / plot.coordinates.length}
-                                textAnchor="middle"
-                                dominantBaseline="middle"
-                                fill="#000"
-                                fontSize="12"
-                                fontWeight="bold"
-                              >
-                                {plot.display_name}
-                              </text>
-                            </g>
-                          ))}
+                          {plots.length > 0 && console.log('🎨 Rendering plots:', plots)}
+                          {plots.map((plot) => {
+                            console.log('🔷 Rendering plot:', plot.display_name, plot.coordinates);
+                            return (
+                              <g key={plot.id} onClick={() => handleEditPlot(plot)} style={{ cursor: 'pointer' }}>
+                                <polygon
+                                  points={getPolygonPoints(plot.coordinates)}
+                                  fill={getStatusColor(plot.status)}
+                                  stroke="#0891b2"
+                                  strokeWidth="2"
+                                />
+                                <text
+                                  x={plot.coordinates.reduce((sum, c) => sum + c.x, 0) / plot.coordinates.length}
+                                  y={plot.coordinates.reduce((sum, c) => sum + c.y, 0) / plot.coordinates.length}
+                                  textAnchor="middle"
+                                  dominantBaseline="middle"
+                                  fill="#000"
+                                  fontSize="14"
+                                  fontWeight="bold"
+                                  pointerEvents="none"
+                                >
+                                  {plot.display_name}
+                                </text>
+                              </g>
+                            );
+                          })}
                           
                           {/* Show current drawing */}
                           {currentPoints.length > 0 && (
