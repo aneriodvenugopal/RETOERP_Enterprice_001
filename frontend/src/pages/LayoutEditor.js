@@ -555,9 +555,10 @@ const LayoutEditor = ({ mode = 'edit' }) => {
                 )}
               </CardContent>
             </Card>
+            )}
 
-            {/* Debug Info */}
-            {plots.length > 0 && (
+            {/* Debug Info - Edit mode only */}
+            {isEditMode && plots.length > 0 && (
               <Card className="glass-card bg-green-50 border-green-200">
                 <CardContent className="pt-4">
                   <p className="text-sm text-green-800">
