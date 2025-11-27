@@ -19,6 +19,7 @@ import Dashboard from "./pages/Dashboard";
 import Projects from "./pages/Projects";
 import ProjectDetail from "./pages/ProjectDetail";
 import ProjectLayoutPage from "./pages/ProjectLayoutPage";
+import ProjectLayoutEditor from "./pages/ProjectLayoutEditor";
 import LayoutCreatorTool from "./pages/LayoutCreatorTool";
 import LayoutCreatorToolStandalone from "./pages/LayoutCreatorToolStandalone";
 import HybridLayoutCreator from "./pages/HybridLayoutCreator";
@@ -288,6 +289,14 @@ function App() {
                 element={
                   <PrivateRoute>
                     <ProjectLayoutPage />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/projects/:projectId/layout/edit"
+                element={
+                  <PrivateRoute>
+                    <ProjectLayoutEditor />
                   </PrivateRoute>
                 }
               />

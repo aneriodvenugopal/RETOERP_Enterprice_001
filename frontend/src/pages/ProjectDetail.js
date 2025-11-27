@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, Plus, Building2, Grid, List, Filter } from 'lucide-react';
+import { ArrowLeft, Plus, Building2, Grid, List, Filter, Map } from 'lucide-react';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 
@@ -150,123 +150,133 @@ const ProjectDetail = () => {
             <p className="text-gray-500">{project?.city}, {project?.state}</p>
           </div>
         </div>
-        <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="w-4 h-4 mr-2" />
-              Add Property
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>Add New Property</DialogTitle>
-            </DialogHeader>
-            <form onSubmit={handleCreateProperty} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Property Number *</label>
-                  <Input
-                    value={formData.property_number}
-                    onChange={(e) => setFormData(prev => ({ ...prev, property_number: e.target.value }))}
-                    placeholder="Plot 101"
-                    required
-                  />
+        <div className="flex gap-2">
+          <Button
+            onClick={() => navigate(`/projects/${projectId}/layout/edit`)}
+            variant="outline"
+            className="border-ocean-primary text-ocean-primary hover:bg-ocean-primary/10"
+          >
+            <Map className="w-4 h-4 mr-2" />
+            Layout Editor
+          </Button>
+          <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="w-4 h-4 mr-2" />
+                Add Property
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl">
+              <DialogHeader>
+                <DialogTitle>Add New Property</DialogTitle>
+              </DialogHeader>
+              <form onSubmit={handleCreateProperty} className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Property Number *</label>
+                    <Input
+                      value={formData.property_number}
+                      onChange={(e) => setFormData(prev => ({ ...prev, property_number: e.target.value }))}
+                      placeholder="Plot 101"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Property Type *</label>
+                    <Select
+                      value={formData.property_type_id}
+                      onValueChange={(value) => setFormData(prev => ({ ...prev, property_type_id: value }))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {propertyTypes.map((type) => (
+                          <SelectItem key={type.id} value={type.id}>
+                            {type.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Property Type *</label>
-                  <Select
-                    value={formData.property_type_id}
-                    onValueChange={(value) => setFormData(prev => ({ ...prev, property_type_id: value }))}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {propertyTypes.map((type) => (
-                        <SelectItem key={type.id} value={type.id}>
-                          {type.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Area (sq ft) *</label>
-                  <Input
-                    type="number"
-                    value={formData.area}
-                    onChange={(e) => setFormData(prev => ({ ...prev, area: e.target.value }))}
-                    placeholder="1200"
-                    required
-                  />
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Area (sq ft) *</label>
+                    <Input
+                      type="number"
+                      value={formData.area}
+                      onChange={(e) => setFormData(prev => ({ ...prev, area: e.target.value }))}
+                      placeholder="1200"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Price *</label>
+                    <Input
+                      type="number"
+                      value={formData.price}
+                      onChange={(e) => setFormData(prev => ({ ...prev, price: e.target.value }))}
+                      placeholder="5000000"
+                      required
+                    />
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Price *</label>
-                  <Input
-                    type="number"
-                    value={formData.price}
-                    onChange={(e) => setFormData(prev => ({ ...prev, price: e.target.value }))}
-                    placeholder="5000000"
-                    required
-                  />
-                </div>
-              </div>
 
-              <div className="grid grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Facing</label>
-                  <Select
-                    value={formData.facing}
-                    onValueChange={(value) => setFormData(prev => ({ ...prev, facing: value }))}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="North">North</SelectItem>
-                      <SelectItem value="South">South</SelectItem>
-                      <SelectItem value="East">East</SelectItem>
-                      <SelectItem value="West">West</SelectItem>
-                      <SelectItem value="North-East">North-East</SelectItem>
-                      <SelectItem value="North-West">North-West</SelectItem>
-                      <SelectItem value="South-East">South-East</SelectItem>
-                      <SelectItem value="South-West">South-West</SelectItem>
-                    </SelectContent>
-                  </Select>
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Facing</label>
+                    <Select
+                      value={formData.facing}
+                      onValueChange={(value) => setFormData(prev => ({ ...prev, facing: value }))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="North">North</SelectItem>
+                        <SelectItem value="South">South</SelectItem>
+                        <SelectItem value="East">East</SelectItem>
+                        <SelectItem value="West">West</SelectItem>
+                        <SelectItem value="North-East">North-East</SelectItem>
+                        <SelectItem value="North-West">North-West</SelectItem>
+                        <SelectItem value="South-East">South-East</SelectItem>
+                        <SelectItem value="South-West">South-West</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Block</label>
+                    <Input
+                      value={formData.block}
+                      onChange={(e) => setFormData(prev => ({ ...prev, block: e.target.value }))}
+                      placeholder="A"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Floor</label>
+                    <Input
+                      type="number"
+                      value={formData.floor}
+                      onChange={(e) => setFormData(prev => ({ ...prev, floor: e.target.value }))}
+                      placeholder="1"
+                    />
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Block</label>
-                  <Input
-                    value={formData.block}
-                    onChange={(e) => setFormData(prev => ({ ...prev, block: e.target.value }))}
-                    placeholder="A"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Floor</label>
-                  <Input
-                    type="number"
-                    value={formData.floor}
-                    onChange={(e) => setFormData(prev => ({ ...prev, floor: e.target.value }))}
-                    placeholder="1"
-                  />
-                </div>
-              </div>
 
-              <div className="flex gap-2 justify-end">
-                <Button type="button" variant="outline" onClick={() => setShowCreateDialog(false)}>
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={loading}>
-                  {loading ? 'Creating...' : 'Create Property'}
-                </Button>
-              </div>
-            </form>
-          </DialogContent>
-        </Dialog>
+                <div className="flex gap-2 justify-end">
+                  <Button type="button" variant="outline" onClick={() => setShowCreateDialog(false)}>
+                    Cancel
+                  </Button>
+                  <Button type="submit" disabled={loading}>
+                    {loading ? 'Creating...' : 'Create Property'}
+                  </Button>
+                </div>
+              </form>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       {/* Stats */}
