@@ -572,13 +572,12 @@ metadata:
 
 test_plan:
   current_focus:
-    - "IncomeLands Marketplace Models validation"
-    - "Marketplace API endpoints (agent management, projects/properties, lead submission)"
-    - "Commission calculation and tracking system"
-    - "Contact unlock revenue model"
-    - "Buyer requirements and AI matching engine"
-    - "Geo-location based filtering and distance calculations"
-    - "Analytics and statistics endpoints"
+    - "Project-Integrated Layout System - Layout Editor Button in ProjectDetail"
+    - "Project-Integrated Layout System - ProjectLayoutEditor Component"
+    - "Project-Integrated Layout System - Route Configuration"
+    - "Layout Editor navigation flow from Projects → ProjectDetail → Layout Editor"
+    - "ProjectLayoutEditor page loading and UI components visibility"
+    - "Layout API integration and functionality"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
