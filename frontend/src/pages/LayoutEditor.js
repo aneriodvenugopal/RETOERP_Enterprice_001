@@ -201,7 +201,8 @@ const LayoutEditor = ({ mode = 'edit' }) => {
   };
 
   // Edit existing plot
-  const handleEditPlot = (plot) => {
+  // Edit plot details only (name, price, area, status)
+  const handleEditPlotDetails = (plot) => {
     setEditingPlotId(plot.id);
     setPlotForm({
       display_name: plot.display_name,
@@ -211,8 +212,23 @@ const LayoutEditor = ({ mode = 'edit' }) => {
       status: plot.status,
       amenities: plot.amenities || []
     });
-    setCurrentPoints(plot.coordinates);
+    setCurrentPoints(plot.coordinates); // Keep existing points
     setShowPlotForm(true);
+  };
+
+  // Re-mark plot points (change boundaries)
+  const handleRermarkPlotPoints = (plot) => {
+    setEditingPlotId(plot.id);
+    setPlotForm({
+      display_name: plot.display_name,
+      block: plot.block || 'A',
+      price: plot.price.toString(),
+      area: plot.area.toString(),
+      status: plot.status,
+      amenities: plot.amenities || []
+    });
+    setCurrentPoints([]); // Clear points to re-mark
+    toast.info('Click on SVG to re-mark plot boundaries');
   };
 
   // Save current plot
