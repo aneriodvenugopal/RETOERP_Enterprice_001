@@ -332,6 +332,16 @@ const LayoutCreatorTool = () => {
                       Undo Last Point
                     </Button>
                     
+                    <Button
+                      onClick={clearPoints}
+                      variant="outline"
+                      size="sm"
+                      className="w-full text-red-600 hover:bg-red-50"
+                    >
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      Clear All Points
+                    </Button>
+                    
                     {currentPoints.length >= 3 && (
                       <Button
                         onClick={finishMarking}
@@ -342,6 +352,12 @@ const LayoutCreatorTool = () => {
                         Finish Marking ({currentPoints.length} points)
                       </Button>
                     )}
+                  </div>
+                )}
+                
+                {currentPoints.length > 0 && (
+                  <div className="p-2 bg-blue-50 border border-blue-200 rounded text-xs text-blue-800">
+                    💡 Click on any marked point to remove it
                   </div>
                 )}
               </CardContent>
