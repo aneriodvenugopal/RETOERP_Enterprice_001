@@ -600,27 +600,42 @@ const LayoutEditor = ({ mode = 'edit' }) => {
               <CardContent>
                 <div className="space-y-2 max-h-60 overflow-y-auto">
                   {plots.map((plot) => (
-                    <div key={plot.id} className="flex items-center justify-between p-2 bg-ocean-primary/5 rounded">
-                      <div>
-                        <span className="text-sm font-medium">Plot {plot.display_name}</span>
+                    <div key={plot.id} className="flex items-start justify-between p-3 bg-white rounded-lg border hover:border-ocean-primary transition-colors">
+                      <div className="flex-1">
+                        <p className="font-semibold text-gray-900">{plot.display_name}</p>
                         <p className="text-xs text-gray-600">{plot.area} sq.ft | ₹{plot.price.toLocaleString()}</p>
+                        <p className="text-xs text-gray-500 mt-1">Status: <span className="capitalize">{plot.status}</span> | {plot.coordinates.length} points</p>
                       </div>
-                      <div className="flex gap-1">
+                      <div className="flex flex-col gap-1">
                         <Button
-                          onClick={() => handleEditPlot(plot)}
+                          onClick={() => handleEditPlotDetails(plot)}
                           variant="ghost"
                           size="sm"
-                          className="text-ocean-primary hover:bg-ocean-primary/10"
+                          className="text-blue-600 hover:bg-blue-50 text-xs justify-start"
+                          title="Edit plot details (name, price, area)"
                         >
-                          <Edit2 className="w-4 h-4" />
+                          <Edit2 className="w-3 h-3 mr-1" />
+                          Details
+                        </Button>
+                        <Button
+                          onClick={() => handleRermarkPlotPoints(plot)}
+                          variant="ghost"
+                          size="sm"
+                          className="text-purple-600 hover:bg-purple-50 text-xs justify-start"
+                          title="Re-mark plot boundaries"
+                        >
+                          <MapPin className="w-3 h-3 mr-1" />
+                          Points
                         </Button>
                         <Button
                           onClick={() => deletePlot(plot.id)}
                           variant="ghost"
                           size="sm"
-                          className="text-red-500 hover:bg-red-50"
+                          className="text-red-500 hover:bg-red-50 text-xs justify-start"
+                          title="Delete plot"
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Trash2 className="w-3 h-3 mr-1" />
+                          Delete
                         </Button>
                       </div>
                     </div>
