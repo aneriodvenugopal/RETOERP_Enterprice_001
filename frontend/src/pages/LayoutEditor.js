@@ -420,7 +420,7 @@ const LayoutEditor = ({ mode = 'edit' }) => {
               Cancel
             </Button>
             <h1 className="text-xl font-bold bg-gradient-to-r from-ocean-primary to-ocean-secondary bg-clip-text text-transparent">
-              Edit Layout - {layoutName}
+              {isEditMode ? 'Edit Layout' : isViewMode ? 'View Layout' : 'Layout'} - {layoutName}
             </h1>
             <div className="w-32"></div>
           </div>
