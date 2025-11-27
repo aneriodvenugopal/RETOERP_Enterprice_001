@@ -207,43 +207,54 @@ const LayoutEditor = () => {
   };
 
   // Save current plot
-  const savePlot = () => {
+  // Add or update plot with auto-save
+  const savePlot = async () => {
     if (!plotForm.display_name || !plotForm.area || !plotForm.price) {
       toast.error('Please fill all required fields');
       return;
     }
 
+    const plotData = {
+      id: editingPlotId || `plot-${Date.now()}`,
+      coordinates: currentPoints,
+      ...plotForm,
+      area: parseFloat(plotForm.area),
+      price: parseFloat(plotForm.price)
+    };
+
+    let updatedPlots;
     if (editingPlotId) {
       // Update existing plot
-      setPlots(plots.map(p => 
-        p.id === editingPlotId 
-          ? {
-              ...p,
-              display_name: plotForm.display_name,
-              block: plotForm.block,
-              coordinates: currentPoints,
-              price: parseFloat(plotForm.price),
-              area: parseFloat(plotForm.area),
-              status: plotForm.status,
-              amenities: plotForm.amenities
-            }
-          : p
-      ));
-      toast.success(`Plot ${plotForm.display_name} updated!`);
+      updatedPlots = plots.map(p => p.id === editingPlotId ? plotData : p);
+      setPlots(updatedPlots);
+      toast.success('Plot updated');
     } else {
       // Add new plot
-      const newPlot = {
-        id: `plot-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-        display_name: plotForm.display_name,
-        block: plotForm.block,
-        coordinates: currentPoints,
-        price: parseFloat(plotForm.price),
-        area: parseFloat(plotForm.area),
-        status: plotForm.status,
-        amenities: plotForm.amenities
+      updatedPlots = [...plots, plotData];
+      setPlots(updatedPlots);
+      toast.success('Plot added');
+    }
+    
+    // Auto-save to database immediately
+    try {
+      const layoutData = {
+        layout_name: layoutName,
+        layout_type: layoutType,
+        svg_url: svgFileInfo.file_url,
+        plots: updatedPlots,
+        metadata: {
+          ...originalLayout.metadata,
+          updated_by: 'layout_editor',
+          last_updated: new Date().toISOString()
+        }
       };
-      setPlots([...plots, newPlot]);
-      toast.success(`Plot ${newPlot.display_name} added!`);
+
+      await layoutService.updateMasterLayout(layoutId, layoutData);
+      toast.success('✅ Auto-saved to database');
+      console.log('✅ Plot auto-saved to database');
+    } catch (error) {
+      console.error('Auto-save failed:', error);
+      toast.error('Failed to auto-save. Click "Update Layout" to retry.');
     }
     
     // Reset
