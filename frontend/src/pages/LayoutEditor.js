@@ -587,6 +587,20 @@ const LayoutEditor = ({ mode = 'edit' }) => {
               </Card>
             )}
             
+            {/* Help Section - Edit Mode Only */}
+            {isEditMode && plots.length > 0 && (
+              <Card className="glass-card bg-blue-50 border-blue-200">
+                <CardContent className="pt-4">
+                  <p className="text-sm font-semibold text-blue-900 mb-2">📝 Plot Actions Explained:</p>
+                  <div className="space-y-1 text-xs text-blue-800">
+                    <p>• <strong>Details</strong> (🔵): Edit name, price, area, status</p>
+                    <p>• <strong>Points</strong> (🟣): Re-mark plot boundaries on map</p>
+                    <p>• <strong>Delete</strong> (🔴): Remove plot permanently</p>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+            
             {/* Plots List */}
             <Card className="glass-card">
               <CardHeader>
