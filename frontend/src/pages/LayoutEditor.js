@@ -698,7 +698,11 @@ const LayoutEditor = ({ mode = 'edit' }) => {
                             });
                             
                             return (
-                              <g key={plot.id} onClick={() => handleEditPlot(plot)} style={{ cursor: 'pointer' }}>
+                              <g 
+                                key={plot.id} 
+                                onClick={isEditMode ? () => handleEditPlot(plot) : undefined} 
+                                style={{ cursor: isEditMode ? 'pointer' : 'default' }}
+                              >
                                 <polygon
                                   points={polygonPoints}
                                   fill={getStatusColor(plot.status)}
