@@ -106,6 +106,11 @@ const LayoutEditor = () => {
       return;
     }
 
+    // Don't add points if form is open
+    if (showPlotForm) {
+      return;
+    }
+
     const svg = svgRef.current;
     const rect = svg.getBoundingClientRect();
     const viewBox = svg.viewBox.baseVal;
@@ -117,10 +122,19 @@ const LayoutEditor = () => {
     const newPoints = [...currentPoints, { x: Math.round(x), y: Math.round(y) }];
     setCurrentPoints(newPoints);
     
-    // If 4 points marked, open form
-    if (newPoints.length === 4) {
-      setShowPlotForm(true);
+    // Show toast for guidance
+    if (newPoints.length === 1) {
+      toast.info('Keep clicking to mark all corners. Click "Finish Marking" when done.');
     }
+  };
+
+  // Finish marking and open form
+  const finishMarking = () => {
+    if (currentPoints.length < 3) {
+      toast.error('Please mark at least 3 points to form a plot');
+      return;
+    }
+    setShowPlotForm(true);
   };
 
   // Edit existing plot
