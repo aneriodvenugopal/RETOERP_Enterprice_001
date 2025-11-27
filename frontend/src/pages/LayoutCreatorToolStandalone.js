@@ -517,21 +517,54 @@ const LayoutCreatorToolStandalone = () => {
                           {/* Show current drawing */}
                           {currentPoints.length > 0 && (
                             <>
-                              <polyline
-                                points={getPolygonPoints([...currentPoints, currentPoints[0]])}
-                                fill="none"
-                                stroke="#ef4444"
-                                strokeWidth="2"
-                                strokeDasharray="5,5"
-                              />
-                              {currentPoints.map((point, idx) => (
-                                <circle
-                                  key={idx}
-                                  cx={point.x}
-                                  cy={point.y}
-                                  r="4"
-                                  fill="#ef4444"
+                              {/* Polygon preview */}
+                              {currentPoints.length >= 3 && (
+                                <polygon
+                                  points={getPolygonPoints(currentPoints)}
+                                  fill="#ef444430"
+                                  stroke="#ef4444"
+                                  strokeWidth="2"
+                                  strokeDasharray="5,5"
                                 />
+                              )}
+                              
+                              {/* Lines connecting points */}
+                              {currentPoints.length >= 2 && currentPoints.length < 3 && (
+                                <polyline
+                                  points={getPolygonPoints(currentPoints)}
+                                  fill="none"
+                                  stroke="#ef4444"
+                                  strokeWidth="2"
+                                  strokeDasharray="5,5"
+                                />
+                              )}
+                              
+                              {/* Point markers (clickable to remove) */}
+                              {currentPoints.map((point, idx) => (
+                                <g key={idx}>
+                                  <circle
+                                    cx={point.x}
+                                    cy={point.y}
+                                    r="8"
+                                    fill="#ef4444"
+                                    stroke="#fff"
+                                    strokeWidth="2"
+                                    style={{ cursor: 'pointer' }}
+                                    onClick={(e) => handlePointClick(e, idx)}
+                                    onMouseEnter={(e) => e.target.setAttribute('r', '10')}
+                                    onMouseLeave={(e) => e.target.setAttribute('r', '8')}
+                                  />
+                                  <text
+                                    x={point.x}
+                                    y={point.y - 15}
+                                    fill="#ef4444"
+                                    fontSize="12"
+                                    fontWeight="bold"
+                                    textAnchor="middle"
+                                  >
+                                    {idx + 1}
+                                  </text>
+                                </g>
                               ))}
                             </>
                           )}
