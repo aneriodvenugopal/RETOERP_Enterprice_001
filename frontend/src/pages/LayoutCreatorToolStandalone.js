@@ -354,19 +354,49 @@ const LayoutCreatorToolStandalone = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 <p className="text-sm">
-                  Points marked: <span className="font-bold text-ocean-primary">{currentPoints.length}/4</span>
+                  Points marked: <span className="font-bold text-ocean-primary">{currentPoints.length}</span>
+                  <span className="text-xs text-gray-500 ml-2">(min 3 points)</span>
                 </p>
                 
                 {currentPoints.length > 0 && (
-                  <Button
-                    onClick={undoLastPoint}
-                    variant="outline"
-                    size="sm"
-                    className="w-full"
-                  >
-                    <Undo className="w-4 h-4 mr-2" />
-                    Undo Last Point
-                  </Button>
+                  <div className="space-y-2">
+                    <Button
+                      onClick={undoLastPoint}
+                      variant="outline"
+                      size="sm"
+                      className="w-full"
+                    >
+                      <Undo className="w-4 h-4 mr-2" />
+                      Undo Last Point
+                    </Button>
+                    
+                    <Button
+                      onClick={clearPoints}
+                      variant="outline"
+                      size="sm"
+                      className="w-full text-red-600 hover:bg-red-50"
+                    >
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      Clear All Points
+                    </Button>
+                    
+                    {currentPoints.length >= 3 && (
+                      <Button
+                        onClick={finishMarking}
+                        size="sm"
+                        className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white"
+                      >
+                        <Check className="w-4 h-4 mr-2" />
+                        Finish Marking ({currentPoints.length} points)
+                      </Button>
+                    )}
+                  </div>
+                )}
+                
+                {currentPoints.length > 0 && (
+                  <div className="p-2 bg-blue-50 border border-blue-200 rounded text-xs text-blue-800">
+                    💡 Click on any marked point to remove it
+                  </div>
                 )}
               </CardContent>
             </Card>
