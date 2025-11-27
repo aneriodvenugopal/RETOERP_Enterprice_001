@@ -28,6 +28,7 @@ const LayoutEditor = () => {
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(true);
   const [editingPlotId, setEditingPlotId] = useState(null);
+  const [svgDimensions, setSvgDimensions] = useState({ width: 1122.6667, height: 793.33331 });
   
   // Plot form data
   const [plotForm, setPlotForm] = useState({
