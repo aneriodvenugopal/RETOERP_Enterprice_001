@@ -271,11 +271,17 @@ const LayoutCreatorToolStandalone = () => {
             <ol className="list-decimal list-inside space-y-2 text-sm">
               <li>Enter layout name and select type (Venture, Apartment, Open Land, Farm Land)</li>
               <li>Upload your layout SVG file</li>
-              <li>Click on 4 corners of each plot (clockwise or counter-clockwise)</li>
+              <li>Click on corners of each plot (minimum 3 points, maximum unlimited)</li>
+              <li>Click <strong>"Finish Marking"</strong> button when all corners are marked</li>
               <li>Fill plot details in the form that appears</li>
               <li>Click "Add Plot" and repeat for all plots</li>
               <li>Click "Save Layout" when done - Layout will be added to your library</li>
             </ol>
+            <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+              <p className="text-xs text-blue-800">
+                <strong>💡 Tip:</strong> You can mark plots with any number of points (3, 4, 5, 6, or more) to create triangular, rectangular, pentagonal, hexagonal, or complex shapes!
+              </p>
+            </div>
           </CardContent>
         </Card>
 
