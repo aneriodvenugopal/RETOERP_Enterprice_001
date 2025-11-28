@@ -303,30 +303,34 @@ const ProjectDetail = () => {
           <StatCard title="Blocked" value={stats?.blocked || 0} color="orange" />
         </div>
 
-      {/* Properties */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>Properties</CardTitle>
-            <div className="flex gap-2">
-              <Button
-                variant={viewMode === 'grid' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setViewMode('grid')}
-              >
-                <Grid className="w-4 h-4" />
-              </Button>
-              <Button
-                variant={viewMode === 'list' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setViewMode('list')}
-              >
-                <List className="w-4 h-4" />
-              </Button>
+        {/* Properties */}
+        <Card className="glass-card shadow-xl">
+          <CardHeader className="border-b border-ocean-primary/10">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-2xl font-bold bg-gradient-to-r from-ocean-primary to-ocean-secondary bg-clip-text text-transparent">
+                Properties
+              </CardTitle>
+              <div className="flex gap-2">
+                <Button
+                  variant={viewMode === 'grid' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setViewMode('grid')}
+                  className={viewMode === 'grid' ? 'bg-gradient-to-r from-ocean-primary to-ocean-secondary text-white' : ''}
+                >
+                  <Grid className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant={viewMode === 'list' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setViewMode('list')}
+                  className={viewMode === 'list' ? 'bg-gradient-to-r from-ocean-primary to-ocean-secondary text-white' : ''}
+                >
+                  <List className="w-4 h-4" />
+                </Button>
+              </div>
             </div>
-          </div>
-        </CardHeader>
-        <CardContent>
+          </CardHeader>
+          <CardContent className="p-6">
           {properties.length === 0 ? (
             <div className="text-center py-12">
               <Building2 className="w-12 h-12 mx-auto text-gray-400 mb-4" />
