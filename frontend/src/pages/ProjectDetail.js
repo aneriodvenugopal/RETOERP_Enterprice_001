@@ -391,23 +391,51 @@ const ProjectDetail = () => {
   );
 };
 
-const StatCard = ({ title, value, color }) => {
+const StatCard = ({ title, value, color, icon: Icon }) => {
   const colorClasses = {
-    blue: 'bg-blue-500',
-    green: 'bg-green-500',
-    gray: 'bg-gray-500',
-    orange: 'bg-orange-500',
+    blue: {
+      gradient: 'from-blue-500 to-blue-600',
+      bg: 'bg-blue-50',
+      text: 'text-blue-600',
+      icon: 'text-blue-500'
+    },
+    green: {
+      gradient: 'from-green-500 to-green-600',
+      bg: 'bg-green-50',
+      text: 'text-green-600',
+      icon: 'text-green-500'
+    },
+    gray: {
+      gradient: 'from-gray-500 to-gray-600',
+      bg: 'bg-gray-50',
+      text: 'text-gray-600',
+      icon: 'text-gray-500'
+    },
+    orange: {
+      gradient: 'from-orange-500 to-orange-600',
+      bg: 'bg-orange-50',
+      text: 'text-orange-600',
+      icon: 'text-orange-500'
+    },
   };
 
+  const colors = colorClasses[color] || colorClasses.blue;
+
   return (
-    <Card>
+    <Card className="glass-card hover:shadow-xl transition-all duration-300 hover:scale-105">
       <CardContent className="pt-6">
         <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm font-medium text-gray-600">{title}</p>
-            <p className="text-2xl font-bold mt-1">{value}</p>
+          <div className="flex-1">
+            <p className="text-sm font-medium text-gray-600 mb-2">{title}</p>
+            <p className={`text-3xl font-bold ${colors.text}`}>{value}</p>
           </div>
-          <div className={`w-2 h-12 rounded ${colorClasses[color]}`}></div>
+          <div className={`w-16 h-16 rounded-xl bg-gradient-to-br ${colors.gradient} flex items-center justify-center shadow-lg`}>
+            {Icon ? (
+              <Icon className="w-8 h-8 text-white" />
+            ) : (
+              <div className="w-8 h-8 bg-white rounded-full opacity-30"></div>
+            )}
+          </div>
         </div>
       </CardContent>
     </Card>
