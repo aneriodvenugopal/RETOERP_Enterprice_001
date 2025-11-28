@@ -295,13 +295,13 @@ const ProjectDetail = () => {
         </div>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <StatCard title="Total Properties" value={stats?.total_properties || 0} color="blue" />
-        <StatCard title="Available" value={stats?.available || 0} color="green" />
-        <StatCard title="Sold" value={stats?.sold || 0} color="gray" />
-        <StatCard title="Blocked" value={stats?.blocked || 0} color="orange" />
-      </div>
+        {/* Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <StatCard title="Total Properties" value={stats?.total_properties || 0} color="blue" icon={Building2} />
+          <StatCard title="Available" value={stats?.available || 0} color="green" />
+          <StatCard title="Sold" value={stats?.sold || 0} color="gray" />
+          <StatCard title="Blocked" value={stats?.blocked || 0} color="orange" />
+        </div>
 
       {/* Properties */}
       <Card>
