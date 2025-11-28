@@ -342,29 +342,42 @@ const ProjectDetail = () => {
               </Button>
             </div>
           ) : (
-            <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4' : 'space-y-2'}>
+            <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4' : 'space-y-3'}>
               {properties.map((property) => (
                 viewMode === 'grid' ? (
-                  <Card key={property.id} className="hover:shadow-md transition-shadow">
+                  <Card key={property.id} className="glass-card hover:shadow-xl transition-all duration-300 hover:scale-105 border-ocean-primary/20">
                     <CardContent className="p-4">
-                      <div className="flex items-start justify-between mb-2">
-                        <h4 className="font-semibold">{property.property_number}</h4>
+                      <div className="flex items-start justify-between mb-3">
+                        <h4 className="font-bold text-lg text-ocean-primary">{property.property_number}</h4>
                         {getStatusBadge(property.status_id)}
                       </div>
-                      <div className="space-y-1 text-sm text-gray-600">
-                        <div>Area: {property.area} sq ft</div>
-                        <div>Price: ₹{(property.price / 100000).toFixed(2)}L</div>
-                        {property.facing && <div>Facing: {property.facing}</div>}
+                      <div className="space-y-2 text-sm text-gray-700">
+                        <div className="flex items-center gap-2">
+                          <span className="font-semibold">Area:</span>
+                          <span>{property.area} sq ft</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-semibold">Price:</span>
+                          <span className="text-green-600 font-bold">₹{(property.price / 100000).toFixed(2)}L</span>
+                        </div>
+                        {property.facing && (
+                          <div className="flex items-center gap-2">
+                            <span className="font-semibold">Facing:</span>
+                            <span>{property.facing}</span>
+                          </div>
+                        )}
                       </div>
                     </CardContent>
                   </Card>
                 ) : (
-                  <div key={property.id} className="flex items-center justify-between p-4 border rounded hover:bg-gray-50">
-                    <div className="flex items-center gap-4">
-                      <div className="font-semibold">{property.property_number}</div>
-                      <div className="text-sm text-gray-600">{property.area} sq ft</div>
-                      <div className="text-sm">₹{(property.price / 100000).toFixed(2)}L</div>
-                      {property.facing && <div className="text-sm text-gray-600">{property.facing}</div>}
+                  <div key={property.id} className="flex items-center justify-between p-4 glass-card rounded-lg hover:shadow-lg transition-all duration-200 border-ocean-primary/20">
+                    <div className="flex items-center gap-6">
+                      <div className="font-bold text-lg text-ocean-primary">{property.property_number}</div>
+                      <div className="text-sm text-gray-600">
+                        <span className="font-semibold">Area:</span> {property.area} sq ft
+                      </div>
+                      <div className="text-sm font-bold text-green-600">₹{(property.price / 100000).toFixed(2)}L</div>
+                      {property.facing && <div className="text-sm text-gray-600"><span className="font-semibold">Facing:</span> {property.facing}</div>}
                     </div>
                     {getStatusBadge(property.status_id)}
                   </div>
