@@ -137,35 +137,51 @@ const ProjectDetail = () => {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button variant="outline" size="sm" onClick={() => navigate('/projects')}>
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back
-          </Button>
-          <div>
-            <h2 className="text-3xl font-bold">{project?.name}</h2>
-            <p className="text-gray-500">{project?.city}, {project?.state}</p>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-cyan-50">
+      {/* Animated Background */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-10 w-72 h-72 bg-ocean-primary/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-ocean-secondary/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+      </div>
+
+      <div className="relative z-10 p-6 space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => navigate('/projects')}
+              className="glass-card hover:shadow-md transition-all"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back
+            </Button>
+            <div>
+              <h2 className="text-4xl font-bold bg-gradient-to-r from-ocean-primary to-ocean-secondary bg-clip-text text-transparent">
+                {project?.project_name}
+              </h2>
+              <p className="text-gray-600 mt-1 flex items-center gap-2">
+                <span className="inline-block w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                {project?.city}, {project?.state}
+              </p>
+            </div>
           </div>
-        </div>
-        <div className="flex gap-2">
-          <Button
-            onClick={() => navigate(`/projects/${projectId}/layout/edit`)}
-            variant="outline"
-            className="border-ocean-primary text-ocean-primary hover:bg-ocean-primary/10"
-          >
-            <Map className="w-4 h-4 mr-2" />
-            Layout Editor
-          </Button>
-          <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="w-4 h-4 mr-2" />
-                Add Property
-              </Button>
-            </DialogTrigger>
+          <div className="flex gap-3">
+            <Button
+              onClick={() => navigate(`/projects/${projectId}/layout/edit`)}
+              className="glass-card bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all"
+            >
+              <Map className="w-4 h-4 mr-2" />
+              Layout Editor
+            </Button>
+            <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+              <DialogTrigger asChild>
+                <Button className="bg-gradient-to-r from-ocean-primary to-ocean-secondary hover:from-ocean-primary-dark hover:to-ocean-secondary-dark text-white shadow-lg hover:shadow-xl transition-all">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Property
+                </Button>
+              </DialogTrigger>
             <DialogContent className="max-w-2xl">
               <DialogHeader>
                 <DialogTitle>Add New Property</DialogTitle>
