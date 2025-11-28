@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { 
   Upload, Save, Undo, Trash2, Check, Edit2, MapPin, 
-  ArrowLeft, Layers, Home
+  ArrowLeft, Layers, Home, ZoomIn, ZoomOut
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '../contexts/AuthContext';
@@ -22,7 +22,7 @@ import axios from 'axios';
  * - Auto-save plots
  * - Variable points support (3+)
  * - Edit details vs re-mark points
- * - Clean UI/UX
+ * - Clean UI/UX with zoom
  */
 
 const ProjectLayoutEditor = () => {
@@ -636,110 +636,125 @@ const ProjectLayoutEditor = () => {
         <div className="lg:col-span-3">
           <Card className="glass-card">
             <CardHeader>
-              <CardTitle className="text-ocean-primary">Layout Canvas</CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-ocean-primary">Layout Canvas</CardTitle>
+                <div className="flex gap-2">
+                  <Button onClick={() => setZoom(z => Math.min(3, z + 0.2))} size="sm" variant="outline">
+                    <ZoomIn className="w-4 h-4" />
+                  </Button>
+                  <Button onClick={() => setZoom(z => Math.max(0.5, z - 0.2))} size="sm" variant="outline">
+                    <ZoomOut className="w-4 h-4" />
+                  </Button>
+                  <span className="text-sm py-2 px-3 bg-gray-100 rounded">{(zoom * 100).toFixed(0)}%</span>
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="relative bg-white rounded-lg border-2 border-dashed border-gray-300 overflow-hidden" style={{ height: '600px' }}>
+              <div className="bg-gray-50 rounded-lg overflow-auto border-2 border-ocean-primary/20" style={{ height: '700px' }}>
                 {svgUrl ? (
-                  <div className="relative w-full h-full">
-                    <img
-                      src={svgUrl}
-                      alt="Layout"
-                      className="absolute top-0 left-0 w-full h-full object-contain"
-                    />
-                    
-                    <svg
-                      ref={svgRef}
-                      onClick={handleSvgClick}
-                      style={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        width: '100%',
-                        height: '100%',
-                        cursor: 'crosshair'
-                      }}
-                      viewBox={`0 0 ${svgDimensions.width} ${svgDimensions.height}`}
-                      preserveAspectRatio="xMidYMid meet"
-                    >
-                      {/* Render saved plots */}
-                      {plots.map((plot) => (
-                        <g key={plot.id} style={{ cursor: 'pointer' }}>
-                          <polygon
-                            points={getPolygonPoints(plot.coordinates)}
-                            fill={getStatusColor(plot.status)}
-                            stroke="#0891b2"
-                            strokeWidth="2"
-                          />
-                          <text
-                            x={plot.coordinates.reduce((sum, c) => sum + c.x, 0) / plot.coordinates.length}
-                            y={plot.coordinates.reduce((sum, c) => sum + c.y, 0) / plot.coordinates.length}
-                            textAnchor="middle"
-                            dominantBaseline="middle"
-                            fill="#000"
-                            fontSize="14"
-                            fontWeight="bold"
-                            stroke="#fff"
-                            strokeWidth="3"
-                            paintOrder="stroke"
-                          >
-                            {plot.display_name}
-                          </text>
-                        </g>
-                      ))}
-
-                      {/* Current drawing */}
-                      {currentPoints.length > 0 && (
-                        <>
-                          {currentPoints.length >= 3 && (
+                  <div
+                    style={{
+                      transform: `scale(${zoom})`,
+                      transformOrigin: 'top left',
+                      width: 'fit-content'
+                    }}
+                  >
+                    <div style={{ position: 'relative', display: 'inline-block' }}>
+                      <img src={svgUrl} alt="Layout" style={{ display: 'block', maxWidth: '100%' }} />
+                      
+                      <svg
+                        ref={svgRef}
+                        onClick={handleSvgClick}
+                        style={{
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          width: '100%',
+                          height: '100%',
+                          cursor: 'crosshair'
+                        }}
+                        viewBox={`0 0 ${svgDimensions.width} ${svgDimensions.height}`}
+                        preserveAspectRatio="xMidYMid meet"
+                      >
+                        {/* Render saved plots */}
+                        {plots.map((plot) => (
+                          <g key={plot.id} style={{ cursor: 'pointer' }}>
                             <polygon
-                              points={getPolygonPoints(currentPoints)}
-                              fill="#ef444430"
-                              stroke="#ef4444"
+                              points={getPolygonPoints(plot.coordinates)}
+                              fill={getStatusColor(plot.status)}
+                              stroke="#0891b2"
                               strokeWidth="2"
-                              strokeDasharray="5,5"
                             />
-                          )}
-                          
-                          {currentPoints.length >= 2 && currentPoints.length < 3 && (
-                            <polyline
-                              points={getPolygonPoints(currentPoints)}
-                              fill="none"
-                              stroke="#ef4444"
-                              strokeWidth="2"
-                              strokeDasharray="5,5"
-                            />
-                          )}
-                          
-                          {currentPoints.map((point, idx) => (
-                            <g key={idx}>
-                              <circle
-                                cx={point.x}
-                                cy={point.y}
-                                r="8"
-                                fill="#ef4444"
-                                stroke="#fff"
+                            <text
+                              x={plot.coordinates.reduce((sum, c) => sum + c.x, 0) / plot.coordinates.length}
+                              y={plot.coordinates.reduce((sum, c) => sum + c.y, 0) / plot.coordinates.length}
+                              textAnchor="middle"
+                              dominantBaseline="middle"
+                              fill="#000"
+                              fontSize="14"
+                              fontWeight="bold"
+                              stroke="#fff"
+                              strokeWidth="3"
+                              paintOrder="stroke"
+                            >
+                              {plot.display_name}
+                            </text>
+                          </g>
+                        ))}
+
+                        {/* Current drawing */}
+                        {currentPoints.length > 0 && (
+                          <>
+                            {currentPoints.length >= 3 && (
+                              <polygon
+                                points={getPolygonPoints(currentPoints)}
+                                fill="#ef444430"
+                                stroke="#ef4444"
                                 strokeWidth="2"
-                                style={{ cursor: 'pointer' }}
-                                onClick={(e) => handlePointClick(e, idx)}
-                                onMouseEnter={(e) => e.target.setAttribute('r', '10')}
-                                onMouseLeave={(e) => e.target.setAttribute('r', '8')}
+                                strokeDasharray="5,5"
                               />
-                              <text
-                                x={point.x}
-                                y={point.y - 15}
-                                fill="#ef4444"
-                                fontSize="12"
-                                fontWeight="bold"
-                                textAnchor="middle"
-                              >
-                                {idx + 1}
-                              </text>
-                            </g>
-                          ))}
-                        </>
-                      )}
-                    </svg>
+                            )}
+                            
+                            {currentPoints.length >= 2 && currentPoints.length < 3 && (
+                              <polyline
+                                points={getPolygonPoints(currentPoints)}
+                                fill="none"
+                                stroke="#ef4444"
+                                strokeWidth="2"
+                                strokeDasharray="5,5"
+                              />
+                            )}
+                            
+                            {currentPoints.map((point, idx) => (
+                              <g key={idx}>
+                                <circle
+                                  cx={point.x}
+                                  cy={point.y}
+                                  r="8"
+                                  fill="#ef4444"
+                                  stroke="#fff"
+                                  strokeWidth="2"
+                                  style={{ cursor: 'pointer' }}
+                                  onClick={(e) => handlePointClick(e, idx)}
+                                  onMouseEnter={(e) => e.target.setAttribute('r', '10')}
+                                  onMouseLeave={(e) => e.target.setAttribute('r', '8')}
+                                />
+                                <text
+                                  x={point.x}
+                                  y={point.y - 15}
+                                  fill="#ef4444"
+                                  fontSize="12"
+                                  fontWeight="bold"
+                                  textAnchor="middle"
+                                >
+                                  {idx + 1}
+                                </text>
+                              </g>
+                            ))}
+                          </>
+                        )}
+                      </svg>
+                    </div>
                   </div>
                 ) : (
                   <div className="flex items-center justify-center h-full">
