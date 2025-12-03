@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Plus, Building2, MapPin, Calendar, TrendingUp } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
+import PageInfoModal from '../components/PageInfoModal';
 
 const Projects = () => {
   const [projects, setProjects] = useState([]);
