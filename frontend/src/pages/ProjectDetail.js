@@ -389,6 +389,50 @@ const ProjectDetail = () => {
         </CardContent>
       </Card>
     </div>
+
+      {/* Page Info Modal */}
+      <PageInfoModal
+        title="Project Detail Page"
+        description="A comprehensive project management interface that provides a complete overview of all properties within a specific real estate project. This page serves as the central hub for viewing project statistics, managing properties, and accessing the layout editor."
+        features={[
+          "Real-time project statistics dashboard with total, available, sold, and blocked properties",
+          "Interactive property grid and list view modes with smooth transitions",
+          "Quick access to Layout Editor with dedicated button for SVG-based plot management",
+          "Add new properties with comprehensive form (type, area, price, facing, block, floor)",
+          "Beautiful animated gradient background with floating orbs for premium UX",
+          "Glass card effects with hover animations for modern, professional appearance",
+          "Status badges with color coding (green=available, blue=booked, gray=sold, orange=blocked)",
+          "Responsive design that works seamlessly on desktop, tablet, and mobile devices"
+        ]}
+        technologies={[
+          "React.js",
+          "Tailwind CSS",
+          "Shadcn UI Components",
+          "React Router",
+          "Lucide Icons",
+          "FastAPI Backend",
+          "MongoDB Database"
+        ]}
+        implementations={[
+          {
+            title: "Enhanced Visual Design",
+            description: "Implemented modern UI with gradient backgrounds, glass-morphism cards, smooth hover animations, and color-coded status indicators. Added animated floating orbs in the background for a premium, professional look."
+          },
+          {
+            title: "Property Management System",
+            description: "Built comprehensive property CRUD operations with form validation, status management, and real-time updates. Properties can be viewed in both grid and list modes with seamless switching."
+          },
+          {
+            title: "Layout Integration",
+            description: "Seamlessly integrated with the Project Layout Editor through a prominent button. Users can quickly switch between property management and SVG-based layout editing without losing context."
+          },
+          {
+            title: "Statistics Dashboard",
+            description: "Created an at-a-glance statistics panel with four key metrics cards featuring gradient icon boxes, hover scale effects, and real-time data updates from the backend API."
+          }
+        ]}
+      />
+    </div>
     </div>
   );
 };
