@@ -13,6 +13,7 @@ import { toast } from 'sonner';
 import { useAuth } from '../contexts/AuthContext';
 import { layoutService } from '../services';
 import axios from 'axios';
+import PageInfoModal from '../components/PageInfoModal';
 
 /**
  * ProjectLayoutEditor - Integrated layout editor for project-specific layouts
