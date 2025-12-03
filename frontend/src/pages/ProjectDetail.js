@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ArrowLeft, Plus, Building2, Grid, List, Filter, Map } from 'lucide-react';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
+import PageInfoModal from '../components/PageInfoModal';
 
 const ProjectDetail = () => {
   const { projectId } = useParams();
