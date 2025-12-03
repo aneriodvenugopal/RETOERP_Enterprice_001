@@ -852,6 +852,57 @@ const ProjectLayoutEditor = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Page Info Modal */}
+      <PageInfoModal
+        title="Project Layout Editor"
+        description="A powerful SVG-based layout editor integrated directly into each project for creating, managing, and visualizing property plots. This tool enables precise plot marking, auto-saving, and comprehensive plot management with support for variable-point polygons (3+ points)."
+        features={[
+          "Project-specific layout management using dedicated API endpoints",
+          "SVG file upload and rendering with automatic viewBox dimension extraction",
+          "Interactive plot marking with variable points (minimum 3 points, no maximum limit)",
+          "Fixed coordinate mapping bug - points now appear exactly where clicked",
+          "Zoom functionality (50% to 300%) for precise plot marking",
+          "Auto-save plots immediately after adding/updating (no manual save needed)",
+          "Separate 'Edit Details' and 'Re-mark Points' buttons for clear workflow",
+          "Plot management panel with real-time statistics and status tracking",
+          "Undo last point and clear all points functionality for easy corrections",
+          "Click on any point marker to remove it during marking process",
+          "Visual plot preview with color coding (green=available, yellow=booked, red=sold)",
+          "Responsive canvas with scrollable container for large layouts"
+        ]}
+        technologies={[
+          "React.js",
+          "SVG Manipulation",
+          "Coordinate Transformation",
+          "Tailwind CSS",
+          "Shadcn UI",
+          "MongoDB",
+          "FastAPI"
+        ]}
+        implementations={[
+          {
+            title: "Coordinate Mapping Fix",
+            description: "Resolved critical bug where click coordinates were misaligned. Implemented proper SVG viewBox handling, coordinate transformation with zoom support, and scrollable container structure matching the working LayoutEditor.js architecture."
+          },
+          {
+            title: "Auto-Save Functionality",
+            description: "Plots are automatically saved to the database immediately when 'Add Plot' or 'Update Plot' is clicked. No need for manual 'Update Layout' button - changes are persisted in real-time to prevent data loss."
+          },
+          {
+            title: "Variable-Point Polygon Support",
+            description: "Users can create plots with any number of points (minimum 3). System supports complex plot shapes beyond simple rectangles - perfect for irregular land parcels and custom layouts."
+          },
+          {
+            title: "Dual-Mode Plot Editing",
+            description: "Clear separation between editing plot metadata (name, price, area, status) and re-marking physical boundaries. Users can update details without accidentally moving points or vice versa."
+          },
+          {
+            title: "Project-Integrated Architecture",
+            description: "Layout editor is seamlessly integrated into each project context. Uses project-specific API routes (/api/layouts/projects/{projectId}/layout) instead of separate master layouts system for better data organization and access control."
+          }
+        ]}
+      />
     </div>
   );
 };
