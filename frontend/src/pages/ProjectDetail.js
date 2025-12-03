@@ -388,7 +388,6 @@ const ProjectDetail = () => {
           )}
         </CardContent>
       </Card>
-    </div>
 
       {/* Page Info Modal */}
       <PageInfoModal
@@ -432,7 +431,7 @@ const ProjectDetail = () => {
           }
         ]}
       />
-    </div>
+      </div>
     </div>
   );
 };
