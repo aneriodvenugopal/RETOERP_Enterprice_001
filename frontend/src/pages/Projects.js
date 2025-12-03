@@ -310,6 +310,49 @@ const Projects = () => {
           ))}
         </div>
       )}
+
+      {/* Page Info Modal */}
+      <PageInfoModal
+        title="Projects Management"
+        description="A centralized hub for managing all real estate projects within your organization. This page provides a comprehensive overview of all projects with quick access to detailed views, statistics, and project creation capabilities."
+        features={[
+          "View all projects in an organized grid layout with key metrics",
+          "Create new projects with comprehensive details (name, type, location, currency, pricing)",
+          "Quick statistics per project: total units, available, sold, and blocked properties",
+          "One-click navigation to detailed project view for in-depth management",
+          "Project type categorization (Venture/Layout, Apartment, Open Land, Farm Land, Other)",
+          "Location-based organization with city and state information",
+          "Currency selection support for international projects",
+          "Empty state with helpful guidance when no projects exist",
+          "Responsive card-based layout that adapts to all screen sizes"
+        ]}
+        technologies={[
+          "React.js",
+          "React Router",
+          "Tailwind CSS",
+          "Shadcn UI",
+          "FastAPI Backend",
+          "MongoDB"
+        ]}
+        implementations={[
+          {
+            title: "Project CRUD Operations",
+            description: "Implemented complete create, read operations for projects. Users can add new projects with detailed information including type, location, currency, and base pricing. All data is validated and stored in MongoDB."
+          },
+          {
+            title: "Statistics Dashboard",
+            description: "Each project card displays real-time statistics showing total units, available properties, sold properties, and blocked properties. Color-coded for quick visual identification (green=available, blue=sold, orange=blocked)."
+          },
+          {
+            title: "Navigation Integration",
+            description: "Seamless navigation to project detail pages with click handlers on cards. Users can quickly drill down into specific projects to manage properties and access the layout editor."
+          },
+          {
+            title: "Multi-Tenant Support",
+            description: "Projects are automatically associated with the logged-in user's tenant. This ensures data isolation and proper access control in the multi-tenant SaaS architecture."
+          }
+        ]}
+      />
     </div>
   );
 };
