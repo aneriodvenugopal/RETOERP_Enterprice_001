@@ -21,25 +21,7 @@ const AIAgentsHub = () => {
   const [speakingAgentId, setSpeakingAgentId] = useState(null);
   const [filterCategory, setFilterCategory] = useState('all');
 
-  // Using existing aiAgents array below
-
-  const aiAgents = [
-    {
-      id: 'sms-agent',
-      name: 'SMS Automation Agent',
-      icon: MessageSquare,
-      color: 'from-blue-500 to-blue-600',
-      status: 'coming_soon',
-      shortDescription: 'Automated SMS sending for leads, follow-ups, payment reminders',
-      benefits: [
-        'Send project brochures with images and PDFs',
-        'Share property videos and virtual tours',
-        '98% open rate vs 20% for email',
-        'Two-way conversation support',
-        'Construction progress updates with photos',
-        'Interactive buttons for quick responses'
-      ]
-    },
+  // AI Agents array defined below after helper functions
     {
       id: 'email-agent',
       name: 'Email Marketing Agent',
