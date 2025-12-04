@@ -865,3 +865,49 @@ export const financialService = {
     return response.data;
   },
 };
+
+export const aiAgentService = {
+  // Lead Follow-up Agent
+  startLeadFollowup: async (leadId) => {
+    const response = await apiInstance.post(`/ai-agents/lead-followup/start?lead_id=${leadId}`);
+    return response.data;
+  },
+
+  sendLeadFollowupMessage: async (conversationId, sessionId, message) => {
+    const response = await apiInstance.post('/ai-agents/lead-followup/message', {
+      conversation_id: conversationId,
+      session_id: sessionId,
+      content: message,
+    });
+    return response.data;
+  },
+
+  // Property Recommendation Agent
+  startPropertyRecommendation: async (customerId = null) => {
+    const params = customerId ? `?customer_id=${customerId}` : '';
+    const response = await apiInstance.post(`/ai-agents/property-recommendation/start${params}`);
+    return response.data;
+  },
+
+  sendPropertyRecommendationMessage: async (conversationId, sessionId, message) => {
+    const response = await apiInstance.post('/ai-agents/property-recommendation/message', {
+      conversation_id: conversationId,
+      session_id: sessionId,
+      content: message,
+    });
+    return response.data;
+  },
+
+  // Conversation Management
+  getConversations: async (agentType = null, limit = 20) => {
+    const params = { limit };
+    if (agentType) params.agent_type = agentType;
+    const response = await apiInstance.get('/ai-agents/conversations', { params });
+    return response.data;
+  },
+
+  getConversationMessages: async (conversationId) => {
+    const response = await apiInstance.get(`/ai-agents/conversations/${conversationId}/messages`);
+    return response.data;
+  },
+};
