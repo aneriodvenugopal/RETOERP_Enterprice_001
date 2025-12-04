@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { UserPlus, Search, Edit, Trash2, CheckCircle, XCircle, Users, TrendingUp } from 'lucide-react';
+import PageInfoModal from '../components/PageInfoModal';
 
 const UsersManagement = () => {
   const { user } = useAuth();
