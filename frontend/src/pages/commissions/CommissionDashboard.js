@@ -470,6 +470,72 @@ const CommissionDashboard = () => {
           </div>
         </div>
       )}
+
+      {/* Page Info Modal */}
+      <PageInfoModal
+        title="Commission Dashboard"
+        description="Complete commission management system for tracking, approving, and managing staff earnings. Admins can review and approve commissions, while staff can view their earning history, status, and payment details."
+        features={[
+          "Role-based access: Admin view (approve/manage) vs Staff view (view only)",
+          "Real-time commission earnings tracking",
+          "Two commission types: Direct (from own sales) and Gap (from team/network)",
+          "Automatic TDS calculation at 5% on all commissions",
+          "Multi-status workflow: Pending → Approved → Paid (or Cancelled/On Hold)",
+          "Admin approval actions: Approve, Reject, Hold with one click",
+          "Comprehensive filtering: By status (all, pending, approved, paid, cancelled, on_hold)",
+          "Filter by commission type: Direct vs Gap commissions",
+          "Staff-level summary cards: Total Earnings, Pending, Approved, Paid amounts",
+          "Detailed earnings table with all financial breakdowns",
+          "Commission details modal with property and project information",
+          "Date-wise commission records with IST formatting",
+          "Net commission after TDS deduction",
+          "Staff hierarchy tracking for gap commissions"
+        ]}
+        technologies={[
+          "React.js",
+          "FastAPI Backend",
+          "MongoDB",
+          "Commission Calculation Engine",
+          "TDS Computation",
+          "Role-Based UI",
+          "Toast Notifications",
+          "Modal Dialogs"
+        ]}
+        implementations={[
+          {
+            title: "Role-Based Dashboard Views",
+            description: "Dashboard adapts based on user role determined from /user/me API. Admins (tenant_admin, super_admin roles) see all staff commissions with approval controls. Staff members see only their own commission records. Admin view shows 'Manage and approve' subtitle, Staff view shows 'View your earnings'. Filtering and data loading respects role permissions at API level with staff_id parameter for non-admins."
+          },
+          {
+            title: "Commission Calculation System",
+            description: "Each commission record stores: (1) Payment Received - base amount from booking payment, (2) Commission Percentage - configured rate (e.g., 2.5%), (3) Commission Amount - calculated as (payment * percentage / 100), (4) TDS Amount - automatically calculated as 5% of commission, (5) Net Commission - final payout amount after TDS deduction. All amounts displayed with ₹ symbol and proper Indian number formatting (lakhs/crores). Decimals shown to 2 places for accuracy."
+          },
+          {
+            title: "Two-Type Commission Model",
+            description: "Direct Commissions: Earned by sales agent who closed the deal directly. Shows staff name and commission details. Gap Commissions: Earned by managers/mentors from their team's sales. Shows 'From: [Sales Staff Name]' to indicate who made the sale. Color-coded badges distinguish types: Purple for Direct, Indigo for Gap. Both types calculated with same TDS rules but tracked separately for reporting."
+          },
+          {
+            title: "Multi-Status Approval Workflow",
+            description: "5 status states with color-coded badges and icons: (1) Pending (Yellow, Clock icon) - awaiting admin approval, (2) Approved (Green, CheckCircle) - approved but not yet paid, (3) Paid (Blue, Wallet) - payment completed, (4) Cancelled (Red, XCircle) - rejected/cancelled, (5) On Hold (Gray, PauseCircle) - temporarily paused. Only admins see action buttons (Approve/Reject/Hold) for Pending commissions. Status transitions tracked with timestamps."
+          },
+          {
+            title: "Admin Approval Controls",
+            description: "Three action buttons appear for pending commissions (admins only): (1) ThumbsUp icon - Approve commission for payment, (2) ThumbsDown icon - Reject commission, (3) PauseCircle icon - Put on hold for review. Actions call /commissions/earnings/{id}/approve API with action parameter. Success toast notifications confirm each action. Table refreshes automatically after status change. Prevents unauthorized approvals with role checks."
+          },
+          {
+            title: "Staff Summary Dashboard",
+            description: "4 gradient summary cards for staff users showing personalized metrics from /commissions/staff/{id}/summary API: (1) Total Earnings - overall commission count with green gradient, (2) Pending - yellow gradient with pending amount, (3) Approved - emerald gradient with approved amount, (4) Paid - blue gradient with paid amount. Uses by_status breakdown from summary API. Updates in real-time as commissions are approved/paid."
+          },
+          {
+            title: "Advanced Filtering System",
+            description: "Two filter rows: (1) Status Filter - 6 buttons (All, Pending, Approved, Paid, Cancelled, On Hold) with active state highlighting in blue, (2) Type Filter - 3 buttons (All, Direct, Gap) with active state in purple. Filters work together and send parameters to API. URL query params updated for bookmark-able filtered views. Filter state preserved during modal open/close. Instant feedback with loading spinner."
+          },
+          {
+            title: "Detailed Commission Modal",
+            description: "Full-screen modal triggered by Eye icon showing complete commission breakdown: Staff info with commission type badge, Financial grid with Payment Received, Commission %, Commission Amount, TDS row in red highlighting deduction, Net Payable in green as final amount, Property and Project details if available, Current status badge, Close button at bottom. Fetches from /commissions/earnings/{id} API with all related data. Responsive layout with 2-3 column grids."
+          }
+        ]}
+      />
     </div>
   );
 };
