@@ -346,6 +346,12 @@ const TenantAdminDashboard = () => {
           description="View insights and reports"
           onClick={() => navigate('/reports')}
         />
+        <ActionCard
+          icon={DollarSign}
+          title="Financial Management"
+          description="Track payments and expenses"
+          onClick={() => navigate('/financials')}
+        />
       </div>
       
       {/* Settings & Management Section */}
