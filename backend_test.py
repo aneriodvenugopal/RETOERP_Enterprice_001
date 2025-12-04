@@ -100,12 +100,8 @@ DEFAULT_TENANT_ID = "f18f7bd6-3a1f-472d-acf9-c2fb181787e7"
 DEFAULT_CURRENCY_ID = "INR"
 
 # Global variables to store test data
-test_scheme_id = None
-test_staff_id = None
-test_payment_id = None
-test_commission_id = None
-test_payout_id = None
-test_booking_id = None
+test_category_id = None
+test_subcategory_id = None
 
 # ============================================
 # RETOERP MASTER CATEGORIES SYSTEM TESTS
