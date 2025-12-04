@@ -19,6 +19,8 @@ async def seed_multi_role_system():
     db = client[DB_NAME]
     
     print("🎭 Seeding Multi-Role Access Control System...")
+    print(f"📁 Database: {DB_NAME}")
+    print(f"🔗 Connection: {MONGO_URL}")
     print("=" * 60)
     
     # Define 7 system roles with permissions
