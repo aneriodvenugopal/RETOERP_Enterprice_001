@@ -469,6 +469,7 @@ function App() {
                   </PrivateRoute>
                 }
               />
+              {/* DEPRECATED: Old standalone layouts library - Layouts now integrated per project */}
               <Route
                 path="/layouts"
                 element={
