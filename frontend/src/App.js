@@ -509,6 +509,7 @@ function App() {
                   </PrivateRoute>
                 }
               />
+              {/* DEPRECATED: Old standalone layout editor - Use ProjectLayoutEditor instead */}
               <Route
                 path="/layout-editor/:layoutId"
                 element={
