@@ -12,10 +12,11 @@ from datetime import datetime, timezone
 import uuid
 
 MONGO_URL = os.getenv('MONGO_URL', 'mongodb://localhost:27017')
+DB_NAME = os.getenv('DB_NAME', 'retoerp')
 
 async def seed_multi_role_system():
     client = AsyncIOMotorClient(MONGO_URL)
-    db = client.retoerp
+    db = client[DB_NAME]
     
     print("🎭 Seeding Multi-Role Access Control System...")
     print("=" * 60)
