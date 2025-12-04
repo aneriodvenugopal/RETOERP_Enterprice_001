@@ -10,7 +10,7 @@ import {
   Database, Users, Phone, TrendingUp, Home, Calendar,
   Zap, Mail, DollarSign, FileText, Shield, Info, Languages,
   Volume2, Search, BarChart2, Target, Eye, Scale, Wrench,
-  UserCheck, Leaf, MapPin, Share2, Image, Award, Network
+  UserCheck, Leaf, MapPin, Share2, Image, Award, Network, Calculator
 } from 'lucide-react';
 
 const AIAgentsHub = () => {
