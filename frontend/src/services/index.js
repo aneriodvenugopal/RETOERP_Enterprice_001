@@ -78,6 +78,34 @@ export const categoryService = {
     const response = await apiInstance.post('/categories/', categoryData);
     return response.data;
   },
+
+  // Dump master categories to project
+  dumpToProject: async (projectId, categoryIds = null) => {
+    const response = await apiInstance.post(`/categories/dump-to-project/${projectId}`, {
+      category_ids: categoryIds,
+    });
+    return response.data;
+  },
+
+  // Get project categories
+  getProjectCategories: async (projectId) => {
+    const response = await apiInstance.get(`/categories/project/${projectId}`);
+    return response.data;
+  },
+
+  // Get custom fields for project
+  getCustomFields: async (projectId, appliesTo = null) => {
+    const response = await apiInstance.get(`/categories/custom-fields/project/${projectId}`, {
+      params: { applies_to: appliesTo },
+    });
+    return response.data;
+  },
+
+  // Create custom field
+  createCustomField: async (fieldData) => {
+    const response = await apiInstance.post('/categories/custom-fields', fieldData);
+    return response.data;
+  },
 };
 
 export const tenantService = {
