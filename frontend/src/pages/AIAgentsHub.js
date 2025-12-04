@@ -21,10 +21,7 @@ const AIAgentsHub = () => {
   const [speakingAgentId, setSpeakingAgentId] = useState(null);
   const [filterCategory, setFilterCategory] = useState('all');
 
-  // Simplified agents data - using the existing aiAgents structure
-  // All agents have status 'coming_soon' for now
-    {
-      id: 'whatsapp-agent',
+  // Using existing aiAgents array below - it has all the necessary fields
       name: 'WhatsApp Business Agent',
       icon: Send,
       color: 'from-green-500 to-green-600',
