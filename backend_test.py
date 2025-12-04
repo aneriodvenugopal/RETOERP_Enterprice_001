@@ -455,7 +455,7 @@ def test_categories_by_type_filter():
 # 3. AUTHENTICATION & SECURITY TESTS
 # ============================================
 
-def test_create_payment_scheme():
+def test_authentication_security():
     """Test 4: POST /api/schemes - Create new payment scheme (requires auth)"""
     global test_scheme_id
     
