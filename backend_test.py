@@ -275,49 +275,71 @@ def test_get_master_subcategories():
         traceback.print_exc()
         return False
 
-def test_bookings_api():
-    """Test 3: GET /api/bookings - List confirmed bookings (requires auth)"""
+def test_get_all_master_categories_with_subcategories():
+    """Test 3: GET /api/categories/master/all-with-subcategories - Get complete hierarchy"""
     try:
-        print("\n📋 TESTING: GET /api/bookings")
+        print("\n🌳 TESTING: GET /api/categories/master/all-with-subcategories")
         
         headers = get_auth_headers()
-        response = requests.get(
-            f"{API_BASE}/bookings",
-            headers=headers,
-            params={"tenant_id": DEFAULT_TENANT_ID, "status": "confirmed"},
-            timeout=10
-        )
+        response = requests.get(f"{API_BASE}/categories/master/all-with-subcategories", headers=headers, timeout=10)
         
-        if response.status_code == 401:
-            print("   ⚠️ Bookings API requires valid authentication")
-            print("   ✅ Endpoint is accessible but protected (expected behavior)")
-            results.add_pass("Bookings API")
-            return True
-        elif response.status_code == 200:
+        def success_handler(response):
             data = response.json()
             
-            # Validate response is a list
-            if not isinstance(data, list):
-                results.add_fail("Bookings API", "Response is not a list")
+            # Validate response structure
+            required_fields = ['success', 'count', 'categories']
+            missing_fields = [field for field in required_fields if field not in data]
+            
+            if missing_fields:
+                results.add_fail("Get All Categories with Subcategories", f"Missing fields: {missing_fields}")
                 return False
             
-            results.add_pass("Bookings API")
-            print(f"   ✅ Found {len(data)} confirmed bookings")
+            if not data.get('success'):
+                results.add_fail("Get All Categories with Subcategories", "Response success is False")
+                return False
             
-            # Store a booking ID for later tests if available
-            global test_booking_id
-            if data:
-                test_booking_id = data[0].get('id')
-                print(f"   📝 Sample booking: {test_booking_id}")
+            categories = data.get('categories', [])
+            count = data.get('count', 0)
+            
+            if count != len(categories):
+                results.add_fail("Get All Categories with Subcategories", f"Count mismatch: {count} vs {len(categories)}")
+                return False
+            
+            # Verify each category has subcategories
+            total_subcategories = 0
+            for category in categories:
+                if 'subcategories' not in category:
+                    results.add_fail("Get All Categories with Subcategories", f"Category {category.get('name')} missing subcategories")
+                    return False
+                
+                if 'subcategories_count' not in category:
+                    results.add_fail("Get All Categories with Subcategories", f"Category {category.get('name')} missing subcategories_count")
+                    return False
+                
+                subcats = category.get('subcategories', [])
+                subcat_count = category.get('subcategories_count', 0)
+                
+                if len(subcats) != subcat_count:
+                    results.add_fail("Get All Categories with Subcategories", f"Subcategory count mismatch for {category.get('name')}")
+                    return False
+                
+                total_subcategories += len(subcats)
+            
+            results.add_pass("Get All Categories with Subcategories")
+            print(f"   ✅ Found {len(categories)} categories with {total_subcategories} total subcategories")
+            
+            # Print summary
+            for category in categories:
+                cat_name = category.get('name', 'Unknown')
+                subcat_count = category.get('subcategories_count', 0)
+                print(f"   📂 {cat_name}: {subcat_count} subcategories")
             
             return True
-        else:
-            results.add_fail("Bookings API", f"Unexpected status code: {response.status_code}")
-            print_error_details("Bookings API", response)
-            return False
+        
+        return handle_auth_protected_endpoint("Get All Categories with Subcategories", response, success_handler)
         
     except Exception as e:
-        results.add_fail("Bookings API", f"Exception: {str(e)}")
+        results.add_fail("Get All Categories with Subcategories", f"Exception: {str(e)}")
         traceback.print_exc()
         return False
 
