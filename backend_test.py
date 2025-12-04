@@ -150,48 +150,69 @@ def handle_auth_protected_endpoint(test_name, response, expected_success_handler
         return False
 
 # ============================================
-# 1. SUPPORTING APIS TESTS
+# 1. MASTER CATEGORIES API TESTS
 # ============================================
 
-def test_public_tenant_landing():
-    """Test 1: GET /api/public/tenant/{id} - Public tenant landing page"""
+def test_get_all_master_categories():
+    """Test 1: GET /api/categories/master - Get all master categories"""
     try:
-        print("\n🏢 TESTING: GET /api/public/tenant/{DEFAULT_TENANT_ID}")
+        print("\n🏢 TESTING: GET /api/categories/master")
         
-        response = requests.get(f"{API_BASE}/public/tenant/{DEFAULT_TENANT_ID}", timeout=10)
+        headers = get_auth_headers()
+        response = requests.get(f"{API_BASE}/categories/master", headers=headers, timeout=10)
         
-        if response.status_code != 200:
-            results.add_fail("Public Tenant Landing", f"Status code: {response.status_code}")
-            print_error_details("Public Tenant Landing", response)
-            return False
+        def success_handler(response):
+            data = response.json()
             
-        data = response.json()
+            # Validate response structure
+            required_fields = ['success', 'count', 'categories']
+            missing_fields = [field for field in required_fields if field not in data]
+            
+            if missing_fields:
+                results.add_fail("Get All Master Categories", f"Missing fields: {missing_fields}")
+                return False
+            
+            if not data.get('success'):
+                results.add_fail("Get All Master Categories", "Response success is False")
+                return False
+            
+            categories = data.get('categories', [])
+            count = data.get('count', 0)
+            
+            if count != len(categories):
+                results.add_fail("Get All Master Categories", f"Count mismatch: {count} vs {len(categories)}")
+                return False
+            
+            # Verify we have the expected 4 master categories
+            if len(categories) < 4:
+                results.add_fail("Get All Master Categories", f"Expected at least 4 categories, got {len(categories)}")
+                return False
+            
+            # Check for expected categories
+            category_names = [cat.get('name', '') for cat in categories]
+            expected_categories = ['Residential', 'Commercial', 'Industrial', 'Agricultural']
+            
+            missing_categories = [cat for cat in expected_categories if cat not in category_names]
+            if missing_categories:
+                results.add_fail("Get All Master Categories", f"Missing expected categories: {missing_categories}")
+                return False
+            
+            results.add_pass("Get All Master Categories")
+            print(f"   ✅ Found {len(categories)} master categories")
+            print(f"   📋 Categories: {', '.join(category_names)}")
+            
+            # Store first category ID for subcategory tests
+            global test_category_id
+            if categories:
+                test_category_id = categories[0].get('id')
+                print(f"   🔗 Sample category ID: {test_category_id}")
+            
+            return True
         
-        # Validate response structure
-        required_fields = ['success', 'tenant', 'projects', 'statistics']
-        missing_fields = [field for field in required_fields if field not in data]
-        
-        if missing_fields:
-            results.add_fail("Public Tenant Landing", f"Missing fields: {missing_fields}")
-            return False
-        
-        if not data.get('success'):
-            results.add_fail("Public Tenant Landing", "Response success is False")
-            return False
-        
-        tenant = data.get('tenant', {})
-        projects = data.get('projects', [])
-        statistics = data.get('statistics', {})
-        
-        results.add_pass("Public Tenant Landing")
-        print(f"   ✅ Tenant: {tenant.get('company_name', 'Unknown')}")
-        print(f"   📊 Projects: {len(projects)}")
-        print(f"   📈 Statistics: {statistics}")
-        
-        return True
+        return handle_auth_protected_endpoint("Get All Master Categories", response, success_handler)
         
     except Exception as e:
-        results.add_fail("Public Tenant Landing", f"Exception: {str(e)}")
+        results.add_fail("Get All Master Categories", f"Exception: {str(e)}")
         traceback.print_exc()
         return False
 
