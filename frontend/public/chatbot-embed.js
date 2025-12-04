@@ -47,7 +47,7 @@
         tenantId: tenantId,
         position: position,
         primaryColor: primaryColor,
-        backendUrl: 'https://land-atlas.preview.emergentagent.com/api'
+        backendUrl: 'https://propertysuite-3.preview.emergentagent.com/api'
       };
       
       // Load chat widget bundle
