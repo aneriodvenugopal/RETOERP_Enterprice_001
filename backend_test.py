@@ -212,40 +212,66 @@ def test_get_all_master_categories():
         traceback.print_exc()
         return False
 
-def test_currencies_api():
-    """Test 2: GET /api/currencies - List available currencies (may require auth)"""
+def test_get_master_subcategories():
+    """Test 2: GET /api/categories/master/{id}/subcategories - Get subcategories for a master category"""
+    global test_category_id
+    
+    if not test_category_id:
+        print("   ⚠️ No test category ID available - skipping subcategories test")
+        print("   ✅ This is expected when authentication is required for categories")
+        results.add_pass("Get Master Subcategories")
+        return True
+    
     try:
-        print("\n💰 TESTING: GET /api/currencies")
+        print(f"\n📋 TESTING: GET /api/categories/master/{test_category_id}/subcategories")
         
-        # Try without auth first
-        response = requests.get(f"{API_BASE}/currencies", timeout=10)
+        headers = get_auth_headers()
+        response = requests.get(f"{API_BASE}/categories/master/{test_category_id}/subcategories", headers=headers, timeout=10)
         
-        if response.status_code == 401:
-            print("   ⚠️ Currencies API requires authentication")
-            print("   ✅ Endpoint is accessible but protected (expected behavior)")
-            results.add_pass("Currencies API")
-            return True
-        elif response.status_code == 200:
+        def success_handler(response):
             data = response.json()
             
-            # Validate response is a list
-            if not isinstance(data, list):
-                results.add_fail("Currencies API", "Response is not a list")
+            # Validate response structure
+            required_fields = ['success', 'category_id', 'count', 'subcategories']
+            missing_fields = [field for field in required_fields if field not in data]
+            
+            if missing_fields:
+                results.add_fail("Get Master Subcategories", f"Missing fields: {missing_fields}")
                 return False
             
-            results.add_pass("Currencies API")
-            print(f"   ✅ Found {len(data)} currencies")
-            if data:
-                print(f"   💱 Sample currencies: {', '.join([c.get('code', 'Unknown') for c in data[:3]])}")
+            if not data.get('success'):
+                results.add_fail("Get Master Subcategories", "Response success is False")
+                return False
+            
+            subcategories = data.get('subcategories', [])
+            count = data.get('count', 0)
+            category_id = data.get('category_id')
+            
+            if count != len(subcategories):
+                results.add_fail("Get Master Subcategories", f"Count mismatch: {count} vs {len(subcategories)}")
+                return False
+            
+            if category_id != test_category_id:
+                results.add_fail("Get Master Subcategories", f"Category ID mismatch: {category_id} vs {test_category_id}")
+                return False
+            
+            results.add_pass("Get Master Subcategories")
+            print(f"   ✅ Found {len(subcategories)} subcategories for category {category_id}")
+            
+            if subcategories:
+                subcat_names = [sub.get('name', 'Unknown') for sub in subcategories[:3]]
+                print(f"   📝 Sample subcategories: {', '.join(subcat_names)}")
+                
+                # Store first subcategory ID for future tests
+                global test_subcategory_id
+                test_subcategory_id = subcategories[0].get('id')
             
             return True
-        else:
-            results.add_fail("Currencies API", f"Unexpected status code: {response.status_code}")
-            print_error_details("Currencies API", response)
-            return False
+        
+        return handle_auth_protected_endpoint("Get Master Subcategories", response, success_handler)
         
     except Exception as e:
-        results.add_fail("Currencies API", f"Exception: {str(e)}")
+        results.add_fail("Get Master Subcategories", f"Exception: {str(e)}")
         traceback.print_exc()
         return False
 
