@@ -14,6 +14,7 @@ import {
   TrendingUp, Users, DollarSign, FileText, Award, Download,
   Calendar, TrendingDown, AlertCircle
 } from 'lucide-react';
+import PageInfoModal from '../components/PageInfoModal';
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82ca9d'];
 
