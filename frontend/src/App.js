@@ -32,6 +32,7 @@ import Leads from "./pages/Leads";
 import CalendarPage from "./pages/CalendarPage";
 import Bookings from "./pages/Bookings";
 import AIAgentsHub from "./pages/AIAgentsHub";
+import Financials from "./pages/Financials";
 import Reports from "./pages/Reports";
 import UsersManagement from "./pages/UsersManagement";
 import CustomerDashboard from "./pages/CustomerDashboard";
