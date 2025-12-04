@@ -352,6 +352,12 @@ const TenantAdminDashboard = () => {
           description="Track payments and expenses"
           onClick={() => navigate('/financials')}
         />
+        <ActionCard
+          icon={Bot}
+          title="AI Agents"
+          description="AI-powered assistants for your business"
+          onClick={() => navigate('/ai-agents')}
+        />
       </div>
       
       {/* Settings & Management Section */}
