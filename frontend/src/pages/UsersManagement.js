@@ -452,6 +452,65 @@ const UsersManagement = () => {
           </DialogContent>
         </Dialog>
       )}
+
+      {/* Page Info Modal */}
+      <PageInfoModal
+        title="Users & Staff Management"
+        description="Centralized user management system for your entire team. Create users, assign roles, manage permissions, track staff performance, monitor activity, and control access across your real estate organization."
+        features={[
+          "Create new users with name, phone (10-digit), email, and role assignment",
+          "Role-based access control with multiple roles (Super Admin, Tenant Admin, Staff, Customer, etc.)",
+          "User status management: Activate/Deactivate users",
+          "Edit user details and role assignments",
+          "Advanced search: Filter by name, phone, email",
+          "Role-based filtering to view users by specific roles",
+          "Status filtering: All, Active, Inactive users",
+          "Staff performance tracking with detailed metrics",
+          "Performance dashboard per staff member showing: Total Leads, Converted Leads, Conversion Rate, Bookings Closed",
+          "Commission earnings tracking: Total Earned, Paid, Pending amounts",
+          "Recent leads view per staff member with status badges",
+          "Tenant-level user isolation (Tenant Admins see only their users)",
+          "Super Admin global user management across all tenants",
+          "User activity indicators and status badges",
+          "Responsive table design with action buttons"
+        ]}
+        technologies={[
+          "React.js",
+          "FastAPI Backend",
+          "MongoDB",
+          "Shadcn UI",
+          "Role-Based Access Control (RBAC)",
+          "User Service API",
+          "Performance Analytics API",
+          "Auth Service"
+        ]}
+        implementations={[
+          {
+            title: "User Creation & Management",
+            description: "Modal-based user creation form with validation: Full name (required), 10-digit phone number (required, used for login), email (optional), role selection from dropdown. Form validates all fields before submission. After creation, user can login with phone/email and default password. Edit dialog allows updating name, email, and role assignment."
+          },
+          {
+            title: "Role-Based Access Control",
+            description: "Integrated with auth service to fetch available roles dynamically. Roles displayed in dropdown with proper naming. Super Admins can assign any role, Tenant Admins restricted to their tenant roles. Role displayed as color-coded badge (Super Admin = red destructive badge, others = default blue). Role affects user permissions across entire application."
+          },
+          {
+            title: "Advanced Filtering System",
+            description: "Three-tier filtering: (1) Search bar with real-time search across name, phone, and email fields, (2) Role dropdown filter to show users of specific role, (3) Status filter (All/Active/Inactive). Filters work together - can combine role + status + search. 'Apply Filters' button triggers data refresh with filter parameters."
+          },
+          {
+            title: "User Status Management",
+            description: "Toggle button for each user to activate/deactivate. Active users shown with green 'Active' badge, inactive with gray 'Inactive' badge. Deactivated users cannot log in but data is preserved. Quick visual indicators with XCircle (deactivate) and CheckCircle (activate) icons. Status changes reflected immediately in table."
+          },
+          {
+            title: "Staff Performance Dashboard",
+            description: "Dedicated performance view for staff members (staff role only). Accessible via TrendingUp icon button in actions column. Performance modal shows: (1) Metrics Grid: 4 KPI cards with Total Leads, Converted Leads (green), Conversion Rate %, Bookings Closed, (2) Commission Card: Total Earned, Paid (green), Pending (orange) with proper currency formatting, (3) Recent Leads List: Last 10 leads with status badges and formatted display. Data fetched from performance API on-demand."
+          },
+          {
+            title: "Tenant Data Isolation",
+            description: "Multi-tenancy support built-in. Tenant Admins see only users within their tenant (filtered by tenant_id automatically). Super Admins see all users across all tenants (no tenant_id filter). User list API respects tenant context from logged-in user. Ensures data privacy and proper access boundaries."
+          }
+        ]}
+      />
     </div>
   );
 };
