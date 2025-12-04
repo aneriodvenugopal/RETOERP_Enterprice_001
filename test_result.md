@@ -219,12 +219,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "RoleContextService - Core methods testing"
-    - "Bank Accounts API - Role-based access control verification"
-    - "Role Assignment API - Create, read, delete operations"
-    - "Multi-role scenario - User with multiple roles in same/different projects"
-    - "Tenant Admin vs Project Admin access differences"
-    - "Cross-project access attempts (should fail)"
+    - "Financial Management System Frontend Implementation"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
