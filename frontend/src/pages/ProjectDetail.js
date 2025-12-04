@@ -491,50 +491,11 @@ const ProjectDetail = () => {
               </Card>
 
               {/* Custom Fields Section */}
-              <Card className="glass-card shadow-xl">
-                <CardHeader className="border-b border-ocean-primary/10">
-                  <CardTitle className="text-2xl font-bold bg-gradient-to-r from-ocean-primary to-ocean-secondary bg-clip-text text-transparent">
-                    Custom Fields
-                  </CardTitle>
-                  <p className="text-sm text-gray-600 mt-2">
-                    Add custom fields specific to this project for properties or project-level data.
-                  </p>
-                </CardHeader>
-                <CardContent className="p-6">
-                  {customFields.length === 0 ? (
-                    <div className="text-center py-12">
-                      <Plus className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-                      <h3 className="text-lg font-semibold mb-2">No custom fields yet</h3>
-                      <p className="text-gray-500 mb-4">Add custom fields to capture project-specific information</p>
-                      <Button>
-                        <Plus className="w-4 h-4 mr-2" />
-                        Add Custom Field
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="space-y-3">
-                      {customFields.map((field) => (
-                        <Card key={field.id} className="border border-gray-200">
-                          <CardContent className="p-4">
-                            <div className="flex items-start justify-between">
-                              <div>
-                                <h4 className="font-bold">{field.field_name}</h4>
-                                <p className="text-sm text-gray-600">
-                                  Type: {field.field_type} | Applies to: {field.applies_to}
-                                  {field.is_required && <Badge variant="destructive" className="ml-2">Required</Badge>}
-                                </p>
-                              </div>
-                              <Badge className={field.is_active ? 'bg-green-500' : 'bg-gray-500'}>
-                                {field.is_active ? 'Active' : 'Inactive'}
-                              </Badge>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+              <CustomFieldsManager 
+                projectId={projectId} 
+                customFields={customFields}
+                onFieldsUpdate={fetchCustomFields}
+              />
 
               {/* Role Management Section */}
               <RoleManagement projectId={projectId} tenantId={project?.tenant_id} />
