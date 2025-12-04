@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import apiInstance from '../../services/api';
 import { toast } from 'sonner';
+import PageInfoModal from '../../components/PageInfoModal';
 
 const CommissionDashboard = () => {
   const [earnings, setEarnings] = useState([]);
