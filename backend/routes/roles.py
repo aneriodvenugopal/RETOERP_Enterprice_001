@@ -356,14 +356,10 @@ async def get_project_staff_assignments(
     current_tenant_id = current_user.get("tenant_id")
     
     # Check if user has permission to view project staff
-    has_permission = await RoleContextService.has_permission(
-        user_id=current_user_id,
-        tenant_id=current_tenant_id,
-        permission="view_all_project_data",
-        project_id=project_id
-    )
+    is_tenant_admin = await RoleContextService.is_tenant_admin(current_user_id, current_tenant_id)
+    is_project_admin = await RoleContextService.is_project_admin(current_user_id, current_tenant_id, project_id)
     
-    if not has_permission:
+    if not (is_tenant_admin or is_project_admin):
         raise HTTPException(
             status_code=403,
             detail="You don't have permission to view project staff"
