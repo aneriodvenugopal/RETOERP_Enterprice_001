@@ -1,12 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Bot, MessageSquare, Send, CreditCard, Bell, Clock, 
   Database, Users, Phone, TrendingUp, Home, Calendar,
-  Zap, Mail, DollarSign, FileText, Shield, Info
+  Zap, Mail, DollarSign, FileText, Shield, Info, Languages,
+  Volume2, Search, BarChart2, Target, Eye, Scale, Wrench,
+  UserCheck, Leaf, MapPin, Share2, Image, Award, Network
 } from 'lucide-react';
 
 const AIAgentsHub = () => {
