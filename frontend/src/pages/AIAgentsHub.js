@@ -672,7 +672,7 @@ const AIAgentsHub = () => {
               </p>
             </div>
           </div>
-          <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-r-lg">
+          <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-r-lg mb-4">
             <div className="flex items-start gap-2">
               <Info className="w-5 h-5 text-yellow-600 mt-0.5" />
               <div>
@@ -682,6 +682,30 @@ const AIAgentsHub = () => {
                   Implementation తర్వాత confirm చేసిన తర్వాత start అవుతుంది.
                 </p>
               </div>
+            </div>
+          </div>
+
+          {/* Link to Interactive AI Agents */}
+          <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-300 p-4 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center">
+                  <Zap className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-green-800">Try Our Live AI Agents!</p>
+                  <p className="text-xs text-green-700 mt-0.5">
+                    Property Recommendation & Lead Follow-up agents are now live with GPT-5
+                  </p>
+                </div>
+              </div>
+              <Button
+                onClick={() => window.location.href = '/ai-agents'}
+                className="bg-gradient-to-r from-green-500 to-emerald-500 hover:opacity-90 text-white"
+              >
+                Launch AI Agents
+                <Zap className="w-4 h-4 ml-2" />
+              </Button>
             </div>
           </div>
         </div>
