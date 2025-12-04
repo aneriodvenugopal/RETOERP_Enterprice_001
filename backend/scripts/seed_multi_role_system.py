@@ -165,15 +165,22 @@ async def seed_multi_role_system():
         }
     ]
     
-    # Clear existing roles and insert new ones
+    # Clear existing system roles with level field (new system)
     print("\n📋 Creating system roles...")
-    await db.roles.delete_many({"is_system": True})
+    delete_result = await db.roles.delete_many({"is_system": True, "level": {"$exists": True}})
+    print(f"  Deleted {delete_result.deleted_count} old system roles")
     
+    # Insert new roles
+    inserted_count = 0
     for role in system_roles:
-        await db.roles.insert_one(role)
-        print(f"  ✅ {role['name']} (Level {role['level']}) - {len(role['permissions'])} permissions")
+        try:
+            await db.roles.insert_one(role)
+            print(f"  ✅ {role['name']} (Level {role['level']}) - {len(role['permissions'])} permissions")
+            inserted_count += 1
+        except Exception as e:
+            print(f"  ❌ Failed to insert {role['name']}: {e}")
     
-    print(f"\n✅ Inserted {len(system_roles)} system roles")
+    print(f"\n✅ Inserted {inserted_count}/{len(system_roles)} system roles")
     
     # Create indexes for role_assignments collection
     print("\n🔍 Creating indexes for role_assignments...")
