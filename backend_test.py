@@ -108,7 +108,7 @@ test_payout_id = None
 test_booking_id = None
 
 # ============================================
-# RETOERP PAYMENT & COMMISSION ERP MODULE TESTS
+# RETOERP MASTER CATEGORIES SYSTEM TESTS
 # ============================================
 
 # Authentication helper
