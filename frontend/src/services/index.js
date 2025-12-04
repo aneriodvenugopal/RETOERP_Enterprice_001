@@ -741,3 +741,70 @@ export const notificationService = {
     return response.data;
   },
 };
+
+export const roleService = {
+  // Get all system roles
+  getSystemRoles: async () => {
+    const response = await apiInstance.get('/roles/system-roles');
+    return response.data;
+  },
+
+  // Get role by slug
+  getRoleBySlug: async (slug) => {
+    const response = await apiInstance.get(`/roles/system-roles/${slug}`);
+    return response.data;
+  },
+
+  // Create role assignment
+  createAssignment: async (assignmentData) => {
+    const response = await apiInstance.post('/roles/assignments', assignmentData);
+    return response.data;
+  },
+
+  // Get user assignments
+  getUserAssignments: async (userId, tenantId = null, projectId = null) => {
+    const params = {};
+    if (tenantId) params.tenant_id = tenantId;
+    if (projectId) params.project_id = projectId;
+    const response = await apiInstance.get(`/roles/assignments/user/${userId}`, { params });
+    return response.data;
+  },
+
+  // Delete assignment
+  deleteAssignment: async (assignmentId) => {
+    const response = await apiInstance.delete(`/roles/assignments/${assignmentId}`);
+    return response.data;
+  },
+
+  // Get my contexts
+  getMyContexts: async () => {
+    const response = await apiInstance.get('/roles/my-contexts');
+    return response.data;
+  },
+
+  // Get my permissions
+  getMyPermissions: async (tenantId, projectId = null) => {
+    const params = { tenant_id: tenantId };
+    if (projectId) params.project_id = projectId;
+    const response = await apiInstance.get('/roles/my-permissions', { params });
+    return response.data;
+  },
+
+  // Check permission
+  checkPermission: async (permission, tenantId, projectId = null) => {
+    const response = await apiInstance.post('/roles/check-permission', {
+      permission,
+      tenant_id: tenantId,
+      project_id: projectId,
+    });
+    return response.data;
+  },
+
+  // Get project staff
+  getProjectStaff: async (projectId, roleSlug = null) => {
+    const params = {};
+    if (roleSlug) params.role_slug = roleSlug;
+    const response = await apiInstance.get(`/roles/project/${projectId}/staff`, { params });
+    return response.data;
+  },
+};
