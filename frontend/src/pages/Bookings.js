@@ -587,6 +587,65 @@ const Bookings = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Page Info Modal */}
+      <PageInfoModal
+        title="Bookings & Sales Management"
+        description="Complete property booking and payment management system. Handle customer bookings, process payments, manage installment schedules, track payment progress, and automatically generate sales commission for staff members."
+        features={[
+          "Create property bookings with customer details (name, phone, email)",
+          "Project and property selection with dynamic filtering",
+          "Automatic booking amount calculation (10% of property price)",
+          "Multiple payment plans: Full Payment, EMI, Custom schedules",
+          "EMI configuration with down payment and installment months",
+          "Payment recording with multiple modes (Cash, UPI, Card, Cheque, Bank Transfer)",
+          "Transaction ID tracking for digital payments",
+          "Installment-wise payment tracking for EMI bookings",
+          "Payment progress visualization with progress bar",
+          "Payment schedule management with due dates and status",
+          "Booking details view with complete payment history",
+          "Automatic commission generation for sales staff",
+          "Multi-currency support with tenant-level currency selection",
+          "Receipt number generation for each payment",
+          "Payment status tracking: Pending, Partial, Paid, Overdue"
+        ]}
+        technologies={[
+          "React.js",
+          "FastAPI Backend",
+          "MongoDB",
+          "Shadcn UI",
+          "Currency Context",
+          "Payment Processing",
+          "Commission System",
+          "Progress Tracking"
+        ]}
+        implementations={[
+          {
+            title: "Booking Creation Flow",
+            description: "Multi-step booking form: Select project → Filter available properties → Auto-populate property price → Enter customer details → Configure payment plan (Full/EMI/Custom) → Create booking. System automatically calculates booking amount (10% default) and filters only available properties. Upon creation, booking record and commission record are generated simultaneously."
+          },
+          {
+            title: "Payment Plans System",
+            description: "Three payment plan types supported: (1) Full Payment - customer pays total amount upfront, (2) EMI - configure months and down payment, system auto-generates payment schedule with due dates, (3) Custom - flexible schedule creation. Each plan type has different form fields and validation rules."
+          },
+          {
+            title: "Payment Recording",
+            description: "Comprehensive payment form within booking details: Enter amount, select payment mode from categories, add transaction ID for digital payments, specify installment number for EMI plans, add notes. System validates against outstanding balance and updates booking status automatically. Each payment generates receipt number."
+          },
+          {
+            title: "Payment Progress Tracking",
+            description: "Visual progress bar shows paid vs pending amounts. Detail view displays: Total Amount, Total Paid (green), Total Pending (red), Payment Progress percentage, Payment Schedule with individual installment cards showing status (Paid/Partial/Pending), due dates, and amounts. Color-coded badges for quick status identification."
+          },
+          {
+            title: "EMI Schedule Management",
+            description: "Automatic generation of payment schedule based on EMI configuration. Each installment shows: Installment number, Due date, Due amount, Status (Paid/Partial/Pending), Payment history for that installment. Schedules displayed in chronological order with clear due date indicators. Overdue installments highlighted."
+          },
+          {
+            title: "Automatic Commission Generation",
+            description: "Upon booking creation, system automatically creates commission record for the staff member who closed the deal (closed_by field). Commission linked to booking for future calculation and payout processing. Integrates with Commission Management module."
+          }
+        ]}
+      />
     </div>
   );
 };
