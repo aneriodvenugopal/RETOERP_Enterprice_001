@@ -343,6 +343,14 @@ function App() {
                 }
               />
               <Route
+                path="/financials"
+                element={
+                  <PrivateRoute>
+                    <Financials />
+                  </PrivateRoute>
+                }
+              />
+              <Route
                 path="/ai-agents"
                 element={
                   <PrivateRoute>
