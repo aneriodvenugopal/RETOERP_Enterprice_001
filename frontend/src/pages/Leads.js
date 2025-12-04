@@ -583,6 +583,58 @@ const Leads = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Page Info Modal */}
+      <PageInfoModal
+        title="Leads Management"
+        description="Comprehensive CRM system for capturing, tracking, and nurturing leads through your sales pipeline. Manage follow-ups, track lead quality, and convert prospects into customers with intelligent workflow automation."
+        features={[
+          "Create and manage leads with complete contact information",
+          "Track lead sources (Walk-in, Website, Referral, Social Media, etc.)",
+          "Lead status pipeline: New → Contacted → Interested → Site Visit → Negotiation → Converted/Lost",
+          "Lead quality rating system (1-5 stars) for prioritization",
+          "Budget range tracking for property matching",
+          "Project interest association for targeted follow-ups",
+          "Comprehensive follow-up management with multiple types (Call, Email, SMS, WhatsApp, Site Visit, Meeting)",
+          "Follow-up history tracking with notes and outcomes",
+          "Next follow-up date scheduling with reminders",
+          "Real-time statistics: Total Leads, Active Leads, Converted, Conversion Rate",
+          "Lead detail view with complete history and timeline",
+          "Search and filter leads by status, source, or project"
+        ]}
+        technologies={[
+          "React.js",
+          "FastAPI Backend",
+          "MongoDB",
+          "Shadcn UI",
+          "React Hook Form",
+          "Lead Status Pipeline",
+          "Follow-up System",
+          "Analytics API"
+        ]}
+        implementations={[
+          {
+            title: "Lead Capture & Management",
+            description: "Created comprehensive lead form with validation for name, phone (required), email, source, project interest, budget range (min/max), notes, and quality rating. Form uses Select components for dropdowns and star rating UI for quality assessment. All fields are properly validated before submission."
+          },
+          {
+            title: "Follow-up Management System",
+            description: "Built tabbed interface in lead details dialog: Details tab shows complete lead info, Follow-ups tab displays chronological history with badges and timestamps, Add Follow-up tab provides form for recording new interactions. Supports 6 follow-up types with outcome tracking and next follow-up scheduling."
+          },
+          {
+            title: "Lead Status Pipeline",
+            description: "Implemented 7-stage status pipeline with color-coded badges: New (blue), Contacted (yellow), Interested (green), Site Visit Scheduled (purple), Negotiation (orange), Converted (dark gray), Lost (red). Status updates tracked automatically through follow-up outcomes."
+          },
+          {
+            title: "Statistics Dashboard",
+            description: "Real-time KPI cards showing Total Leads, Active Leads (non-converted), Converted count, and Conversion Rate percentage. Data fetched from analytics API and updates automatically after lead actions. Color-coded stat cards with icons for visual clarity."
+          },
+          {
+            title: "Lead Quality & Prioritization",
+            description: "5-star rating system allows staff to mark lead quality/interest level. Star ratings displayed in lead list for quick visual scanning. Helps prioritize follow-up efforts on high-quality leads."
+          }
+        ]}
+      />
     </div>
   );
 };
