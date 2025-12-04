@@ -81,7 +81,17 @@ const Projects = () => {
     setLoading(true);
 
     try {
-      await projectService.create(formData);
+      const newProject = await projectService.create(formData);
+      
+      // Auto-dump master categories to the new project
+      try {
+        await categoryService.dumpToProject(newProject.id);
+        console.log('✅ Categories dumped to project');
+      } catch (dumpError) {
+        console.error('Failed to dump categories:', dumpError);
+        // Don't block project creation if category dump fails
+      }
+      
       toast.success('Project created successfully!');
       setShowCreateDialog(false);
       fetchProjects();
