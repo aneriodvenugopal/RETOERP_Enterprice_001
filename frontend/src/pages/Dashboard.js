@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { LogOut, Building2, Users, BarChart3, FileText, UserCog, Home, Layers, MessageSquare, MapPin, Wallet, Shield, Tags, FolderTree, Settings } from 'lucide-react';
 import NotificationCenter from '../components/notifications/NotificationCenter';
+import PageInfoModal from '../components/PageInfoModal';
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
