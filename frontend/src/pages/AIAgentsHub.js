@@ -21,9 +21,11 @@ const AIAgentsHub = () => {
   const [speakingAgentId, setSpeakingAgentId] = useState(null);
   const [filterCategory, setFilterCategory] = useState('all');
 
-  // Using existing aiAgents array below - it has all the necessary fields
-      name: 'WhatsApp Business Agent',
-      icon: Send,
+  // Using existing aiAgents array below
+
+  const aiAgents = [
+    {
+      id: 'sms-agent',
       color: 'from-green-500 to-green-600',
       category: ['company', 'agent', 'customer', 'marketing'],
       roles: ['Tenant Admin', 'Marketing Manager', 'Sales Agent'],
