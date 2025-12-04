@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Plus, Users, Phone, Mail, MapPin, Calendar, TrendingUp, Star } from 'lucide-react';
 import { toast } from 'sonner';
 import { Textarea } from '@/components/ui/textarea';
+import PageInfoModal from '../components/PageInfoModal';
 
 const Leads = () => {
   const [leads, setLeads] = useState([]);
