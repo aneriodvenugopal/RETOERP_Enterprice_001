@@ -534,6 +534,9 @@ const ProjectDetail = () => {
                   )}
                 </CardContent>
               </Card>
+
+              {/* Role Management Section */}
+              <RoleManagement projectId={projectId} tenantId={project?.tenant_id} />
             </div>
           </TabsContent>
         </Tabs>
