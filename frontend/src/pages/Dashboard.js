@@ -177,6 +177,13 @@ const SuperAdminDashboard = () => {
           gradient="from-blue-500 to-cyan-500"
         />
         <ActionCard
+          icon={Bot}
+          title="AI Agents Hub"
+          description="Automation agents for business operations"
+          onClick={() => navigate('/ai-agents')}
+          gradient="from-purple-500 to-pink-500"
+        />
+        <ActionCard
           icon={Home}
           title="Customer Portal"
           description="Preview customer experience"
