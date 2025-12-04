@@ -342,6 +342,14 @@ function App() {
                 }
               />
               <Route
+                path="/ai-agents"
+                element={
+                  <PrivateRoute>
+                    <AIAgentsHub />
+                  </PrivateRoute>
+                }
+              />
+              <Route
                 path="/payments"
                 element={
                   <PrivateRoute>
