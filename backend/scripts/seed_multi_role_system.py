@@ -191,8 +191,14 @@ async def seed_multi_role_system():
     
     # Create index for roles
     print("\n🔍 Creating indexes for roles...")
-    await db.roles.create_index([("slug", 1)], unique=True)
-    print("  ✅ Created 1 index for roles")
+    try:
+        await db.roles.create_index([("slug", 1)], unique=True)
+        print("  ✅ Created 1 index for roles")
+    except Exception as e:
+        if "duplicate key" in str(e).lower() or "already exists" in str(e).lower():
+            print("  ⚠️  Index already exists (skipping)")
+        else:
+            print(f"  ⚠️  Index creation warning: {e}")
     
     print("\n" + "=" * 60)
     print("✅ Multi-Role System Seeded Successfully!")
