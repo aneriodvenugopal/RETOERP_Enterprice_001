@@ -31,6 +31,7 @@ import EnhancedLayoutEditor from "./pages/EnhancedLayoutEditor";
 import Leads from "./pages/Leads";
 import CalendarPage from "./pages/CalendarPage";
 import Bookings from "./pages/Bookings";
+import AIAgentsHub from "./pages/AIAgentsHub";
 import Reports from "./pages/Reports";
 import UsersManagement from "./pages/UsersManagement";
 import CustomerDashboard from "./pages/CustomerDashboard";
