@@ -1,13 +1,11 @@
 #!/usr/bin/env python3
 """
-Backend API Testing for RETOERP - Payment & Commission ERP Module
-Comprehensive testing of all backend APIs for the complete ERP module including:
-- Payment Schemes APIs
-- Staff Hierarchy APIs  
-- Customer Payments APIs (Razorpay + Manual)
-- Commission Management APIs
-- Agent Payouts APIs
-- Supporting APIs (currencies, bookings)
+Backend API Testing for RETOERP - Master Categories System
+Comprehensive testing of master categories and custom fields system including:
+- Master Categories APIs (GET /api/categories)
+- Master Subcategories APIs
+- Database verification
+- Authentication testing
 """
 
 import requests
