@@ -34,7 +34,7 @@ if not BACKEND_URL:
 
 API_BASE = f"{BACKEND_URL}/api"
 
-print(f"🔄 TESTING RETOERP Payment & Commission ERP Module at: {API_BASE}")
+print(f"🔄 TESTING RETOERP Master Categories System at: {API_BASE}")
 print("=" * 80)
 
 class TestResults:
