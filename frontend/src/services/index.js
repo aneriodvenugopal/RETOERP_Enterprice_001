@@ -808,3 +808,60 @@ export const roleService = {
     return response.data;
   },
 };
+
+export const financialService = {
+  // Payment Schedules
+  createPaymentSchedule: async (scheduleData) => {
+    const response = await apiInstance.post('/financial/payment-schedules', scheduleData);
+    return response.data;
+  },
+
+  getBookingPaymentSchedules: async (bookingId) => {
+    const response = await apiInstance.get(`/financial/payment-schedules/booking/${bookingId}`);
+    return response.data;
+  },
+
+  getCustomerPaymentSchedules: async (customerId, status = null) => {
+    const params = {};
+    if (status) params.status = status;
+    const response = await apiInstance.get(`/financial/payment-schedules/customer/${customerId}`, { params });
+    return response.data;
+  },
+
+  // Transactions
+  createTransaction: async (transactionData) => {
+    const response = await apiInstance.post('/financial/transactions', transactionData);
+    return response.data;
+  },
+
+  getTransactions: async (filters = {}) => {
+    const response = await apiInstance.get('/financial/transactions', { params: filters });
+    return response.data;
+  },
+
+  getTransaction: async (transactionId) => {
+    const response = await apiInstance.get(`/financial/transactions/${transactionId}`);
+    return response.data;
+  },
+
+  // Expense Categories
+  createExpenseCategory: async (categoryData) => {
+    const response = await apiInstance.post('/financial/expense-categories', categoryData);
+    return response.data;
+  },
+
+  getExpenseCategories: async () => {
+    const response = await apiInstance.get('/financial/expense-categories');
+    return response.data;
+  },
+
+  // Reports
+  getFinancialSummary: async (projectId = null, startDate = null, endDate = null) => {
+    const params = {};
+    if (projectId) params.project_id = projectId;
+    if (startDate) params.start_date = startDate;
+    if (endDate) params.end_date = endDate;
+    const response = await apiInstance.get('/financial/reports/summary', { params });
+    return response.data;
+  },
+};
