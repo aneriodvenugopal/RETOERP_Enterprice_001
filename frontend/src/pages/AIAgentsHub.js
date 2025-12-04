@@ -16,6 +16,55 @@ import {
 const AIAgentsHub = () => {
   const [selectedAgent, setSelectedAgent] = useState(null);
   const [showInfoModal, setShowInfoModal] = useState(false);
+  const [language, setLanguage] = useState('english');
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [filterCategory, setFilterCategory] = useState('all');
+
+  // Text-to-Speech functionality
+  const speakText = (text) => {
+    if ('speechSynthesis' in window) {
+      // Stop any ongoing speech
+      window.speechSynthesis.cancel();
+      
+      const utterance = new SpeechSynthesisUtterance(text);
+      
+      // Set language based on selected language
+      if (language === 'telugu') {
+        utterance.lang = 'te-IN';
+      } else if (language === 'hindi') {
+        utterance.lang = 'hi-IN';
+      } else {
+        utterance.lang = 'en-US';
+      }
+      
+      utterance.rate = 0.9; // Slightly slower for better comprehension
+      utterance.pitch = 1;
+      
+      utterance.onstart = () => setIsSpeaking(true);
+      utterance.onend = () => setIsSpeaking(false);
+      utterance.onerror = () => setIsSpeaking(false);
+      
+      window.speechSynthesis.speak(utterance);
+    } else {
+      alert('Text-to-speech is not supported in your browser');
+    }
+  };
+
+  const stopSpeaking = () => {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+    }
+  };
+
+  useEffect(() => {
+    // Cleanup on unmount
+    return () => {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, []);
 
   const aiAgents = [
     {
