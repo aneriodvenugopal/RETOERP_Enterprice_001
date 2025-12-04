@@ -352,18 +352,18 @@ function App() {
                 }
               />
               <Route
-                path="/ai-agents-hub"
-                element={
-                  <PrivateRoute>
-                    <AIAgentsHub />
-                  </PrivateRoute>
-                }
-              />
-              <Route
                 path="/ai-agents"
                 element={
                   <PrivateRoute>
                     <AIAgents />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/ai-agents-docs"
+                element={
+                  <PrivateRoute>
+                    <AIAgentsHub />
                   </PrivateRoute>
                 }
               />
