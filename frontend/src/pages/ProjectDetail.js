@@ -7,12 +7,10 @@ import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, Plus, Building2, Grid, List, Filter, Map, Settings, Edit, Trash2 } from 'lucide-react';
+import { ArrowLeft, Plus, Building2, Grid, List, Filter, Map, Settings } from 'lucide-react';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import PageInfoModal from '../components/PageInfoModal';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
 
 const ProjectDetail = () => {
   const { projectId } = useParams();
