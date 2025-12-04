@@ -10,6 +10,12 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from motor.motor_asyncio import AsyncIOMotorClient
 from datetime import datetime, timezone
 import uuid
+from dotenv import load_dotenv
+from pathlib import Path
+
+# Load environment variables
+ROOT_DIR = Path(__file__).parent.parent
+load_dotenv(ROOT_DIR / '.env')
 
 MONGO_URL = os.getenv('MONGO_URL', 'mongodb://localhost:27017')
 DB_NAME = os.getenv('DB_NAME', 'retoerp')
