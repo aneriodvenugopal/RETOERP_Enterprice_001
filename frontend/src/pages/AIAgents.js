@@ -184,7 +184,7 @@ const AIAgents = () => {
             <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
               <Sparkles className="w-6 h-6 text-white" />
             </div>
-            <div>
+            <div className="flex-1">
               <h3 className="font-semibold text-lg mb-2">How it works</h3>
               <ul className="space-y-2 text-sm text-gray-700">
                 <li className="flex items-start gap-2">
@@ -205,6 +205,32 @@ const AIAgents = () => {
                 </li>
               </ul>
             </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Documentation Link */}
+      <Card className="max-w-5xl mx-auto mt-6 border-2 border-purple-200 bg-purple-50">
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
+                <Bot className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-lg">Explore All 13 AI Agents</h3>
+                <p className="text-sm text-gray-600 mt-1">
+                  Learn about all planned AI agents, their benefits, use cases, and technical implementation details.
+                </p>
+              </div>
+            </div>
+            <Button
+              onClick={() => window.location.href = '/ai-agents-docs'}
+              className="bg-gradient-to-r from-purple-500 to-pink-500 hover:opacity-90 text-white"
+            >
+              View Documentation
+              <ArrowRight className="w-4 h-4 ml-2" />
+            </Button>
           </div>
         </CardContent>
       </Card>
