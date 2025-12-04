@@ -1285,10 +1285,38 @@ def test_list_commission_payouts():
 # MAIN TEST EXECUTION
 # ============================================
 
+def test_authentication_security():
+    """Test 6: Verify authentication is required for protected endpoints"""
+    try:
+        print("\n🔒 TESTING: Authentication Security")
+        
+        # Test without authentication headers
+        response = requests.get(f"{API_BASE}/categories/master", timeout=10)
+        
+        if response.status_code == 401:
+            results.add_pass("Authentication Security")
+            print("   ✅ Master categories endpoint properly protected with authentication")
+            return True
+        elif response.status_code == 200:
+            results.add_fail("Authentication Security", "Endpoint accessible without authentication (security risk)")
+            return False
+        else:
+            results.add_fail("Authentication Security", f"Unexpected status code: {response.status_code}")
+            return False
+        
+    except Exception as e:
+        results.add_fail("Authentication Security", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+# ============================================
+# MAIN TEST EXECUTION
+# ============================================
+
 def run_all_tests():
-    """Run all ERP module tests in sequence"""
+    """Run all master categories system tests in sequence"""
     
-    print("🚀 Starting RETOERP Payment & Commission ERP Module Testing...")
+    print("🚀 Starting RETOERP Master Categories System Testing...")
     print("=" * 80)
     
     # Test execution order
@@ -1296,38 +1324,17 @@ def run_all_tests():
         # Health check
         ("API Health Check", test_health_check),
         
-        # Public APIs (no auth required)
-        ("Public Tenant Landing", test_public_tenant_landing),
+        # Master Categories APIs
+        ("Get All Master Categories", test_get_all_master_categories),
+        ("Get Master Subcategories", test_get_master_subcategories),
+        ("Get All Categories with Subcategories", test_get_all_master_categories_with_subcategories),
         
-        # Supporting APIs (may require auth)
-        ("Currencies API", test_currencies_api),
-        ("Bookings API", test_bookings_api),
+        # Database verification
+        ("Database Master Categories", test_database_master_categories),
+        ("Categories by Type Filter", test_categories_by_type_filter),
         
-        # Payment Schemes APIs
-        ("Create Payment Scheme", test_create_payment_scheme),
-        ("List Payment Schemes", test_list_payment_schemes),
-        ("Get Payment Scheme", test_get_payment_scheme),
-        ("Finalize Payment Scheme", test_finalize_payment_scheme),
-        ("Clone Payment Scheme", test_clone_payment_scheme),
-        
-        # Staff Hierarchy APIs
-        ("Create Staff Hierarchy", test_create_staff_hierarchy),
-        ("List Staff Hierarchy", test_list_staff_hierarchy),
-        ("Get Staff Hierarchy", test_get_staff_hierarchy),
-        
-        # Customer Payments APIs
-        ("Create Razorpay Order", test_create_razorpay_order),
-        ("Create Manual Payment", test_create_manual_payment),
-        ("List Payments", test_list_payments),
-        
-        # Commission Management APIs
-        ("List Commission Earnings", test_list_commission_earnings),
-        ("Staff Commission Summary", test_staff_commission_summary),
-        ("Approve Commission Earning", test_approve_commission_earning),
-        
-        # Agent Payouts APIs
-        ("Create Commission Payout", test_create_commission_payout),
-        ("List Commission Payouts", test_list_commission_payouts),
+        # Security tests
+        ("Authentication Security", test_authentication_security),
     ]
     
     # Execute tests
