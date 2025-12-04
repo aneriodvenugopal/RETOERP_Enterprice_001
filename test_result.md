@@ -219,6 +219,7 @@ metadata:
 
 test_plan:
   current_focus:
+    - "Multi-Role Access Control Frontend in Project Settings Tab"
     - "RoleContextService - Core methods testing"
     - "Bank Accounts API - Role-based access control verification"
     - "Role Assignment API - Create, read, delete operations"
