@@ -76,6 +76,58 @@ const Dashboard = () => {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
         {getDashboardContent()}
       </main>
+
+      {/* Page Info Modal */}
+      <PageInfoModal
+        title="Dashboard"
+        description="Central hub for managing your real estate business. Role-based dashboards provide quick access to key metrics, navigation to all modules, and real-time insights tailored to your permissions."
+        features={[
+          "Role-based dashboard views (Super Admin, Tenant Admin, Staff, Customer)",
+          "Quick access cards to all major modules (Projects, Leads, Bookings, Users)",
+          "Real-time statistics and KPI tracking",
+          "SaaS Admin Dashboard access for platform management (select users only)",
+          "IncomeLands Marketplace integration for agent management",
+          "Chat Management for lead conversations",
+          "Customer Portal preview for testing user experience",
+          "System Settings access: Master Categories, Roles, Bank Accounts",
+          "Category Management: Manage tenant-specific property categories",
+          "Notification Center for real-time updates",
+          "Animated gradient background for premium UX",
+          "Responsive design with mobile-optimized navigation"
+        ]}
+        technologies={[
+          "React.js",
+          "React Router",
+          "Tailwind CSS",
+          "Shadcn UI",
+          "FastAPI Backend",
+          "MongoDB",
+          "Role-Based Access Control",
+          "Real-time Analytics API"
+        ]}
+        implementations={[
+          {
+            title: "Role-Based Dashboard System",
+            description: "Implemented dynamic dashboard content based on user roles. Super Admins see system-wide controls, Tenant Admins see business metrics with 4 KPI cards (Projects, Leads, Bookings, Team), Staff see lead-focused metrics, and Customers are redirected to dedicated portal. Each role gets tailored navigation and action cards."
+          },
+          {
+            title: "SaaS Admin Controls",
+            description: "Special access for SaaS Admin (phone: 9948303060) to manage entire platform. Includes Package Management, Tenant Management, System Settings, Master Categories, and IncomeLands Marketplace. Gradient-styled cards distinguish admin-only features."
+          },
+          {
+            title: "Quick Action Navigation",
+            description: "Action cards with gradient backgrounds provide one-click navigation to all modules. Each card shows icon, title, description, and uses hover effects for better UX. Cards organized in grids with responsive breakpoints."
+          },
+          {
+            title: "Real-Time Statistics",
+            description: "Dashboard fetches live data from analytics API for Tenant Admins. Displays total projects, leads, bookings, and team size with animated loading states. Stats update automatically when navigating back to dashboard."
+          },
+          {
+            title: "System Settings Integration",
+            description: "Dedicated sections for Settings & Management and Category Management. Includes access to Bank Accounts, Role Assignments, Master/Tenant Categories with color-coded gradient cards for visual hierarchy."
+          }
+        ]}
+      />
     </div>
   );
 };
