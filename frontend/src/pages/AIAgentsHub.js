@@ -21,29 +21,8 @@ const AIAgentsHub = () => {
   const [speakingAgentId, setSpeakingAgentId] = useState(null);
   const [filterCategory, setFilterCategory] = useState('all');
 
-  // Enhanced agents data with all comprehensive agents
-  const allAgents = [
-    // Communication & Engagement Agents
-    {
-      id: 'sms-agent',
-      name: 'SMS Automation Agent',
-      icon: MessageSquare,
-      color: 'from-blue-500 to-blue-600',
-      category: ['company', 'agent', 'customer'],
-      roles: ['Tenant Admin', 'Sales Manager', 'Sales Agent'],
-      shortDescription: 'Automated SMS for leads, follow-ups, payment reminders',
-      implementationCost: 'Low (Setup & Templates)',
-      usageCost: 'Per SMS (₹0.20-0.50)',
-      thirdPartyAPIs: ['MSG91', 'Twilio', 'AWS SNS'],
-      benefits: [
-        'Instant lead acknowledgment within seconds',
-        'Automated follow-up reminders to sales team',
-        'Payment due date reminders',
-        'Site visit appointment reminders',
-        'OTP for secure authentication',
-        'Booking confirmation messages'
-      ]
-    },
+  // Simplified agents data - using the existing aiAgents structure
+  // All agents have status 'coming_soon' for now
     {
       id: 'whatsapp-agent',
       name: 'WhatsApp Business Agent',
