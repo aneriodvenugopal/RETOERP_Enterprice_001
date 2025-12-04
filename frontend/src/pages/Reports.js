@@ -585,6 +585,68 @@ const Reports = () => {
           )}
         </TabsContent>
       </Tabs>
+
+      {/* Page Info Modal */}
+      <PageInfoModal
+        title="Reports & Analytics"
+        description="Comprehensive business intelligence and analytics dashboard. Generate insights from leads, sales, payments, and commissions data with visual charts, trend analysis, and exportable reports."
+        features={[
+          "Multi-tab analytics: Overview, Leads, Sales, Payments, Commissions",
+          "Date range filtering for custom period analysis",
+          "Real-time KPI dashboard with key metrics",
+          "Lead analytics: Source tracking, status pipeline, quality distribution, top performers",
+          "Sales analytics: Project-wise revenue, monthly trends, payment plan preferences",
+          "Payment analytics: Collection rate tracking, payment mode breakdown, overdue alerts",
+          "Commission analytics: Status breakdown, top earners leaderboard",
+          "Visual data representation: Bar charts, line charts, pie charts, area charts",
+          "Property status distribution with inventory insights",
+          "Export to Excel functionality for all reports",
+          "Conversion rate calculation and tracking",
+          "Revenue vs pending payments comparison",
+          "Staff performance metrics and rankings",
+          "Automatic data refresh with filter changes"
+        ]}
+        technologies={[
+          "React.js",
+          "Recharts (Data Visualization)",
+          "FastAPI Analytics API",
+          "MongoDB Aggregation",
+          "XLSX Export Library",
+          "Shadcn UI Tabs",
+          "Responsive Charts",
+          "Date Range Filtering"
+        ]}
+        implementations={[
+          {
+            title: "Multi-Tab Analytics Dashboard",
+            description: "Implemented comprehensive tabbed interface with 5 major analytics sections: (1) Overview - Dashboard summary with total leads, conversion rate, revenue, and pending payments with property status distribution pie chart, (2) Leads - Source analysis, status pipeline, quality distribution, and top staff rankings, (3) Sales - Project-wise revenue comparison, monthly trend lines, and payment plan preferences, (4) Payments - Collection rate tracking, payment mode breakdown, and overdue payment alerts, (5) Commissions - Status breakdown and top earners leaderboard. Each tab loads data from dedicated analytics API endpoints."
+          },
+          {
+            title: "Visual Data Representation",
+            description: "Integrated Recharts library for rich data visualization: Bar charts for comparative analysis (leads by source, sales by project), Pie charts for distribution (property status, lead quality, payment plans, commission status), Line/Area charts for trend analysis (monthly sales), Responsive containers that adapt to screen size, Custom color palettes for brand consistency, Interactive tooltips and legends, Data labels on pie charts for clarity. All charts update dynamically based on date range filters."
+          },
+          {
+            title: "Advanced Filtering System",
+            description: "Date range picker with start and end date inputs for custom period analysis. 'Apply Filter' button triggers parallel data loading for all tabs. Filter state persists across tab switches. Analytics API receives date range parameters and performs MongoDB aggregation queries with date matching. Supports historical analysis and period-over-period comparison."
+          },
+          {
+            title: "Excel Export Functionality",
+            description: "XLSX library integration for data export on all tabs. Export buttons available on Leads, Sales, Payments, and Commissions tabs. Converts chart data to spreadsheet format with proper column headers. Filenames include report type and current date (e.g., 'lead_analytics_2024-12-04.xlsx'). Handles nested data structures and formats currency values. Success/error toast notifications for user feedback."
+          },
+          {
+            title: "KPI Cards & Metrics",
+            description: "Overview dashboard displays 4 key performance indicator cards: (1) Total Leads with converted count, (2) Conversion Rate percentage with lead-to-customer calculation, (3) Total Revenue with booking count, (4) Pending Payments with collected amount comparison. Cards use icon indicators (Users, TrendingUp, DollarSign, AlertCircle) and color coding. Real-time data updates from analytics API. Responsive grid layout (1 col mobile, 4 cols desktop)."
+          },
+          {
+            title: "Staff Performance Tracking",
+            description: "Lead Analytics tab shows top performing staff by lead count in ranked list format. Commission Analytics shows top earners with position badges (1, 2, 3) and total commission amounts. Staff rankings use color-coded backgrounds and bold typography. Empty state handling when no data available. Helps identify high performers and training needs."
+          },
+          {
+            title: "Payment Collection Monitoring",
+            description: "Payment Analytics tab includes 3 summary cards showing Total Expected, Total Collected (with collection rate %), and Pending amounts. Overdue Payments Alert card with red theme appears when overdue count > 0, displaying overdue count and total overdue amount with alert icon. Helps accounts team prioritize collection efforts and identify at-risk payments."
+          }
+        ]}
+      />
     </div>
   );
 };
