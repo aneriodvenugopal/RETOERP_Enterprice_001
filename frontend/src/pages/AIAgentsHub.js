@@ -21,7 +21,21 @@ const AIAgentsHub = () => {
   const [speakingAgentId, setSpeakingAgentId] = useState(null);
   const [filterCategory, setFilterCategory] = useState('all');
 
-  // AI Agents array defined below after helper functions
+  // Text-to-Speech functionality
+  const speakText = (text, agentId) => {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      
+      const utterance = new SpeechSynthesisUtterance(text);
+      
+      if (language === 'telugu') {
+        utterance.lang = 'te-IN';
+      } else if (language === 'hindi') {
+        utterance.lang = 'hi-IN';
+      } else {
+        utterance.lang = 'en-US';
+      }
+      
       utterance.rate = 0.9;
       utterance.pitch = 1;
       
