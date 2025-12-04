@@ -44,7 +44,27 @@ const ProjectDetail = () => {
 
   useEffect(() => {
     fetchProjectData();
+    fetchProjectCategories();
+    fetchCustomFields();
   }, [projectId]);
+
+  const fetchProjectCategories = async () => {
+    try {
+      const response = await categoryService.getProjectCategories(projectId);
+      setProjectCategories(response.categories || []);
+    } catch (error) {
+      console.error('Failed to load categories:', error);
+    }
+  };
+
+  const fetchCustomFields = async () => {
+    try {
+      const response = await categoryService.getCustomFields(projectId);
+      setCustomFields(response.fields || []);
+    } catch (error) {
+      console.error('Failed to load custom fields:', error);
+    }
+  };
 
   const fetchProjectData = async () => {
     try {
