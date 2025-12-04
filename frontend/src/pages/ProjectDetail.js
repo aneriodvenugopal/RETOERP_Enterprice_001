@@ -11,6 +11,7 @@ import { ArrowLeft, Plus, Building2, Grid, List, Filter, Map, Settings } from 'l
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import PageInfoModal from '../components/PageInfoModal';
+import RoleManagement from '../components/RoleManagement';
 
 const ProjectDetail = () => {
   const { projectId } = useParams();
