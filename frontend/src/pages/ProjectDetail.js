@@ -329,90 +329,215 @@ const ProjectDetail = () => {
           <StatCard title="Blocked" value={stats?.blocked || 0} color="orange" />
         </div>
 
-        {/* Properties */}
-        <Card className="glass-card shadow-xl">
-          <CardHeader className="border-b border-ocean-primary/10">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-2xl font-bold bg-gradient-to-r from-ocean-primary to-ocean-secondary bg-clip-text text-transparent">
-                Properties
-              </CardTitle>
-              <div className="flex gap-2">
-                <Button
-                  variant={viewMode === 'grid' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setViewMode('grid')}
-                  className={viewMode === 'grid' ? 'bg-gradient-to-r from-ocean-primary to-ocean-secondary text-white' : ''}
-                >
-                  <Grid className="w-4 h-4" />
-                </Button>
-                <Button
-                  variant={viewMode === 'list' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setViewMode('list')}
-                  className={viewMode === 'list' ? 'bg-gradient-to-r from-ocean-primary to-ocean-secondary text-white' : ''}
-                >
-                  <List className="w-4 h-4" />
-                </Button>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="p-6">
-          {properties.length === 0 ? (
-            <div className="text-center py-12">
-              <Building2 className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-              <h3 className="text-lg font-semibold mb-2">No properties yet</h3>
-              <p className="text-gray-500 mb-4">Add properties to this project</p>
-              <Button onClick={() => setShowCreateDialog(true)}>
-                <Plus className="w-4 h-4 mr-2" />
-                Add Property
-              </Button>
-            </div>
-          ) : (
-            <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4' : 'space-y-3'}>
-              {properties.map((property) => (
-                viewMode === 'grid' ? (
-                  <Card key={property.id} className="glass-card hover:shadow-xl transition-all duration-300 hover:scale-105 border-ocean-primary/20">
-                    <CardContent className="p-4">
-                      <div className="flex items-start justify-between mb-3">
-                        <h4 className="font-bold text-lg text-ocean-primary">{property.property_number}</h4>
+        {/* Tabs for Properties and Settings */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="glass-card">
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="settings">
+              <Settings className="w-4 h-4 mr-2" />
+              Settings
+            </TabsTrigger>
+          </TabsList>
+
+          {/* Properties Tab */}
+          <TabsContent value="overview">
+            <Card className="glass-card shadow-xl">
+              <CardHeader className="border-b border-ocean-primary/10">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-2xl font-bold bg-gradient-to-r from-ocean-primary to-ocean-secondary bg-clip-text text-transparent">
+                    Properties
+                  </CardTitle>
+                  <div className="flex gap-2">
+                    <Button
+                      variant={viewMode === 'grid' ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setViewMode('grid')}
+                      className={viewMode === 'grid' ? 'bg-gradient-to-r from-ocean-primary to-ocean-secondary text-white' : ''}
+                    >
+                      <Grid className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant={viewMode === 'list' ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setViewMode('list')}
+                      className={viewMode === 'list' ? 'bg-gradient-to-r from-ocean-primary to-ocean-secondary text-white' : ''}
+                    >
+                      <List className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="p-6">
+              {properties.length === 0 ? (
+                <div className="text-center py-12">
+                  <Building2 className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">No properties yet</h3>
+                  <p className="text-gray-500 mb-4">Add properties to this project</p>
+                  <Button onClick={() => setShowCreateDialog(true)}>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Property
+                  </Button>
+                </div>
+              ) : (
+                <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4' : 'space-y-3'}>
+                  {properties.map((property) => (
+                    viewMode === 'grid' ? (
+                      <Card key={property.id} className="glass-card hover:shadow-xl transition-all duration-300 hover:scale-105 border-ocean-primary/20">
+                        <CardContent className="p-4">
+                          <div className="flex items-start justify-between mb-3">
+                            <h4 className="font-bold text-lg text-ocean-primary">{property.property_number}</h4>
+                            {getStatusBadge(property.status_id)}
+                          </div>
+                          <div className="space-y-2 text-sm text-gray-700">
+                            <div className="flex items-center gap-2">
+                              <span className="font-semibold">Area:</span>
+                              <span>{property.area} sq ft</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className="font-semibold">Price:</span>
+                              <span className="text-green-600 font-bold">₹{(property.price / 100000).toFixed(2)}L</span>
+                            </div>
+                            {property.facing && (
+                              <div className="flex items-center gap-2">
+                                <span className="font-semibold">Facing:</span>
+                                <span>{property.facing}</span>
+                              </div>
+                            )}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ) : (
+                      <div key={property.id} className="flex items-center justify-between p-4 glass-card rounded-lg hover:shadow-lg transition-all duration-200 border-ocean-primary/20">
+                        <div className="flex items-center gap-6">
+                          <div className="font-bold text-lg text-ocean-primary">{property.property_number}</div>
+                          <div className="text-sm text-gray-600">
+                            <span className="font-semibold">Area:</span> {property.area} sq ft
+                          </div>
+                          <div className="text-sm font-bold text-green-600">₹{(property.price / 100000).toFixed(2)}L</div>
+                          {property.facing && <div className="text-sm text-gray-600"><span className="font-semibold">Facing:</span> {property.facing}</div>}
+                        </div>
                         {getStatusBadge(property.status_id)}
                       </div>
-                      <div className="space-y-2 text-sm text-gray-700">
-                        <div className="flex items-center gap-2">
-                          <span className="font-semibold">Area:</span>
-                          <span>{property.area} sq ft</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className="font-semibold">Price:</span>
-                          <span className="text-green-600 font-bold">₹{(property.price / 100000).toFixed(2)}L</span>
-                        </div>
-                        {property.facing && (
-                          <div className="flex items-center gap-2">
-                            <span className="font-semibold">Facing:</span>
-                            <span>{property.facing}</span>
-                          </div>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                ) : (
-                  <div key={property.id} className="flex items-center justify-between p-4 glass-card rounded-lg hover:shadow-lg transition-all duration-200 border-ocean-primary/20">
-                    <div className="flex items-center gap-6">
-                      <div className="font-bold text-lg text-ocean-primary">{property.property_number}</div>
-                      <div className="text-sm text-gray-600">
-                        <span className="font-semibold">Area:</span> {property.area} sq ft
-                      </div>
-                      <div className="text-sm font-bold text-green-600">₹{(property.price / 100000).toFixed(2)}L</div>
-                      {property.facing && <div className="text-sm text-gray-600"><span className="font-semibold">Facing:</span> {property.facing}</div>}
+                    )
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+          </TabsContent>
+
+          {/* Settings Tab */}
+          <TabsContent value="settings">
+            <div className="space-y-6">
+              {/* Categories Section */}
+              <Card className="glass-card shadow-xl">
+                <CardHeader className="border-b border-ocean-primary/10">
+                  <CardTitle className="text-2xl font-bold bg-gradient-to-r from-ocean-primary to-ocean-secondary bg-clip-text text-transparent">
+                    Project Categories
+                  </CardTitle>
+                  <p className="text-sm text-gray-600 mt-2">
+                    Manage categories and subcategories for this project. Categories dumped from master templates can be customized here.
+                  </p>
+                </CardHeader>
+                <CardContent className="p-6">
+                  {projectCategories.length === 0 ? (
+                    <div className="text-center py-12">
+                      <Settings className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+                      <h3 className="text-lg font-semibold mb-2">No categories found</h3>
+                      <p className="text-gray-500 mb-4">Categories are automatically added when you create a project</p>
                     </div>
-                    {getStatusBadge(property.status_id)}
-                  </div>
-                )
-              ))}
+                  ) : (
+                    <div className="space-y-4">
+                      {projectCategories.map((category) => (
+                        <Card key={category.id} className="border border-gray-200">
+                          <CardContent className="p-4">
+                            <div className="flex items-start justify-between mb-3">
+                              <div>
+                                <h4 className="font-bold text-lg">{category.name}</h4>
+                                <p className="text-sm text-gray-600">
+                                  {category.subcategories?.length || 0} subcategories
+                                  {category.created_from === 'master_dump' && (
+                                    <Badge variant="outline" className="ml-2">From Master</Badge>
+                                  )}
+                                </p>
+                              </div>
+                              <Badge className={category.is_active ? 'bg-green-500' : 'bg-gray-500'}>
+                                {category.is_active ? 'Active' : 'Inactive'}
+                              </Badge>
+                            </div>
+                            
+                            {category.subcategories && category.subcategories.length > 0 && (
+                              <div className="mt-4">
+                                <p className="text-sm font-semibold mb-2">Subcategories:</p>
+                                <div className="flex flex-wrap gap-2">
+                                  {category.subcategories.map((subcat) => (
+                                    <Badge 
+                                      key={subcat.id} 
+                                      variant="secondary"
+                                      className={!subcat.is_active ? 'opacity-50' : ''}
+                                    >
+                                      {subcat.name}
+                                    </Badge>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Custom Fields Section */}
+              <Card className="glass-card shadow-xl">
+                <CardHeader className="border-b border-ocean-primary/10">
+                  <CardTitle className="text-2xl font-bold bg-gradient-to-r from-ocean-primary to-ocean-secondary bg-clip-text text-transparent">
+                    Custom Fields
+                  </CardTitle>
+                  <p className="text-sm text-gray-600 mt-2">
+                    Add custom fields specific to this project for properties or project-level data.
+                  </p>
+                </CardHeader>
+                <CardContent className="p-6">
+                  {customFields.length === 0 ? (
+                    <div className="text-center py-12">
+                      <Plus className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+                      <h3 className="text-lg font-semibold mb-2">No custom fields yet</h3>
+                      <p className="text-gray-500 mb-4">Add custom fields to capture project-specific information</p>
+                      <Button>
+                        <Plus className="w-4 h-4 mr-2" />
+                        Add Custom Field
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {customFields.map((field) => (
+                        <Card key={field.id} className="border border-gray-200">
+                          <CardContent className="p-4">
+                            <div className="flex items-start justify-between">
+                              <div>
+                                <h4 className="font-bold">{field.field_name}</h4>
+                                <p className="text-sm text-gray-600">
+                                  Type: {field.field_type} | Applies to: {field.applies_to}
+                                  {field.is_required && <Badge variant="destructive" className="ml-2">Required</Badge>}
+                                </p>
+                              </div>
+                              <Badge className={field.is_active ? 'bg-green-500' : 'bg-gray-500'}>
+                                {field.is_active ? 'Active' : 'Inactive'}
+                              </Badge>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
             </div>
-          )}
-        </CardContent>
-      </Card>
+          </TabsContent>
+        </Tabs>
 
       {/* Page Info Modal */}
       <PageInfoModal
