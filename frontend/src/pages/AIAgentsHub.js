@@ -18,10 +18,692 @@ const AIAgentsHub = () => {
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [language, setLanguage] = useState('english');
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [speakingAgentId, setSpeakingAgentId] = useState(null);
   const [filterCategory, setFilterCategory] = useState('all');
 
+  // Enhanced agents data with all comprehensive agents
+  const allAgents = [
+    // Communication & Engagement Agents
+    {
+      id: 'sms-agent',
+      name: 'SMS Automation Agent',
+      icon: MessageSquare,
+      color: 'from-blue-500 to-blue-600',
+      category: ['company', 'agent', 'customer'],
+      roles: ['Tenant Admin', 'Sales Manager', 'Sales Agent'],
+      shortDescription: 'Automated SMS for leads, follow-ups, payment reminders',
+      implementationCost: 'Low (Setup & Templates)',
+      usageCost: 'Per SMS (₹0.20-0.50)',
+      thirdPartyAPIs: ['MSG91', 'Twilio', 'AWS SNS'],
+      benefits: [
+        'Instant lead acknowledgment within seconds',
+        'Automated follow-up reminders to sales team',
+        'Payment due date reminders',
+        'Site visit appointment reminders',
+        'OTP for secure authentication',
+        'Booking confirmation messages'
+      ]
+    },
+    {
+      id: 'whatsapp-agent',
+      name: 'WhatsApp Business Agent',
+      icon: Send,
+      color: 'from-green-500 to-green-600',
+      category: ['company', 'agent', 'customer', 'marketing'],
+      roles: ['Tenant Admin', 'Marketing Manager', 'Sales Agent'],
+      shortDescription: 'Rich media messaging via WhatsApp for brochures, videos, updates',
+      implementationCost: 'Medium (WhatsApp Business API Setup)',
+      usageCost: 'Per Message (₹0.25-1.00)',
+      thirdPartyAPIs: ['WhatsApp Business API', 'Twilio WhatsApp'],
+      benefits: [
+        'Send project brochures with images and PDFs',
+        'Share property videos and virtual tours',
+        '98% open rate vs 20% for email',
+        'Two-way conversation support',
+        'Construction progress updates with photos',
+        'Interactive buttons for quick responses'
+      ]
+    },
+    {
+      id: 'email-agent',
+      name: 'Email Marketing Agent',
+      icon: Mail,
+      color: 'from-cyan-500 to-cyan-600',
+      category: ['company', 'marketing'],
+      roles: ['Tenant Admin', 'Marketing Manager'],
+      shortDescription: 'Automated email campaigns, newsletters, drip sequences',
+      implementationCost: 'Low (Email Templates)',
+      usageCost: 'Per Email (₹0.05-0.15)',
+      thirdPartyAPIs: ['SendGrid', 'Mailgun', 'AWS SES'],
+      benefits: [
+        'Professional email templates',
+        'Drip campaigns for lead nurturing',
+        'Monthly newsletters automation',
+        'Event invitation emails',
+        'Personalized content',
+        'Open rate and click tracking'
+      ]
+    },
+    {
+      id: 'notification-agent',
+      name: 'In-App Notification Agent',
+      icon: Bell,
+      color: 'from-red-500 to-red-600',
+      category: ['company', 'agent'],
+      roles: ['All Roles'],
+      shortDescription: 'Real-time push notifications for critical business events',
+      implementationCost: 'Low (Firebase Setup)',
+      usageCost: 'Free (No per-notification cost)',
+      thirdPartyAPIs: ['Firebase Cloud Messaging', 'OneSignal'],
+      benefits: [
+        'Instant alerts for new leads (within 1 minute)',
+        'Site visit booking notifications',
+        'Payment received confirmations',
+        'Task deadline reminders',
+        'Team collaboration updates',
+        'Priority notifications for urgent actions'
+      ]
+    },
+    {
+      id: 'voice-agent',
+      name: 'Voice Call Automation Agent',
+      icon: Phone,
+      color: 'from-yellow-500 to-yellow-600',
+      category: ['company', 'agent', 'customer'],
+      roles: ['Tenant Admin', 'Sales Manager', 'Collections Team'],
+      shortDescription: 'AI voice assistant for automated calling and IVR systems',
+      implementationCost: 'High (Voice AI Setup)',
+      usageCost: 'Per Minute (₹2-5)',
+      thirdPartyAPIs: ['Twilio Voice', 'Exotel', 'AWS Connect'],
+      benefits: [
+        'Automated lead qualification calls',
+        'IVR for incoming customer inquiries',
+        'Appointment scheduling via voice',
+        'Payment reminder calls',
+        'Survey and feedback collection',
+        'Call recording and transcription'
+      ]
+    },
+
+    // Intelligence & Analytics Agents
+    {
+      id: 'bi-agent',
+      name: 'Business Intelligence & Reports Agent',
+      icon: BarChart2,
+      color: 'from-indigo-500 to-indigo-600',
+      category: ['company', 'saas_admin'],
+      roles: ['Tenant Admin', 'SaaS Admin', 'Project Manager'],
+      shortDescription: 'Advanced analytics, custom reports, dashboards for decision-making',
+      implementationCost: 'Medium (Dashboard Setup)',
+      usageCost: 'Free (Internal Processing)',
+      thirdPartyAPIs: ['Internal Only'],
+      benefits: [
+        'Automated daily/weekly/monthly reports',
+        'Custom dashboards for different roles',
+        'Sales pipeline visualization',
+        'Conversion funnel analysis',
+        'Agent performance scorecards',
+        'Executive summary reports with insights'
+      ]
+    },
+    {
+      id: 'market-research-agent',
+      name: 'Market Research & Intelligence Agent',
+      icon: Search,
+      color: 'from-cyan-600 to-cyan-700',
+      category: ['company', 'saas_admin', 'project'],
+      roles: ['Tenant Admin', 'SaaS Admin', 'Project Manager'],
+      shortDescription: 'AI-powered competitor analysis, market trends, demand forecasting',
+      implementationCost: 'Medium (Market Data Integration)',
+      usageCost: 'Per Analysis (₹50-200)',
+      thirdPartyAPIs: ['Market Data APIs', 'Google Maps API', 'Property Databases'],
+      benefits: [
+        'Real-time competitor pricing tracking',
+        'Market demand prediction for locations',
+        'Identify emerging micro-markets',
+        'Customer preference analysis',
+        'Inventory benchmarking',
+        'Optimal launch timing recommendations'
+      ]
+    },
+    {
+      id: 'lead-scoring-agent',
+      name: 'Intelligent Lead Scoring Agent',
+      icon: Target,
+      color: 'from-amber-500 to-amber-600',
+      category: ['company', 'agent'],
+      roles: ['Sales Manager', 'Sales Agent'],
+      shortDescription: 'ML-based lead quality prediction and hot lead identification',
+      implementationCost: 'Low (ML Model Training)',
+      usageCost: 'Free (Internal ML)',
+      thirdPartyAPIs: ['Internal Only'],
+      benefits: [
+        'Predict lead conversion probability',
+        'Hot lead identification within minutes',
+        'Budget qualification scoring',
+        'Engagement level tracking',
+        'Optimal contact time prediction',
+        'Increase conversion rate by 40%'
+      ]
+    },
+    {
+      id: 'property-valuation-agent',
+      name: 'AI Property Valuation Agent',
+      icon: DollarSign,
+      color: 'from-green-600 to-green-700',
+      category: ['company', 'agent', 'project', 'customer'],
+      roles: ['Tenant Admin', 'Sales Agent', 'Customer'],
+      shortDescription: 'ML-based property pricing, market value estimation, appreciation prediction',
+      implementationCost: 'High (ML Model + Market Data)',
+      usageCost: 'Per Valuation (₹20-100)',
+      thirdPartyAPIs: ['Property Market APIs', 'Government Data APIs'],
+      benefits: [
+        'Accurate valuation using 50+ parameters',
+        'Future price appreciation prediction',
+        'Comparable property analysis',
+        'Location score calculation',
+        'Optimal pricing recommendations',
+        'Market rate alerts for adjustments'
+      ]
+    },
+    {
+      id: 'predictive-analytics-agent',
+      name: 'Predictive Analytics Agent',
+      icon: TrendingUp,
+      color: 'from-pink-500 to-pink-600',
+      category: ['company', 'saas_admin'],
+      roles: ['Tenant Admin', 'SaaS Admin', 'Project Manager'],
+      shortDescription: 'Sales forecasting, revenue prediction, inventory sell-out dates',
+      implementationCost: 'Medium (ML Models)',
+      usageCost: 'Free (Internal ML)',
+      thirdPartyAPIs: ['Internal Only'],
+      benefits: [
+        'Predict monthly sales revenue (85% accuracy)',
+        'Forecast inventory sell-out dates',
+        'Identify best-performing agents',
+        'Optimize pricing strategies',
+        'Lead source ROI analysis',
+        'Customer lifetime value prediction'
+      ]
+    },
+
+    // Automation & Workflow Agents
+    {
+      id: 'followup-agent',
+      name: 'Lead Follow-up Automation Agent',
+      icon: Users,
+      color: 'from-orange-500 to-orange-600',
+      category: ['company', 'agent'],
+      roles: ['Sales Manager', 'Sales Agent'],
+      shortDescription: 'Intelligent follow-up scheduler and reminder system',
+      implementationCost: 'Low (Workflow Setup)',
+      usageCost: 'Free (Internal Logic)',
+      thirdPartyAPIs: ['Internal Only'],
+      benefits: [
+        'Never miss a follow-up (100% adherence)',
+        'Intelligent frequency based on lead quality',
+        'Multi-channel follow-ups (Call, SMS, WhatsApp)',
+        'Auto-assign to available agents',
+        'Predictive conversion scoring',
+        'Outcome tracking and optimization'
+      ]
+    },
+    {
+      id: 'payment-agent',
+      name: 'Payment Collection Agent',
+      icon: CreditCard,
+      color: 'from-purple-500 to-purple-600',
+      category: ['company', 'agent', 'customer'],
+      roles: ['Accounts Team', 'Collections Team', 'Customer'],
+      shortDescription: 'Intelligent payment reminders and collection automation',
+      implementationCost: 'Low (Payment Gateway Integration)',
+      usageCost: 'Transaction Fee (1.5-2.5%)',
+      thirdPartyAPIs: ['Razorpay', 'Paytm', 'PhonePe', 'Stripe'],
+      benefits: [
+        'Reduce payment defaults by 50%',
+        'Automated multi-channel reminders',
+        'Payment link generation and tracking',
+        'Escalation for overdue payments',
+        'Early payment incentive notifications',
+        'Automated receipt generation'
+      ]
+    },
+    {
+      id: 'cron-agent',
+      name: 'Background Jobs & Scheduler Agent',
+      icon: Clock,
+      color: 'from-indigo-500 to-indigo-600',
+      category: ['company', 'saas_admin'],
+      roles: ['SaaS Admin', 'System'],
+      shortDescription: 'Scheduled tasks and background processes for automation',
+      implementationCost: 'Low (Cron Setup)',
+      usageCost: 'Free (Server Processing)',
+      thirdPartyAPIs: ['Internal Only'],
+      benefits: [
+        'Daily automated reports to management',
+        'Monthly payment schedule generation',
+        'Auto-archive old leads',
+        'Generate and send MIS reports',
+        'Update property availability',
+        'Calculate commission amounts'
+      ]
+    },
+    {
+      id: 'backup-agent',
+      name: 'Automated Backup Agent',
+      icon: Database,
+      color: 'from-gray-700 to-gray-800',
+      category: ['company', 'saas_admin'],
+      roles: ['SaaS Admin', 'System'],
+      shortDescription: 'Automated database backup and disaster recovery',
+      implementationCost: 'Low (Backup Configuration)',
+      usageCost: 'Storage Cost (₹500-2000/month)',
+      thirdPartyAPIs: ['AWS S3', 'Google Cloud Storage', 'MongoDB Atlas'],
+      benefits: [
+        'Daily automated backups',
+        'Cloud storage for redundancy',
+        'One-click restore capability',
+        'Version history (restore to any date)',
+        'Encrypted backups for security',
+        'Backup health monitoring'
+      ]
+    },
+    {
+      id: 'document-agent',
+      name: 'Document Processing Agent',
+      icon: FileText,
+      color: 'from-blue-600 to-blue-700',
+      category: ['company', 'agent', 'customer'],
+      roles: ['Tenant Admin', 'Sales Agent', 'Legal Team', 'Customer'],
+      shortDescription: 'Automated document generation, verification, and management',
+      implementationCost: 'Medium (Document Templates + OCR)',
+      usageCost: 'Per Document (₹5-20)',
+      thirdPartyAPIs: ['AWS Textract', 'Google Document AI', 'DocuSign'],
+      benefits: [
+        'Auto-generate booking agreements',
+        'Create payment receipts instantly',
+        'KYC document verification',
+        'Legal document templates',
+        'Digital signature integration',
+        'Document search and retrieval'
+      ]
+    },
+
+    // Customer Experience Agents
+    {
+      id: 'chatbot-agent',
+      name: '24/7 Customer Service Chatbot',
+      icon: Bot,
+      color: 'from-purple-500 to-purple-600',
+      category: ['customer', 'company'],
+      roles: ['Customer', 'All Staff'],
+      shortDescription: 'AI chatbot for instant customer support and FAQ handling',
+      implementationCost: 'Medium (Chatbot Training)',
+      usageCost: 'Per Conversation (₹1-5)',
+      thirdPartyAPIs: ['OpenAI GPT', 'Dialogflow', 'Rasa'],
+      benefits: [
+        '24/7 availability (no human agent needed)',
+        'Instant responses to common queries',
+        'Multi-language support',
+        'Lead capture from website visitors',
+        'Escalate complex queries to humans',
+        'Reduce support costs by 70%'
+      ]
+    },
+    {
+      id: 'virtual-tour-agent',
+      name: 'Virtual Tour & 3D Visualization Agent',
+      icon: Eye,
+      color: 'from-orange-500 to-orange-600',
+      category: ['customer', 'marketing', 'project'],
+      roles: ['Customer', 'Marketing Manager', 'Sales Agent'],
+      shortDescription: 'Create immersive 3D property tours and AR experiences',
+      implementationCost: 'High (3D Rendering Setup)',
+      usageCost: 'Per Tour (₹100-500)',
+      thirdPartyAPIs: ['Matterport', 'Google AR', 'Unity 3D'],
+      benefits: [
+        'Generate 3D virtual tours from floor plans',
+        'AR-based property viewing on mobile',
+        'Virtual site visit scheduling',
+        'Remote customer engagement',
+        '360-degree project walkthroughs',
+        'Reduce physical visits by 50%'
+      ]
+    },
+    {
+      id: 'resale-agent',
+      name: 'Resale Automation Agent',
+      icon: Home,
+      color: 'from-teal-500 to-teal-600',
+      category: ['customer', 'company', 'agent'],
+      roles: ['Customer', 'Sales Agent', 'Resale Manager'],
+      shortDescription: 'Automated resale property matching and notification system',
+      implementationCost: 'Low (Matching Algorithm)',
+      usageCost: 'Free (Internal Processing)',
+      thirdPartyAPIs: ['Internal Only'],
+      benefits: [
+        'Match resale properties with buyers automatically',
+        'Notify owners when matching buyer found',
+        'Send resale alerts to relevant leads',
+        'Calculate market-rate pricing',
+        'Track resale listing performance',
+        'Automate resale commission calculations'
+      ]
+    },
+    {
+      id: 'referral-agent',
+      name: 'Customer Referral & Loyalty Agent',
+      icon: Award,
+      color: 'from-violet-500 to-violet-600',
+      category: ['customer', 'company', 'marketing'],
+      roles: ['Customer', 'Marketing Manager'],
+      shortDescription: 'Automated referral program and customer loyalty management',
+      implementationCost: 'Low (Referral System)',
+      usageCost: 'Free (Internal Logic)',
+      thirdPartyAPIs: ['Internal Only'],
+      benefits: [
+        'Automated referral link generation',
+        'Track referral conversions',
+        'Reward points management',
+        'Loyalty program automation',
+        'Customer retention campaigns',
+        'Increase referrals by 3x'
+      ]
+    },
+
+    // Marketing & Branding Agents
+    {
+      id: 'digital-marketing-agent',
+      name: 'Digital Marketing Automation Agent',
+      icon: Share2,
+      color: 'from-pink-500 to-pink-600',
+      category: ['marketing', 'company'],
+      roles: ['Marketing Manager', 'Tenant Admin'],
+      shortDescription: 'Multi-channel digital marketing for social media, ads, SEO',
+      implementationCost: 'Medium (Ad Accounts Setup)',
+      usageCost: 'Ad Spend + Management Fee',
+      thirdPartyAPIs: ['Facebook Ads', 'Google Ads', 'LinkedIn Ads'],
+      benefits: [
+        'Automated social media posting',
+        'Google & Facebook Ads optimization',
+        'SEO-optimized content generation',
+        'Influencer collaboration management',
+        'Brand sentiment monitoring',
+        'ROI tracking across channels'
+      ]
+    },
+    {
+      id: 'content-agent',
+      name: 'Content Generation & Branding Agent',
+      icon: Image,
+      color: 'from-rose-500 to-rose-600',
+      category: ['marketing', 'company'],
+      roles: ['Marketing Manager', 'Content Team'],
+      shortDescription: 'AI-powered content creation for social media, blogs, property descriptions',
+      implementationCost: 'Low (AI Content Tools)',
+      usageCost: 'Per Content Piece (₹10-50)',
+      thirdPartyAPIs: ['OpenAI GPT', 'DALL-E', 'Canva API'],
+      benefits: [
+        'Auto-generate property descriptions',
+        'Create social media posts with images',
+        'Blog article writing for SEO',
+        'Email campaign content',
+        'Video script generation',
+        'Brand voice consistency'
+      ]
+    },
+    {
+      id: 'reputation-agent',
+      name: 'Review & Reputation Management Agent',
+      icon: Eye,
+      color: 'from-yellow-600 to-yellow-700',
+      category: ['marketing', 'company', 'customer'],
+      roles: ['Marketing Manager', 'Customer Service'],
+      shortDescription: 'Monitor and manage online reviews, ratings, and brand reputation',
+      implementationCost: 'Low (API Integrations)',
+      usageCost: 'Free (Web Scraping)',
+      thirdPartyAPIs: ['Google My Business API', 'Facebook Reviews'],
+      benefits: [
+        'Monitor reviews across platforms',
+        'Automated review response suggestions',
+        'Sentiment analysis of feedback',
+        'Alert for negative reviews',
+        'Generate review request campaigns',
+        'Reputation score tracking'
+      ]
+    },
+
+    // Compliance & Security Agents
+    {
+      id: 'legal-compliance-agent',
+      name: 'Legal Compliance & RERA Agent',
+      icon: Scale,
+      color: 'from-gray-600 to-gray-700',
+      category: ['company', 'project'],
+      roles: ['Tenant Admin', 'Legal Team', 'Project Manager'],
+      shortDescription: 'Automated RERA compliance tracking and legal document verification',
+      implementationCost: 'Medium (Legal Database)',
+      usageCost: 'Free (Internal Checks)',
+      thirdPartyAPIs: ['RERA API', 'Government Data'],
+      benefits: [
+        'RERA registration status monitoring',
+        'Compliance deadline reminders',
+        'Legal document verification',
+        'Automated statutory reporting',
+        'Risk assessment and alerts',
+        'Avoid legal penalties'
+      ]
+    },
+    {
+      id: 'security-agent',
+      name: 'Security & Fraud Detection Agent',
+      icon: Shield,
+      color: 'from-red-600 to-red-700',
+      category: ['company', 'saas_admin'],
+      roles: ['SaaS Admin', 'Security Team'],
+      shortDescription: 'Real-time security monitoring, fraud detection, compliance management',
+      implementationCost: 'High (Security ML Models)',
+      usageCost: 'Free (Internal ML)',
+      thirdPartyAPIs: ['Internal Only'],
+      benefits: [
+        'Real-time threat detection',
+        'Suspicious activity alerts',
+        'Data access monitoring',
+        'Compliance report generation',
+        'Password policy enforcement',
+        'Audit trail maintenance'
+      ]
+    },
+
+    // Network & Partner Management
+    {
+      id: 'network-agent',
+      name: 'Agent Network Management System',
+      icon: Network,
+      color: 'from-blue-600 to-blue-700',
+      category: ['company', 'network', 'saas_admin'],
+      roles: ['Tenant Admin', 'Network Manager'],
+      shortDescription: 'Manage channel partners, brokers, commission tracking',
+      implementationCost: 'Medium (Network Portal)',
+      usageCost: 'Free (Internal Processing)',
+      thirdPartyAPIs: ['Internal Only'],
+      benefits: [
+        'Broker network onboarding and KYC',
+        'Real-time commission calculation',
+        'Lead distribution to partners',
+        'Performance tracking and rankings',
+        'Payout automation',
+        'Expand reach through partners'
+      ]
+    },
+
+    // Property & Project Management
+    {
+      id: 'site-selection-agent',
+      name: 'Site Selection & Location Intelligence Agent',
+      icon: MapPin,
+      color: 'from-emerald-500 to-emerald-600',
+      category: ['company', 'project', 'saas_admin'],
+      roles: ['Tenant Admin', 'Project Manager'],
+      shortDescription: 'Data-driven site selection, demographic analysis, location scoring',
+      implementationCost: 'High (Geographic Data)',
+      usageCost: 'Per Analysis (₹200-1000)',
+      thirdPartyAPIs: ['Google Maps API', 'Census Data', 'GIS APIs'],
+      benefits: [
+        'Demographic analysis of locations',
+        'Proximity to amenities scoring',
+        'Infrastructure development tracking',
+        'Demand-supply gap analysis',
+        'Price appreciation potential',
+        'Competitive landscape mapping'
+      ]
+    },
+    {
+      id: 'construction-tracking-agent',
+      name: 'Construction Progress Tracking Agent',
+      icon: Wrench,
+      color: 'from-orange-600 to-orange-700',
+      category: ['company', 'project'],
+      roles: ['Project Manager', 'Site Engineer'],
+      shortDescription: 'AI-powered construction monitoring using image recognition',
+      implementationCost: 'High (Computer Vision)',
+      usageCost: 'Per Analysis (₹50-200)',
+      thirdPartyAPIs: ['AWS Rekognition', 'Google Vision AI'],
+      benefits: [
+        'Automated progress tracking from photos',
+        'Quality check using AI',
+        'Delay prediction and alerts',
+        'Compare actual vs planned progress',
+        'Worker safety compliance monitoring',
+        'Generate progress reports automatically'
+      ]
+    },
+    {
+      id: 'inventory-optimization-agent',
+      name: 'Inventory Optimization Agent',
+      icon: DollarSign,
+      color: 'from-green-500 to-green-600',
+      category: ['company', 'project'],
+      roles: ['Tenant Admin', 'Sales Manager'],
+      shortDescription: 'Optimize property inventory, pricing, and availability',
+      implementationCost: 'Low (Algorithm Setup)',
+      usageCost: 'Free (Internal Logic)',
+      thirdPartyAPIs: ['Internal Only'],
+      benefits: [
+        'Dynamic pricing based on demand',
+        'Identify slow-moving inventory',
+        'Optimal unit mix recommendations',
+        'Seasonal pricing strategies',
+        'Discount optimization',
+        'Maximize revenue per project'
+      ]
+    },
+    {
+      id: 'tenant-screening-agent',
+      name: 'Tenant Screening & Verification Agent',
+      icon: UserCheck,
+      color: 'from-teal-500 to-teal-600',
+      category: ['company', 'agent'],
+      roles: ['Property Manager', 'Rental Team'],
+      shortDescription: 'Automated background checks, credit scoring, tenant reliability assessment',
+      implementationCost: 'Medium (Verification APIs)',
+      usageCost: 'Per Check (₹50-200)',
+      thirdPartyAPIs: ['CIBIL', 'Aadhaar Verification', 'Employment Verification'],
+      benefits: [
+        'Instant background verification',
+        'Credit score analysis',
+        'Employment verification',
+        'Previous landlord reference checks',
+        'Risk scoring for reliability',
+        'Reduce bad tenant incidents by 80%'
+      ]
+    },
+
+    // Additional Value-Add Agents
+    {
+      id: 'mortgage-agent',
+      name: 'Mortgage Calculator & Pre-approval Agent',
+      icon: Calculator,
+      color: 'from-blue-500 to-blue-600',
+      category: ['customer', 'agent', 'company'],
+      roles: ['Customer', 'Sales Agent', 'Loan Partner'],
+      shortDescription: 'Help customers with mortgage calculations and pre-approval',
+      implementationCost: 'Low (Calculator + Bank APIs)',
+      usageCost: 'Free (Affiliate Commissions)',
+      thirdPartyAPIs: ['Bank APIs', 'CIBIL'],
+      benefits: [
+        'EMI calculator for customers',
+        'Loan eligibility assessment',
+        'Connect with partner banks',
+        'Pre-approval assistance',
+        'Compare loan offers',
+        'Earn affiliate commissions'
+      ]
+    },
+    {
+      id: 'sentiment-agent',
+      name: 'Customer Sentiment Analysis Agent',
+      icon: TrendingUp,
+      color: 'from-purple-600 to-purple-700',
+      category: ['company', 'customer'],
+      roles: ['Customer Service', 'Sales Manager'],
+      shortDescription: 'Analyze customer feedback, calls, chats for sentiment',
+      implementationCost: 'Medium (NLP Models)',
+      usageCost: 'Per Analysis (₹2-10)',
+      thirdPartyAPIs: ['OpenAI', 'Google NLP', 'AWS Comprehend'],
+      benefits: [
+        'Real-time sentiment tracking',
+        'Identify unhappy customers early',
+        'Prioritize support for at-risk customers',
+        'Measure customer satisfaction',
+        'Improve agent training',
+        'Prevent customer churn'
+      ]
+    },
+    {
+      id: 'energy-efficiency-agent',
+      name: 'Energy Efficiency & Sustainability Agent',
+      icon: Leaf,
+      color: 'from-green-600 to-green-700',
+      category: ['company', 'project', 'customer'],
+      roles: ['Project Manager', 'Customer'],
+      shortDescription: 'Recommend energy savings, sustainability features',
+      implementationCost: 'Low (Algorithm)',
+      usageCost: 'Free (Internal Logic)',
+      thirdPartyAPIs: ['Internal Only'],
+      benefits: [
+        'Energy consumption prediction',
+        'Solar panel ROI calculator',
+        'Green building certification assistance',
+        'Utility cost optimization',
+        'Carbon footprint tracking',
+        'Sustainability score for projects'
+      ]
+    },
+    {
+      id: 'lead-routing-agent',
+      name: 'Intelligent Lead Routing Agent',
+      icon: Target,
+      color: 'from-indigo-600 to-indigo-700',
+      category: ['company', 'agent'],
+      roles: ['Sales Manager'],
+      shortDescription: 'Smart lead distribution based on agent expertise, availability, performance',
+      implementationCost: 'Low (Routing Logic)',
+      usageCost: 'Free (Internal Logic)',
+      thirdPartyAPIs: ['Internal Only'],
+      benefits: [
+        'Match leads with best-suited agents',
+        'Balance workload across team',
+        'Route based on expertise',
+        'Consider agent availability',
+        'Performance-based routing',
+        'Increase conversion by 25%'
+      ]
+    }
+  ];
+
   // Text-to-Speech functionality
-  const speakText = (text) => {
+  const speakText = (text, agentId) => {
     if ('speechSynthesis' in window) {
       // Stop any ongoing speech
       window.speechSynthesis.cancel();
@@ -37,12 +719,21 @@ const AIAgentsHub = () => {
         utterance.lang = 'en-US';
       }
       
-      utterance.rate = 0.9; // Slightly slower for better comprehension
+      utterance.rate = 0.9;
       utterance.pitch = 1;
       
-      utterance.onstart = () => setIsSpeaking(true);
-      utterance.onend = () => setIsSpeaking(false);
-      utterance.onerror = () => setIsSpeaking(false);
+      utterance.onstart = () => {
+        setIsSpeaking(true);
+        setSpeakingAgentId(agentId);
+      };
+      utterance.onend = () => {
+        setIsSpeaking(false);
+        setSpeakingAgentId(null);
+      };
+      utterance.onerror = () => {
+        setIsSpeaking(false);
+        setSpeakingAgentId(null);
+      };
       
       window.speechSynthesis.speak(utterance);
     } else {
@@ -54,11 +745,20 @@ const AIAgentsHub = () => {
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
       setIsSpeaking(false);
+      setSpeakingAgentId(null);
+    }
+  };
+
+  const handleSpeakAgent = (agent) => {
+    if (isSpeaking && speakingAgentId === agent.id) {
+      stopSpeaking();
+    } else {
+      const textToSpeak = `${agent.name}. ${agent.shortDescription}. Key benefits: ${agent.benefits.slice(0, 3).join('. ')}`;
+      speakText(textToSpeak, agent.id);
     }
   };
 
   useEffect(() => {
-    // Cleanup on unmount
     return () => {
       if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
