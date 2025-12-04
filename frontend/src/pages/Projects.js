@@ -314,13 +314,16 @@ const Projects = () => {
       {/* Page Info Modal */}
       <PageInfoModal
         title="Projects Management"
-        description="A centralized hub for managing all real estate projects within your organization. This page provides a comprehensive overview of all projects with quick access to detailed views, statistics, and project creation capabilities."
+        description="A centralized hub for managing all real estate projects within your organization. This page provides comprehensive project management with multi-type support, category system integration, and role-based access control."
         features={[
-          "View all projects in an organized grid layout with key metrics",
+          "View all projects in organized grid layout with real-time statistics",
           "Create new projects with comprehensive details (name, type, location, currency, pricing)",
+          "Multi-project type support: Ventures, Apartments, Gated Communities, Farm Lands, Commercial, Mixed Use",
+          "Automatic category dump from master templates during project creation",
+          "Project-specific category customization (add/edit/deactivate)",
+          "Role-based access: Tenant Admin sees all projects, Project Admin sees only assigned projects",
           "Quick statistics per project: total units, available, sold, and blocked properties",
-          "One-click navigation to detailed project view for in-depth management",
-          "Project type categorization (Venture/Layout, Apartment, Open Land, Farm Land, Other)",
+          "One-click navigation to project details, layout editor, and property management",
           "Location-based organization with city and state information",
           "Currency selection support for international projects",
           "Empty state with helpful guidance when no projects exist",
@@ -332,12 +335,26 @@ const Projects = () => {
           "Tailwind CSS",
           "Shadcn UI",
           "FastAPI Backend",
-          "MongoDB"
+          "MongoDB",
+          "Multi-Role System",
+          "Category Management System"
         ]}
         implementations={[
           {
+            title: "Multi-Role Access Control (NEW)",
+            description: "Implemented role-based project access. Tenant Admins can create projects and assign to any Project Admin. Project Admins can create projects (auto-assigned to self) and see only assigned projects. Complete data isolation and security."
+          },
+          {
+            title: "Master Categories Integration (NEW)",
+            description: "Projects can now inherit master categories during creation. System automatically dumps selected categories (Units, Facing, Status, etc.) to project level. Each project maintains its own copy for customization without affecting other projects."
+          },
+          {
+            title: "Project Type System (NEW)",
+            description: "Support for 6 project types with type-specific property types: 1) Ventures (Plots), 2) Apartments (Flats), 3) Gated Communities (Villas), 4) Farm Lands (Agricultural), 5) Commercial (Shops), 6) Mixed Use. Each type has appropriate default categories."
+          },
+          {
             title: "Project CRUD Operations",
-            description: "Implemented complete create, read operations for projects. Users can add new projects with detailed information including type, location, currency, and base pricing. All data is validated and stored in MongoDB."
+            description: "Complete create, read operations for projects. Users can add new projects with detailed information including type, location, currency, and base pricing. All data is validated and stored in MongoDB with proper tenant and project admin linkage."
           },
           {
             title: "Statistics Dashboard",
@@ -345,11 +362,7 @@ const Projects = () => {
           },
           {
             title: "Navigation Integration",
-            description: "Seamless navigation to project detail pages with click handlers on cards. Users can quickly drill down into specific projects to manage properties and access the layout editor."
-          },
-          {
-            title: "Multi-Tenant Support",
-            description: "Projects are automatically associated with the logged-in user's tenant. This ensures data isolation and proper access control in the multi-tenant SaaS architecture."
+            description: "Seamless navigation to project detail pages, layout editor, and property management. Context-aware routing based on user role and project assignments."
           }
         ]}
       />
