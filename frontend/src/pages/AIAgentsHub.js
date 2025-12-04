@@ -26,13 +26,11 @@ const AIAgentsHub = () => {
   const aiAgents = [
     {
       id: 'sms-agent',
-      color: 'from-green-500 to-green-600',
-      category: ['company', 'agent', 'customer', 'marketing'],
-      roles: ['Tenant Admin', 'Marketing Manager', 'Sales Agent'],
-      shortDescription: 'Rich media messaging via WhatsApp for brochures, videos, updates',
-      implementationCost: 'Medium (WhatsApp Business API Setup)',
-      usageCost: 'Per Message (₹0.25-1.00)',
-      thirdPartyAPIs: ['WhatsApp Business API', 'Twilio WhatsApp'],
+      name: 'SMS Automation Agent',
+      icon: MessageSquare,
+      color: 'from-blue-500 to-blue-600',
+      status: 'coming_soon',
+      shortDescription: 'Automated SMS sending for leads, follow-ups, payment reminders',
       benefits: [
         'Send project brochures with images and PDFs',
         'Share property videos and virtual tours',
