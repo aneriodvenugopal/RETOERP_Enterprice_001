@@ -369,6 +369,14 @@ function App() {
                 }
               />
               <Route
+                path="/sms"
+                element={
+                  <PrivateRoute>
+                    <SMSManagement />
+                  </PrivateRoute>
+                }
+              />
+              <Route
                 path="/payments"
                 element={
                   <PrivateRoute>
