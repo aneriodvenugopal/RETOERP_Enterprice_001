@@ -34,6 +34,7 @@ import Bookings from "./pages/Bookings";
 import AIAgentsHub from "./pages/AIAgentsHub";
 import AIAgents from "./pages/AIAgents";
 import Financials from "./pages/Financials";
+import SMSManagement from "./pages/SMSManagement";
 import Reports from "./pages/Reports";
 import UsersManagement from "./pages/UsersManagement";
 import CustomerDashboard from "./pages/CustomerDashboard";
