@@ -219,7 +219,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "AI Agents System - Complete Frontend + Backend Integration Testing"
+    - "SMS Automation System - Complete Frontend + Backend Integration Testing"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
