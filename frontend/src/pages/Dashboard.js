@@ -358,6 +358,12 @@ const TenantAdminDashboard = () => {
           description="AI-powered assistants for your business"
           onClick={() => navigate('/ai-agents')}
         />
+        <ActionCard
+          icon={MessageSquare}
+          title="SMS Automation"
+          description="Automated SMS for leads & bookings"
+          onClick={() => navigate('/sms')}
+        />
       </div>
       
       {/* Settings & Management Section */}
