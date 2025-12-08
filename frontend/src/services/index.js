@@ -911,3 +911,55 @@ export const aiAgentService = {
     return response.data;
   },
 };
+
+export const smsService = {
+  // Send SMS
+  sendSMS: async (smsData) => {
+    const response = await apiInstance.post('/sms/send', smsData);
+    return response.data;
+  },
+
+  sendLeadAcknowledgment: async (leadId, language = 'hinglish') => {
+    const response = await apiInstance.post(`/sms/send-lead-acknowledgment/${leadId}?language=${language}`);
+    return response.data;
+  },
+
+  sendBookingConfirmation: async (bookingId, language = 'hinglish') => {
+    const response = await apiInstance.post(`/sms/send-booking-confirmation/${bookingId}?language=${language}`);
+    return response.data;
+  },
+
+  sendPaymentReminder: async (scheduleId, language = 'hinglish') => {
+    const response = await apiInstance.post(`/sms/send-payment-reminder/${scheduleId}?language=${language}`);
+    return response.data;
+  },
+
+  // History & Stats
+  getSMSHistory: async (filters = {}) => {
+    const response = await apiInstance.get('/sms/history', { params: filters });
+    return response.data;
+  },
+
+  getSMSStats: async () => {
+    const response = await apiInstance.get('/sms/stats');
+    return response.data;
+  },
+
+  // Templates
+  getDefaultTemplates: async (messageType = null) => {
+    const params = messageType ? `?message_type=${messageType}` : '';
+    const response = await apiInstance.get(`/sms/default-templates${params}`);
+    return response.data;
+  },
+
+  getCustomTemplates: async (messageType = null) => {
+    const params = messageType ? { message_type: messageType } : {};
+    const response = await apiInstance.get('/sms/templates', { params });
+    return response.data;
+  },
+
+  createTemplate: async (templateData) => {
+    const response = await apiInstance.post('/sms/templates', templateData);
+    return response.data;
+  },
+};
