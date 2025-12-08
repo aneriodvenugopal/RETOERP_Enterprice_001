@@ -41,6 +41,23 @@ const AIAgents = () => {
         'Follow-up suggestions'
       ],
       prompt: 'Generate a follow-up message for a hot lead'
+    },
+    {
+      id: 'sms_automation',
+      name: 'SMS Automation Agent',
+      icon: MessageSquare,
+      emoji: '📱',
+      description: 'Automated SMS for leads, bookings, payments, and more',
+      gradient: 'from-green-500 to-emerald-500',
+      features: [
+        'Lead acknowledgment SMS',
+        'Booking confirmations',
+        'Payment reminders',
+        'Hindi + English + Hinglish'
+      ],
+      prompt: 'Send automated SMS notifications',
+      isExternal: true,
+      externalLink: '/sms'
     }
   ];
 
