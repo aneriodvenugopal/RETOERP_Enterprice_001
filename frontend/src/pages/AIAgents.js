@@ -173,11 +173,16 @@ const AIAgents = () => {
               </div>
 
               <Button
-                onClick={() => handleStartAgent(agent.id)}
-                disabled={activeAgent === agent.id}
+                onClick={() => agent.isExternal ? window.location.href = agent.externalLink : handleStartAgent(agent.id)}
+                disabled={activeAgent === agent.id && !agent.isExternal}
                 className={`w-full bg-gradient-to-r ${agent.gradient} hover:opacity-90 text-white`}
               >
-                {activeAgent === agent.id ? (
+                {agent.isExternal ? (
+                  <>
+                    Open Dashboard
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </>
+                ) : activeAgent === agent.id ? (
                   <>
                     <Bot className="w-4 h-4 mr-2 animate-pulse" />
                     Active
