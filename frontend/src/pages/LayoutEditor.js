@@ -866,7 +866,8 @@ const LayoutEditor = ({ mode = 'edit' }) => {
                     <div className="flex items-center justify-center h-full">
                       <div className="text-center">
                         <Upload className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                        <p className="text-gray-500">SVG not available</p>
+                        <p className="text-gray-500">Layout file not available</p>
+                        <p className="text-xs text-gray-400 mt-2">Upload SVG, PDF, PNG, or JPG file</p>
                       </div>
                     </div>
                   )}
