@@ -754,7 +754,7 @@ const LayoutEditor = ({ mode = 'edit' }) => {
                         width: 'fit-content'
                       }}
                     >
-                      <div style={{ position: 'relative', display: 'inline-block' }}>
+                      <div style={{ position: 'relative', display: 'inline-block', width: '100%' }}>
                         {/* Render based on file type */}
                         {fileType === 'pdf' ? (
                           <div className="w-full h-[800px] bg-gray-50 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center">
@@ -765,47 +765,41 @@ const LayoutEditor = ({ mode = 'edit' }) => {
                                   <path d="M8 10a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
                                 </svg>
                               </div>
-                              <h3 className="text-xl font-bold text-gray-800 mb-2">PDF Layout Detected</h3>
+                              <h3 className="text-xl font-bold text-gray-800 mb-2">PDF Layout</h3>
                               <p className="text-gray-600 mb-6">
-                                PDF files are shown for reference only.<br />
-                                Plot details from PDF upload are preserved below.
+                                Plots are displayed on canvas.<br />
+                                Click button below to view original PDF.
                               </p>
-                              <div className="space-y-3">
-                                <a 
-                                  href={svgUrl} 
-                                  target="_blank" 
-                                  rel="noopener noreferrer"
-                                  className="inline-block px-6 py-3 bg-ocean-primary text-white rounded-lg hover:bg-ocean-secondary transition"
-                                >
-                                  📄 Open PDF in New Tab
-                                </a>
-                                <p className="text-sm text-gray-500">
-                                  To draw plots, upload SVG, PNG, or JPG format using the button on the left
-                                </p>
-                              </div>
+                              <a 
+                                href={svgUrl} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="inline-block px-6 py-3 bg-ocean-primary text-white rounded-lg hover:bg-ocean-secondary transition"
+                              >
+                                📄 Open PDF in New Tab
+                              </a>
                             </div>
                           </div>
                         ) : (
                           <img src={svgUrl} alt="Layout" style={{ display: 'block', maxWidth: '100%' }} />
                         )}
                         
-                        {/* Only show SVG overlay for non-PDF files */}
-                        {fileType !== 'pdf' && (
-                          <svg
-                            ref={svgRef}
-                            onClick={isEditMode ? handleSvgClick : undefined}
-                            style={{
-                              position: 'absolute',
-                              top: 0,
-                              left: 0,
-                              width: '100%',
-                              height: '100%',
-                              cursor: isEditMode ? 'crosshair' : 'default',
-                              pointerEvents: fileType === 'pdf' ? 'none' : 'auto'
-                            }}
-                            viewBox={`0 0 ${svgDimensions.width} ${svgDimensions.height}`}
-                            preserveAspectRatio="xMidYMid meet"
-                          >
+                        {/* SVG overlay - ALWAYS show for plotting (but disable click for PDF) */}
+                        <svg
+                          ref={svgRef}
+                          onClick={isEditMode && fileType !== 'pdf' ? handleSvgClick : undefined}
+                          style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            width: '100%',
+                            height: '100%',
+                            cursor: isEditMode && fileType !== 'pdf' ? 'crosshair' : 'default',
+                            pointerEvents: fileType === 'pdf' ? 'none' : 'auto'
+                          }}
+                          viewBox={`0 0 ${svgDimensions.width} ${svgDimensions.height}`}
+                          preserveAspectRatio="xMidYMid meet"
+                        >
                           {/* Show saved plots */}
                           {plots.length > 0 && console.log('🎨 Rendering plots:', plots.length, 'plots')}
                           {plots.map((plot, index) => {
