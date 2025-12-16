@@ -264,7 +264,7 @@ const LayoutCreatorTool = () => {
           </CardHeader>
           <CardContent>
             <ol className="list-decimal list-inside space-y-2 text-sm">
-              <li>Upload your layout SVG file</li>
+              <li>Upload your layout file (SVG, PDF, PNG, or JPG)</li>
               <li>Click on corners of each plot (minimum 3 points, maximum unlimited)</li>
               <li>Click <strong>"Finish Marking"</strong> button when all corners are marked</li>
               <li>Fill plot details in the form that appears</li>
