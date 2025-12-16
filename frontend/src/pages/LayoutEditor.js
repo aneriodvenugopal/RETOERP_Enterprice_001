@@ -509,7 +509,7 @@ const LayoutEditor = ({ mode = 'edit' }) => {
                   <input
                     ref={fileInputRef}
                     type="file"
-                    accept=".svg,image/svg+xml"
+                    accept=".svg,.pdf,.png,.jpg,.jpeg,image/svg+xml,application/pdf,image/png,image/jpeg"
                     onChange={handleFileUpload}
                     className="hidden"
                   />
@@ -520,7 +520,7 @@ const LayoutEditor = ({ mode = 'edit' }) => {
                     className="w-full bg-gradient-to-r from-ocean-primary to-ocean-secondary text-white"
                   >
                     <Upload className="w-4 h-4 mr-2" />
-                    {uploading ? 'Uploading...' : 'Upload New SVG'}
+                    {uploading ? 'Uploading...' : 'Upload Layout (SVG, PDF, PNG, JPG)'}
                   </Button>
                   
                   {svgFile && (
