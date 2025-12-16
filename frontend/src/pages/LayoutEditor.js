@@ -713,13 +713,24 @@ const LayoutEditor = ({ mode = 'edit' }) => {
             <Card className="glass-card">
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <div>
+                  <div className="flex-1">
                     <CardTitle className="text-ocean-primary">Layout Canvas</CardTitle>
                     {fileType && (
-                      <p className="text-xs text-gray-500 mt-1">
-                        File type: <span className="font-semibold uppercase">{fileType}</span>
-                        {fileType === 'pdf' && ' (View only - plotting available for SVG/PNG/JPG)'}
-                      </p>
+                      <div className="mt-2">
+                        <p className="text-xs text-gray-500">
+                          File type: <span className="font-semibold uppercase">{fileType}</span>
+                        </p>
+                        {fileType === 'pdf' && (
+                          <div className="mt-2 bg-yellow-50 border border-yellow-200 rounded p-2">
+                            <p className="text-xs text-yellow-800">
+                              ⚠️ PDF viewing: If PDF doesn't display, <a href={svgUrl} target="_blank" rel="noopener noreferrer" className="underline font-semibold">open in new tab</a>
+                            </p>
+                            <p className="text-xs text-yellow-700 mt-1">
+                              💡 For plot drawing, please upload SVG, PNG, or JPG format
+                            </p>
+                          </div>
+                        )}
+                      </div>
                     )}
                   </div>
                   <div className="flex gap-2">
