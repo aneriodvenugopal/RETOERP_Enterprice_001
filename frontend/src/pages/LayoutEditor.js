@@ -902,7 +902,6 @@ const LayoutEditor = ({ mode = 'edit' }) => {
                             </>
                           )}
                         </svg>
-                        )}
                       </div>
                     </div>
                   ) : (
