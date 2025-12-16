@@ -713,7 +713,15 @@ const LayoutEditor = ({ mode = 'edit' }) => {
             <Card className="glass-card">
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-ocean-primary">Layout Canvas</CardTitle>
+                  <div>
+                    <CardTitle className="text-ocean-primary">Layout Canvas</CardTitle>
+                    {fileType && (
+                      <p className="text-xs text-gray-500 mt-1">
+                        File type: <span className="font-semibold uppercase">{fileType}</span>
+                        {fileType === 'pdf' && ' (View only - plotting available for SVG/PNG/JPG)'}
+                      </p>
+                    )}
+                  </div>
                   <div className="flex gap-2">
                     <Button onClick={() => setZoom(z => Math.min(3, z + 0.2))} size="sm" variant="outline">
                       <ZoomIn className="w-4 h-4" />
