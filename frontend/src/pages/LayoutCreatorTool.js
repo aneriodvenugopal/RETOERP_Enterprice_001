@@ -301,7 +301,7 @@ const LayoutCreatorTool = () => {
                 <input
                   ref={fileInputRef}
                   type="file"
-                  accept=".svg"
+                  accept=".svg,.pdf,.png,.jpg,.jpeg"
                   onChange={handleFileUpload}
                   className="hidden"
                 />
