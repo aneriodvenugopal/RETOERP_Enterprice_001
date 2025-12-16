@@ -118,6 +118,18 @@ const LayoutEditor = ({ mode = 'edit' }) => {
       if (layout.svg_url) {
         setSvgUrl(layout.svg_url);
         setSvgFileInfo({ file_url: layout.svg_url });
+        
+        // Detect file type from URL
+        const url = layout.svg_url.toLowerCase();
+        if (url.includes('.pdf')) {
+          setFileType('pdf');
+        } else if (url.includes('.png')) {
+          setFileType('png');
+        } else if (url.includes('.jpg') || url.includes('.jpeg')) {
+          setFileType('jpg');
+        } else {
+          setFileType('svg');
+        }
       }
       
       if (layout.plots && layout.plots.length > 0) {
