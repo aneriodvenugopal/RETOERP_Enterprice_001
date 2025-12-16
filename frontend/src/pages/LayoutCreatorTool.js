@@ -38,7 +38,7 @@ const LayoutCreatorTool = () => {
   const svgRef = useRef(null);
   const fileInputRef = useRef(null);
 
-  // Handle SVG file upload
+  // Handle layout file upload
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
