@@ -287,7 +287,7 @@ const LayoutCreatorTool = () => {
             {/* Upload Section */}
             <Card className="glass-card">
               <CardHeader>
-                <CardTitle className="text-ocean-primary">1. Upload SVG</CardTitle>
+                <CardTitle className="text-ocean-primary">1. Upload Layout File</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <Input
