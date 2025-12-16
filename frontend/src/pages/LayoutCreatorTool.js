@@ -542,7 +542,7 @@ const LayoutCreatorTool = () => {
                     <div className="flex items-center justify-center h-full">
                       <div className="text-center">
                         <Upload className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                        <p className="text-gray-500">Upload SVG to start marking plots</p>
+                        <p className="text-gray-500">Upload layout file to start marking plots</p>
                       </div>
                     </div>
                   )}
