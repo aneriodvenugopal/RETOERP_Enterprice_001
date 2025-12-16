@@ -178,7 +178,7 @@ const LayoutCreatorTool = () => {
     }
 
     if (!svgFile) {
-      toast.error('Please upload SVG file');
+      toast.error('Please upload layout file');
       return;
     }
 
