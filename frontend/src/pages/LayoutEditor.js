@@ -515,7 +515,8 @@ const LayoutEditor = ({ mode = 'edit' }) => {
             {isEditMode && (
               <Card className="glass-card">
                 <CardHeader>
-                  <CardTitle className="text-ocean-primary">Change SVG (Optional)</CardTitle>
+                  <CardTitle className="text-ocean-primary">Change Layout File (Optional)</CardTitle>
+                  <p className="text-xs text-gray-500 mt-1">Accepts: SVG, PDF, PNG, JPG</p>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <input
