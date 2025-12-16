@@ -724,22 +724,39 @@ const LayoutEditor = ({ mode = 'edit' }) => {
                       }}
                     >
                       <div style={{ position: 'relative', display: 'inline-block' }}>
-                        <img src={svgUrl} alt="Layout" style={{ display: 'block', maxWidth: '100%' }} />
+                        {/* Render based on file type */}
+                        {fileType === 'pdf' ? (
+                          <iframe
+                            src={svgUrl}
+                            style={{ 
+                              display: 'block', 
+                              width: '100%', 
+                              height: '800px',
+                              border: 'none'
+                            }}
+                            title="PDF Layout"
+                          />
+                        ) : (
+                          <img src={svgUrl} alt="Layout" style={{ display: 'block', maxWidth: '100%' }} />
+                        )}
                         
-                        <svg
-                          ref={svgRef}
-                          onClick={isEditMode ? handleSvgClick : undefined}
-                          style={{
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            width: '100%',
-                            height: '100%',
-                            cursor: isEditMode ? 'crosshair' : 'default'
-                          }}
-                          viewBox={`0 0 ${svgDimensions.width} ${svgDimensions.height}`}
-                          preserveAspectRatio="xMidYMid meet"
-                        >
+                        {/* Only show SVG overlay for non-PDF files */}
+                        {fileType !== 'pdf' && (
+                          <svg
+                            ref={svgRef}
+                            onClick={isEditMode ? handleSvgClick : undefined}
+                            style={{
+                              position: 'absolute',
+                              top: 0,
+                              left: 0,
+                              width: '100%',
+                              height: '100%',
+                              cursor: isEditMode ? 'crosshair' : 'default',
+                              pointerEvents: fileType === 'pdf' ? 'none' : 'auto'
+                            }}
+                            viewBox={`0 0 ${svgDimensions.width} ${svgDimensions.height}`}
+                            preserveAspectRatio="xMidYMid meet"
+                          >
                           {/* Show saved plots */}
                           {plots.length > 0 && console.log('🎨 Rendering plots:', plots.length, 'plots')}
                           {plots.map((plot, index) => {
