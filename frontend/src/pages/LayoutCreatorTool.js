@@ -65,7 +65,7 @@ const LayoutCreatorTool = () => {
   // Handle click on SVG to add plot point
   const handleSvgClick = (e) => {
     if (!svgUrl) {
-      toast.error('Please upload SVG first');
+      toast.error('Please upload layout file first');
       return;
     }
 
