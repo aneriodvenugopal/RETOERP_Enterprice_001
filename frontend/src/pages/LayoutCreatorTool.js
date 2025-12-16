@@ -41,13 +41,24 @@ const LayoutCreatorTool = () => {
   // Handle SVG file upload
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
-    if (file && file.type === 'image/svg+xml') {
-      setSvgFile(file);
-      const url = URL.createObjectURL(file);
-      setSvgUrl(url);
-      toast.success('SVG uploaded successfully!');
+    if (!file) return;
+    
+    // Accept SVG, PDF, PNG, JPG
+    const validTypes = ['image/svg+xml', 'application/pdf', 'image/png', 'image/jpeg', 'image/jpg'];
+    if (!validTypes.includes(file.type)) {
+      toast.error('Please upload SVG, PDF, PNG, or JPG file');
+      return;
+    }
+    
+    setSvgFile(file);
+    const url = URL.createObjectURL(file);
+    setSvgUrl(url);
+    
+    // Show info for PDF files
+    if (file.type === 'application/pdf') {
+      toast.info('PDF uploaded. You can view it but plot drawing works best with SVG/PNG/JPG files.');
     } else {
-      toast.error('Please upload a valid SVG file');
+      toast.success(`${file.type.includes('svg') ? 'SVG' : file.type.includes('pdf') ? 'PDF' : 'Image'} uploaded successfully!`);
     }
   };
 
