@@ -140,11 +140,21 @@ const LayoutEditor = ({ mode = 'edit' }) => {
     const file = e.target.files[0];
     if (!file) return;
     
-    if (file.type !== 'image/svg+xml') {
-      toast.error('Please upload a valid SVG file');
-      return;
+    // Determine file type
+    let uploadedFileType = 'svg';
+    if (file.type === 'application/pdf') {
+      uploadedFileType = 'pdf';
+    } else if (file.type.startsWith('image/')) {
+      if (file.type === 'image/svg+xml') {
+        uploadedFileType = 'svg';
+      } else if (file.type === 'image/png') {
+        uploadedFileType = 'png';
+      } else if (file.type === 'image/jpeg' || file.type === 'image/jpg') {
+        uploadedFileType = 'jpg';
+      }
     }
     
+    setFileType(uploadedFileType);
     setSvgFile(file);
     const url = URL.createObjectURL(file);
     setSvgUrl(url);
@@ -154,10 +164,12 @@ const LayoutEditor = ({ mode = 'edit' }) => {
     try {
       const uploadResult = await layoutService.uploadSVG(file);
       setSvgFileInfo(uploadResult);
-      toast.success('SVG uploaded successfully!');
+      
+      const fileTypeLabel = uploadedFileType.toUpperCase();
+      toast.success(`${fileTypeLabel} file uploaded successfully!`);
     } catch (error) {
-      console.error('SVG upload error:', error);
-      toast.error('Failed to upload SVG file');
+      console.error('File upload error:', error);
+      toast.error('Failed to upload file');
     } finally {
       setUploading(false);
     }
