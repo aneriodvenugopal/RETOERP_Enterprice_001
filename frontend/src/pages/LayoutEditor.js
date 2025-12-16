@@ -746,16 +746,39 @@ const LayoutEditor = ({ mode = 'edit' }) => {
                       <div style={{ position: 'relative', display: 'inline-block' }}>
                         {/* Render based on file type */}
                         {fileType === 'pdf' ? (
-                          <iframe
-                            src={svgUrl}
-                            style={{ 
-                              display: 'block', 
-                              width: '100%', 
-                              height: '800px',
-                              border: 'none'
-                            }}
-                            title="PDF Layout"
-                          />
+                          <div className="w-full">
+                            <object
+                              data={svgUrl}
+                              type="application/pdf"
+                              style={{ 
+                                display: 'block', 
+                                width: '100%', 
+                                height: '800px',
+                                border: '1px solid #e5e7eb'
+                              }}
+                            >
+                              <embed
+                                src={svgUrl}
+                                type="application/pdf"
+                                style={{ 
+                                  display: 'block', 
+                                  width: '100%', 
+                                  height: '800px'
+                                }}
+                              />
+                              <div className="p-8 text-center bg-gray-50 rounded">
+                                <p className="text-gray-600 mb-4">PDF cannot be displayed in browser.</p>
+                                <a 
+                                  href={svgUrl} 
+                                  target="_blank" 
+                                  rel="noopener noreferrer"
+                                  className="text-ocean-primary underline"
+                                >
+                                  Click here to open PDF in new tab
+                                </a>
+                              </div>
+                            </object>
+                          </div>
                         ) : (
                           <img src={svgUrl} alt="Layout" style={{ display: 'block', maxWidth: '100%' }} />
                         )}
