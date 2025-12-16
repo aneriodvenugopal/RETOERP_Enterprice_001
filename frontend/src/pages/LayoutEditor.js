@@ -29,6 +29,7 @@ const LayoutEditor = ({ mode = 'edit' }) => {
   const [svgFile, setSvgFile] = useState(null);
   const [svgUrl, setSvgUrl] = useState(null);
   const [svgFileInfo, setSvgFileInfo] = useState(null);
+  const [fileType, setFileType] = useState('svg'); // svg, pdf, png, jpg
   const [plots, setPlots] = useState([]);
   const [currentPoints, setCurrentPoints] = useState([]);
   const [showPlotForm, setShowPlotForm] = useState(false);
