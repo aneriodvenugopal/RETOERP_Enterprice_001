@@ -311,7 +311,7 @@ const LayoutCreatorTool = () => {
                   className="w-full bg-gradient-to-r from-ocean-primary to-ocean-secondary text-white"
                 >
                   <Upload className="w-4 h-4 mr-2" />
-                  {svgFile ? 'Change SVG' : 'Upload SVG'}
+                  {svgFile ? 'Change File' : 'Upload Layout File'}
                 </Button>
                 
                 {svgFile && (
