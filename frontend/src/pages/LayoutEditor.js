@@ -757,38 +757,33 @@ const LayoutEditor = ({ mode = 'edit' }) => {
                       <div style={{ position: 'relative', display: 'inline-block' }}>
                         {/* Render based on file type */}
                         {fileType === 'pdf' ? (
-                          <div className="w-full">
-                            <object
-                              data={svgUrl}
-                              type="application/pdf"
-                              style={{ 
-                                display: 'block', 
-                                width: '100%', 
-                                height: '800px',
-                                border: '1px solid #e5e7eb'
-                              }}
-                            >
-                              <embed
-                                src={svgUrl}
-                                type="application/pdf"
-                                style={{ 
-                                  display: 'block', 
-                                  width: '100%', 
-                                  height: '800px'
-                                }}
-                              />
-                              <div className="p-8 text-center bg-gray-50 rounded">
-                                <p className="text-gray-600 mb-4">PDF cannot be displayed in browser.</p>
+                          <div className="w-full h-[800px] bg-gray-50 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center">
+                            <div className="text-center p-8">
+                              <div className="mb-6">
+                                <svg className="w-20 h-20 mx-auto text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                                  <path d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" />
+                                  <path d="M8 10a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
+                                </svg>
+                              </div>
+                              <h3 className="text-xl font-bold text-gray-800 mb-2">PDF Layout Detected</h3>
+                              <p className="text-gray-600 mb-6">
+                                PDF files are shown for reference only.<br />
+                                Plot details from PDF upload are preserved below.
+                              </p>
+                              <div className="space-y-3">
                                 <a 
                                   href={svgUrl} 
                                   target="_blank" 
                                   rel="noopener noreferrer"
-                                  className="text-ocean-primary underline"
+                                  className="inline-block px-6 py-3 bg-ocean-primary text-white rounded-lg hover:bg-ocean-secondary transition"
                                 >
-                                  Click here to open PDF in new tab
+                                  📄 Open PDF in New Tab
                                 </a>
+                                <p className="text-sm text-gray-500">
+                                  To draw plots, upload SVG, PNG, or JPG format using the button on the left
+                                </p>
                               </div>
-                            </object>
+                            </div>
                           </div>
                         ) : (
                           <img src={svgUrl} alt="Layout" style={{ display: 'block', maxWidth: '100%' }} />
