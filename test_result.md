@@ -252,7 +252,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "SMS Automation System - Complete Frontend + Backend Integration Testing"
+    - "Text-to-Speech (TTS) Feature for AI Agents Documentation Hub"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
