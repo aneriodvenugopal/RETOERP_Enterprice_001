@@ -19,62 +19,243 @@ const AIAgentsHub = () => {
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [language, setLanguage] = useState('english');
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
   const [speakingAgentId, setSpeakingAgentId] = useState(null);
+  const [speakingSection, setSpeakingSection] = useState(null);
   const [filterCategory, setFilterCategory] = useState('all');
+  const [availableVoices, setAvailableVoices] = useState([]);
+  const [selectedVoice, setSelectedVoice] = useState(null);
+  const [currentAgentIndex, setCurrentAgentIndex] = useState(0);
+  const [isReadingFullPage, setIsReadingFullPage] = useState(false);
+  const utteranceRef = useRef(null);
 
-  // Text-to-Speech functionality
-  const speakText = (text, agentId) => {
+  // Load available voices and select Indian female voice
+  useEffect(() => {
+    const loadVoices = () => {
+      const voices = window.speechSynthesis.getVoices();
+      setAvailableVoices(voices);
+      
+      // Priority order for Indian female voices
+      const indianFemaleVoiceNames = [
+        'Microsoft Heera',      // Windows Indian English Female
+        'Google हिन्दी',         // Google Hindi
+        'Lekha',                // Apple Indian
+        'Veena',                // Apple Indian
+        'en-IN',                // Generic Indian English
+        'hi-IN',                // Hindi
+      ];
+      
+      // Find the best Indian female voice
+      let bestVoice = null;
+      
+      // First try to find female Indian English voice
+      for (const voice of voices) {
+        const voiceName = voice.name.toLowerCase();
+        const voiceLang = voice.lang.toLowerCase();
+        
+        // Check for Indian female voices
+        if ((voiceLang.includes('en-in') || voiceLang.includes('hi-in') || voiceLang.includes('te-in')) &&
+            (voiceName.includes('female') || voiceName.includes('heera') || voiceName.includes('lekha') || 
+             voiceName.includes('veena') || voiceName.includes('aditi') || voiceName.includes('priya') ||
+             voiceName.includes('raveena') || voiceName.includes('kajal'))) {
+          bestVoice = voice;
+          break;
+        }
+      }
+      
+      // Fallback to any Indian voice
+      if (!bestVoice) {
+        bestVoice = voices.find(v => v.lang.includes('en-IN') || v.lang.includes('hi-IN'));
+      }
+      
+      // Fallback to any female voice
+      if (!bestVoice) {
+        bestVoice = voices.find(v => 
+          v.name.toLowerCase().includes('female') || 
+          v.name.toLowerCase().includes('zira') ||
+          v.name.toLowerCase().includes('samantha') ||
+          v.name.toLowerCase().includes('google us english')
+        );
+      }
+      
+      // Final fallback to first available voice
+      if (!bestVoice && voices.length > 0) {
+        bestVoice = voices[0];
+      }
+      
+      setSelectedVoice(bestVoice);
+    };
+
+    if ('speechSynthesis' in window) {
+      loadVoices();
+      window.speechSynthesis.onvoiceschanged = loadVoices;
+    }
+
+    return () => {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, []);
+
+  // Enhanced Text-to-Speech functionality with Indian female voice
+  const speakText = useCallback((text, agentId = null, section = null, onEnd = null) => {
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
       
       const utterance = new SpeechSynthesisUtterance(text);
+      utteranceRef.current = utterance;
       
+      // Use selected voice (preferably Indian female)
+      if (selectedVoice) {
+        utterance.voice = selectedVoice;
+      }
+      
+      // Set language based on selection
       if (language === 'telugu') {
         utterance.lang = 'te-IN';
       } else if (language === 'hindi') {
         utterance.lang = 'hi-IN';
       } else {
-        utterance.lang = 'en-US';
+        utterance.lang = 'en-IN'; // Indian English
       }
       
-      utterance.rate = 0.9;
-      utterance.pitch = 1;
+      // Natural speaking rate and pitch for female voice
+      utterance.rate = 0.92;
+      utterance.pitch = 1.1; // Slightly higher pitch for female voice
+      utterance.volume = 1;
       
       utterance.onstart = () => {
         setIsSpeaking(true);
+        setIsPaused(false);
         setSpeakingAgentId(agentId);
+        setSpeakingSection(section);
       };
+      
       utterance.onend = () => {
         setIsSpeaking(false);
+        setIsPaused(false);
         setSpeakingAgentId(null);
+        setSpeakingSection(null);
+        if (onEnd) onEnd();
       };
-      utterance.onerror = () => {
+      
+      utterance.onerror = (e) => {
+        console.error('Speech synthesis error:', e);
         setIsSpeaking(false);
+        setIsPaused(false);
         setSpeakingAgentId(null);
+        setSpeakingSection(null);
       };
       
       window.speechSynthesis.speak(utterance);
     } else {
       alert('Text-to-speech is not supported in your browser');
     }
-  };
+  }, [selectedVoice, language]);
 
-  const stopSpeaking = () => {
+  const stopSpeaking = useCallback(() => {
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
       setIsSpeaking(false);
+      setIsPaused(false);
       setSpeakingAgentId(null);
+      setSpeakingSection(null);
+      setIsReadingFullPage(false);
     }
-  };
+  }, []);
 
-  const handleSpeakAgent = (agent) => {
+  const pauseSpeaking = useCallback(() => {
+    if ('speechSynthesis' in window && isSpeaking) {
+      window.speechSynthesis.pause();
+      setIsPaused(true);
+    }
+  }, [isSpeaking]);
+
+  const resumeSpeaking = useCallback(() => {
+    if ('speechSynthesis' in window && isPaused) {
+      window.speechSynthesis.resume();
+      setIsPaused(false);
+    }
+  }, [isPaused]);
+
+  // Generate full agent text for reading
+  const generateAgentFullText = useCallback((agent) => {
+    let text = `${agent.name}. ${agent.shortDescription}. `;
+    text += `Key Benefits: ${agent.benefits.join('. ')}. `;
+    text += `Use Cases: `;
+    agent.useCases.forEach((uc, idx) => {
+      text += `${idx + 1}. ${uc.title}. ${uc.description} `;
+    });
+    text += `Technical Details: Provider is ${agent.technicalDetails.provider}. `;
+    text += `Features include: ${agent.technicalDetails.features.join(', ')}. `;
+    text += `Integration: ${agent.technicalDetails.integration}.`;
+    return text;
+  }, []);
+
+  // Read single agent with section
+  const handleSpeakAgentSection = useCallback((agent, section) => {
+    if (isSpeaking && speakingAgentId === agent.id && speakingSection === section) {
+      stopSpeaking();
+      return;
+    }
+
+    let textToSpeak = '';
+    switch (section) {
+      case 'overview':
+        textToSpeak = `${agent.name}. ${agent.shortDescription}`;
+        break;
+      case 'benefits':
+        textToSpeak = `Key Benefits of ${agent.name}: ${agent.benefits.join('. ')}`;
+        break;
+      case 'usecases':
+        textToSpeak = `Use Cases for ${agent.name}: `;
+        agent.useCases.forEach((uc, idx) => {
+          textToSpeak += `${idx + 1}. ${uc.title}. ${uc.description} `;
+        });
+        break;
+      case 'technical':
+        textToSpeak = `Technical Details: Provider is ${agent.technicalDetails.provider}. `;
+        textToSpeak += `Features: ${agent.technicalDetails.features.join(', ')}. `;
+        textToSpeak += `Integration: ${agent.technicalDetails.integration}.`;
+        break;
+      case 'full':
+      default:
+        textToSpeak = generateAgentFullText(agent);
+        break;
+    }
+
+    speakText(textToSpeak, agent.id, section);
+  }, [isSpeaking, speakingAgentId, speakingSection, stopSpeaking, speakText, generateAgentFullText]);
+
+  // Read full page - all agents sequentially
+  const readFullPage = useCallback((agents, startIndex = 0) => {
+    if (startIndex >= agents.length) {
+      setIsReadingFullPage(false);
+      stopSpeaking();
+      return;
+    }
+
+    setIsReadingFullPage(true);
+    setCurrentAgentIndex(startIndex);
+    
+    const agent = agents[startIndex];
+    const text = generateAgentFullText(agent);
+    
+    speakText(text, agent.id, 'full', () => {
+      // Read next agent after current one finishes
+      readFullPage(agents, startIndex + 1);
+    });
+  }, [generateAgentFullText, speakText, stopSpeaking]);
+
+  const handleSpeakAgent = useCallback((agent) => {
     if (isSpeaking && speakingAgentId === agent.id) {
       stopSpeaking();
     } else {
       const textToSpeak = `${agent.name}. ${agent.shortDescription}. Key benefits: ${agent.benefits.slice(0, 3).join('. ')}`;
       speakText(textToSpeak, agent.id);
     }
-  };
+  }, [isSpeaking, speakingAgentId, stopSpeaking, speakText]);
 
   useEffect(() => {
     return () => {
