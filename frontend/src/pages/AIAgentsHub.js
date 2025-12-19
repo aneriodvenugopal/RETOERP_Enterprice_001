@@ -841,17 +841,82 @@ const AIAgentsHub = () => {
       <div className="relative z-10 max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="p-3 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 shadow-lg">
-              <Bot className="w-8 h-8 text-white" />
+          <div className="flex items-center justify-between gap-3 mb-4">
+            <div className="flex items-center gap-3">
+              <div className="p-3 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 shadow-lg">
+                <Bot className="w-8 h-8 text-white" />
+              </div>
+              <div>
+                <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                  AI Agents Hub
+                </h1>
+                <p className="text-gray-600 mt-1">
+                  Intelligent automation agents to supercharge your real estate business
+                </p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                AI Agents Hub
-              </h1>
-              <p className="text-gray-600 mt-1">
-                Intelligent automation agents to supercharge your real estate business
-              </p>
+            
+            {/* Global TTS Controls */}
+            <div className="flex items-center gap-3">
+              <div className="bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200 rounded-xl p-3 shadow-sm">
+                <div className="flex items-center gap-2 mb-2">
+                  <Volume2 className="w-4 h-4 text-indigo-600" />
+                  <span className="text-xs font-semibold text-indigo-700">🎧 Listen to Documentation</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  {!isReadingFullPage ? (
+                    <Button
+                      size="sm"
+                      onClick={() => readFullPage(aiAgents, 0)}
+                      className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:opacity-90 text-white text-xs"
+                    >
+                      <Play className="w-3 h-3 mr-1" />
+                      Read All
+                    </Button>
+                  ) : (
+                    <>
+                      {isPaused ? (
+                        <Button
+                          size="sm"
+                          onClick={resumeSpeaking}
+                          className="bg-green-500 hover:bg-green-600 text-white text-xs"
+                        >
+                          <Play className="w-3 h-3 mr-1" />
+                          Resume
+                        </Button>
+                      ) : (
+                        <Button
+                          size="sm"
+                          onClick={pauseSpeaking}
+                          className="bg-yellow-500 hover:bg-yellow-600 text-white text-xs"
+                        >
+                          <Pause className="w-3 h-3 mr-1" />
+                          Pause
+                        </Button>
+                      )}
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={stopSpeaking}
+                        className="text-xs"
+                      >
+                        <Square className="w-3 h-3 mr-1" />
+                        Stop
+                      </Button>
+                    </>
+                  )}
+                </div>
+                {isReadingFullPage && (
+                  <div className="mt-2 text-xs text-indigo-600">
+                    📖 Reading: {currentAgentIndex + 1} of {aiAgents.length}
+                  </div>
+                )}
+                {selectedVoice && (
+                  <div className="mt-1 text-xs text-gray-500">
+                    🗣️ Voice: {selectedVoice.name.substring(0, 20)}...
+                  </div>
+                )}
+              </div>
             </div>
           </div>
           <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-r-lg mb-4">
