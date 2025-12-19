@@ -961,12 +961,13 @@ const AIAgentsHub = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {aiAgents.map((agent) => {
             const IconComponent = agent.icon;
+            const isCurrentlySpeaking = isSpeaking && speakingAgentId === agent.id;
             return (
-              <Card key={agent.id} className="glass-card hover:shadow-xl transition-all duration-300 hover:scale-105">
+              <Card key={agent.id} className={`glass-card hover:shadow-xl transition-all duration-300 hover:scale-105 ${isCurrentlySpeaking ? 'ring-2 ring-indigo-400 ring-opacity-50' : ''}`}>
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div className="flex items-start gap-3 flex-1">
-                      <div className={`p-3 rounded-xl bg-gradient-to-br ${agent.color} shadow-lg`}>
+                      <div className={`p-3 rounded-xl bg-gradient-to-br ${agent.color} shadow-lg ${isCurrentlySpeaking ? 'animate-pulse' : ''}`}>
                         <IconComponent className="w-6 h-6 text-white" />
                       </div>
                       <div className="flex-1">
@@ -974,20 +975,51 @@ const AIAgentsHub = () => {
                         {getStatusBadge(agent.status)}
                       </div>
                     </div>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="rounded-full w-8 h-8 p-0"
-                      onClick={() => handleViewDetails(agent)}
-                    >
-                      <Info className="w-5 h-5 text-ocean-primary" />
-                    </Button>
+                    <div className="flex items-center gap-1">
+                      {/* TTS Button for Card */}
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className={`rounded-full w-8 h-8 p-0 ${isCurrentlySpeaking ? 'bg-indigo-100' : ''}`}
+                        onClick={() => handleSpeakAgent(agent)}
+                        title={isCurrentlySpeaking ? "Stop reading" : "Listen to this agent"}
+                      >
+                        {isCurrentlySpeaking ? (
+                          <VolumeX className="w-5 h-5 text-indigo-600" />
+                        ) : (
+                          <Volume2 className="w-5 h-5 text-indigo-400 hover:text-indigo-600" />
+                        )}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="rounded-full w-8 h-8 p-0"
+                        onClick={() => handleViewDetails(agent)}
+                      >
+                        <Info className="w-5 h-5 text-ocean-primary" />
+                      </Button>
+                    </div>
                   </div>
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-gray-600 mb-4">{agent.shortDescription}</p>
                   <div className="space-y-2">
-                    <p className="text-xs font-semibold text-gray-700">Key Benefits:</p>
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs font-semibold text-gray-700">Key Benefits:</p>
+                      {/* Section TTS control */}
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-6 px-2 py-0 text-xs text-indigo-500 hover:text-indigo-700"
+                        onClick={() => handleSpeakAgentSection(agent, 'benefits')}
+                      >
+                        {isSpeaking && speakingAgentId === agent.id && speakingSection === 'benefits' ? (
+                          <><VolumeX className="w-3 h-3 mr-1" /> Stop</>
+                        ) : (
+                          <><Volume2 className="w-3 h-3 mr-1" /> Listen</>
+                        )}
+                      </Button>
+                    </div>
                     <ul className="text-xs text-gray-600 space-y-1">
                       {agent.benefits.slice(0, 3).map((benefit, idx) => (
                         <li key={idx} className="flex items-start gap-2">
