@@ -1059,18 +1059,51 @@ const AIAgentsHub = () => {
       </div>
 
       {/* Detailed Info Modal */}
-      <Dialog open={showInfoModal} onOpenChange={setShowInfoModal}>
+      <Dialog open={showInfoModal} onOpenChange={(open) => {
+        setShowInfoModal(open);
+        if (!open) stopSpeaking(); // Stop speaking when modal closes
+      }}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           {selectedAgent && (
             <>
               <DialogHeader>
-                <div className="flex items-center gap-3">
-                  {React.createElement(selectedAgent.icon, { 
-                    className: `w-8 h-8 bg-gradient-to-br ${selectedAgent.color} text-white p-1.5 rounded-lg` 
-                  })}
-                  <div>
-                    <DialogTitle className="text-2xl">{selectedAgent.name}</DialogTitle>
-                    <p className="text-sm text-gray-600 mt-1">{selectedAgent.shortDescription}</p>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    {React.createElement(selectedAgent.icon, { 
+                      className: `w-8 h-8 bg-gradient-to-br ${selectedAgent.color} text-white p-1.5 rounded-lg` 
+                    })}
+                    <div>
+                      <DialogTitle className="text-2xl">{selectedAgent.name}</DialogTitle>
+                      <p className="text-sm text-gray-600 mt-1">{selectedAgent.shortDescription}</p>
+                    </div>
+                  </div>
+                  {/* Modal TTS Controls */}
+                  <div className="flex items-center gap-2 bg-indigo-50 rounded-lg p-2">
+                    <Volume2 className="w-4 h-4 text-indigo-600" />
+                    {isSpeaking && speakingAgentId === selectedAgent.id ? (
+                      <>
+                        {isPaused ? (
+                          <Button size="sm" onClick={resumeSpeaking} className="bg-green-500 hover:bg-green-600 text-white text-xs">
+                            <Play className="w-3 h-3 mr-1" /> Resume
+                          </Button>
+                        ) : (
+                          <Button size="sm" onClick={pauseSpeaking} className="bg-yellow-500 hover:bg-yellow-600 text-white text-xs">
+                            <Pause className="w-3 h-3 mr-1" /> Pause
+                          </Button>
+                        )}
+                        <Button size="sm" variant="destructive" onClick={stopSpeaking} className="text-xs">
+                          <Square className="w-3 h-3 mr-1" /> Stop
+                        </Button>
+                      </>
+                    ) : (
+                      <Button 
+                        size="sm" 
+                        onClick={() => handleSpeakAgentSection(selectedAgent, 'full')}
+                        className="bg-indigo-500 hover:bg-indigo-600 text-white text-xs"
+                      >
+                        <Play className="w-3 h-3 mr-1" /> Read All
+                      </Button>
+                    )}
                   </div>
                 </div>
               </DialogHeader>
@@ -1078,10 +1111,24 @@ const AIAgentsHub = () => {
               <div className="space-y-6 mt-4">
                 {/* Benefits Section */}
                 <div>
-                  <h3 className="text-lg font-bold mb-3 flex items-center gap-2">
-                    <TrendingUp className="w-5 h-5 text-green-600" />
-                    Major Benefits to Real Estate Business
-                  </h3>
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-lg font-bold flex items-center gap-2">
+                      <TrendingUp className="w-5 h-5 text-green-600" />
+                      Major Benefits to Real Estate Business
+                    </h3>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className={`text-xs ${isSpeaking && speakingSection === 'benefits' ? 'bg-green-100 border-green-400' : ''}`}
+                      onClick={() => handleSpeakAgentSection(selectedAgent, 'benefits')}
+                    >
+                      {isSpeaking && speakingAgentId === selectedAgent.id && speakingSection === 'benefits' ? (
+                        <><VolumeX className="w-3 h-3 mr-1" /> Stop</>
+                      ) : (
+                        <><Volume2 className="w-3 h-3 mr-1" /> Listen</>
+                      )}
+                    </Button>
+                  </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {selectedAgent.benefits.map((benefit, idx) => (
                       <div key={idx} className="flex items-start gap-2 p-3 bg-green-50 rounded-lg">
@@ -1094,10 +1141,24 @@ const AIAgentsHub = () => {
 
                 {/* Use Cases Section */}
                 <div>
-                  <h3 className="text-lg font-bold mb-3 flex items-center gap-2">
-                    <FileText className="w-5 h-5 text-blue-600" />
-                    Real-World Use Cases
-                  </h3>
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-lg font-bold flex items-center gap-2">
+                      <FileText className="w-5 h-5 text-blue-600" />
+                      Real-World Use Cases
+                    </h3>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className={`text-xs ${isSpeaking && speakingSection === 'usecases' ? 'bg-blue-100 border-blue-400' : ''}`}
+                      onClick={() => handleSpeakAgentSection(selectedAgent, 'usecases')}
+                    >
+                      {isSpeaking && speakingAgentId === selectedAgent.id && speakingSection === 'usecases' ? (
+                        <><VolumeX className="w-3 h-3 mr-1" /> Stop</>
+                      ) : (
+                        <><Volume2 className="w-3 h-3 mr-1" /> Listen</>
+                      )}
+                    </Button>
+                  </div>
                   <div className="space-y-4">
                     {selectedAgent.useCases.map((useCase, idx) => (
                       <Card key={idx} className="border-l-4 border-blue-500">
@@ -1112,10 +1173,24 @@ const AIAgentsHub = () => {
 
                 {/* Technical Details Section */}
                 <div>
-                  <h3 className="text-lg font-bold mb-3 flex items-center gap-2">
-                    <Shield className="w-5 h-5 text-purple-600" />
-                    Technical Implementation Details
-                  </h3>
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-lg font-bold flex items-center gap-2">
+                      <Shield className="w-5 h-5 text-purple-600" />
+                      Technical Implementation Details
+                    </h3>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className={`text-xs ${isSpeaking && speakingSection === 'technical' ? 'bg-purple-100 border-purple-400' : ''}`}
+                      onClick={() => handleSpeakAgentSection(selectedAgent, 'technical')}
+                    >
+                      {isSpeaking && speakingAgentId === selectedAgent.id && speakingSection === 'technical' ? (
+                        <><VolumeX className="w-3 h-3 mr-1" /> Stop</>
+                      ) : (
+                        <><Volume2 className="w-3 h-3 mr-1" /> Listen</>
+                      )}
+                    </Button>
+                  </div>
                   <div className="bg-purple-50 p-4 rounded-lg space-y-3">
                     <div>
                       <p className="text-sm font-semibold text-purple-900">Service Provider:</p>
