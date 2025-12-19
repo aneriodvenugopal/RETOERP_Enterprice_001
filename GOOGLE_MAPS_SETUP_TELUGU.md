@@ -184,7 +184,7 @@
 
    **మొదటి referrer:**
    ```
-   https://propertyhub-43.preview.emergentagent.com/*
+   https://retoerp-1.preview.emergentagent.com/*
    ```
    - Paste చేసి Enter నొక్కండి
 
