@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -9,8 +9,9 @@ import {
   Bot, MessageSquare, Send, CreditCard, Bell, Clock, 
   Database, Users, Phone, TrendingUp, Home, Calendar,
   Zap, Mail, DollarSign, FileText, Shield, Info, Languages,
-  Volume2, Search, BarChart2, Target, Eye, Scale, Wrench,
-  UserCheck, Leaf, MapPin, Share2, Image, Award, Network, Calculator
+  Volume2, VolumeX, Search, BarChart2, Target, Eye, Scale, Wrench,
+  UserCheck, Leaf, MapPin, Share2, Image, Award, Network, Calculator,
+  Play, Pause, Square, SkipForward, SkipBack
 } from 'lucide-react';
 
 const AIAgentsHub = () => {
