@@ -57,6 +57,10 @@ const ProjectLayoutEditor = () => {
     status: 'available',
     amenities: []
   });
+  
+  // Quick Draw Mode - Draw plots first, fill details later
+  const [quickDrawMode, setQuickDrawMode] = useState(true);
+  const [nextPlotNumber, setNextPlotNumber] = useState(1);
 
   useEffect(() => {
     loadProjectAndLayout();
