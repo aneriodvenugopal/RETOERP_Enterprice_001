@@ -112,27 +112,56 @@ test_category_id = None
 test_subcategory_id = None
 
 # ============================================
-# RETOERP MASTER CATEGORIES SYSTEM TESTS
+# RETOERP LAYOUT SAVE AND LOAD API TESTS
 # ============================================
 
 # Authentication helper
 def get_auth_headers():
     """Get authentication headers for API requests"""
-    # Try to get a real token first, fallback to mock for testing
-    token = get_test_auth_token()
-    return {
-        "Authorization": f"Bearer {token}",
-        "Content-Type": "application/json"
-    }
+    global auth_token
+    if auth_token:
+        return {
+            "Authorization": f"Bearer {auth_token}",
+            "Content-Type": "application/json"
+        }
+    else:
+        return {
+            "Content-Type": "application/json"
+        }
 
-def get_test_auth_token():
-    """Try to get a real authentication token for testing"""
+def login_and_get_token():
+    """Login with phone-based authentication and get access token"""
     try:
-        # Try to create a test user and get token
-        # This is a simplified approach for testing
-        return "test_token_placeholder"
-    except:
-        return "mock_token_for_testing"
+        print("\n🔐 TESTING: Phone-based Login")
+        
+        login_data = {
+            "phone": TEST_PHONE,
+            "password": TEST_PASSWORD
+        }
+        
+        response = requests.post(f"{API_BASE}/auth/login", json=login_data, timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and data.get("access_token"):
+                global auth_token
+                auth_token = data["access_token"]
+                results.add_pass("Phone-based Login")
+                print(f"   ✅ Login successful, token obtained")
+                print(f"   👤 User: {data.get('user', {}).get('name', 'Unknown')}")
+                return True
+            else:
+                results.add_fail("Phone-based Login", f"Login failed: {data.get('message', 'Unknown error')}")
+                return False
+        else:
+            results.add_fail("Phone-based Login", f"Status code: {response.status_code}")
+            print_error_details("Phone-based Login", response)
+            return False
+            
+    except Exception as e:
+        results.add_fail("Phone-based Login", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
 
 def handle_auth_protected_endpoint(test_name, response, expected_success_handler=None):
     """Handle authentication-protected endpoint responses"""
