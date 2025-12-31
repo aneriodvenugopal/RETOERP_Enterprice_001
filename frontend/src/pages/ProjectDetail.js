@@ -256,10 +256,10 @@ const ProjectDetail = () => {
                 <div className="text-center py-12">
                   <Building2 className="w-12 h-12 mx-auto text-gray-400 mb-4" />
                   <h3 className="text-lg font-semibold mb-2">No properties yet</h3>
-                  <p className="text-gray-500 mb-4">Add properties to this project</p>
-                  <Button onClick={() => setShowCreateDialog(true)}>
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add Property
+                  <p className="text-gray-500 mb-4">Create properties using the Layout Editor</p>
+                  <Button onClick={() => navigate(`/projects/${projectId}/layout/edit`)}>
+                    <Map className="w-4 h-4 mr-2" />
+                    Open Layout Editor
                   </Button>
                 </div>
               ) : (
