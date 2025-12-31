@@ -139,13 +139,15 @@ const ProjectLayoutEditor = () => {
     }
   };
 
-  // Handle SVG file upload
+  // Handle file upload (SVG, PDF, PNG, JPG)
   const handleFileUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    if (file.type !== 'image/svg+xml') {
-      toast.error('Please upload a valid SVG file');
+    // Determine file type
+    const validTypes = ['image/svg+xml', 'image/png', 'image/jpeg', 'application/pdf'];
+    if (!validTypes.includes(file.type) && !file.name.match(/\.(svg|pdf|png|jpg|jpeg)$/i)) {
+      toast.error('Please upload SVG, PDF, PNG, or JPG file');
       return;
     }
 
@@ -170,11 +172,11 @@ const ProjectLayoutEditor = () => {
       if (response.data.success) {
         setSvgUrl(response.data.file_url);
         setSvgFileInfo(response.data);
-        toast.success('SVG uploaded successfully');
+        toast.success(`${file.name} uploaded successfully`);
       }
     } catch (error) {
-      console.error('SVG upload error:', error);
-      toast.error('Failed to upload SVG');
+      console.error('File upload error:', error);
+      toast.error('Failed to upload file');
     } finally {
       setUploading(false);
     }
