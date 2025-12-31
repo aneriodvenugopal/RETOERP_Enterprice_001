@@ -34,8 +34,17 @@ if not BACKEND_URL:
 
 API_BASE = f"{BACKEND_URL}/api"
 
-print(f"🔄 TESTING RETOERP Master Categories System at: {API_BASE}")
+print(f"🔄 TESTING RETOERP Layout Save and Load API at: {API_BASE}")
 print("=" * 80)
+
+# Test credentials and project ID from review request
+TEST_PHONE = "9999999999"
+TEST_PASSWORD = "admin123"
+TEST_PROJECT_ID = "59db8d02-602d-4c39-b402-bf8d845bdb79"
+
+# Global variables to store test data
+auth_token = None
+test_layout_id = None
 
 class TestResults:
     def __init__(self):
