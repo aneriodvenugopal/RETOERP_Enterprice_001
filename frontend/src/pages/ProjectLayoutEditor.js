@@ -542,9 +542,42 @@ const ProjectLayoutEditor = () => {
           {svgUrl && (
             <Card className="glass-card">
               <CardHeader>
-                <CardTitle className="text-ocean-primary">Mark Plot</CardTitle>
+                <CardTitle className="text-ocean-primary flex items-center justify-between">
+                  <span>Draw Plots</span>
+                  <Badge className={quickDrawMode ? "bg-green-500" : "bg-blue-500"}>
+                    {quickDrawMode ? "Quick Draw" : "Manual"}
+                  </Badge>
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
+                {/* Quick Draw Mode Toggle */}
+                <div className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
+                  <div>
+                    <p className="text-sm font-medium">Quick Draw Mode</p>
+                    <p className="text-xs text-gray-500">Draw first, fill details later</p>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant={quickDrawMode ? "default" : "outline"}
+                    onClick={() => setQuickDrawMode(!quickDrawMode)}
+                    className={quickDrawMode ? "bg-green-500 hover:bg-green-600" : ""}
+                  >
+                    {quickDrawMode ? "ON" : "OFF"}
+                  </Button>
+                </div>
+                
+                <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <p className="text-sm font-semibold text-blue-900 mb-1">
+                    📌 How to Draw:
+                  </p>
+                  <ol className="text-xs text-blue-800 space-y-1 list-decimal list-inside">
+                    <li>Click on the layout to mark plot corners</li>
+                    <li>Mark at least 3 points to form a plot</li>
+                    <li>Click "Save Plot" when done marking</li>
+                    {quickDrawMode && <li className="text-green-700 font-medium">Fill details later via "Details" button</li>}
+                  </ol>
+                </div>
+                
                 <p className="text-sm">
                   Points marked: <span className="font-bold text-ocean-primary">{currentPoints.length}</span>
                   <span className="text-xs text-gray-500 ml-2">(min 3 points)</span>
@@ -579,14 +612,14 @@ const ProjectLayoutEditor = () => {
                         className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white"
                       >
                         <Check className="w-4 h-4 mr-2" />
-                        Finish Marking ({currentPoints.length} points)
+                        {quickDrawMode ? `Save Plot ${nextPlotNumber}` : `Finish Marking (${currentPoints.length} pts)`}
                       </Button>
                     )}
                   </div>
                 )}
                 
                 {currentPoints.length > 0 && (
-                  <div className="p-2 bg-blue-50 border border-blue-200 rounded text-xs text-blue-800">
+                  <div className="p-2 bg-yellow-50 border border-yellow-200 rounded text-xs text-yellow-800">
                     💡 Click on any marked point to remove it
                   </div>
                 )}
