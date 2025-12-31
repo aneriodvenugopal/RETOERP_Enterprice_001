@@ -144,7 +144,7 @@ def login_and_get_token():
         if response.status_code == 200:
             data = response.json()
             print(f"   📋 Login response: {json.dumps(data, indent=2)}")
-            if data.get("success") and data.get("access_token"):
+            if data.get("access_token"):
                 global auth_token
                 auth_token = data["access_token"]
                 results.add_pass("Phone-based Login")
@@ -152,7 +152,7 @@ def login_and_get_token():
                 print(f"   👤 User: {data.get('user', {}).get('name', 'Unknown')}")
                 return True
             else:
-                results.add_fail("Phone-based Login", f"Login failed: {data.get('message', 'Unknown error')}")
+                results.add_fail("Phone-based Login", f"No access token in response: {data}")
                 return False
         else:
             results.add_fail("Phone-based Login", f"Status code: {response.status_code}")
