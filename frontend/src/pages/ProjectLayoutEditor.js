@@ -867,8 +867,8 @@ const ProjectLayoutEditor = () => {
                             {currentPoints.length >= 3 && (
                               <polygon
                                 points={getPolygonPoints(currentPoints)}
-                                fill="#ef444430"
-                                stroke="#ef4444"
+                                fill="rgba(14, 165, 233, 0.2)"
+                                stroke="#0ea5e9"
                                 strokeWidth="2"
                                 strokeDasharray="5,5"
                               />
@@ -878,33 +878,54 @@ const ProjectLayoutEditor = () => {
                               <polyline
                                 points={getPolygonPoints(currentPoints)}
                                 fill="none"
-                                stroke="#ef4444"
+                                stroke="#0ea5e9"
                                 strokeWidth="2"
                                 strokeDasharray="5,5"
                               />
                             )}
                             
+                            {/* Map-style pins instead of red circles */}
                             {currentPoints.map((point, idx) => (
-                              <g key={idx}>
+                              <g 
+                                key={idx} 
+                                style={{ cursor: 'pointer' }}
+                                onClick={(e) => handlePointClick(e, idx)}
+                              >
+                                {/* Pin drop shadow */}
+                                <ellipse
+                                  cx={point.x}
+                                  cy={point.y + 2}
+                                  rx="4"
+                                  ry="2"
+                                  fill="rgba(0,0,0,0.3)"
+                                />
+                                {/* Pin body - teardrop shape */}
+                                <path
+                                  d={`M ${point.x} ${point.y - 24} 
+                                      C ${point.x - 8} ${point.y - 24} ${point.x - 10} ${point.y - 16} ${point.x - 10} ${point.y - 12}
+                                      C ${point.x - 10} ${point.y - 6} ${point.x - 6} ${point.y - 2} ${point.x} ${point.y}
+                                      C ${point.x + 6} ${point.y - 2} ${point.x + 10} ${point.y - 6} ${point.x + 10} ${point.y - 12}
+                                      C ${point.x + 10} ${point.y - 16} ${point.x + 8} ${point.y - 24} ${point.x} ${point.y - 24} Z`}
+                                  fill="#0ea5e9"
+                                  stroke="#0369a1"
+                                  strokeWidth="1"
+                                />
+                                {/* Inner circle of pin */}
                                 <circle
                                   cx={point.x}
-                                  cy={point.y}
-                                  r="8"
-                                  fill="#ef4444"
-                                  stroke="#fff"
-                                  strokeWidth="2"
-                                  style={{ cursor: 'pointer' }}
-                                  onClick={(e) => handlePointClick(e, idx)}
-                                  onMouseEnter={(e) => e.target.setAttribute('r', '10')}
-                                  onMouseLeave={(e) => e.target.setAttribute('r', '8')}
+                                  cy={point.y - 14}
+                                  r="4"
+                                  fill="#ffffff"
                                 />
+                                {/* Pin number label */}
                                 <text
                                   x={point.x}
-                                  y={point.y - 15}
-                                  fill="#ef4444"
-                                  fontSize="12"
+                                  y={point.y - 12}
+                                  fill="#0369a1"
+                                  fontSize="8"
                                   fontWeight="bold"
                                   textAnchor="middle"
+                                  dominantBaseline="middle"
                                 >
                                   {idx + 1}
                                 </text>
