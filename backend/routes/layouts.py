@@ -376,3 +376,132 @@ async def quick_create_layout(
         "layout_id": layout_id,
         "total_plots": len(layout_data.plots)
     }
+
+
+@router.post("/projects/{project_id}/layout/sync-properties")
+async def sync_layout_to_properties(project_id: str, request: Request):
+    """Sync plots from layout to properties collection"""
+    user = await get_current_user(request)
+    db = get_db(request)
+    
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    
+    # Get the layout for this project
+    if user.get('role') == 'super_admin':
+        layout = await db.project_layouts.find_one({
+            'project_id': project_id,
+            'deleted_at': None
+        })
+    else:
+        layout = await db.project_layouts.find_one({
+            'project_id': project_id,
+            'tenant_id': user['tenant_id'],
+            'deleted_at': None
+        })
+    
+    if not layout:
+        raise HTTPException(status_code=404, detail="Layout not found")
+    
+    plots = layout.get('plots', [])
+    if not plots:
+        return {"success": True, "message": "No plots to sync", "synced": 0}
+    
+    # Get project details for tenant_id
+    project = await db.projects.find_one({'id': project_id, 'deleted_at': None})
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    tenant_id = project.get('tenant_id') or user.get('tenant_id')
+    
+    # Get default property type and status
+    default_type = await db.property_types.find_one({'slug': 'plot'}, {'_id': 0})
+    default_status = await db.property_statuses.find_one({'slug': 'available'}, {'_id': 0})
+    
+    synced_count = 0
+    updated_count = 0
+    
+    for plot in plots:
+        # Check if property already exists for this plot
+        existing_property = await db.properties.find_one({
+            'project_id': project_id,
+            'layout_plot_id': plot.get('id'),
+            'deleted_at': None
+        })
+        
+        if existing_property:
+            # Update existing property
+            update_data = {
+                'property_number': plot.get('display_name', f"Plot {plot.get('id')[:8]}"),
+                'area': float(plot.get('area', 0)),
+                'price': float(plot.get('price', 0)),
+                'block': plot.get('block', 'A'),
+                'layout_coordinates': plot.get('coordinates', []),
+                'updated_at': datetime.now(timezone.utc).isoformat()
+            }
+            
+            # Map plot status to property status
+            plot_status = plot.get('status', 'available')
+            if plot_status == 'available':
+                status = await db.property_statuses.find_one({'slug': 'available'}, {'_id': 0})
+            elif plot_status == 'booked':
+                status = await db.property_statuses.find_one({'slug': 'blocked'}, {'_id': 0})
+            elif plot_status == 'sold':
+                status = await db.property_statuses.find_one({'slug': 'sold'}, {'_id': 0})
+            else:
+                status = default_status
+            
+            if status:
+                update_data['status_id'] = status.get('id')
+            
+            await db.properties.update_one(
+                {'id': existing_property['id']},
+                {'$set': update_data}
+            )
+            updated_count += 1
+        else:
+            # Create new property from plot
+            property_id = str(uuid.uuid4())
+            
+            # Map plot status to property status
+            plot_status = plot.get('status', 'available')
+            if plot_status == 'available':
+                status = await db.property_statuses.find_one({'slug': 'available'}, {'_id': 0})
+            elif plot_status == 'booked':
+                status = await db.property_statuses.find_one({'slug': 'blocked'}, {'_id': 0})
+            elif plot_status == 'sold':
+                status = await db.property_statuses.find_one({'slug': 'sold'}, {'_id': 0})
+            else:
+                status = default_status
+            
+            property_doc = {
+                'id': property_id,
+                'project_id': project_id,
+                'tenant_id': tenant_id,
+                'property_number': plot.get('display_name', f"Plot {plot.get('id')[:8]}"),
+                'property_type_id': default_type.get('id') if default_type else None,
+                'area': float(plot.get('area', 0)),
+                'price': float(plot.get('price', 0)),
+                'status_id': status.get('id') if status else None,
+                'facing': None,
+                'block': plot.get('block', 'A'),
+                'floor': None,
+                'layout_plot_id': plot.get('id'),  # Link to layout plot
+                'layout_coordinates': plot.get('coordinates', []),
+                'amenities': plot.get('amenities', []),
+                'created_at': datetime.now(timezone.utc).isoformat(),
+                'updated_at': datetime.now(timezone.utc).isoformat(),
+                'deleted_at': None
+            }
+            
+            await db.properties.insert_one(property_doc)
+            synced_count += 1
+    
+    return {
+        "success": True,
+        "message": f"Synced {synced_count} new properties, updated {updated_count} existing",
+        "synced": synced_count,
+        "updated": updated_count,
+        "total_plots": len(plots)
+    }
+
