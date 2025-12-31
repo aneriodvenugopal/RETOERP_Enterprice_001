@@ -579,8 +579,8 @@ const ProjectLayoutEditor = () => {
                   <ol className="text-xs text-blue-800 space-y-1 list-decimal list-inside">
                     <li>Click on the layout to mark plot corners</li>
                     <li>Mark at least 3 points to form a plot</li>
-                    <li>Click "Save Plot" when done marking</li>
-                    {quickDrawMode && <li className="text-green-700 font-medium">Fill details later via "Details" button</li>}
+                    <li>Click &quot;Save Plot&quot; when done marking</li>
+                    {quickDrawMode && <li className="text-green-700 font-medium">Fill details later via &quot;Details&quot; button</li>}
                   </ol>
                 </div>
                 
