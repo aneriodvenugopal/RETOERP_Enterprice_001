@@ -114,6 +114,15 @@ const ProjectLayoutEditor = () => {
           setLayoutName(layout.layout_name || projectRes.data.project.project_name);
           setPlots(layout.plots || []);
           
+          // Set next plot number based on existing plots
+          if (layout.plots && layout.plots.length > 0) {
+            const maxPlotNum = layout.plots.reduce((max, p) => {
+              const match = p.display_name?.match(/Plot\s*(\d+)/i);
+              return match ? Math.max(max, parseInt(match[1])) : max;
+            }, 0);
+            setNextPlotNumber(maxPlotNum + 1);
+          }
+          
           if (layout.svg_url) {
             setSvgUrl(layout.svg_url);
             setSvgFileInfo({ file_url: layout.svg_url });
