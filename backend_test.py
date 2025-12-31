@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """
-Backend API Testing for RETOERP - Master Categories System
-Comprehensive testing of master categories and custom fields system including:
-- Master Categories APIs (GET /api/categories)
-- Master Subcategories APIs
-- Database verification
+Backend API Testing for RETOERP - Layout Save and Load API
+Comprehensive testing of layout save and load functionality including:
+- Layout Save API (POST /api/layouts/projects/{project_id}/layout)
+- Layout Load API (GET /api/layouts/projects/{project_id}/layout)
 - Authentication testing
+- Data persistence verification
 """
 
 import requests
