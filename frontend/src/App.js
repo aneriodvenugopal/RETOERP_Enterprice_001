@@ -496,31 +496,25 @@ function App() {
                   </PrivateRoute>
                 }
               />
-              {/* DEPRECATED: Old standalone layouts library - Layouts now integrated per project */}
+              {/* 
+                REMOVED: Standalone Layouts Library
+                Layouts are now created ONLY from Projects
+                Users should access layouts via: /projects/:projectId/layout/edit
+              */}
+              {/* Redirect old /layouts routes to projects page */}
               <Route
                 path="/layouts"
-                element={
-                  <PrivateRoute>
-                    <LayoutsLibrary />
-                  </PrivateRoute>
-                }
+                element={<Navigate to="/projects" replace />}
               />
               <Route
                 path="/layouts/create"
-                element={
-                  <PrivateRoute>
-                    <HybridLayoutCreator />
-                  </PrivateRoute>
-                }
+                element={<Navigate to="/projects" replace />}
               />
               <Route
                 path="/layouts/create-manual"
-                element={
-                  <PrivateRoute>
-                    <LayoutCreatorToolStandalone />
-                  </PrivateRoute>
-                }
+                element={<Navigate to="/projects" replace />}
               />
+              {/* Keep view routes for backwards compatibility with shared links */}
               <Route
                 path="/layouts/:layoutId/view"
                 element={
