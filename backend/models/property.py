@@ -12,7 +12,7 @@ class Property(BaseModel):
     
     # Property identification
     property_number: str  # Plot 101, Flat A-201, etc.
-    property_type_id: str  # Reference to MasterCategory (plot, flat, villa)
+    property_type_id: Optional[str] = None  # Reference to MasterCategory (plot, flat, villa)
     
     # Details
     area: float  # in sq ft or sq yards
@@ -23,11 +23,15 @@ class Property(BaseModel):
     
     # Pricing
     price: float
-    currency_id: str
+    currency_id: Optional[str] = None
     price_per_sqft: Optional[float] = None
     
     # Status
-    status_id: str  # Reference to MasterCategory (available, blocked, booked, sold, resale)
+    status_id: Optional[str] = None  # Reference to MasterCategory (available, blocked, booked, sold, resale)
+    
+    # Layout link
+    layout_plot_id: Optional[str] = None  # Link to layout plot
+    layout_coordinates: Optional[list] = None  # Polygon coordinates from layout
     
     # Blocking (24-hour hold)
     blocked_by: Optional[str] = None  # User ID
