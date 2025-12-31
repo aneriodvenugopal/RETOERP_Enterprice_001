@@ -210,7 +210,60 @@ const ProjectLayoutEditor = () => {
       toast.error('Please mark at least 3 points to form a plot');
       return;
     }
-    setShowPlotForm(true);
+    
+    if (quickDrawMode) {
+      // Quick Draw Mode - Auto-save with minimal details
+      quickSavePlot();
+    } else {
+      setShowPlotForm(true);
+    }
+  };
+
+  // Quick save plot with auto-generated name (Draw First, Fill Later workflow)
+  const quickSavePlot = async () => {
+    const plotData = {
+      id: `plot-${Date.now()}`,
+      coordinates: currentPoints,
+      display_name: `Plot ${nextPlotNumber}`,
+      block: 'A',
+      price: 0,
+      area: 0,
+      status: 'available',
+      amenities: []
+    };
+
+    const updatedPlots = [...plots, plotData];
+    setPlots(updatedPlots);
+    setNextPlotNumber(prev => prev + 1);
+    
+    // Auto-save to database
+    try {
+      if (svgFileInfo) {
+        const layoutData = {
+          layout_name: layoutName,
+          svg_url: svgFileInfo.file_url,
+          plots: updatedPlots,
+          metadata: {
+            updated_by: user.id,
+            last_updated: new Date().toISOString()
+          }
+        };
+
+        await axios.post(
+          `${process.env.REACT_APP_BACKEND_URL}/api/layouts/projects/${projectId}/layout`,
+          layoutData,
+          { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+        );
+        
+        toast.success(`Plot ${nextPlotNumber} drawn! Click "Details" to fill info.`);
+      }
+    } catch (error) {
+      console.error('Auto-save failed:', error);
+      toast.error('Failed to auto-save plot');
+    }
+    
+    // Reset for next plot
+    setCurrentPoints([]);
   };
 
   // Edit plot details only (name, price, area, status)
