@@ -98,8 +98,10 @@ const ProjectLayoutEditor = () => {
         { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
       );
       
-      if (projectRes.data.success) {
-        setProject(projectRes.data.project);
+      // Project API returns data directly (not wrapped in {success, project})
+      const projectData = projectRes.data.project || projectRes.data;
+      if (projectData && projectData.id) {
+        setProject(projectData);
         
         // Load project layout
         const layoutRes = await axios.get(
@@ -111,7 +113,7 @@ const ProjectLayoutEditor = () => {
           const layout = layoutRes.data.layout;
           console.log('📊 Project layout loaded:', layout);
           
-          setLayoutName(layout.layout_name || projectRes.data.project.project_name);
+          setLayoutName(layout.layout_name || projectData.name);
           setPlots(layout.plots || []);
           
           // Set next plot number based on existing plots
@@ -137,9 +139,11 @@ const ProjectLayoutEditor = () => {
           toast.success(`Layout loaded with ${layout.plots?.length || 0} plots`);
         } else {
           // No layout yet, use project name as default
-          setLayoutName(projectRes.data.project.project_name + ' Layout');
+          setLayoutName(projectData.name + ' Layout');
           toast.info('No layout found. Create your first layout!');
         }
+      } else {
+        toast.error('Project not found');
       }
     } catch (error) {
       console.error('Error loading project/layout:', error);
