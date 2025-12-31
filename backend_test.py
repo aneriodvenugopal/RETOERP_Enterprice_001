@@ -548,9 +548,9 @@ def test_invalid_project_id():
 # ============================================
 
 def run_all_tests():
-    """Run all master categories system tests in sequence"""
+    """Run all layout save and load API tests in sequence"""
     
-    print("🚀 Starting RETOERP Master Categories System Testing...")
+    print("🚀 Starting RETOERP Layout Save and Load API Testing...")
     print("=" * 80)
     
     # Test execution order
@@ -558,17 +558,17 @@ def run_all_tests():
         # Health check
         ("API Health Check", test_health_check),
         
-        # Master Categories APIs
-        ("Get All Master Categories", test_get_all_master_categories),
-        ("Get Master Subcategories", test_get_master_subcategories),
-        ("Get All Categories with Subcategories", test_get_all_master_categories_with_subcategories),
+        # Authentication
+        ("Phone-based Login", login_and_get_token),
         
-        # Database verification
-        ("Database Master Categories", test_database_master_categories),
-        ("Categories by Type Filter", test_categories_by_type_filter),
+        # Layout Save and Load APIs
+        ("Save Layout with Plots", test_save_layout_with_plots),
+        ("Load Saved Layout", test_load_saved_layout),
+        ("Update Layout with More Plots", test_update_layout_with_more_plots),
         
         # Security tests
-        ("Authentication Security", test_authentication_security),
+        ("Layout API Authentication", test_layout_api_authentication),
+        ("Invalid Project ID", test_invalid_project_id),
     ]
     
     # Execute tests
@@ -582,16 +582,18 @@ def run_all_tests():
     
     # Print final summary
     print("\n" + "=" * 80)
-    print("🏁 RETOERP MASTER CATEGORIES SYSTEM TESTING COMPLETE")
+    print("🏁 RETOERP LAYOUT SAVE AND LOAD API TESTING COMPLETE")
     print("=" * 80)
     
     success = results.summary()
     
     if success:
-        print("\n🎉 ALL TESTS PASSED! Master Categories System is working correctly.")
-        print("✅ Master categories API endpoints are functional")
-        print("✅ Database contains expected seeded categories")
+        print("\n🎉 ALL TESTS PASSED! Layout Save and Load API is working correctly.")
+        print("✅ Layout save API endpoint is functional")
+        print("✅ Layout load API endpoint is functional")
+        print("✅ Data persistence across save/load cycles verified")
         print("✅ Authentication security is properly implemented")
+        print("✅ Plot data integrity maintained")
     else:
         print("\n⚠️ SOME TESTS FAILED. Please review the errors above.")
     
