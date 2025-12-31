@@ -163,356 +163,383 @@ def login_and_get_token():
         traceback.print_exc()
         return False
 
-def handle_auth_protected_endpoint(test_name, response, expected_success_handler=None):
-    """Handle authentication-protected endpoint responses"""
-    if response.status_code == 401:
-        print(f"   ⚠️ {test_name} requires valid authentication")
-        print("   ✅ Endpoint is accessible but protected (expected behavior)")
-        results.add_pass(test_name)
-        return True
-    elif response.status_code == 200:
-        if expected_success_handler:
-            return expected_success_handler(response)
+# ============================================
+# 1. LAYOUT SAVE API TESTS
+# ============================================
+
+def test_save_layout_with_plots():
+    """Test 1: POST /api/layouts/projects/{project_id}/layout - Save layout with plots"""
+    try:
+        print(f"\n💾 TESTING: POST /api/layouts/projects/{TEST_PROJECT_ID}/layout")
+        
+        if not auth_token:
+            results.add_fail("Save Layout with Plots", "No authentication token available")
+            return False
+        
+        # Test layout data from review request
+        layout_data = {
+            "layout_name": "Test Layout Save",
+            "svg_url": "https://example.com/layout.svg",
+            "plots": [
+                {
+                    "id": "test-plot-1",
+                    "display_name": "Plot A1",
+                    "coordinates": [
+                        {"x": 10, "y": 10},
+                        {"x": 100, "y": 10},
+                        {"x": 100, "y": 100},
+                        {"x": 10, "y": 100}
+                    ],
+                    "block": "A",
+                    "price": 500000,
+                    "area": 1200,
+                    "status": "available",
+                    "amenities": []
+                },
+                {
+                    "id": "test-plot-2",
+                    "display_name": "Plot A2",
+                    "coordinates": [
+                        {"x": 110, "y": 10},
+                        {"x": 200, "y": 10},
+                        {"x": 200, "y": 100},
+                        {"x": 110, "y": 100}
+                    ],
+                    "block": "A",
+                    "price": 600000,
+                    "area": 1400,
+                    "status": "booked",
+                    "amenities": []
+                }
+            ],
+            "metadata": {"test": True}
+        }
+        
+        headers = get_auth_headers()
+        response = requests.post(
+            f"{API_BASE}/layouts/projects/{TEST_PROJECT_ID}/layout",
+            json=layout_data,
+            headers=headers,
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            
+            # Validate response structure
+            if not data.get("success"):
+                results.add_fail("Save Layout with Plots", f"Response success is False: {data}")
+                return False
+            
+            if "layout_id" not in data:
+                results.add_fail("Save Layout with Plots", "Missing layout_id in response")
+                return False
+            
+            global test_layout_id
+            test_layout_id = data["layout_id"]
+            
+            results.add_pass("Save Layout with Plots")
+            print(f"   ✅ Layout saved successfully")
+            print(f"   🆔 Layout ID: {test_layout_id}")
+            print(f"   📝 Message: {data.get('message', 'No message')}")
+            return True
+            
+        elif response.status_code == 401:
+            results.add_fail("Save Layout with Plots", "Authentication failed - invalid token")
+            return False
+        elif response.status_code == 404:
+            results.add_fail("Save Layout with Plots", "Project not found")
+            return False
         else:
-            results.add_pass(test_name)
-            print("   ✅ Endpoint accessible and working")
-            return True
-    else:
-        results.add_fail(test_name, f"Unexpected status code: {response.status_code}")
-        print_error_details(test_name, response)
+            results.add_fail("Save Layout with Plots", f"Status code: {response.status_code}")
+            print_error_details("Save Layout with Plots", response)
+            return False
+            
+    except Exception as e:
+        results.add_fail("Save Layout with Plots", f"Exception: {str(e)}")
+        traceback.print_exc()
         return False
 
-# ============================================
-# 1. MASTER CATEGORIES API TESTS
-# ============================================
-
-def test_get_all_master_categories():
-    """Test 1: GET /api/categories/master - Get all master categories"""
+def test_load_saved_layout():
+    """Test 2: GET /api/layouts/projects/{project_id}/layout - Load the saved layout"""
     try:
-        print("\n🏢 TESTING: GET /api/categories/master")
+        print(f"\n📂 TESTING: GET /api/layouts/projects/{TEST_PROJECT_ID}/layout")
+        
+        if not auth_token:
+            results.add_fail("Load Saved Layout", "No authentication token available")
+            return False
         
         headers = get_auth_headers()
-        response = requests.get(f"{API_BASE}/categories/master", headers=headers, timeout=10)
+        response = requests.get(
+            f"{API_BASE}/layouts/projects/{TEST_PROJECT_ID}/layout",
+            headers=headers,
+            timeout=10
+        )
         
-        def success_handler(response):
+        if response.status_code == 200:
             data = response.json()
             
             # Validate response structure
-            required_fields = ['success', 'count', 'categories']
-            missing_fields = [field for field in required_fields if field not in data]
-            
-            if missing_fields:
-                results.add_fail("Get All Master Categories", f"Missing fields: {missing_fields}")
+            if not data.get("success"):
+                results.add_fail("Load Saved Layout", f"Response success is False: {data}")
                 return False
             
-            if not data.get('success'):
-                results.add_fail("Get All Master Categories", "Response success is False")
+            layout = data.get("layout")
+            project = data.get("project")
+            
+            if not layout:
+                results.add_fail("Load Saved Layout", "No layout data in response")
                 return False
             
-            categories = data.get('categories', [])
-            count = data.get('count', 0)
-            
-            if count != len(categories):
-                results.add_fail("Get All Master Categories", f"Count mismatch: {count} vs {len(categories)}")
+            # Verify layout data matches what we saved
+            if layout.get("layout_name") != "Test Layout Save":
+                results.add_fail("Load Saved Layout", f"Layout name mismatch: {layout.get('layout_name')}")
                 return False
             
-            # Verify we have the expected 4 master categories
-            if len(categories) < 4:
-                results.add_fail("Get All Master Categories", f"Expected at least 4 categories, got {len(categories)}")
+            if layout.get("svg_url") != "https://example.com/layout.svg":
+                results.add_fail("Load Saved Layout", f"SVG URL mismatch: {layout.get('svg_url')}")
                 return False
             
-            # Check for expected categories
-            category_names = [cat.get('name', '') for cat in categories]
-            expected_categories = ['Residential', 'Commercial', 'Industrial', 'Agricultural']
-            
-            missing_categories = [cat for cat in expected_categories if cat not in category_names]
-            if missing_categories:
-                results.add_fail("Get All Master Categories", f"Missing expected categories: {missing_categories}")
+            plots = layout.get("plots", [])
+            if len(plots) != 2:
+                results.add_fail("Load Saved Layout", f"Expected 2 plots, got {len(plots)}")
                 return False
             
-            results.add_pass("Get All Master Categories")
-            print(f"   ✅ Found {len(categories)} master categories")
-            print(f"   📋 Categories: {', '.join(category_names)}")
+            # Verify plot details
+            plot_ids = [plot.get("id") for plot in plots]
+            if "test-plot-1" not in plot_ids or "test-plot-2" not in plot_ids:
+                results.add_fail("Load Saved Layout", f"Plot IDs mismatch: {plot_ids}")
+                return False
             
-            # Store first category ID for subcategory tests
-            global test_category_id
-            if categories:
-                test_category_id = categories[0].get('id')
-                print(f"   🔗 Sample category ID: {test_category_id}")
-            
+            results.add_pass("Load Saved Layout")
+            print(f"   ✅ Layout loaded successfully")
+            print(f"   📝 Layout name: {layout.get('layout_name')}")
+            print(f"   📊 Plots count: {len(plots)}")
+            print(f"   🔗 SVG URL: {layout.get('svg_url')}")
+            if project:
+                print(f"   🏢 Project: {project.get('name', 'Unknown')}")
             return True
-        
-        return handle_auth_protected_endpoint("Get All Master Categories", response, success_handler)
-        
+            
+        elif response.status_code == 401:
+            results.add_fail("Load Saved Layout", "Authentication failed - invalid token")
+            return False
+        elif response.status_code == 404:
+            results.add_fail("Load Saved Layout", "Project or layout not found")
+            return False
+        else:
+            results.add_fail("Load Saved Layout", f"Status code: {response.status_code}")
+            print_error_details("Load Saved Layout", response)
+            return False
+            
     except Exception as e:
-        results.add_fail("Get All Master Categories", f"Exception: {str(e)}")
+        results.add_fail("Load Saved Layout", f"Exception: {str(e)}")
         traceback.print_exc()
         return False
 
-def test_get_master_subcategories():
-    """Test 2: GET /api/categories/master/{id}/subcategories - Get subcategories for a master category"""
-    global test_category_id
-    
-    if not test_category_id:
-        print("   ⚠️ No test category ID available - skipping subcategories test")
-        print("   ✅ This is expected when authentication is required for categories")
-        results.add_pass("Get Master Subcategories")
-        return True
-    
+def test_update_layout_with_more_plots():
+    """Test 3: Update layout with 3 plots and verify persistence"""
     try:
-        print(f"\n📋 TESTING: GET /api/categories/master/{test_category_id}/subcategories")
+        print(f"\n🔄 TESTING: Update layout with more plots")
         
-        headers = get_auth_headers()
-        response = requests.get(f"{API_BASE}/categories/master/{test_category_id}/subcategories", headers=headers, timeout=10)
-        
-        def success_handler(response):
-            data = response.json()
-            
-            # Validate response structure
-            required_fields = ['success', 'category_id', 'count', 'subcategories']
-            missing_fields = [field for field in required_fields if field not in data]
-            
-            if missing_fields:
-                results.add_fail("Get Master Subcategories", f"Missing fields: {missing_fields}")
-                return False
-            
-            if not data.get('success'):
-                results.add_fail("Get Master Subcategories", "Response success is False")
-                return False
-            
-            subcategories = data.get('subcategories', [])
-            count = data.get('count', 0)
-            category_id = data.get('category_id')
-            
-            if count != len(subcategories):
-                results.add_fail("Get Master Subcategories", f"Count mismatch: {count} vs {len(subcategories)}")
-                return False
-            
-            if category_id != test_category_id:
-                results.add_fail("Get Master Subcategories", f"Category ID mismatch: {category_id} vs {test_category_id}")
-                return False
-            
-            results.add_pass("Get Master Subcategories")
-            print(f"   ✅ Found {len(subcategories)} subcategories for category {category_id}")
-            
-            if subcategories:
-                subcat_names = [sub.get('name', 'Unknown') for sub in subcategories[:3]]
-                print(f"   📝 Sample subcategories: {', '.join(subcat_names)}")
-                
-                # Store first subcategory ID for future tests
-                global test_subcategory_id
-                test_subcategory_id = subcategories[0].get('id')
-            
-            return True
-        
-        return handle_auth_protected_endpoint("Get Master Subcategories", response, success_handler)
-        
-    except Exception as e:
-        results.add_fail("Get Master Subcategories", f"Exception: {str(e)}")
-        traceback.print_exc()
-        return False
-
-def test_get_all_master_categories_with_subcategories():
-    """Test 3: GET /api/categories/master/all-with-subcategories - Get complete hierarchy"""
-    try:
-        print("\n🌳 TESTING: GET /api/categories/master/all-with-subcategories")
-        
-        headers = get_auth_headers()
-        response = requests.get(f"{API_BASE}/categories/master/all-with-subcategories", headers=headers, timeout=10)
-        
-        def success_handler(response):
-            data = response.json()
-            
-            # Validate response structure
-            required_fields = ['success', 'count', 'categories']
-            missing_fields = [field for field in required_fields if field not in data]
-            
-            if missing_fields:
-                results.add_fail("Get All Categories with Subcategories", f"Missing fields: {missing_fields}")
-                return False
-            
-            if not data.get('success'):
-                results.add_fail("Get All Categories with Subcategories", "Response success is False")
-                return False
-            
-            categories = data.get('categories', [])
-            count = data.get('count', 0)
-            
-            if count != len(categories):
-                results.add_fail("Get All Categories with Subcategories", f"Count mismatch: {count} vs {len(categories)}")
-                return False
-            
-            # Verify each category has subcategories
-            total_subcategories = 0
-            for category in categories:
-                if 'subcategories' not in category:
-                    results.add_fail("Get All Categories with Subcategories", f"Category {category.get('name')} missing subcategories")
-                    return False
-                
-                if 'subcategories_count' not in category:
-                    results.add_fail("Get All Categories with Subcategories", f"Category {category.get('name')} missing subcategories_count")
-                    return False
-                
-                subcats = category.get('subcategories', [])
-                subcat_count = category.get('subcategories_count', 0)
-                
-                if len(subcats) != subcat_count:
-                    results.add_fail("Get All Categories with Subcategories", f"Subcategory count mismatch for {category.get('name')}")
-                    return False
-                
-                total_subcategories += len(subcats)
-            
-            results.add_pass("Get All Categories with Subcategories")
-            print(f"   ✅ Found {len(categories)} categories with {total_subcategories} total subcategories")
-            
-            # Print summary
-            for category in categories:
-                cat_name = category.get('name', 'Unknown')
-                subcat_count = category.get('subcategories_count', 0)
-                print(f"   📂 {cat_name}: {subcat_count} subcategories")
-            
-            return True
-        
-        return handle_auth_protected_endpoint("Get All Categories with Subcategories", response, success_handler)
-        
-    except Exception as e:
-        results.add_fail("Get All Categories with Subcategories", f"Exception: {str(e)}")
-        traceback.print_exc()
-        return False
-
-# ============================================
-# 2. DATABASE VERIFICATION TESTS
-# ============================================
-
-def test_database_master_categories():
-    """Test 4: Direct database verification of master categories"""
-    try:
-        print("\n🗄️ TESTING: Direct Database - Master Categories")
-        
-        import asyncio
-        from motor.motor_asyncio import AsyncIOMotorClient
-        
-        async def check_db():
-            client = AsyncIOMotorClient('mongodb://localhost:27017')
-            db = client.test_database
-            
-            # Check master categories
-            categories = await db.master_property_categories.find({"is_active": True}).to_list(length=None)
-            subcategories = await db.master_property_subcategories.find({"is_active": True}).to_list(length=None)
-            
-            client.close()
-            return categories, subcategories
-        
-        categories, subcategories = asyncio.run(check_db())
-        
-        # Validate categories
-        if len(categories) < 4:
-            results.add_fail("Database Master Categories", f"Expected at least 4 categories, found {len(categories)}")
+        if not auth_token:
+            results.add_fail("Update Layout with More Plots", "No authentication token available")
             return False
         
-        # Check expected categories exist
-        category_names = [cat.get('name', '') for cat in categories]
-        expected_categories = ['Residential', 'Commercial', 'Industrial', 'Agricultural']
-        
-        missing_categories = [cat for cat in expected_categories if cat not in category_names]
-        if missing_categories:
-            results.add_fail("Database Master Categories", f"Missing expected categories: {missing_categories}")
-            return False
-        
-        # Validate subcategories
-        if len(subcategories) < 20:
-            results.add_fail("Database Master Categories", f"Expected at least 20 subcategories, found {len(subcategories)}")
-            return False
-        
-        # Group subcategories by category
-        subcat_by_category = {}
-        for subcat in subcategories:
-            cat_id = subcat.get('master_category_id')
-            if cat_id not in subcat_by_category:
-                subcat_by_category[cat_id] = []
-            subcat_by_category[cat_id].append(subcat.get('name', 'Unknown'))
-        
-        results.add_pass("Database Master Categories")
-        print(f"   ✅ Database contains {len(categories)} master categories and {len(subcategories)} subcategories")
-        
-        # Print breakdown
-        for category in categories:
-            cat_id = category.get('id')
-            cat_name = category.get('name', 'Unknown')
-            subcats = subcat_by_category.get(cat_id, [])
-            print(f"   📂 {cat_name}: {len(subcats)} subcategories")
-        
-        return True
-        
-    except Exception as e:
-        results.add_fail("Database Master Categories", f"Exception: {str(e)}")
-        traceback.print_exc()
-        return False
-
-def test_categories_by_type_filter():
-    """Test 5: GET /api/categories?type=property_type - Filter categories by type"""
-    try:
-        print("\n🔍 TESTING: GET /api/categories?type=property_type")
+        # Updated layout data with 3 plots
+        layout_data = {
+            "layout_name": "Test Layout Save",
+            "svg_url": "https://example.com/layout.svg",
+            "plots": [
+                {
+                    "id": "test-plot-1",
+                    "display_name": "Plot A1",
+                    "coordinates": [
+                        {"x": 10, "y": 10},
+                        {"x": 100, "y": 10},
+                        {"x": 100, "y": 100},
+                        {"x": 10, "y": 100}
+                    ],
+                    "block": "A",
+                    "price": 500000,
+                    "area": 1200,
+                    "status": "available",
+                    "amenities": []
+                },
+                {
+                    "id": "test-plot-2",
+                    "display_name": "Plot A2",
+                    "coordinates": [
+                        {"x": 110, "y": 10},
+                        {"x": 200, "y": 10},
+                        {"x": 200, "y": 100},
+                        {"x": 110, "y": 100}
+                    ],
+                    "block": "A",
+                    "price": 600000,
+                    "area": 1400,
+                    "status": "booked",
+                    "amenities": []
+                },
+                {
+                    "id": "test-plot-3",
+                    "display_name": "Plot A3",
+                    "coordinates": [
+                        {"x": 210, "y": 10},
+                        {"x": 300, "y": 10},
+                        {"x": 300, "y": 100},
+                        {"x": 210, "y": 100}
+                    ],
+                    "block": "A",
+                    "price": 550000,
+                    "area": 1300,
+                    "status": "available",
+                    "amenities": ["parking"]
+                }
+            ],
+            "metadata": {"test": True, "updated": True}
+        }
         
         headers = get_auth_headers()
-        response = requests.get(f"{API_BASE}/categories", headers=headers, params={"type": "property_type"}, timeout=10)
+        response = requests.post(
+            f"{API_BASE}/layouts/projects/{TEST_PROJECT_ID}/layout",
+            json=layout_data,
+            headers=headers,
+            timeout=10
+        )
         
-        def success_handler(response):
+        if response.status_code == 200:
             data = response.json()
             
-            # This endpoint might not exist, so we handle different responses
-            if isinstance(data, list):
-                results.add_pass("Categories by Type Filter")
-                print(f"   ✅ Found {len(data)} categories with type filter")
-                return True
-            elif isinstance(data, dict) and data.get('success'):
-                categories = data.get('categories', [])
-                results.add_pass("Categories by Type Filter")
-                print(f"   ✅ Found {len(categories)} categories with type filter")
+            if not data.get("success"):
+                results.add_fail("Update Layout with More Plots", f"Response success is False: {data}")
+                return False
+            
+            # Now verify the update by loading the layout again
+            load_response = requests.get(
+                f"{API_BASE}/layouts/projects/{TEST_PROJECT_ID}/layout",
+                headers=headers,
+                timeout=10
+            )
+            
+            if load_response.status_code == 200:
+                load_data = load_response.json()
+                layout = load_data.get("layout")
+                
+                if not layout:
+                    results.add_fail("Update Layout with More Plots", "No layout data after update")
+                    return False
+                
+                plots = layout.get("plots", [])
+                if len(plots) != 3:
+                    results.add_fail("Update Layout with More Plots", f"Expected 3 plots after update, got {len(plots)}")
+                    return False
+                
+                # Verify the third plot exists
+                plot_ids = [plot.get("id") for plot in plots]
+                if "test-plot-3" not in plot_ids:
+                    results.add_fail("Update Layout with More Plots", f"Third plot not found: {plot_ids}")
+                    return False
+                
+                results.add_pass("Update Layout with More Plots")
+                print(f"   ✅ Layout updated successfully")
+                print(f"   📊 Updated plots count: {len(plots)}")
+                print(f"   🆔 Plot IDs: {', '.join(plot_ids)}")
                 return True
             else:
-                results.add_fail("Categories by Type Filter", "Unexpected response format")
+                results.add_fail("Update Layout with More Plots", f"Failed to verify update: {load_response.status_code}")
                 return False
-        
-        # Handle different possible responses
-        if response.status_code == 404:
-            print("   ⚠️ Categories type filter endpoint not found")
-            print("   ✅ This may be expected if the endpoint doesn't support type filtering")
-            results.add_pass("Categories by Type Filter")
-            return True
-        
-        return handle_auth_protected_endpoint("Categories by Type Filter", response, success_handler)
-        
+                
+        else:
+            results.add_fail("Update Layout with More Plots", f"Update failed with status: {response.status_code}")
+            print_error_details("Update Layout with More Plots", response)
+            return False
+            
     except Exception as e:
-        results.add_fail("Categories by Type Filter", f"Exception: {str(e)}")
+        results.add_fail("Update Layout with More Plots", f"Exception: {str(e)}")
         traceback.print_exc()
         return False
 
 # ============================================
-# 3. AUTHENTICATION & SECURITY TESTS
+# 2. AUTHENTICATION & SECURITY TESTS
 # ============================================
 
-def test_authentication_security():
-    """Test 6: Verify authentication is required for protected endpoints"""
+def test_layout_api_authentication():
+    """Test 4: Verify authentication is required for layout endpoints"""
     try:
-        print("\n🔒 TESTING: Authentication Security")
+        print("\n🔒 TESTING: Layout API Authentication Security")
         
-        # Test without authentication headers
-        response = requests.get(f"{API_BASE}/categories/master", timeout=10)
+        # Test save endpoint without authentication
+        response = requests.post(f"{API_BASE}/layouts/projects/{TEST_PROJECT_ID}/layout", 
+                               json={"layout_name": "test"}, timeout=10)
         
-        if response.status_code == 401:
-            results.add_pass("Authentication Security")
-            print("   ✅ Master categories endpoint properly protected with authentication")
-            return True
-        elif response.status_code == 200:
-            results.add_fail("Authentication Security", "Endpoint accessible without authentication (security risk)")
+        if response.status_code != 401:
+            results.add_fail("Layout API Authentication", f"Save endpoint not protected: {response.status_code}")
             return False
-        else:
-            results.add_fail("Authentication Security", f"Unexpected status code: {response.status_code}")
+        
+        # Test load endpoint without authentication
+        response = requests.get(f"{API_BASE}/layouts/projects/{TEST_PROJECT_ID}/layout", timeout=10)
+        
+        if response.status_code != 401:
+            results.add_fail("Layout API Authentication", f"Load endpoint not protected: {response.status_code}")
             return False
+        
+        results.add_pass("Layout API Authentication")
+        print("   ✅ Both save and load endpoints properly protected with authentication")
+        return True
         
     except Exception as e:
-        results.add_fail("Authentication Security", f"Exception: {str(e)}")
+        results.add_fail("Layout API Authentication", f"Exception: {str(e)}")
+        traceback.print_exc()
+        return False
+
+def test_invalid_project_id():
+    """Test 5: Test behavior with invalid project ID"""
+    try:
+        print("\n❌ TESTING: Invalid Project ID Handling")
+        
+        if not auth_token:
+            results.add_fail("Invalid Project ID", "No authentication token available")
+            return False
+        
+        invalid_project_id = "invalid-project-id-12345"
+        headers = get_auth_headers()
+        
+        # Test save with invalid project ID
+        response = requests.post(
+            f"{API_BASE}/layouts/projects/{invalid_project_id}/layout",
+            json={"layout_name": "test"},
+            headers=headers,
+            timeout=10
+        )
+        
+        if response.status_code != 404:
+            results.add_fail("Invalid Project ID", f"Expected 404 for invalid project, got {response.status_code}")
+            return False
+        
+        # Test load with invalid project ID
+        response = requests.get(
+            f"{API_BASE}/layouts/projects/{invalid_project_id}/layout",
+            headers=headers,
+            timeout=10
+        )
+        
+        # Load might return 200 with null layout or 404, both are acceptable
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and data.get("layout") is None:
+                results.add_pass("Invalid Project ID")
+                print("   ✅ Invalid project ID handled correctly (returns null layout)")
+                return True
+        elif response.status_code == 404:
+            results.add_pass("Invalid Project ID")
+            print("   ✅ Invalid project ID handled correctly (returns 404)")
+            return True
+        
+        results.add_fail("Invalid Project ID", f"Unexpected response for invalid project: {response.status_code}")
+        return False
+        
+    except Exception as e:
+        results.add_fail("Invalid Project ID", f"Exception: {str(e)}")
         traceback.print_exc()
         return False
 
