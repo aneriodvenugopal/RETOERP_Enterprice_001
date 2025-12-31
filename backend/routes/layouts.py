@@ -9,6 +9,33 @@ router = APIRouter(prefix="/layouts", tags=["layouts"])
 def get_db(request: Request):
     return request.app.state.db
 
+@router.get("/public/projects/{project_id}/layout")
+async def get_public_layout(project_id: str, request: Request):
+    """Get layout for public viewing - NO AUTH REQUIRED"""
+    db = get_db(request)
+    
+    # Get the layout
+    layout = await db.project_layouts.find_one({
+        'project_id': project_id,
+        'deleted_at': None
+    }, {'_id': 0})
+    
+    # Get project details (limited info for public)
+    project = await db.projects.find_one(
+        {'id': project_id, 'deleted_at': None},
+        {'_id': 0, 'id': 1, 'name': 1, 'location': 1, 'city': 1, 'state': 1, 'description': 1}
+    )
+    
+    if not layout or not project:
+        raise HTTPException(status_code=404, detail="Layout not found")
+    
+    return {
+        'success': True,
+        'layout': layout,
+        'project': project
+    }
+
+
 @router.post("/projects/{project_id}/layout")
 async def create_project_layout(
     project_id: str,
