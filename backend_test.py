@@ -143,6 +143,7 @@ def login_and_get_token():
         
         if response.status_code == 200:
             data = response.json()
+            print(f"   📋 Login response: {json.dumps(data, indent=2)}")
             if data.get("success") and data.get("access_token"):
                 global auth_token
                 auth_token = data["access_token"]
