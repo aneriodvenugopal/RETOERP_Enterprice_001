@@ -468,9 +468,9 @@ const ProjectLayoutEditor = () => {
 
   const getStatusColor = (status) => {
     const colors = {
-      available: 'rgba(34, 197, 94, 0.3)',
-      booked: 'rgba(251, 191, 36, 0.3)',
-      sold: 'rgba(239, 68, 68, 0.3)'
+      available: 'rgba(34, 197, 94, 0.5)',  // Green - more visible
+      booked: 'rgba(251, 191, 36, 0.5)',    // Yellow/Orange
+      sold: 'rgba(239, 68, 68, 0.4)'        // Red
     };
     return colors[status] || colors.available;
   };
