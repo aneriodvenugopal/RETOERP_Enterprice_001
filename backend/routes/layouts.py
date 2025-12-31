@@ -91,16 +91,15 @@ async def get_project_layout(project_id: str, request: Request):
         'deleted_at': None
     }, {'_id': 0})
     
-    if not layout:
-        raise HTTPException(status_code=404, detail="Layout not found")
-    
     # Get project details
     project = await db.projects.find_one(
         {'id': project_id, 'deleted_at': None},
         {'_id': 0}
     )
     
+    # Return success response with layout (can be None if not found)
     return {
+        'success': True,
         'layout': layout,
         'project': project
     }
