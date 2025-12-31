@@ -838,23 +838,33 @@ const ProjectLayoutEditor = () => {
                         {/* Render saved plots */}
                         {plots.map((plot) => (
                           <g key={plot.id} style={{ cursor: 'pointer' }}>
+                            {/* Plot polygon with better visibility */}
                             <polygon
                               points={getPolygonPoints(plot.coordinates)}
                               fill={getStatusColor(plot.status)}
                               stroke="#0891b2"
                               strokeWidth="2"
                             />
+                            {/* Plot label background for better readability */}
+                            <rect
+                              x={plot.coordinates.reduce((sum, c) => sum + c.x, 0) / plot.coordinates.length - 30}
+                              y={plot.coordinates.reduce((sum, c) => sum + c.y, 0) / plot.coordinates.length - 12}
+                              width="60"
+                              height="24"
+                              rx="4"
+                              fill="rgba(255,255,255,0.9)"
+                              stroke="#0891b2"
+                              strokeWidth="1"
+                            />
+                            {/* Plot label text - always visible */}
                             <text
                               x={plot.coordinates.reduce((sum, c) => sum + c.x, 0) / plot.coordinates.length}
                               y={plot.coordinates.reduce((sum, c) => sum + c.y, 0) / plot.coordinates.length}
                               textAnchor="middle"
                               dominantBaseline="middle"
-                              fill="#000"
-                              fontSize="14"
+                              fill="#0891b2"
+                              fontSize="12"
                               fontWeight="bold"
-                              stroke="#fff"
-                              strokeWidth="3"
-                              paintOrder="stroke"
                             >
                               {plot.display_name}
                             </text>
