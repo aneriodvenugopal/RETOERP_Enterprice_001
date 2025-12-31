@@ -509,16 +509,16 @@ const ProjectLayoutEditor = () => {
             </CardContent>
           </Card>
 
-          {/* Upload SVG */}
+          {/* Upload Layout Image */}
           <Card className="glass-card">
             <CardHeader>
-              <CardTitle className="text-ocean-primary">Upload/Change SVG</CardTitle>
+              <CardTitle className="text-ocean-primary">Upload Layout</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <input
                 ref={fileInputRef}
                 type="file"
-                accept=".svg,image/svg+xml"
+                accept=".svg,.pdf,.png,.jpg,.jpeg,image/svg+xml,image/png,image/jpeg,application/pdf"
                 onChange={handleFileUpload}
                 className="hidden"
               />
@@ -529,8 +529,12 @@ const ProjectLayoutEditor = () => {
                 className="w-full bg-gradient-to-r from-ocean-primary to-ocean-secondary text-white"
               >
                 <Upload className="w-4 h-4 mr-2" />
-                {uploading ? 'Uploading...' : svgUrl ? 'Change SVG' : 'Upload SVG'}
+                {uploading ? 'Uploading...' : svgUrl ? 'Change Layout' : 'Upload Layout'}
               </Button>
+              
+              <p className="text-xs text-gray-500 text-center">
+                Supports: SVG, PDF, PNG, JPG
+              </p>
               
               {svgFile && (
                 <p className="text-xs text-green-600">✓ {svgFile.name}</p>
