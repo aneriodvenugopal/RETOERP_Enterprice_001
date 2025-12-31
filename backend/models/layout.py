@@ -71,7 +71,7 @@ class LayoutCreate(BaseModel):
     layout_name: str
     svg_content: Optional[str] = None
     svg_url: Optional[str] = None
-    plots: List[LayoutPlot]
+    plots: Optional[List[LayoutPlot]] = []
     metadata: Dict = {}
 
 class LayoutUpdate(BaseModel):
