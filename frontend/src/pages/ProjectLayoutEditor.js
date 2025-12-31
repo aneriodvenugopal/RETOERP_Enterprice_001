@@ -453,7 +453,24 @@ const ProjectLayoutEditor = () => {
         { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
       );
 
-      toast.success('Layout saved successfully!');
+      // Auto-sync plots to properties
+      if (plots.length > 0) {
+        try {
+          const syncRes = await axios.post(
+            `${process.env.REACT_APP_BACKEND_URL}/api/layouts/projects/${projectId}/layout/sync-properties`,
+            {},
+            { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+          );
+          if (syncRes.data.success) {
+            toast.success(`Layout saved! ${syncRes.data.synced} properties synced, ${syncRes.data.updated} updated`);
+          }
+        } catch (syncError) {
+          console.warn('Property sync warning:', syncError);
+          toast.success('Layout saved! (Property sync may need manual refresh)');
+        }
+      } else {
+        toast.success('Layout saved successfully!');
+      }
     } catch (error) {
       console.error('Save layout error:', error);
       toast.error('Failed to save layout');
