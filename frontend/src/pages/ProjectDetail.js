@@ -196,10 +196,22 @@ const ProjectDetail = () => {
           <div className="flex gap-3">
             <Button
               onClick={() => navigate(`/projects/${projectId}/layout/edit`)}
-              className="glass-card bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all"
+              className="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all border-0"
             >
               <Map className="w-4 h-4 mr-2" />
               Layout Editor
+            </Button>
+            <Button
+              onClick={() => {
+                const shareUrl = `${window.location.origin}/public/projects/${projectId}/layout`;
+                navigator.clipboard.writeText(shareUrl);
+                toast.success('Public layout link copied to clipboard!');
+              }}
+              variant="outline"
+              className="border-purple-300 text-purple-600 hover:bg-purple-50"
+            >
+              <Share2 className="w-4 h-4 mr-2" />
+              Share Layout
             </Button>
             {/* Add Property button removed - Properties are created through Layout Editor */}
         </div>
