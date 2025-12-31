@@ -402,6 +402,25 @@ backend:
     priority: "high"
     needs_retesting: false
     status_history:
+      - working: true
+        agent: "main"
+        comment: "✅ CREATED PUBLIC TENANTS DIRECTORY API - Added GET /api/public/tenants endpoint for public tenant directory listing. Returns all active tenants with basic info (id, name, description, location, logo_url, website, phone, email) and statistics (total_projects, total_properties, years_in_business). No authentication required. Supports pagination with limit/offset. Excludes deleted tenants. Ready for public directory pages."
+
+  - task: "Layout Save and Load API for Projects"
+    implemented: true
+    working: true
+    file: "/app/backend/routes/layouts.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "🎉 **LAYOUT SAVE AND LOAD API TESTING COMPLETE - 100% SUCCESS!** **COMPREHENSIVE TESTING RESULTS**: Successfully tested Layout Save and Load API functionality with all 7/7 tests passed. **AUTHENTICATION VERIFIED** ✅ - Phone-based login (9999999999/admin123) working perfectly, JWT token obtained successfully, Super Admin access confirmed. **LAYOUT SAVE API VERIFIED** ✅ - (1) **POST /api/layouts/projects/{project_id}/layout** working correctly, (2) Successfully saved layout with 2 plots (test-plot-1, test-plot-2) with complete coordinate data, price, area, status, and amenities, (3) Response structure correct: {success: true, message: 'Layout updated successfully', layout_id: '...'}, (4) Layout ID returned for reference. **LAYOUT LOAD API VERIFIED** ✅ - (1) **GET /api/layouts/projects/{project_id}/layout** working correctly, (2) Successfully loaded saved layout with all data intact, (3) Response structure correct: {success: true, layout: {...}, project: {...}}, (4) **Data Integrity Confirmed**: layout_name='Test Layout Save', svg_url='https://example.com/layout.svg', plots count=2, all plot details preserved (coordinates, price, area, status). **DATA PERSISTENCE VERIFIED** ✅ - (1) Updated layout with 3 plots successfully, (2) Verified persistence by loading again, (3) All 3 plots (test-plot-1, test-plot-2, test-plot-3) present with correct data, (4) Plot coordinates, pricing, and metadata maintained across save/load cycles. **AUTHENTICATION SECURITY VERIFIED** ✅ - (1) Both save and load endpoints properly protected with 401 responses for unauthenticated requests, (2) JWT authentication working correctly, (3) Project access control functioning. **ERROR HANDLING VERIFIED** ✅ - Invalid project ID handled correctly (returns null layout with success response), proper error responses for authentication failures. **PRODUCTION READY**: Layout Save and Load API fully functional with proper authentication, data persistence, plot management, and error handling. All expected functionality from review request working perfectly."
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
       - working: "NA"
         agent: "main"
         comment: "Created new public API GET /public/tenants with: (1) Pagination support (limit, skip parameters), (2) Search functionality (searches company_name, city, state with regex), (3) Filters only active tenants with deleted_at=None, (4) Enriches each tenant with statistics: project_count (total projects), property_count (total properties across all projects), booking_count (total bookings), (5) Returns total count for pagination. Default limit=100. No authentication required (public endpoint)."
