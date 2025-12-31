@@ -653,54 +653,92 @@ const ProjectLayoutEditor = () => {
             </CardHeader>
             <CardContent>
               {plots.length === 0 ? (
-                <p className="text-sm text-gray-500 text-center py-4">
-                  No plots added yet. Mark points on SVG to add plots.
-                </p>
+                <div className="text-center py-6">
+                  <MapPin className="w-10 h-10 mx-auto mb-2 text-gray-300" />
+                  <p className="text-sm text-gray-500">
+                    No plots drawn yet.
+                  </p>
+                  <p className="text-xs text-gray-400 mt-1">
+                    Upload a layout image and start drawing plots!
+                  </p>
+                </div>
               ) : (
-                <div className="space-y-2">
-                  {plots.map((plot) => (
-                    <div key={plot.id} className="flex items-start justify-between p-3 bg-white rounded-lg border hover:border-ocean-primary transition-colors">
-                      <div className="flex-1">
-                        <p className="font-semibold text-gray-900">{plot.display_name}</p>
-                        <p className="text-xs text-gray-600">{plot.area} sq.ft | ₹{plot.price.toLocaleString()}</p>
-                        <p className="text-xs text-gray-500 mt-1">
-                          Status: <span className="capitalize">{plot.status}</span> | {plot.coordinates.length} points
-                        </p>
+                <div className="space-y-2 max-h-80 overflow-y-auto">
+                  {plots.map((plot, index) => {
+                    const needsDetails = !plot.price || !plot.area || plot.price === 0 || plot.area === 0;
+                    return (
+                      <div 
+                        key={plot.id} 
+                        className={`flex items-start justify-between p-3 rounded-lg border transition-colors ${
+                          needsDetails 
+                            ? 'bg-yellow-50 border-yellow-300 hover:border-yellow-400' 
+                            : 'bg-white hover:border-ocean-primary'
+                        }`}
+                      >
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <p className="font-semibold text-gray-900">{plot.display_name}</p>
+                            {needsDetails && (
+                              <Badge className="bg-yellow-500 text-white text-xs">
+                                Needs Details
+                              </Badge>
+                            )}
+                          </div>
+                          {needsDetails ? (
+                            <p className="text-xs text-yellow-700 mt-1">
+                              Click "Details" to add price & area
+                            </p>
+                          ) : (
+                            <p className="text-xs text-gray-600">{plot.area} sq.ft | ₹{plot.price.toLocaleString()}</p>
+                          )}
+                          <p className="text-xs text-gray-500 mt-1">
+                            Status: <span className="capitalize">{plot.status}</span> | {plot.coordinates.length} points
+                          </p>
+                        </div>
+                        <div className="flex flex-col gap-1">
+                          <Button
+                            onClick={() => handleEditPlotDetails(plot)}
+                            variant="ghost"
+                            size="sm"
+                            className={`text-xs justify-start ${needsDetails ? 'text-yellow-600 hover:bg-yellow-100 font-medium' : 'text-blue-600 hover:bg-blue-50'}`}
+                            title="Edit plot details"
+                          >
+                            <Edit2 className="w-3 h-3 mr-1" />
+                            Details
+                          </Button>
+                          <Button
+                            onClick={() => handleRemarkPlotPoints(plot)}
+                            variant="ghost"
+                            size="sm"
+                            className="text-purple-600 hover:bg-purple-50 text-xs justify-start"
+                            title="Re-mark boundaries"
+                          >
+                            <MapPin className="w-3 h-3 mr-1" />
+                            Points
+                          </Button>
+                          <Button
+                            onClick={() => deletePlot(plot.id)}
+                            variant="ghost"
+                            size="sm"
+                            className="text-red-500 hover:bg-red-50 text-xs justify-start"
+                            title="Delete plot"
+                          >
+                            <Trash2 className="w-3 h-3 mr-1" />
+                            Delete
+                          </Button>
+                        </div>
                       </div>
-                      <div className="flex flex-col gap-1">
-                        <Button
-                          onClick={() => handleEditPlotDetails(plot)}
-                          variant="ghost"
-                          size="sm"
-                          className="text-blue-600 hover:bg-blue-50 text-xs justify-start"
-                          title="Edit plot details"
-                        >
-                          <Edit2 className="w-3 h-3 mr-1" />
-                          Details
-                        </Button>
-                        <Button
-                          onClick={() => handleRemarkPlotPoints(plot)}
-                          variant="ghost"
-                          size="sm"
-                          className="text-purple-600 hover:bg-purple-50 text-xs justify-start"
-                          title="Re-mark boundaries"
-                        >
-                          <MapPin className="w-3 h-3 mr-1" />
-                          Points
-                        </Button>
-                        <Button
-                          onClick={() => deletePlot(plot.id)}
-                          variant="ghost"
-                          size="sm"
-                          className="text-red-500 hover:bg-red-50 text-xs justify-start"
-                          title="Delete plot"
-                        >
-                          <Trash2 className="w-3 h-3 mr-1" />
-                          Delete
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
+                </div>
+              )}
+              
+              {/* Summary of plots needing details */}
+              {plots.length > 0 && plots.some(p => !p.price || !p.area || p.price === 0 || p.area === 0) && (
+                <div className="mt-3 p-2 bg-yellow-50 border border-yellow-200 rounded-lg">
+                  <p className="text-xs text-yellow-800">
+                    ⚠️ {plots.filter(p => !p.price || !p.area || p.price === 0 || p.area === 0).length} plot(s) need details filled
+                  </p>
                 </div>
               )}
             </CardContent>
