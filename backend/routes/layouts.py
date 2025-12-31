@@ -44,7 +44,7 @@ async def create_project_layout(
             'layout_name': layout_data.layout_name,
             'svg_content': layout_data.svg_content,
             'svg_url': layout_data.svg_url,
-            'plots': [plot.dict() for plot in layout_data.plots],
+            'plots': [plot.dict() for plot in layout_data.plots] if layout_data.plots else [],
             'metadata': layout_data.metadata,
             'updated_at': datetime.now(timezone.utc).isoformat()
         }
@@ -54,7 +54,7 @@ async def create_project_layout(
             {'$set': update_data}
         )
         
-        return {"message": "Layout updated successfully", "layout_id": existing_layout['id']}
+        return {"success": True, "message": "Layout updated successfully", "layout_id": existing_layout['id']}
     else:
         # Create new layout
         layout_id = str(uuid.uuid4())
@@ -65,7 +65,7 @@ async def create_project_layout(
             'layout_name': layout_data.layout_name,
             'svg_content': layout_data.svg_content,
             'svg_url': layout_data.svg_url,
-            'plots': [plot.dict() for plot in layout_data.plots],
+            'plots': [plot.dict() for plot in layout_data.plots] if layout_data.plots else [],
             'metadata': layout_data.metadata,
             'created_at': datetime.now(timezone.utc).isoformat(),
             'updated_at': datetime.now(timezone.utc).isoformat(),
@@ -74,7 +74,7 @@ async def create_project_layout(
         
         await db.project_layouts.insert_one(layout_doc)
         
-        return {"message": "Layout created successfully", "layout_id": layout_id}
+        return {"success": True, "message": "Layout created successfully", "layout_id": layout_id}
 
 @router.get("/projects/{project_id}/layout")
 async def get_project_layout(project_id: str, request: Request):
