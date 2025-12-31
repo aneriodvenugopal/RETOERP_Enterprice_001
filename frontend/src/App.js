@@ -309,6 +309,10 @@ function App() {
                 element={<PublicLayoutView />}
               />
               <Route
+                path="/public/projects/:projectId/layout"
+                element={<PublicLayoutView />}
+              />
+              <Route
                 path="/public/layout-view/:layoutId"
                 element={<PublicLayoutView />}
               />
