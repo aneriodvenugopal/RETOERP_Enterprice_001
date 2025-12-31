@@ -633,15 +633,15 @@ const ProjectLayoutEditor = () => {
             </Card>
           )}
 
-          {/* Help Section */}
+          {/* Quick Draw Workflow Info */}
           {plots.length > 0 && (
-            <Card className="glass-card bg-blue-50 border-blue-200">
+            <Card className="glass-card bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
               <CardContent className="pt-4">
-                <p className="text-sm font-semibold text-blue-900 mb-2">📝 Plot Actions:</p>
-                <div className="space-y-1 text-xs text-blue-800">
-                  <p>• <strong>Details</strong> (🔵): Edit name, price, area</p>
-                  <p>• <strong>Points</strong> (🟣): Re-mark boundaries</p>
-                  <p>• <strong>Delete</strong> (🔴): Remove plot</p>
+                <p className="text-sm font-semibold text-green-900 mb-2">✅ Workflow:</p>
+                <div className="space-y-1 text-xs text-green-800">
+                  <p>1. <strong>Draw</strong> - Mark plot boundaries</p>
+                  <p>2. <strong>Details</strong> - Fill price, area, status</p>
+                  <p>3. <strong>Save</strong> - Auto-saves after each action</p>
                 </div>
               </CardContent>
             </Card>
