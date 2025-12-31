@@ -692,7 +692,7 @@ const ProjectLayoutEditor = () => {
                           </div>
                           {needsDetails ? (
                             <p className="text-xs text-yellow-700 mt-1">
-                              Click "Details" to add price & area
+                              Click &quot;Details&quot; to add price &amp; area
                             </p>
                           ) : (
                             <p className="text-xs text-gray-600">{plot.area} sq.ft | ₹{plot.price.toLocaleString()}</p>
