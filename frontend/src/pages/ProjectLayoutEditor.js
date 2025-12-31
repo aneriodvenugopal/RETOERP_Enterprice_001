@@ -185,8 +185,13 @@ const ProjectLayoutEditor = () => {
       );
 
       if (response.data.success) {
-        setSvgUrl(response.data.file_url);
-        setSvgFileInfo(response.data);
+        // Make sure SVG URL is absolute (prefix with backend URL if relative)
+        let fullSvgUrl = response.data.file_url;
+        if (response.data.file_url.startsWith('/')) {
+          fullSvgUrl = `${process.env.REACT_APP_BACKEND_URL}${response.data.file_url}`;
+        }
+        setSvgUrl(fullSvgUrl);
+        setSvgFileInfo({ ...response.data, file_url: fullSvgUrl });
         toast.success(`${file.name} uploaded successfully`);
       }
     } catch (error) {
