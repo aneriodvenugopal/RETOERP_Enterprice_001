@@ -124,8 +124,14 @@ const ProjectLayoutEditor = () => {
           }
           
           if (layout.svg_url) {
-            setSvgUrl(layout.svg_url);
-            setSvgFileInfo({ file_url: layout.svg_url });
+            // Make sure SVG URL is absolute (prefix with backend URL if relative)
+            let fullSvgUrl = layout.svg_url;
+            if (layout.svg_url.startsWith('/')) {
+              fullSvgUrl = `${process.env.REACT_APP_BACKEND_URL}${layout.svg_url}`;
+            }
+            setSvgUrl(fullSvgUrl);
+            setSvgFileInfo({ file_url: fullSvgUrl });
+            console.log('📷 SVG URL set to:', fullSvgUrl);
           }
           
           toast.success(`Layout loaded with ${layout.plots?.length || 0} plots`);
