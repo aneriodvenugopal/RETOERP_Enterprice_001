@@ -94,11 +94,18 @@ async def get_project_layout(project_id: str, request: Request):
     if not user:
         raise HTTPException(status_code=401, detail="Not authenticated")
     
-    layout = await db.project_layouts.find_one({
-        'project_id': project_id,
-        'tenant_id': user['tenant_id'],
-        'deleted_at': None
-    }, {'_id': 0})
+    # Super admin can access all layouts, others only their tenant
+    if user.get('role') == 'super_admin':
+        layout = await db.project_layouts.find_one({
+            'project_id': project_id,
+            'deleted_at': None
+        }, {'_id': 0})
+    else:
+        layout = await db.project_layouts.find_one({
+            'project_id': project_id,
+            'tenant_id': user['tenant_id'],
+            'deleted_at': None
+        }, {'_id': 0})
     
     # Get project details
     project = await db.projects.find_one(
