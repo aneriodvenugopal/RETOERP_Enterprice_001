@@ -264,7 +264,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Text-to-Speech (TTS) Feature for AI Agents Documentation Hub"
+    - "Layout System Integration with Projects (Layouts Library Removed)"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
