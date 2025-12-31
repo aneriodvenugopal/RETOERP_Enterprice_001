@@ -22,15 +22,24 @@ async def create_project_layout(
     if not user:
         raise HTTPException(status_code=401, detail="Not authenticated")
     
-    # Check if project exists and user has access
-    project = await db.projects.find_one({
-        'id': project_id,
-        'tenant_id': user['tenant_id'],
-        'deleted_at': None
-    })
+    # Check if project exists - super_admin can access all, others only their tenant
+    if user.get('role') == 'super_admin':
+        project = await db.projects.find_one({
+            'id': project_id,
+            'deleted_at': None
+        })
+    else:
+        project = await db.projects.find_one({
+            'id': project_id,
+            'tenant_id': user['tenant_id'],
+            'deleted_at': None
+        })
     
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
+    
+    # Use project's tenant_id for the layout
+    tenant_id = project.get('tenant_id') or user.get('tenant_id')
     
     # Check if layout already exists
     existing_layout = await db.project_layouts.find_one({
@@ -61,7 +70,7 @@ async def create_project_layout(
         layout_doc = {
             'id': layout_id,
             'project_id': project_id,
-            'tenant_id': user['tenant_id'],
+            'tenant_id': tenant_id,
             'layout_name': layout_data.layout_name,
             'svg_content': layout_data.svg_content,
             'svg_url': layout_data.svg_url,
