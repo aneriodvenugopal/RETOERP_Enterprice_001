@@ -971,7 +971,7 @@ const ProjectLayoutEditor = () => {
             </div>
             
             <div className="p-2 bg-blue-50 border border-blue-200 rounded text-xs text-blue-800">
-              💡 Need to adjust points? Click "Cancel" to go back
+              💡 Need to adjust points? Click &quot;Cancel&quot; to go back
             </div>
             
             <div className="flex gap-2">
