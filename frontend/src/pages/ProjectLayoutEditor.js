@@ -737,7 +737,7 @@ const ProjectLayoutEditor = () => {
                               Click &quot;Details&quot; to add price &amp; area
                             </p>
                           ) : (
-                            <p className="text-xs text-gray-600">{plot.area} sq.ft | ₹{plot.price.toLocaleString()}</p>
+                            <p className="text-xs text-gray-600">{plot.area} {plot.unit || 'sq.yard'} | ₹{plot.price?.toLocaleString()}</p>
                           )}
                           <p className="text-xs text-gray-500 mt-1">
                             Status: <span className="capitalize">{plot.status}</span> | {plot.coordinates.length} points
