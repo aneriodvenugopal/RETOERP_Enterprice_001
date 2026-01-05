@@ -147,6 +147,57 @@ const ProjectDetail = () => {
     }
   };
 
+  // Edit property handler - ONLY for available properties, non-financial fields only
+  const handleEditProperty = (property) => {
+    // Check if property is available - Rule: Only available plots can be edited
+    const status = propertyStatuses.find(s => s.id === property.status_id);
+    if (status && status.slug !== 'available') {
+      toast.error('Only available properties can be edited. Booked/Sold properties are locked.');
+      return;
+    }
+    
+    setEditingProperty(property);
+    setEditForm({
+      property_number: property.property_number || '',
+      area: property.area?.toString() || '',
+      unit: property.unit || 'sq.yard',
+      block: property.block || '',
+      facing: property.facing || ''
+    });
+    setShowEditDialog(true);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingProperty) return;
+    
+    setLoading(true);
+    try {
+      // Only update non-financial fields
+      await propertyService.update(editingProperty.id, {
+        property_number: editForm.property_number,
+        area: parseFloat(editForm.area) || 0,
+        unit: editForm.unit,
+        block: editForm.block,
+        facing: editForm.facing
+        // Note: price is NOT included - cannot edit financial data
+      });
+      
+      toast.success('Property updated successfully!');
+      setShowEditDialog(false);
+      setEditingProperty(null);
+      fetchProjectData();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Failed to update property');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const canEditProperty = (property) => {
+    const status = propertyStatuses.find(s => s.id === property.status_id);
+    return status?.slug === 'available';
+  };
+
   const getStatusColor = (statusSlug) => {
     const colors = {
       available: 'bg-green-500',
