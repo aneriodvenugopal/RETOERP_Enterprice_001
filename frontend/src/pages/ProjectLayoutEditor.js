@@ -299,8 +299,9 @@ const ProjectLayoutEditor = () => {
     setPlotForm({
       display_name: plot.display_name,
       block: plot.block || 'A',
-      price: plot.price.toString(),
-      area: plot.area.toString(),
+      price: plot.price?.toString() || '',
+      area: plot.area?.toString() || '',
+      unit: plot.unit || 'sq.yard',
       status: plot.status,
       amenities: plot.amenities || []
     });
@@ -314,8 +315,9 @@ const ProjectLayoutEditor = () => {
     setPlotForm({
       display_name: plot.display_name,
       block: plot.block || 'A',
-      price: plot.price.toString(),
-      area: plot.area.toString(),
+      price: plot.price?.toString() || '',
+      area: plot.area?.toString() || '',
+      unit: plot.unit || 'sq.yard',
       status: plot.status,
       amenities: plot.amenities || []
     });
