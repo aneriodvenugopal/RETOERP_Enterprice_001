@@ -342,12 +342,14 @@ const ProjectDetail = () => {
                         <CardContent className="p-4">
                           <div className="flex items-start justify-between mb-3">
                             <h4 className="font-bold text-lg text-ocean-primary">{property.property_number}</h4>
-                            {getStatusBadge(property.status_id)}
+                            <div className="flex items-center gap-2">
+                              {getStatusBadge(property.status_id)}
+                            </div>
                           </div>
                           <div className="space-y-2 text-sm text-gray-700">
                             <div className="flex items-center gap-2">
                               <span className="font-semibold">Area:</span>
-                              <span>{property.area} sq ft</span>
+                              <span>{property.area} {property.unit || 'sq.yard'}</span>
                             </div>
                             <div className="flex items-center gap-2">
                               <span className="font-semibold">Price:</span>
@@ -359,6 +361,31 @@ const ProjectDetail = () => {
                                 <span>{property.facing}</span>
                               </div>
                             )}
+                            {property.block && (
+                              <div className="flex items-center gap-2">
+                                <span className="font-semibold">Block:</span>
+                                <span>{property.block}</span>
+                              </div>
+                            )}
+                          </div>
+                          {/* Edit button - Only for Available properties */}
+                          <div className="mt-3 pt-3 border-t border-gray-100">
+                            {canEditProperty(property) ? (
+                              <Button 
+                                size="sm" 
+                                variant="outline" 
+                                className="w-full text-blue-600 border-blue-200 hover:bg-blue-50"
+                                onClick={() => handleEditProperty(property)}
+                              >
+                                <Edit2 className="w-3 h-3 mr-2" />
+                                Edit Details
+                              </Button>
+                            ) : (
+                              <div className="flex items-center justify-center gap-2 text-xs text-gray-400 py-1">
+                                <Lock className="w-3 h-3" />
+                                <span>Locked (Booked/Sold)</span>
+                              </div>
+                            )}
                           </div>
                         </CardContent>
                       </Card>
@@ -367,12 +394,26 @@ const ProjectDetail = () => {
                         <div className="flex items-center gap-6">
                           <div className="font-bold text-lg text-ocean-primary">{property.property_number}</div>
                           <div className="text-sm text-gray-600">
-                            <span className="font-semibold">Area:</span> {property.area} sq ft
+                            <span className="font-semibold">Area:</span> {property.area} {property.unit || 'sq.yard'}
                           </div>
                           <div className="text-sm font-bold text-green-600">₹{(property.price / 100000).toFixed(2)}L</div>
                           {property.facing && <div className="text-sm text-gray-600"><span className="font-semibold">Facing:</span> {property.facing}</div>}
                         </div>
-                        {getStatusBadge(property.status_id)}
+                        <div className="flex items-center gap-3">
+                          {canEditProperty(property) ? (
+                            <Button 
+                              size="sm" 
+                              variant="ghost" 
+                              className="text-blue-600 hover:bg-blue-50"
+                              onClick={() => handleEditProperty(property)}
+                            >
+                              <Edit2 className="w-4 h-4" />
+                            </Button>
+                          ) : (
+                            <Lock className="w-4 h-4 text-gray-300" title="Locked - Booked/Sold" />
+                          )}
+                          {getStatusBadge(property.status_id)}
+                        </div>
                       </div>
                     )
                   ))}
