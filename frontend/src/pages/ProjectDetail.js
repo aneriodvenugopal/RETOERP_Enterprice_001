@@ -194,8 +194,12 @@ const ProjectDetail = () => {
   };
 
   const canEditProperty = (property) => {
+    // If status_id is null/undefined, treat as available (editable)
+    if (!property.status_id) return true;
+    
     const status = propertyStatuses.find(s => s.id === property.status_id);
-    return status?.slug === 'available';
+    // If status not found or is 'available', allow edit
+    return !status || status.slug === 'available';
   };
 
   const getStatusColor = (statusSlug) => {
