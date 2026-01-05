@@ -214,12 +214,16 @@ const ProjectDetail = () => {
   };
 
   const getStatusBadge = (statusId) => {
+    // If no statusId, show as Available
+    if (!statusId) {
+      return <Badge className="bg-green-500">Available</Badge>;
+    }
     const status = propertyStatuses.find(s => s.id === statusId);
     return status ? (
       <Badge className={getStatusColor(status.slug)}>
         {status.name}
       </Badge>
-    ) : null;
+    ) : <Badge className="bg-green-500">Available</Badge>;
   };
 
   if (loading && !project) {
