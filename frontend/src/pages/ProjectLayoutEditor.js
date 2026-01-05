@@ -54,6 +54,7 @@ const ProjectLayoutEditor = () => {
     block: 'A',
     price: '',
     area: '',
+    unit: 'sq.yard',  // Default unit
     status: 'available',
     amenities: []
   });
