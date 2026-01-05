@@ -500,6 +500,117 @@ const ProjectDetail = () => {
           </TabsContent>
         </Tabs>
 
+      {/* Edit Property Dialog - Only non-financial fields */}
+      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-ocean-primary">
+              Edit Property - {editingProperty?.property_number}
+            </DialogTitle>
+            <p className="text-sm text-gray-500 mt-2">
+              ℹ️ Only non-financial fields can be edited. Price is locked.
+            </p>
+          </DialogHeader>
+          <div className="space-y-4 mt-4">
+            <div>
+              <label className="text-sm font-semibold">Property Number</label>
+              <Input
+                value={editForm.property_number}
+                onChange={(e) => setEditForm({...editForm, property_number: e.target.value})}
+                placeholder="Plot 101"
+              />
+            </div>
+            
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-sm font-semibold">Area</label>
+                <Input
+                  type="number"
+                  value={editForm.area}
+                  onChange={(e) => setEditForm({...editForm, area: e.target.value})}
+                  placeholder="150"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-semibold">Unit</label>
+                <select
+                  value={editForm.unit}
+                  onChange={(e) => setEditForm({...editForm, unit: e.target.value})}
+                  className="w-full px-3 py-2 border rounded-lg bg-white"
+                >
+                  <option value="sq.yard">Sq. Yard</option>
+                  <option value="sq.ft">Sq. Feet</option>
+                  <option value="sq.m">Sq. Meter</option>
+                  <option value="cents">Cents</option>
+                  <option value="acres">Acres</option>
+                  <option value="guntha">Guntha</option>
+                </select>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-sm font-semibold">Block</label>
+                <Input
+                  value={editForm.block}
+                  onChange={(e) => setEditForm({...editForm, block: e.target.value})}
+                  placeholder="A"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-semibold">Facing</label>
+                <select
+                  value={editForm.facing}
+                  onChange={(e) => setEditForm({...editForm, facing: e.target.value})}
+                  className="w-full px-3 py-2 border rounded-lg bg-white"
+                >
+                  <option value="">Select Facing</option>
+                  <option value="North">North</option>
+                  <option value="South">South</option>
+                  <option value="East">East</option>
+                  <option value="West">West</option>
+                  <option value="North-East">North-East</option>
+                  <option value="North-West">North-West</option>
+                  <option value="South-East">South-East</option>
+                  <option value="South-West">South-West</option>
+                </select>
+              </div>
+            </div>
+            
+            {/* Price - LOCKED */}
+            <div className="p-3 bg-gray-100 rounded-lg border border-gray-200">
+              <div className="flex items-center gap-2 text-gray-500 mb-1">
+                <Lock className="w-4 h-4" />
+                <label className="text-sm font-semibold">Price (Locked)</label>
+              </div>
+              <p className="text-lg font-bold text-gray-600">
+                ₹{editingProperty?.price?.toLocaleString() || 0}
+              </p>
+              <p className="text-xs text-gray-400 mt-1">
+                Financial data cannot be edited for data integrity
+              </p>
+            </div>
+            
+            <div className="flex gap-2 pt-2">
+              <Button 
+                variant="outline" 
+                className="flex-1"
+                onClick={() => setShowEditDialog(false)}
+              >
+                Cancel
+              </Button>
+              <Button 
+                className="flex-1 bg-gradient-to-r from-ocean-primary to-ocean-secondary text-white"
+                onClick={handleSaveEdit}
+                disabled={loading}
+              >
+                {loading ? 'Saving...' : 'Save Changes'}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {/* Page Info Modal */}
       <PageInfoModal
         title="Project Detail Page"
