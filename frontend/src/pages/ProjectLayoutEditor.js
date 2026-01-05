@@ -388,6 +388,7 @@ const ProjectLayoutEditor = () => {
       block: 'A',
       price: '',
       area: '',
+      unit: 'sq.yard',
       status: 'available',
       amenities: []
     });
