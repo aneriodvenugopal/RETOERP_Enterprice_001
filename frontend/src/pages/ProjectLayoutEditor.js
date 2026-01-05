@@ -1009,14 +1009,31 @@ const ProjectLayoutEditor = () => {
               />
             </div>
             
-            <div>
-              <label className="text-sm font-semibold">Area (sq.ft) *</label>
-              <Input
-                type="number"
-                value={plotForm.area}
-                onChange={(e) => setPlotForm({...plotForm, area: e.target.value})}
-                placeholder="1200"
-              />
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-sm font-semibold">Area *</label>
+                <Input
+                  type="number"
+                  value={plotForm.area}
+                  onChange={(e) => setPlotForm({...plotForm, area: e.target.value})}
+                  placeholder="150"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-semibold">Unit</label>
+                <select
+                  value={plotForm.unit || 'sq.yard'}
+                  onChange={(e) => setPlotForm({...plotForm, unit: e.target.value})}
+                  className="w-full px-3 py-2 border rounded-lg bg-white"
+                >
+                  <option value="sq.yard">Sq. Yard</option>
+                  <option value="sq.ft">Sq. Feet</option>
+                  <option value="sq.m">Sq. Meter</option>
+                  <option value="cents">Cents</option>
+                  <option value="acres">Acres</option>
+                  <option value="guntha">Guntha</option>
+                </select>
+              </div>
             </div>
             
             <div>
