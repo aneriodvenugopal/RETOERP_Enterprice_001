@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { 
   MapPin, Building2, Home, Phone, Mail, User, MessageSquare,
   Check, Clock, AlertCircle, ZoomIn, ZoomOut, Maximize2, Minimize2,
-  IndianRupee, Share2, Image, Video, Heart, CreditCard, X,
+  IndianRupee, Share2, ImageIcon, Video, Heart, CreditCard, X,
   ChevronLeft, ChevronRight, Play, Calendar, FileText
 } from 'lucide-react';
 import { toast } from 'sonner';
