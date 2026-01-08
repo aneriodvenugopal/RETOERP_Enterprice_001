@@ -490,7 +490,7 @@ const PublicLayoutView = () => {
                       <div className="text-center mb-6">
                         <Heart className="w-12 h-12 mx-auto text-pink-500 mb-2" />
                         <h3 className="text-lg font-semibold">Interested in this property?</h3>
-                        <p className="text-gray-500 text-sm">Fill the form below and we'll contact you</p>
+                        <p className="text-gray-500 text-sm">Fill the form below and we&apos;ll contact you</p>
                       </div>
                       
                       <form onSubmit={handleInterestSubmit} className="space-y-4">
