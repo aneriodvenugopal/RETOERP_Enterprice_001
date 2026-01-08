@@ -54,9 +54,24 @@ const PublicLayoutView = () => {
     fetchPublicLayout();
   }, [projectId]);
 
-  // Extract SVG dimensions when URL changes
+  // Extract SVG dimensions when URL changes - with better fallback
   useEffect(() => {
     if (svgUrl) {
+      // Create an image to get actual rendered dimensions
+      const img = new Image();
+      img.onload = () => {
+        // Use the natural dimensions of the loaded image
+        console.log('📐 Public View image dimensions:', { width: img.naturalWidth, height: img.naturalHeight });
+        setSvgDimensions({ width: img.naturalWidth, height: img.naturalHeight });
+      };
+      img.onerror = () => {
+        console.warn('Could not load image, using default dimensions');
+        // Default to common SVG dimensions
+        setSvgDimensions({ width: 1122.6667, height: 793.33331 });
+      };
+      img.src = svgUrl;
+      
+      // Also try to parse SVG viewBox for more accurate dimensions
       fetch(svgUrl)
         .then(res => res.text())
         .then(svgText => {
@@ -67,13 +82,16 @@ const PublicLayoutView = () => {
           if (svgElement) {
             const viewBox = svgElement.getAttribute('viewBox');
             if (viewBox) {
-              const [x, y, width, height] = viewBox.split(' ').map(Number);
-              setSvgDimensions({ width, height });
-              console.log('📐 Public View SVG ViewBox detected:', { width, height });
+              const parts = viewBox.split(/[\s,]+/).map(Number);
+              if (parts.length >= 4) {
+                const [x, y, width, height] = parts;
+                setSvgDimensions({ width, height });
+                console.log('📐 Public View SVG ViewBox detected:', { width, height });
+              }
             }
           }
         })
-        .catch(err => console.warn('Could not read SVG dimensions:', err));
+        .catch(err => console.warn('Could not parse SVG viewBox:', err));
     }
   }, [svgUrl]);
 
