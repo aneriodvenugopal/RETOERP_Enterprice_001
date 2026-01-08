@@ -86,17 +86,26 @@ const PublicLayoutView = () => {
 
   const getStatusColor = (status) => {
     const colors = {
-      available: 'rgba(34, 197, 94, 0.5)',
-      booked: 'rgba(251, 191, 36, 0.5)',
-      sold: 'rgba(239, 68, 68, 0.4)'
+      available: 'rgba(34, 197, 94, 0.5)',  // Green
+      booked: 'rgba(251, 191, 36, 0.5)',    // Yellow
+      blocked: 'rgba(249, 115, 22, 0.5)',   // Orange
+      sold: 'rgba(239, 68, 68, 0.4)'        // Red
     };
     return colors[status] || colors.available;
+  };
+  
+  // Extract plot number from display_name (e.g., "Plot 1" -> "1")
+  const getPlotLabel = (displayName) => {
+    if (!displayName) return '';
+    const match = displayName.match(/Plot\s*(\d+)/i);
+    return match ? match[1] : displayName;
   };
 
   const getStatusBadge = (status) => {
     const config = {
       available: { color: 'bg-green-500', icon: Check, label: 'Available' },
       booked: { color: 'bg-yellow-500', icon: Clock, label: 'Booked' },
+      blocked: { color: 'bg-orange-500', icon: AlertCircle, label: 'Blocked' },
       sold: { color: 'bg-red-500', icon: AlertCircle, label: 'Sold' }
     };
     const { color, icon: Icon, label } = config[status] || config.available;
