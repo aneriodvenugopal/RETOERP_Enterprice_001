@@ -405,7 +405,7 @@ const PublicLayoutView = () => {
                     Details
                   </TabsTrigger>
                   <TabsTrigger value="gallery" className="py-3 px-6 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-cyan-600 data-[state=active]:text-cyan-600">
-                    <Image className="w-4 h-4 mr-2" />
+                    <ImageIcon className="w-4 h-4 mr-2" />
                     Gallery
                   </TabsTrigger>
                   <TabsTrigger value="videos" className="py-3 px-6 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-cyan-600 data-[state=active]:text-cyan-600">
@@ -492,7 +492,7 @@ const PublicLayoutView = () => {
                   {/* Gallery Tab */}
                   <TabsContent value="gallery" className="mt-0">
                     <div className="text-center py-12">
-                      <Image className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+                      <ImageIcon className="w-16 h-16 mx-auto text-gray-300 mb-4" />
                       <h3 className="text-lg font-semibold text-gray-700 mb-2">No Images Available</h3>
                       <p className="text-gray-500">Gallery images will be added soon</p>
                     </div>
