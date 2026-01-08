@@ -118,9 +118,27 @@ const PublicLayoutView = () => {
         
         if (response.data.layout?.svg_url) {
           let fullSvgUrl = response.data.layout.svg_url;
+          
+          // Handle relative URLs
           if (fullSvgUrl.startsWith('/')) {
             fullSvgUrl = `${process.env.REACT_APP_BACKEND_URL}${fullSvgUrl}`;
+          } else {
+            // If the URL points to a different domain, replace with current backend
+            // This handles cases where the database has old domain references
+            try {
+              const urlObj = new URL(fullSvgUrl);
+              const currentBackend = new URL(process.env.REACT_APP_BACKEND_URL);
+              if (urlObj.hostname !== currentBackend.hostname) {
+                // Replace the domain with current backend domain
+                fullSvgUrl = `${process.env.REACT_APP_BACKEND_URL}${urlObj.pathname}`;
+                console.log('📷 Corrected SVG URL domain:', fullSvgUrl);
+              }
+            } catch (e) {
+              // If URL parsing fails, use as-is
+              console.warn('Could not parse SVG URL:', e);
+            }
           }
+          
           setSvgUrl(fullSvgUrl);
         }
       }
