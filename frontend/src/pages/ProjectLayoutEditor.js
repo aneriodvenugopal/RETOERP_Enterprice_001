@@ -913,45 +913,28 @@ const ProjectLayoutEditor = () => {
                               />
                             )}
                             
-                            {/* Map-style pins instead of red circles */}
+                            {/* Small circular pins for marking points */}
                             {currentPoints.map((point, idx) => (
                               <g 
                                 key={idx} 
                                 style={{ cursor: 'pointer' }}
                                 onClick={(e) => handlePointClick(e, idx)}
                               >
-                                {/* Pin drop shadow */}
-                                <ellipse
-                                  cx={point.x}
-                                  cy={point.y + 2}
-                                  rx="4"
-                                  ry="2"
-                                  fill="rgba(0,0,0,0.3)"
-                                />
-                                {/* Pin body - teardrop shape */}
-                                <path
-                                  d={`M ${point.x} ${point.y - 24} 
-                                      C ${point.x - 8} ${point.y - 24} ${point.x - 10} ${point.y - 16} ${point.x - 10} ${point.y - 12}
-                                      C ${point.x - 10} ${point.y - 6} ${point.x - 6} ${point.y - 2} ${point.x} ${point.y}
-                                      C ${point.x + 6} ${point.y - 2} ${point.x + 10} ${point.y - 6} ${point.x + 10} ${point.y - 12}
-                                      C ${point.x + 10} ${point.y - 16} ${point.x + 8} ${point.y - 24} ${point.x} ${point.y - 24} Z`}
-                                  fill="#0ea5e9"
-                                  stroke="#0369a1"
-                                  strokeWidth="1"
-                                />
-                                {/* Inner circle of pin */}
+                                {/* Small pin circle */}
                                 <circle
                                   cx={point.x}
-                                  cy={point.y - 14}
-                                  r="4"
-                                  fill="#ffffff"
+                                  cy={point.y}
+                                  r="5"
+                                  fill="#0ea5e9"
+                                  stroke="#0369a1"
+                                  strokeWidth="1.5"
                                 />
-                                {/* Pin number label */}
+                                {/* Pin number label - small */}
                                 <text
                                   x={point.x}
-                                  y={point.y - 12}
-                                  fill="#0369a1"
-                                  fontSize="8"
+                                  y={point.y + 1}
+                                  fill="#ffffff"
+                                  fontSize="6"
                                   fontWeight="bold"
                                   textAnchor="middle"
                                   dominantBaseline="middle"
