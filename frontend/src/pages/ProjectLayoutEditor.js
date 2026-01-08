@@ -131,6 +131,18 @@ const ProjectLayoutEditor = () => {
             let fullSvgUrl = layout.svg_url;
             if (layout.svg_url.startsWith('/')) {
               fullSvgUrl = `${process.env.REACT_APP_BACKEND_URL}${layout.svg_url}`;
+            } else {
+              // If the URL points to a different domain, replace with current backend
+              try {
+                const urlObj = new URL(fullSvgUrl);
+                const currentBackend = new URL(process.env.REACT_APP_BACKEND_URL);
+                if (urlObj.hostname !== currentBackend.hostname) {
+                  fullSvgUrl = `${process.env.REACT_APP_BACKEND_URL}${urlObj.pathname}`;
+                  console.log('📷 Corrected SVG URL domain:', fullSvgUrl);
+                }
+              } catch (e) {
+                console.warn('Could not parse SVG URL:', e);
+              }
             }
             setSvgUrl(fullSvgUrl);
             setSvgFileInfo({ file_url: fullSvgUrl });
