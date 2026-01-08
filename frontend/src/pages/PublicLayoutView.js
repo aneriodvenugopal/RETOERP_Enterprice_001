@@ -333,7 +333,7 @@ const PublicLayoutView = () => {
 
       {/* Bottom Stats Bar */}
       <div className="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-black/80 to-transparent">
-        <div className="flex items-center justify-center gap-8 px-6 py-4">
+        <div className="flex items-center justify-center gap-6 px-6 py-4 flex-wrap">
           <div className="flex items-center gap-3 bg-green-500/20 backdrop-blur px-4 py-2 rounded-full border border-green-500/30">
             <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse"></div>
             <span className="text-green-300 font-medium">{availablePlots.length} Available</span>
@@ -341,6 +341,10 @@ const PublicLayoutView = () => {
           <div className="flex items-center gap-3 bg-yellow-500/20 backdrop-blur px-4 py-2 rounded-full border border-yellow-500/30">
             <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
             <span className="text-yellow-300 font-medium">{bookedPlots.length} Booked</span>
+          </div>
+          <div className="flex items-center gap-3 bg-orange-500/20 backdrop-blur px-4 py-2 rounded-full border border-orange-500/30">
+            <div className="w-3 h-3 rounded-full bg-orange-500"></div>
+            <span className="text-orange-300 font-medium">{blockedPlots.length} Blocked</span>
           </div>
           <div className="flex items-center gap-3 bg-red-500/20 backdrop-blur px-4 py-2 rounded-full border border-red-500/30">
             <div className="w-3 h-3 rounded-full bg-red-500"></div>
