@@ -867,35 +867,25 @@ const ProjectLayoutEditor = () => {
                         {/* Render saved plots */}
                         {plots.map((plot) => (
                           <g key={plot.id} style={{ cursor: 'pointer' }}>
-                            {/* Plot polygon with better visibility */}
+                            {/* Plot polygon with status color */}
                             <polygon
                               points={getPolygonPoints(plot.coordinates)}
                               fill={getStatusColor(plot.status)}
                               stroke="#0891b2"
                               strokeWidth="2"
                             />
-                            {/* Plot label background for better readability */}
-                            <rect
-                              x={plot.coordinates.reduce((sum, c) => sum + c.x, 0) / plot.coordinates.length - 30}
-                              y={plot.coordinates.reduce((sum, c) => sum + c.y, 0) / plot.coordinates.length - 12}
-                              width="60"
-                              height="24"
-                              rx="4"
-                              fill="rgba(255,255,255,0.9)"
-                              stroke="#0891b2"
-                              strokeWidth="1"
-                            />
-                            {/* Plot label text - always visible */}
+                            {/* Plot number label - small text inside the plot, no background box */}
                             <text
                               x={plot.coordinates.reduce((sum, c) => sum + c.x, 0) / plot.coordinates.length}
                               y={plot.coordinates.reduce((sum, c) => sum + c.y, 0) / plot.coordinates.length}
                               textAnchor="middle"
                               dominantBaseline="middle"
-                              fill="#0891b2"
-                              fontSize="12"
+                              fill="#1e293b"
+                              fontSize="11"
                               fontWeight="bold"
+                              style={{ textShadow: '0 0 3px white, 0 0 3px white' }}
                             >
-                              {plot.display_name}
+                              {getPlotLabel(plot.display_name)}
                             </text>
                           </g>
                         ))}
