@@ -204,10 +204,10 @@ const ProjectDetail = () => {
 
   const getStatusColor = (statusSlug) => {
     const colors = {
-      available: 'bg-green-500',
-      blocked: 'bg-orange-500',
-      booked: 'bg-blue-500',
-      sold: 'bg-gray-500',
+      available: 'bg-green-500',   // Green
+      booked: 'bg-yellow-500',     // Yellow
+      blocked: 'bg-orange-500',    // Orange
+      sold: 'bg-red-500',          // Red
       resale: 'bg-purple-500',
     };
     return colors[statusSlug] || 'bg-gray-500';
