@@ -47,7 +47,7 @@
         tenantId: tenantId,
         position: position,
         primaryColor: primaryColor,
-        backendUrl: 'https://retoerp-1.preview.emergentagent.com/api'
+        backendUrl: 'https://property-saas-4.preview.emergentagent.com/api'
       };
       
       // Load chat widget bundle

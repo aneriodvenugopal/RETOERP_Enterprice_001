@@ -184,7 +184,7 @@
 
    **మొదటి referrer:**
    ```
-   https://retoerp-1.preview.emergentagent.com/*
+   https://property-saas-4.preview.emergentagent.com/*
    ```
    - Paste చేసి Enter నొక్కండి
 

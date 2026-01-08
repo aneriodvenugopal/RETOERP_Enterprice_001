@@ -58,7 +58,7 @@ Backend లో Google OAuth credentials configure చేయలేదు.
    - Name: RETOERP Calendar Integration
    - **Authorized redirect URIs:**
      ```
-     https://retoerp-1.preview.emergentagent.com/api/auth/google/callback
+     https://property-saas-4.preview.emergentagent.com/api/auth/google/callback
      ```
    - Click **CREATE**
 
@@ -108,7 +108,7 @@ Backend లో Google OAuth credentials configure చేయలేదు.
    - Name: RETOERP Calendar Integration
    - **Authorized redirect URIs:**
      ```
-     https://retoerp-1.preview.emergentagent.com/api/auth/google/callback
+     https://property-saas-4.preview.emergentagent.com/api/auth/google/callback
      ```
    - **CREATE** click చేయండి
 
@@ -205,12 +205,12 @@ Backend లో Google OAuth credentials configure చేయలేదు.
 #### **English:**
 
 1. **Login to RETOERP:**
-   - Go to: https://retoerp-1.preview.emergentagent.com/login
+   - Go to: https://property-saas-4.preview.emergentagent.com/login
    - Login with your credentials
 
 2. **Go to Calendar Page:**
    - Navigate to: `/calendar`
-   - Or type: `https://retoerp-1.preview.emergentagent.com/calendar`
+   - Or type: `https://property-saas-4.preview.emergentagent.com/calendar`
 
 3. **Connect Google:**
    - Click "Connect Google" button
@@ -229,12 +229,12 @@ Backend లో Google OAuth credentials configure చేయలేదు.
 #### **తెలుగు:**
 
 1. **RETOERP కి Login అవ్వండి:**
-   - వెళ్ళండి: https://retoerp-1.preview.emergentagent.com/login
+   - వెళ్ళండి: https://property-saas-4.preview.emergentagent.com/login
    - మీ credentials తో login అవ్వండి
 
 2. **Calendar Page కి వెళ్ళండి:**
    - `/calendar` కి navigate చేయండి
-   - లేదా type చేయండి: `https://retoerp-1.preview.emergentagent.com/calendar`
+   - లేదా type చేయండి: `https://property-saas-4.preview.emergentagent.com/calendar`
 
 3. **Google Connect చేయండి:**
    - "Connect Google" button click చేయండి
@@ -313,7 +313,7 @@ Backend లో Google OAuth credentials configure చేయలేదు.
 - Edit OAuth client
 - Make sure redirect URI is exactly:
   ```
-  https://retoerp-1.preview.emergentagent.com/api/auth/google/callback
+  https://property-saas-4.preview.emergentagent.com/api/auth/google/callback
   ```
 - No spaces, exact match required
 
