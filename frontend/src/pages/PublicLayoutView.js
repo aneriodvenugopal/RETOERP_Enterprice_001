@@ -27,6 +27,7 @@ const PublicLayoutView = () => {
   const [svgUrl, setSvgUrl] = useState(null);
   const [isFullScreen, setIsFullScreen] = useState(true);
   const [activeTab, setActiveTab] = useState('details');
+  const [svgDimensions, setSvgDimensions] = useState({ width: 1200, height: 800 });
   const containerRef = useRef(null);
   
   // Interest form state
@@ -52,6 +53,29 @@ const PublicLayoutView = () => {
   useEffect(() => {
     fetchPublicLayout();
   }, [projectId]);
+
+  // Extract SVG dimensions when URL changes
+  useEffect(() => {
+    if (svgUrl) {
+      fetch(svgUrl)
+        .then(res => res.text())
+        .then(svgText => {
+          const parser = new DOMParser();
+          const svgDoc = parser.parseFromString(svgText, 'image/svg+xml');
+          const svgElement = svgDoc.querySelector('svg');
+          
+          if (svgElement) {
+            const viewBox = svgElement.getAttribute('viewBox');
+            if (viewBox) {
+              const [x, y, width, height] = viewBox.split(' ').map(Number);
+              setSvgDimensions({ width, height });
+              console.log('📐 Public View SVG ViewBox detected:', { width, height });
+            }
+          }
+        })
+        .catch(err => console.warn('Could not read SVG dimensions:', err));
+    }
+  }, [svgUrl]);
 
   const fetchPublicLayout = async () => {
     setLoading(true);
