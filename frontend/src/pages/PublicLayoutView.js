@@ -222,6 +222,7 @@ const PublicLayoutView = () => {
   const plots = layout?.plots || [];
   const availablePlots = plots.filter(p => p.status === 'available');
   const bookedPlots = plots.filter(p => p.status === 'booked');
+  const blockedPlots = plots.filter(p => p.status === 'blocked');
   const soldPlots = plots.filter(p => p.status === 'sold');
 
   return (
