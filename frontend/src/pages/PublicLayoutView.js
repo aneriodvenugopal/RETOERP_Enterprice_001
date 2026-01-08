@@ -283,43 +283,39 @@ const PublicLayoutView = () => {
               
               <svg
                 className="absolute inset-0 w-full h-full"
-                viewBox="0 0 1200 800"
+                viewBox={`0 0 ${svgDimensions.width} ${svgDimensions.height}`}
                 preserveAspectRatio="xMidYMid meet"
+                style={{ pointerEvents: 'all' }}
               >
                 {plots.map((plot) => (
                   <g 
                     key={plot.id} 
-                    className="cursor-pointer transition-all duration-200"
-                    onClick={() => handlePlotClick(plot)}
+                    className="cursor-pointer"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handlePlotClick(plot);
+                    }}
+                    style={{ cursor: 'pointer' }}
                   >
                     <polygon
                       points={getPolygonPoints(plot.coordinates)}
                       fill={getStatusColor(plot.status)}
                       stroke={selectedPlot?.id === plot.id ? '#06b6d4' : '#64748b'}
                       strokeWidth={selectedPlot?.id === plot.id ? '4' : '2'}
-                      className="transition-all duration-200 hover:opacity-80"
+                      style={{ cursor: 'pointer' }}
                     />
-                    <rect
-                      x={plot.coordinates.reduce((sum, c) => sum + c.x, 0) / plot.coordinates.length - 35}
-                      y={plot.coordinates.reduce((sum, c) => sum + c.y, 0) / plot.coordinates.length - 14}
-                      width="70"
-                      height="28"
-                      rx="6"
-                      fill="rgba(255,255,255,0.95)"
-                      stroke={selectedPlot?.id === plot.id ? '#06b6d4' : '#94a3b8'}
-                      strokeWidth="2"
-                      className="drop-shadow-lg"
-                    />
+                    {/* Plot number label - just the number inside the plot */}
                     <text
                       x={plot.coordinates.reduce((sum, c) => sum + c.x, 0) / plot.coordinates.length}
                       y={plot.coordinates.reduce((sum, c) => sum + c.y, 0) / plot.coordinates.length}
                       textAnchor="middle"
                       dominantBaseline="middle"
-                      fill={selectedPlot?.id === plot.id ? '#06b6d4' : '#334155'}
-                      fontSize="12"
+                      fill="#1e293b"
+                      fontSize="11"
                       fontWeight="bold"
+                      style={{ textShadow: '0 0 3px white, 0 0 3px white', pointerEvents: 'none' }}
                     >
-                      {plot.display_name}
+                      {getPlotLabel(plot.display_name)}
                     </text>
                   </g>
                 ))}
