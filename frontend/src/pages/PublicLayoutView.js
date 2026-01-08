@@ -279,24 +279,29 @@ const PublicLayoutView = () => {
           }}
         >
           {svgUrl ? (
-            <div className="relative inline-block shadow-2xl rounded-xl overflow-hidden border-4 border-white/20">
-              <img src={svgUrl} alt="Layout" className="max-w-none" style={{ minWidth: '800px' }} />
+            <div style={{ position: 'relative', display: 'inline-block' }} className="shadow-2xl rounded-xl overflow-hidden border-4 border-white/20">
+              <img src={svgUrl} alt="Layout" style={{ display: 'block', maxWidth: '100%' }} />
               
               <svg
-                className="absolute inset-0 w-full h-full"
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '100%',
+                  pointerEvents: 'all'
+                }}
                 viewBox={`0 0 ${svgDimensions.width} ${svgDimensions.height}`}
                 preserveAspectRatio="xMidYMid meet"
-                style={{ pointerEvents: 'all' }}
               >
                 {plots.map((plot) => (
                   <g 
                     key={plot.id} 
-                    className="cursor-pointer"
+                    style={{ cursor: 'pointer' }}
                     onClick={(e) => {
                       e.stopPropagation();
                       handlePlotClick(plot);
                     }}
-                    style={{ cursor: 'pointer' }}
                   >
                     <polygon
                       points={getPolygonPoints(plot.coordinates)}
