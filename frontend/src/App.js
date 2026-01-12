@@ -189,6 +189,9 @@ function App() {
                 {/* SaaS Landing Page - Public */}
                 <Route path="/saas" element={<LandingPage />} />
                 
+                {/* Tenant Public Page - Custom branded pages */}
+                <Route path="/t/:tenantId" element={<TenantPublicPage />} />
+                
                 {/* Marketing Routes - Public */}
                 <Route path="/" element={<Home />} />
                 <Route path="/pricing" element={<Pricing />} />
