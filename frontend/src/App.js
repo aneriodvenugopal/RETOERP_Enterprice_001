@@ -132,6 +132,10 @@ import PaymentSchemes from "./pages/schemes/PaymentSchemes";
 import StaffHierarchy from "./pages/staff/StaffHierarchy";
 import AgentPayouts from "./pages/payouts/AgentPayouts";
 
+// Document & Greetings Pages
+import DocumentLocker from "./pages/DocumentLocker";
+import FestivalGreetings from "./pages/FestivalGreetings";
+
 // PWA Components
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
 import AvatarAssistant from "./components/AvatarAssistant";
