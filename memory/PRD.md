@@ -75,16 +75,25 @@ Build a comprehensive Real Estate ERP (RETOERP) SaaS platform for the Indian rea
 - [x] Email sharing (manual, no tracking)
 - **NO AI, NO automation, NO smart features**
 
-### Phase 1.5: Festival Greetings System (NEW - Jan 12, 2026)
-- [x] Simple ON/OFF toggle (Admin only)
-- [x] Company name for message
-- [x] Fixed message format: "Warm wishes on [Festival] 🇮🇳 – {Company Name}"
-- [x] ONLY Republic Day (Jan 26) & Independence Day (Aug 15)
-- [x] Recipients: Customers only, NO leads
-- [x] Manual send trigger
-- [x] Send history/audit log
-- [x] SMS service (MOCKED - logs to DB)
-- **NO marketing, NO tracking, NO analytics**
+### Phase 1.6: Site Visit Management (NEW - Jan 12, 2026)
+- [x] Schedule visits with project, visitor, date/time, assigned staff
+- [x] Visit workflow: scheduled -> confirmed -> in_progress -> completed/cancelled
+- [x] Visit outcomes: interested, not_interested, needs_followup, booking_initiated, negotiating
+- [x] View today's visits and upcoming visits
+- [x] Filter by project, status, date range
+- [x] Statistics: by status, by outcome, conversion rate
+- [x] No-show tracking
+- [x] Reschedule support (creates new visit)
+
+### Phase 1.7: Booking Queue System (NEW - Jan 12, 2026)
+- [x] Add customers to waitlist for properties
+- [x] Queue position management (priority-based)
+- [x] Queue workflow: waiting -> notified -> converted/expired/skipped
+- [x] Notify customer when property available (48-hour deadline)
+- [x] Record customer response (interested/not interested)
+- [x] Move up in queue (admin only)
+- [x] Cancel/expire queue entries
+- [x] Statistics: by status, conversion rate, properties with queue
 
 ### Other Features
 - [x] SMS integration (MSG91 - MOCKED)
