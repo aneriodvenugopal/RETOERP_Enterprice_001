@@ -332,24 +332,43 @@ const TenantAdminDashboard = () => {
       const token = localStorage.getItem('token');
       
       // Fetch analytics data
-      const response = await fetch(`${apiUrl}/api/analytics/dashboard`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
+      const [analyticsRes, projectsRes, usersRes] = await Promise.all([
+        fetch(`${apiUrl}/api/analytics/dashboard`, {
+          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+        }),
+        fetch(`${apiUrl}/api/projects`, {
+          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+        }),
+        fetch(`${apiUrl}/api/users`, {
+          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+        })
+      ]);
       
-      if (response.ok) {
-        const data = await response.json();
-        // Data comes in overview object
+      let projectCount = 0, leadCount = 0, bookingCount = 0, teamCount = 0;
+      
+      if (analyticsRes.ok) {
+        const data = await analyticsRes.json();
         const overview = data.overview || data;
-        setStats({
-          projects: overview.total_projects || data.total_projects || 0,
-          leads: overview.total_leads || data.total_leads || 0,
-          bookings: overview.total_bookings || data.total_bookings || 0,
-          team: overview.total_staff || overview.total_users || data.total_staff || data.total_users || 0
-        });
+        leadCount = overview.total_leads || 0;
+        bookingCount = overview.total_bookings || 0;
       }
+      
+      if (projectsRes.ok) {
+        const data = await projectsRes.json();
+        projectCount = data.total || data.projects?.length || 0;
+      }
+      
+      if (usersRes.ok) {
+        const data = await usersRes.json();
+        teamCount = data.total || data.users?.length || 0;
+      }
+      
+      setStats({
+        projects: projectCount,
+        leads: leadCount,
+        bookings: bookingCount,
+        team: teamCount
+      });
     } catch (error) {
       console.error('Failed to fetch dashboard stats:', error);
     } finally {
