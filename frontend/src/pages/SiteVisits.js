@@ -390,6 +390,11 @@ const SiteVisits = () => {
             <Badge className={STATUS_COLORS[visit.status]}>
               {visit.status.replace('_', ' ')}
             </Badge>
+            {visit.google_event_id && (
+              <Badge className="bg-blue-100 text-blue-800" title="Synced to Google Calendar">
+                📅 Calendar
+              </Badge>
+            )}
           </div>
           <div className="flex items-center gap-4 text-sm text-slate-500">
             <span className="flex items-center gap-1">
@@ -408,6 +413,26 @@ const SiteVisits = () => {
         </div>
         {showActions && (
           <div className="flex gap-1">
+            {visit.calendar_link && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => window.open(visit.calendar_link, '_blank')}
+                title="Open in Google Calendar"
+              >
+                <Calendar className="w-4 h-4 text-blue-600" />
+              </Button>
+            )}
+            {!visit.google_event_id && calendarConnected && !['completed', 'cancelled', 'no_show'].includes(visit.status) && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => handleSyncToCalendar(visit.id)}
+                title="Sync to Google Calendar"
+              >
+                <RefreshCw className="w-4 h-4 text-slate-500" />
+              </Button>
+            )}
             <Button
               variant="ghost"
               size="sm"
