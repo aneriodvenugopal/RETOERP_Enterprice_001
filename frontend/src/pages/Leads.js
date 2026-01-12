@@ -376,17 +376,42 @@ const Leads = () => {
         </Dialog>
       </div>
 
-      {/* Stats */}
+      {/* Stats - Clickable Cards */}
       {stats && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <StatCard title="Total Leads" value={stats.total_leads} icon={Users} color="blue" />
-          <StatCard title="Active Leads" value={stats.active_leads} icon={TrendingUp} color="green" />
-          <StatCard title="Converted" value={stats.converted_leads} icon={Star} color="purple" />
-          <StatCard 
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <ClickableStatCard 
+            title="Total Leads" 
+            value={stats.total_leads} 
+            icon={Users} 
+            color="blue"
+            onClick={() => handleFilterClick('all')}
+            subtitle="Click to view all"
+            className={activeFilter === 'all' ? 'ring-2 ring-blue-500' : ''}
+          />
+          <ClickableStatCard 
+            title="Active Leads" 
+            value={stats.active_leads} 
+            icon={TrendingUp} 
+            color="green"
+            onClick={() => handleFilterClick('active')}
+            subtitle="Click to filter"
+            className={activeFilter === 'active' ? 'ring-2 ring-green-500' : ''}
+          />
+          <ClickableStatCard 
+            title="Converted" 
+            value={stats.converted_leads} 
+            icon={Star} 
+            color="purple"
+            onClick={() => handleFilterClick('converted')}
+            subtitle="Click to filter"
+            className={activeFilter === 'converted' ? 'ring-2 ring-purple-500' : ''}
+          />
+          <ClickableStatCard 
             title="Conversion Rate" 
             value={`${stats.conversion_rate.toFixed(1)}%`} 
             icon={TrendingUp} 
-            color="orange" 
+            color="orange"
+            subtitle="Overall performance"
           />
         </div>
       )}
