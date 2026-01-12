@@ -13,7 +13,7 @@ import { Badge } from '@/components/ui/badge';
 import {
   Building2, MapPin, Phone, Mail, Globe, Users, Home,
   CheckCircle, ArrowRight, Star, Calendar, Clock,
-  ChevronRight, Loader2, AlertCircle
+  ChevronRight, Loader2, AlertCircle, FileText
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { SEOHead, generateOrganizationStructuredData, generateBreadcrumbStructuredData } from '../components/SEOHead';
