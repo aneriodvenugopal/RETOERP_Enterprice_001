@@ -184,7 +184,7 @@
 
    **మొదటి referrer:**
    ```
-   https://propmanager-41.preview.emergentagent.com/*
+   https://explain-erp.preview.emergentagent.com/*
    ```
    - Paste చేసి Enter నొక్కండి
 
