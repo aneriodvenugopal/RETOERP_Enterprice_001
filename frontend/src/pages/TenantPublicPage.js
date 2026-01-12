@@ -1,6 +1,7 @@
 /**
  * Tenant Public Page - Custom branded landing page for each tenant
  * Accessible at /t/{tenant_id} or via custom domain
+ * SEO optimized with structured data
  */
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
@@ -15,6 +16,7 @@ import {
   ChevronRight, Loader2, AlertCircle
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { SEOHead, generateOrganizationStructuredData, generateBreadcrumbStructuredData } from '../components/SEOHead';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
