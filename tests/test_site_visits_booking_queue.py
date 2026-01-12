@@ -604,11 +604,14 @@ class TestBookingQueueDuplicateCheck:
     
     def test_prevent_duplicate_queue_entry(self, api_client):
         """Test that same customer cannot be added twice to same property queue"""
+        import time
+        unique_suffix = str(int(time.time() * 1000))[-6:]
+        
         queue_data = {
             "project_id": TEST_PROJECT_ID,
-            "property_id": "TEST-plot-005",
+            "property_id": f"TEST-plot-dup-{unique_suffix}",
             "customer_name": "TEST_Duplicate_Customer",
-            "customer_mobile": "9988005511",
+            "customer_mobile": f"998806{unique_suffix[:4]}",
             "priority": 0
         }
         
