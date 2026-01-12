@@ -426,6 +426,14 @@ function App() {
                 }
               />
               <Route
+                path="/site-visits"
+                element={
+                  <PrivateRoute>
+                    <SiteVisits />
+                  </PrivateRoute>
+                }
+              />
+              <Route
                 path="/vendor-bills"
                 element={
                   <PrivateRoute>
