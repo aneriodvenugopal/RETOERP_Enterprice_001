@@ -54,56 +54,47 @@ const PublicLayoutView = () => {
     fetchPublicLayout();
   }, [projectId]);
 
-  // Extract SVG dimensions when URL changes - with better fallback
+  // Calculate viewBox based on plot coordinates - this ensures plots align correctly
   useEffect(() => {
-    if (svgUrl) {
-      // Default dimensions (matches the SVG from this project)
-      const defaultDimensions = { width: 1122.6667, height: 793.33331 };
+    if (layout?.plots && layout.plots.length > 0) {
+      // Calculate bounding box from all plot coordinates
+      let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
       
-      // Try to fetch SVG and parse viewBox for accurate dimensions
-      // Use credentials: 'omit' and mode for CORS handling
-      fetch(svgUrl, { mode: 'cors', credentials: 'omit' })
-        .then(res => {
-          if (!res.ok) throw new Error('Failed to fetch');
-          return res.text();
-        })
-        .then(svgText => {
-          const parser = new DOMParser();
-          const svgDoc = parser.parseFromString(svgText, 'image/svg+xml');
-          const svgElement = svgDoc.querySelector('svg');
-          
-          if (svgElement) {
-            const viewBox = svgElement.getAttribute('viewBox');
-            if (viewBox) {
-              const parts = viewBox.split(/[\s,]+/).map(Number);
-              if (parts.length >= 4 && !isNaN(parts[2]) && !isNaN(parts[3])) {
-                const [, , width, height] = parts;
-                setSvgDimensions({ width, height });
-                console.log('📐 Public View SVG ViewBox detected:', { width, height });
-                return;
-              }
+      layout.plots.forEach(plot => {
+        if (plot.coordinates && Array.isArray(plot.coordinates)) {
+          plot.coordinates.forEach(coord => {
+            if (typeof coord.x === 'number' && typeof coord.y === 'number') {
+              minX = Math.min(minX, coord.x);
+              minY = Math.min(minY, coord.y);
+              maxX = Math.max(maxX, coord.x);
+              maxY = Math.max(maxY, coord.y);
             }
-            // Try width/height attributes
-            const width = svgElement.getAttribute('width');
-            const height = svgElement.getAttribute('height');
-            if (width && height) {
-              setSvgDimensions({ 
-                width: parseFloat(width), 
-                height: parseFloat(height) 
-              });
-              console.log('📐 Public View SVG dimensions from attributes:', { width, height });
-              return;
-            }
-          }
-          // Fallback to default
-          setSvgDimensions(defaultDimensions);
-        })
-        .catch(err => {
-          console.warn('Could not fetch SVG for dimensions, using defaults:', err.message);
-          setSvgDimensions(defaultDimensions);
+          });
+        }
+      });
+      
+      if (minX !== Infinity && maxX !== -Infinity) {
+        // Add padding around the plots
+        const padding = 100;
+        const width = maxX - minX + (padding * 2);
+        const height = maxY - minY + (padding * 2);
+        
+        // Store both dimensions and offset for viewBox
+        setSvgDimensions({ 
+          width, 
+          height,
+          minX: minX - padding,
+          minY: minY - padding
         });
+        console.log('📐 Public View: ViewBox calculated from plots:', { 
+          minX: minX - padding, 
+          minY: minY - padding, 
+          width, 
+          height 
+        });
+      }
     }
-  }, [svgUrl]);
+  }, [layout]);
 
   const fetchPublicLayout = async () => {
     setLoading(true);
