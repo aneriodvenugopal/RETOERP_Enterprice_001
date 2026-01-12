@@ -183,6 +183,7 @@ function ConditionalAssistant() {
 
 function App() {
   return (
+    <HelmetProvider>
     <AuthProvider>
       <CurrencyProvider>
         <LanguageProvider>
