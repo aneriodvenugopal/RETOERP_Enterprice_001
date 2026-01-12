@@ -511,7 +511,7 @@ const TenantPublicPage = () => {
                 <img src={tenant.logo_url} alt={tenant.company_name} className="h-8 w-auto brightness-0 invert" />
               ) : (
                 <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
-                  <Building2 className="w-5 h-5" />
+                  <FileText className="w-5 h-5" />
                 </div>
               )}
               <span className="font-semibold">{tenant.company_name}</span>
