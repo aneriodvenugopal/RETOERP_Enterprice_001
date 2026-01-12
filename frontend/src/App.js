@@ -6,6 +6,7 @@ import {
   Navigate,
   useLocation,
 } from "react-router-dom";
+import { HelmetProvider } from "react-helmet-async";
 import { Toaster } from "sonner";
 import "./App.css";
 import "./index.css";
