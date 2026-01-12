@@ -238,6 +238,7 @@ const ProjectPublicPage = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <SEOHead title="Loading Project | ExlainERP" />
         <div className="text-center">
           <Loader2 className="w-12 h-12 animate-spin text-blue-600 mx-auto mb-4" />
           <p className="text-gray-600">Loading project details...</p>
@@ -249,6 +250,7 @@ const ProjectPublicPage = () => {
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <SEOHead title="Project Not Found | ExlainERP" noindex={true} />
         <Card className="max-w-md w-full mx-4">
           <CardContent className="p-8 text-center">
             <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
