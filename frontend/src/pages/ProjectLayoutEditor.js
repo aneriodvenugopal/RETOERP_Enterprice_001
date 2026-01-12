@@ -924,7 +924,7 @@ const ProjectLayoutEditor = () => {
                           height: '100%',
                           cursor: 'crosshair'
                         }}
-                        viewBox={`0 0 ${svgDimensions.width} ${svgDimensions.height}`}
+                        viewBox={`${svgDimensions.minX || 0} ${svgDimensions.minY || 0} ${svgDimensions.width} ${svgDimensions.height}`}
                         preserveAspectRatio="xMidYMid meet"
                       >
                         {/* Render saved plots */}
