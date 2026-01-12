@@ -106,6 +106,20 @@ Build a comprehensive Real Estate ERP (RETOERP) SaaS platform for the Indian rea
 - [x] Convert lead to customer
 - [x] Statistics: total, by status, NRI count, wallet balance
 
+### Phase 2.2: Resale/Release System (NEW - Jan 12, 2026)
+- [x] **Property Release** - Return properties to inventory
+  - Release reasons: booking_cancelled, payment_default, customer_request, legal_issue
+  - Track refund/deduction amounts
+  - Notify booking queue when property available
+- [x] **Property Resale** - Customer-initiated property sales
+  - Approval workflow: pending_approval -> approved -> listed -> sold
+  - Commission tracking (configurable percentage)
+  - Seller information and pricing management
+- [x] **Inquiry Management** - Track buyer inquiries on resale properties
+- [x] **Auto-notifications** - Notify interested parties in booking queue
+- [x] Statistics: by status, total commission earned
+- [x] Full CRUD APIs with authentication
+
 ### Other Features
 - [x] SMS integration (MSG91 - MOCKED)
 - [x] AI Agents integration (OpenAI via Emergent LLM Key)
@@ -127,7 +141,7 @@ Build a comprehensive Real Estate ERP (RETOERP) SaaS platform for the Indian rea
 
 ### P2 - Medium Priority
 - [x] Customer Database enhancement - Full CRUD, search, wallet, purchase history
-- [ ] Resale/Release System with auto-marketing
+- [x] Resale/Release System with auto-notifications
 - [ ] Strict EMI Payment module
 - [ ] Receipt Generation
 - [ ] Vendor Management module
@@ -186,6 +200,7 @@ Build a comprehensive Real Estate ERP (RETOERP) SaaS platform for the Indian rea
 - `/app/test_reports/iteration_1.json` - Layout features
 - `/app/test_reports/iteration_2.json` - Document Locker, Festival Greetings
 - `/app/test_reports/iteration_3.json` - Site Visits, Booking Queue (30/30 tests passed)
+- `/app/test_reports/iteration_4.json` - Resale/Release System (17/17 tests passed)
 
 ## New Routes Added (Jan 12, 2026)
 - `/document-locker` - Document storage with physical location mapping
@@ -193,3 +208,4 @@ Build a comprehensive Real Estate ERP (RETOERP) SaaS platform for the Indian rea
 - `/site-visits` - Site visit management
 - `/booking-queue` - Property waitlist management
 - `/customers-management` - Customer database with wallet
+- `/resale-release` - Resale/Release management system
