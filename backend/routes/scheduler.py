@@ -80,6 +80,26 @@ async def run_festival_greetings(request: Request, background_tasks: BackgroundT
     }
 
 
+@router.post("/run/site-visit-reminders")
+async def run_site_visit_reminders(request: Request):
+    """
+    Manually trigger site visit reminders.
+    Sends SMS/WhatsApp/Email reminders for visits scheduled tomorrow.
+    """
+    db = get_db(request)
+    
+    scheduler = SchedulerService(db)
+    
+    # Run synchronously to return results
+    results = await scheduler.send_site_visit_reminders()
+    
+    return {
+        "message": "Site visit reminders task completed",
+        "status": "completed",
+        "results": results
+    }
+
+
 @router.post("/run/all")
 async def run_all_tasks(request: Request):
     """Run all scheduled tasks (synchronous for testing)"""
