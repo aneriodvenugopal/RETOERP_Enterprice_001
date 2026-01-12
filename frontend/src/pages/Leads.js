@@ -418,48 +418,80 @@ const Leads = () => {
 
       {/* Leads Table */}
       <Card>
-        <CardHeader>
-          <CardTitle>All Leads</CardTitle>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle>
+            {activeFilter === 'all' ? 'All Leads' : activeFilter === 'active' ? 'Active Leads' : 'Converted Leads'}
+            <span className="ml-2 text-sm font-normal text-gray-500">
+              ({filteredLeads.length} {filteredLeads.length === 1 ? 'lead' : 'leads'})
+            </span>
+          </CardTitle>
+          {activeFilter !== 'all' && (
+            <Button variant="ghost" size="sm" onClick={() => setActiveFilter('all')}>
+              Clear Filter
+            </Button>
+          )}
         </CardHeader>
         <CardContent>
-          {leads.length === 0 ? (
+          {filteredLeads.length === 0 ? (
             <div className="text-center py-12">
               <Users className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-              <h3 className="text-lg font-semibold mb-2">No leads yet</h3>
-              <p className="text-gray-500 mb-4">Start capturing leads to grow your business</p>
-              <Button onClick={() => setShowCreateDialog(true)}>
-                <Plus className="w-4 h-4 mr-2" />
-                Create Lead
-              </Button>
+              <h3 className="text-lg font-semibold mb-2">
+                {leads.length === 0 ? 'No leads yet' : 'No leads match filter'}
+              </h3>
+              <p className="text-gray-500 mb-4">
+                {leads.length === 0 ? 'Start capturing leads to grow your business' : 'Try changing the filter above'}
+              </p>
+              {leads.length === 0 && (
+                <Button onClick={() => setShowCreateDialog(true)}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Create Lead
+                </Button>
+              )}
             </div>
           ) : (
             <div className="space-y-2">
-              {leads.map((lead) => (
+              {filteredLeads.map((lead) => (
                 <div
                   key={lead.id}
-                  className="flex items-center justify-between p-4 border rounded hover:bg-gray-50 cursor-pointer"
+                  className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 hover:border-gray-300 cursor-pointer transition-all duration-200 group"
                   onClick={() => handleViewLeadDetails(lead)}
+                  data-testid={`lead-item-${lead.id}`}
                 >
                   <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white font-semibold">
+                      {lead.name?.charAt(0)?.toUpperCase() || 'L'}
+                    </div>
                     <div>
-                      <div className="font-semibold">{lead.name}</div>
+                      <div className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
+                        {lead.name}
+                      </div>
                       <div className="flex items-center gap-4 text-sm text-gray-600">
-                        <span className="flex items-center gap-1">
+                        <a 
+                          href={`tel:${lead.phone}`} 
+                          className="flex items-center gap-1 hover:text-blue-600 transition-colors"
+                          onClick={(e) => e.stopPropagation()}
+                        >
                           <Phone className="w-3 h-3" />
                           {lead.phone}
-                        </span>
+                          <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-50" />
+                        </a>
                         {lead.email && (
-                          <span className="flex items-center gap-1">
+                          <a 
+                            href={`mailto:${lead.email}`} 
+                            className="flex items-center gap-1 hover:text-blue-600 transition-colors"
+                            onClick={(e) => e.stopPropagation()}
+                          >
                             <Mail className="w-3 h-3" />
                             {lead.email}
-                          </span>
+                            <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-50" />
+                          </a>
                         )}
                       </div>
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
                     {lead.rating && (
-                      <div className="flex gap-1">
+                      <div className="flex gap-0.5">
                         {Array.from({ length: lead.rating }).map((_, i) => (
                           <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
                         ))}
