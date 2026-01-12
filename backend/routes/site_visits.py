@@ -23,6 +23,85 @@ def get_db(request: Request):
     return request.app.state.db
 
 
+async def sync_visit_to_calendar(db, visit: dict, user: dict, project: dict):
+    """
+    Sync a site visit to Google Calendar if user has Google connected.
+    Returns calendar event details or None if not synced.
+    """
+    try:
+        # Check if user has Google Calendar connected
+        user_full = await db.users.find_one({"id": user["user_id"]}, {"_id": 0})
+        
+        if not user_full or not user_full.get("google_connected") or not user_full.get("google_tokens"):
+            return None
+        
+        # Parse date and time
+        date_str = visit.get("scheduled_date")
+        time_str = visit.get("scheduled_time", "10:00")
+        duration = visit.get("duration_minutes", 60)
+        
+        # Create datetime objects
+        start_time = datetime.fromisoformat(f"{date_str}T{time_str}:00")
+        end_time = start_time + timedelta(minutes=duration)
+        
+        # Build event details
+        summary = f"🏠 Site Visit - {visit.get('visitor_name', 'Customer')}"
+        
+        description = f"""
+Site Visit Details
+==================
+Visitor: {visit.get('visitor_name', 'N/A')}
+Phone: {visit.get('visitor_mobile', 'N/A')}
+Email: {visit.get('visitor_email', 'N/A')}
+
+Project: {project.get('name', 'N/A')}
+Duration: {duration} minutes
+
+Notes: {visit.get('staff_notes', 'No additional notes')}
+
+---
+Created via RETOERP Site Visit Management
+Visit ID: {visit.get('id')}
+        """.strip()
+        
+        # Get project address for location
+        location = project.get("address", project.get("name"))
+        
+        # Attendees - add visitor email if available
+        attendees = []
+        if visit.get("visitor_email"):
+            attendees.append(visit["visitor_email"])
+        
+        # Create calendar event
+        result = await GoogleCalendarService.create_calendar_event(
+            google_tokens=user_full["google_tokens"],
+            summary=summary,
+            description=description,
+            start_time=start_time,
+            end_time=end_time,
+            attendees=attendees if attendees else None,
+            location=location,
+            add_video_conference=False  # Site visits are in-person
+        )
+        
+        # Update tokens if refreshed
+        if result.get("updated_tokens"):
+            await db.users.update_one(
+                {"id": user["user_id"]},
+                {"$set": {"google_tokens": result["updated_tokens"]}}
+            )
+        
+        return {
+            "synced": True,
+            "google_event_id": result.get("event_id"),
+            "calendar_link": result.get("event_link")
+        }
+        
+    except Exception as e:
+        print(f"Calendar sync failed: {e}")
+        return {"synced": False, "error": str(e)}
+
+
 # ==================== LIST & GET ====================
 
 @router.get("")
