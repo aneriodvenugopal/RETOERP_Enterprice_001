@@ -515,6 +515,14 @@ function App() {
                 }
               />
               <Route
+                path="/commission-analytics"
+                element={
+                  <PrivateRoute>
+                    <CommissionAnalyticsDashboard />
+                  </PrivateRoute>
+                }
+              />
+              <Route
                 path="/vendor-bills"
                 element={
                   <PrivateRoute>
