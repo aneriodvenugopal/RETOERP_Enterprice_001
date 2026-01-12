@@ -416,3 +416,123 @@ async def get_public_layout_by_id(
         "project": project_data
     }
 
+
+# ==================== DEMO REQUESTS & CONTACT ====================
+
+@router.post("/demo-request")
+async def submit_demo_request(demo_data: DemoRequest, request: Request):
+    """
+    Submit a demo request from the SaaS landing page.
+    Stores the request and can trigger email notifications.
+    """
+    db = get_db(request)
+    
+    # Create demo request record
+    demo_request = {
+        "id": str(uuid.uuid4()),
+        "name": demo_data.name,
+        "email": demo_data.email,
+        "phone": demo_data.phone,
+        "company": demo_data.company,
+        "message": demo_data.message,
+        "source": "saas_landing_page",
+        "status": "new",
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "updated_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    await db.demo_requests.insert_one(demo_request)
+    
+    # TODO: Send email notification to sales team
+    # await send_demo_request_notification(demo_request)
+    
+    return {
+        "success": True,
+        "message": "Demo request submitted successfully. Our team will contact you within 24 hours.",
+        "request_id": demo_request["id"]
+    }
+
+
+@router.post("/contact-inquiry")
+async def submit_contact_inquiry(inquiry: ContactInquiry, request: Request):
+    """
+    Submit a contact inquiry from tenant public pages or project pages.
+    Can be associated with a specific tenant or project.
+    """
+    db = get_db(request)
+    
+    # Create inquiry record
+    inquiry_record = {
+        "id": str(uuid.uuid4()),
+        "name": inquiry.name,
+        "email": inquiry.email,
+        "phone": inquiry.phone,
+        "subject": inquiry.subject,
+        "message": inquiry.message,
+        "tenant_id": inquiry.tenant_id,
+        "project_id": inquiry.project_id,
+        "status": "new",
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "updated_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    await db.contact_inquiries.insert_one(inquiry_record)
+    
+    # If tenant_id is provided, also create a lead for that tenant
+    if inquiry.tenant_id:
+        lead = {
+            "id": str(uuid.uuid4()),
+            "tenant_id": inquiry.tenant_id,
+            "name": inquiry.name,
+            "email": inquiry.email,
+            "phone": inquiry.phone or "",
+            "source": "website_inquiry",
+            "source_id": None,
+            "notes": f"Subject: {inquiry.subject}\n\n{inquiry.message}",
+            "status_id": None,
+            "rating": 3,
+            "is_converted": False,
+            "project_id": inquiry.project_id,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "updated_at": datetime.now(timezone.utc).isoformat()
+        }
+        await db.leads.insert_one(lead)
+    
+    return {
+        "success": True,
+        "message": "Thank you for your inquiry. We'll get back to you soon.",
+        "inquiry_id": inquiry_record["id"]
+    }
+
+
+@router.get("/demo-requests")
+async def get_demo_requests(
+    request: Request,
+    status: Optional[str] = None,
+    limit: int = 50,
+    skip: int = 0
+):
+    """
+    Get all demo requests (for admin dashboard).
+    Requires authentication in production.
+    """
+    db = get_db(request)
+    
+    query = {}
+    if status:
+        query["status"] = status
+    
+    requests_list = await db.demo_requests.find(
+        query,
+        {"_id": 0}
+    ).sort("created_at", -1).skip(skip).limit(limit).to_list(length=limit)
+    
+    total = await db.demo_requests.count_documents(query)
+    
+    return {
+        "success": True,
+        "requests": requests_list,
+        "total": total
+    }
+
+
