@@ -5,16 +5,7 @@
     "minor": []
   },
   "frontend_issues": {
-    "ui_bugs": [
-      {
-        "component": "PropertyCard",
-        "issue": "Property cards display 'Unit undefined' instead of property number. Code checks for property.name, property.plot_number, property.unit_number but API returns property_number field",
-        "selector": "h4.font-semibold in PropertyCard component",
-        "priority": "LOW",
-        "file": "/app/frontend/src/pages/ProjectPublicPage.js",
-        "line": "87"
-      }
-    ],
+    "ui_bugs": [],
     "integration_issues": [],
     "design_issues": []
   },
