@@ -264,6 +264,7 @@ Build a comprehensive Real Estate ERP (RETOERP) SaaS platform for the Indian rea
 - `/app/test_reports/iteration_4.json` - Resale/Release System (17/17 tests passed)
 - `/app/test_reports/iteration_5.json` - EMI Payment Module (22/22 tests passed)
 - `/app/test_reports/iteration_6.json` - Receipt Generation & Vendor Management (24/24 tests passed)
+- `/app/test_reports/iteration_8.json` - Complaint System & Referral/Wallet (33/34 tests passed)
 
 ## New Routes Added (Jan 12, 2026)
 - `/document-locker` - Document storage with physical location mapping
@@ -274,3 +275,5 @@ Build a comprehensive Real Estate ERP (RETOERP) SaaS platform for the Indian rea
 - `/resale-release` - Resale/Release management system
 - `/emi-payments` - EMI payment tracking and management
 - `/vendor-management` - Vendor directory, bills, and payments
+- `/complaints` - Customer complaint management system (NEW)
+- `/referral-wallet` - Referral program & customer wallet (NEW)
