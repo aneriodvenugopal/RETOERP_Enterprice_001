@@ -4,13 +4,33 @@ These are public pages that can be accessed without authentication
 Can be linked with custom domains
 """
 from fastapi import APIRouter, HTTPException, Request
+from pydantic import BaseModel, EmailStr
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
+import uuid
 
 router = APIRouter(prefix="/public", tags=["public-pages"])
 
 def get_db(request: Request):
     return request.app.state.db
+
+
+class DemoRequest(BaseModel):
+    name: str
+    email: str
+    phone: str
+    company: Optional[str] = None
+    message: Optional[str] = None
+
+
+class ContactInquiry(BaseModel):
+    name: str
+    email: str
+    phone: Optional[str] = None
+    subject: str
+    message: str
+    tenant_id: Optional[str] = None
+    project_id: Optional[str] = None
 
 
 @router.get("/tenant/{tenant_id}")
