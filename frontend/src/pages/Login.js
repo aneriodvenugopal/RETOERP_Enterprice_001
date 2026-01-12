@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { FileText, Lock, Phone, KeyRound, ArrowRightLeft } from 'lucide-react';
+import { FileText, Lock, Phone, KeyRound, ArrowRightLeft, Zap } from 'lucide-react';
 
 const Login = () => {
   // Login mode: 'password' or 'otp'
