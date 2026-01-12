@@ -168,7 +168,7 @@ const EMIPaymentManagement = () => {
 
   const fetchBookings = useCallback(async () => {
     try {
-      const res = await fetch(`${API_URL}/api/bookings?limit=200`, { headers });
+      const res = await fetch(`${API_URL}/api/bookings/?limit=200`, { headers });
       const data = await res.json();
       if (Array.isArray(data)) {
         setBookings(data);
