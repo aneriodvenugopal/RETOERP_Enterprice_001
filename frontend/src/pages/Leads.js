@@ -8,10 +8,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Users, Phone, Mail, MapPin, Calendar, TrendingUp, Star } from 'lucide-react';
+import { Plus, Users, Phone, Mail, MapPin, Calendar, TrendingUp, Star, ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
 import { Textarea } from '@/components/ui/textarea';
 import PageInfoModal from '../components/PageInfoModal';
+import ClickableStatCard from '../components/ClickableStatCard';
 
 const Leads = () => {
   const [leads, setLeads] = useState([]);
