@@ -343,14 +343,11 @@ const TenantAdminDashboard = () => {
         const data = await response.json();
         const overview = data.overview || {};
         
-        // Calculate team from recent leads assignees or use property stats
-        const propertyCount = data.property_stats?.reduce((sum, p) => sum + (p.count || 0), 0) || 0;
-        
         setStats({
-          projects: propertyCount > 0 ? Math.ceil(propertyCount / 50) : 10, // Estimate based on properties
+          projects: overview.total_projects || data.total_projects || 0,
           leads: overview.total_leads || 0,
           bookings: overview.total_bookings || 0,
-          team: data.recent_leads?.filter(l => l.assigned_to).length || 5 // From assigned leads
+          team: overview.total_team || data.total_team || 0
         });
       }
     } catch (error) {
