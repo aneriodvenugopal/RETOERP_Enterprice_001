@@ -260,8 +260,8 @@ Build a comprehensive Real Estate ERP (ExlainERP) SaaS platform for the Indian r
 - **Google OAuth**: Social login
 
 ## Test Credentials
-- **Super Admin**: superadmin@retoerp.com / admin123
-- **Tenant Admin**: rajam@retoerp.com / 12345678
+- **Super Admin**: superadmin@exlainerp.com / admin123
+- **Tenant Admin**: rajam@exlainerp.com / 12345678
 
 ## Test Reports
 - `/app/test_reports/iteration_1.json` - Layout features
