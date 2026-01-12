@@ -370,3 +370,147 @@ async def reset_password(data: dict, request: Request):
         "phone": phone
     }
 
+
+
+# ============ GOOGLE OAUTH ============
+
+@router.post("/google/session")
+async def process_google_session(data: dict, request: Request):
+    """
+    Process Google OAuth session_id from Emergent Auth
+    Exchange session_id for user data and create/update user
+    """
+    import httpx
+    import uuid
+    
+    db = get_db(request)
+    session_id = data.get('session_id')
+    
+    if not session_id:
+        raise HTTPException(status_code=400, detail="session_id is required")
+    
+    # Exchange session_id for user data from Emergent Auth
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(
+                "https://demobackend.emergentagent.com/auth/v1/env/oauth/session-data",
+                headers={"X-Session-ID": session_id}
+            )
+            
+            if response.status_code != 200:
+                raise HTTPException(status_code=401, detail="Invalid session_id")
+            
+            google_user = response.json()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error verifying session: {str(e)}")
+    
+    email = google_user.get('email')
+    name = google_user.get('name')
+    picture = google_user.get('picture')
+    google_session_token = google_user.get('session_token')
+    
+    if not email:
+        raise HTTPException(status_code=400, detail="Email not provided by Google")
+    
+    # Check if user exists by email
+    existing_user = await db.users.find_one({'email': email}, {"_id": 0})
+    
+    if existing_user:
+        # User exists - update and login
+        await db.users.update_one(
+            {'email': email},
+            {'$set': {
+                'name': name or existing_user.get('name'),
+                'google_picture': picture,
+                'google_session_token': google_session_token,
+                'last_login': datetime.now(timezone.utc).isoformat(),
+                'auth_provider': 'google'
+            }}
+        )
+        user_doc = existing_user
+    else:
+        # New user - create account
+        # Get default tenant for new Google users (or create one)
+        default_tenant = await db.tenants.find_one({}, {"_id": 0})
+        tenant_id = default_tenant['id'] if default_tenant else None
+        
+        # Get staff role as default
+        staff_role = await db.roles.find_one({'slug': 'staff'}, {"_id": 0})
+        role_id = staff_role['id'] if staff_role else None
+        
+        user_id = f"user_{uuid.uuid4().hex[:12]}"
+        
+        user_doc = {
+            'id': user_id,
+            'email': email,
+            'name': name or email.split('@')[0],
+            'phone': None,
+            'google_picture': picture,
+            'google_session_token': google_session_token,
+            'tenant_id': tenant_id,
+            'role_id': role_id,
+            'is_active': True,
+            'auth_provider': 'google',
+            'created_at': datetime.now(timezone.utc).isoformat(),
+            'last_login': datetime.now(timezone.utc).isoformat()
+        }
+        
+        await db.users.insert_one(user_doc)
+    
+    # Get role for JWT
+    role_doc = await db.roles.find_one({'id': user_doc.get('role_id')}, {"_id": 0})
+    role_slug = role_doc['slug'] if role_doc else 'staff'
+    
+    # Generate JWT token
+    token = AuthService.create_access_token(
+        user_id=user_doc['id'],
+        tenant_id=user_doc.get('tenant_id'),
+        role=role_slug
+    )
+    
+    # Store session in database for "Remember Me" functionality
+    session_expires = datetime.now(timezone.utc) + timedelta(days=7)
+    await db.user_sessions.update_one(
+        {'user_id': user_doc['id']},
+        {'$set': {
+            'user_id': user_doc['id'],
+            'session_token': google_session_token,
+            'jwt_token': token,
+            'expires_at': session_expires.isoformat(),
+            'created_at': datetime.now(timezone.utc).isoformat()
+        }},
+        upsert=True
+    )
+    
+    return {
+        "access_token": token,
+        "token_type": "bearer",
+        "user": {
+            "id": user_doc['id'],
+            "name": user_doc.get('name'),
+            "email": user_doc.get('email'),
+            "phone": user_doc.get('phone'),
+            "picture": picture,
+            "role": role_slug,
+            "tenant_id": user_doc.get('tenant_id'),
+            "is_new_user": not existing_user
+        }
+    }
+
+
+@router.post("/logout")
+async def logout(request: Request):
+    """Logout user and clear session"""
+    from middleware.auth import get_current_user
+    
+    try:
+        user = await get_current_user(request)
+        db = get_db(request)
+        
+        # Delete user session
+        await db.user_sessions.delete_one({'user_id': user['user_id']})
+        
+        return {"message": "Logged out successfully"}
+    except:
+        return {"message": "Logged out"}
+
