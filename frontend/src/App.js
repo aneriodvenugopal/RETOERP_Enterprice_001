@@ -409,6 +409,22 @@ function App() {
                 }
               />
               <Route
+                path="/document-locker"
+                element={
+                  <PrivateRoute>
+                    <DocumentLocker />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/festival-greetings"
+                element={
+                  <PrivateRoute>
+                    <FestivalGreetings />
+                  </PrivateRoute>
+                }
+              />
+              <Route
                 path="/vendor-bills"
                 element={
                   <PrivateRoute>
