@@ -136,18 +136,92 @@ const Dashboard = () => {
 const SuperAdminDashboard = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [stats, setStats] = React.useState({
+    tenants: 0,
+    users: 0,
+    subscriptions: 0
+  });
+  const [loading, setLoading] = React.useState(true);
   
   // Check if user is SaaS admin (phone: 9948303060)
   const isSaaSAdmin = user?.phone === '9948303060';
+  
+  React.useEffect(() => {
+    fetchAdminStats();
+  }, []);
+  
+  const fetchAdminStats = async () => {
+    try {
+      setLoading(true);
+      const apiUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      const token = localStorage.getItem('token');
+      
+      // Try SaaS dashboard first
+      const saasResponse = await fetch(`${apiUrl}/api/saas/dashboard`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (saasResponse.ok) {
+        const data = await saasResponse.json();
+        setStats({
+          tenants: data.overview?.total_tenants || 0,
+          users: data.overview?.active_tenants || 0,
+          subscriptions: data.overview?.active_tenants || 0
+        });
+      } else {
+        // Fallback to analytics
+        const analyticsResponse = await fetch(`${apiUrl}/api/analytics/dashboard`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (analyticsResponse.ok) {
+          const data = await analyticsResponse.json();
+          setStats({
+            tenants: 1,
+            users: data.overview?.total_leads || 0,
+            subscriptions: data.overview?.total_bookings || 0
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch admin stats:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
   
   return (
     <div className="space-y-6">
       <h2 className="text-3xl font-bold text-gray-900">Super Admin Dashboard</h2>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <StatCard icon={Building2} title="Total Tenants" value="0" gradient="from-ocean-primary to-ocean-secondary" />
-        <StatCard icon={Users} title="Total Users" value="0" gradient="from-ocean-secondary to-ocean-accent" />
-        <StatCard icon={BarChart3} title="Active Subscriptions" value="0" gradient="from-ocean-accent to-ocean-primary" />
+        <StatCard 
+          icon={Building2} 
+          title="Total Tenants" 
+          value={loading ? '...' : stats.tenants.toString()} 
+          gradient="from-ocean-primary to-ocean-secondary"
+          onClick={() => navigate('/admin/saas-dashboard')}
+        />
+        <StatCard 
+          icon={Users} 
+          title="Active Tenants" 
+          value={loading ? '...' : stats.users.toString()} 
+          gradient="from-ocean-secondary to-ocean-accent"
+          onClick={() => navigate('/admin/saas-dashboard')}
+        />
+        <StatCard 
+          icon={BarChart3} 
+          title="Active Subscriptions" 
+          value={loading ? '...' : stats.subscriptions.toString()} 
+          gradient="from-ocean-accent to-ocean-primary"
+          onClick={() => navigate('/admin/saas-dashboard')}
+        />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
