@@ -19,7 +19,7 @@ import { Progress } from '@/components/ui/progress';
 import {
   Calendar, Clock, DollarSign, AlertTriangle, CheckCircle, XCircle,
   RefreshCw, Plus, Eye, CreditCard, TrendingUp, Users, Building,
-  ArrowLeft, Bell, Percent, Receipt
+  ArrowLeft, Bell, Percent, Receipt, Download, FileText
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '../contexts/AuthContext';
@@ -327,6 +327,26 @@ const EMIPaymentManagement = () => {
       toast.error('Error loading details');
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Download Receipt
+  const handleDownloadReceipt = async (paymentId) => {
+    try {
+      window.open(`${API_URL}/api/receipts/payment/${paymentId}?download=true`, '_blank');
+      toast.success('Receipt download started');
+    } catch (err) {
+      toast.error('Error downloading receipt');
+    }
+  };
+
+  // Download EMI Schedule PDF
+  const handleDownloadSchedule = async (bookingId) => {
+    try {
+      window.open(`${API_URL}/api/receipts/emi-schedule/${bookingId}?download=true`, '_blank');
+      toast.success('Schedule download started');
+    } catch (err) {
+      toast.error('Error downloading schedule');
     }
   };
 
