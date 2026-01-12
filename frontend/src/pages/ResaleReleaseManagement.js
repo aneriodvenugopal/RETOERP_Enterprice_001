@@ -1,16 +1,22 @@
+/**
+ * Resale/Release Management
+ * - Release: Properties returned to inventory (cancelled/defaulted bookings)
+ * - Resale: Customer-initiated property sales
+ * - Auto-notify interested parties in booking queue
+ * - Track inquiries and commission
+ */
 import React, { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../contexts/AuthContext";
-import DashboardLayout from "../components/DashboardLayout";
-import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
-import { Label } from "../components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../components/ui/select";
+} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -18,22 +24,22 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from "../components/ui/dialog";
+} from "@/components/ui/dialog";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "../components/ui/card";
+} from "@/components/ui/card";
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
-} from "../components/ui/tabs";
-import { Badge } from "../components/ui/badge";
-import { Textarea } from "../components/ui/textarea";
+} from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import {
   RefreshCw,
@@ -45,18 +51,19 @@ import {
   DollarSign,
   Trash2,
   Building2,
-  Users,
   TrendingUp,
   Package,
-  AlertCircle,
   Clock,
   ArrowLeftRight,
+  ArrowLeft,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
 export default function ResaleReleaseManagement() {
-  const { token } = useAuth();
+  const { token, user } = useAuth();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("releases");
   const [loading, setLoading] = useState(false);
   const [releases, setReleases] = useState([]);
@@ -70,7 +77,6 @@ export default function ResaleReleaseManagement() {
   
   // Dialogs
   const [showReleaseDialog, setShowReleaseDialog] = useState(false);
-  const [showResaleDialog, setShowResaleDialog] = useState(false);
   const [showApprovalDialog, setShowApprovalDialog] = useState(false);
   const [showDetailDialog, setShowDetailDialog] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
@@ -102,10 +108,12 @@ export default function ResaleReleaseManagement() {
   // Fetch Projects
   const fetchProjects = useCallback(async () => {
     try {
-      const res = await fetch(`${API_URL}/api/projects`, { headers });
+      const res = await fetch(`${API_URL}/api/projects/`, { headers });
       const data = await res.json();
-      if (data.success) {
-        setProjects(data.projects || []);
+      if (Array.isArray(data)) {
+        setProjects(data);
+      } else if (data.projects) {
+        setProjects(data.projects);
       }
     } catch (err) {
       console.error("Error fetching projects:", err);
@@ -421,19 +429,34 @@ export default function ResaleReleaseManagement() {
     return labels[reason] || reason;
   };
 
+  const getProjectName = (projectId) => {
+    const project = projects.find(p => p.id === projectId);
+    return project?.name || projectId?.slice(0, 8) + "...";
+  };
+
   return (
-    <DashboardLayout>
-      <div className="p-6 space-y-6" data-testid="resale-release-page">
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto p-6 space-y-6" data-testid="resale-release-page">
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-              <ArrowLeftRight className="w-7 h-7 text-indigo-600" />
-              Resale & Release Management
-            </h1>
-            <p className="text-gray-500 mt-1">
-              Manage property releases and resale listings
-            </p>
+          <div className="flex items-center gap-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate("/dashboard")}
+              data-testid="back-btn"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                <ArrowLeftRight className="w-7 h-7 text-indigo-600" />
+                Resale & Release Management
+              </h1>
+              <p className="text-gray-500 mt-1">
+                Manage property releases and resale listings
+              </p>
+            </div>
           </div>
           <div className="flex gap-2">
             <Button
@@ -599,11 +622,16 @@ export default function ResaleReleaseManagement() {
                         <div className="flex justify-between items-start">
                           <div className="space-y-1">
                             <div className="flex items-center gap-2">
-                              <span className="font-medium">Property: {release.property_id.slice(0, 8)}...</span>
+                              <span className="font-medium">
+                                {getProjectName(release.project_id)}
+                              </span>
                               <Badge variant="outline">
                                 {getReleaseReasonLabel(release.release_reason)}
                               </Badge>
                             </div>
+                            <p className="text-sm text-gray-600">
+                              Property: {release.property_id.slice(0, 12)}...
+                            </p>
                             {release.previous_customer_name && (
                               <p className="text-sm text-gray-600">
                                 Previous Owner: {release.previous_customer_name}
@@ -693,7 +721,7 @@ export default function ResaleReleaseManagement() {
                                 Commission: {resale.commission_percentage}%
                               </span>
                             </div>
-                            {resale.area && (
+                            {resale.property_area && (
                               <p className="text-sm text-gray-500">
                                 Area: {resale.property_area} {resale.property_area_unit}
                               </p>
@@ -1085,6 +1113,6 @@ export default function ResaleReleaseManagement() {
           </DialogContent>
         </Dialog>
       </div>
-    </DashboardLayout>
+    </div>
   );
 }
