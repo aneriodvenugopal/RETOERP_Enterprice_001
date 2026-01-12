@@ -210,6 +210,8 @@ Build a comprehensive Real Estate ERP (RETOERP) SaaS platform for the Indian rea
 - [x] Google Calendar integration for site visits (Completed Jan 12, 2026)
 - [x] Complaint System (Completed Jan 12, 2026)
 - [x] Site Visit SMS/WhatsApp/Email Reminders (Completed Jan 12, 2026)
+- [x] Global Header with User Info & Logout (Completed Jan 12, 2026)
+- [x] Dashboard Stats with Real Data (Completed Jan 12, 2026)
 
 ### P4 - Future/Backlog
 - [x] Festival Greetings Automation - Backend cron job for Jan 26 & Aug 15 (Completed Jan 12, 2026)
