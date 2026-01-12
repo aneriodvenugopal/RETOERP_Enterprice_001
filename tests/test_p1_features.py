@@ -49,7 +49,7 @@ class TestDocumentLockerPhysicalLocations:
             f"{BASE_URL}/api/auth/login",
             json={"email": "rajam@retoerp.com", "password": "12345678"}
         )
-        return response.json()["token"]
+        return response.json()["access_token"]
     
     @pytest.fixture(scope="class")
     def headers(self, auth_token):
@@ -121,7 +121,7 @@ class TestDocumentLockerDocuments:
             f"{BASE_URL}/api/auth/login",
             json={"email": "rajam@retoerp.com", "password": "12345678"}
         )
-        return response.json()["token"]
+        return response.json()["access_token"]
     
     @pytest.fixture(scope="class")
     def headers(self, auth_token):
@@ -276,7 +276,7 @@ class TestDocumentLockerSearch:
             f"{BASE_URL}/api/auth/login",
             json={"email": "rajam@retoerp.com", "password": "12345678"}
         )
-        return response.json()["token"]
+        return response.json()["access_token"]
     
     @pytest.fixture(scope="class")
     def headers(self, auth_token):
@@ -386,7 +386,7 @@ class TestFestivalGreetingsConfig:
             f"{BASE_URL}/api/auth/login",
             json={"email": "rajam@retoerp.com", "password": "12345678"}
         )
-        return response.json()["token"]
+        return response.json()["access_token"]
     
     @pytest.fixture(scope="class")
     def headers(self, auth_token):
@@ -450,7 +450,7 @@ class TestFestivalGreetingsRecipients:
             f"{BASE_URL}/api/auth/login",
             json={"email": "rajam@retoerp.com", "password": "12345678"}
         )
-        return response.json()["token"]
+        return response.json()["access_token"]
     
     @pytest.fixture(scope="class")
     def headers(self, auth_token):
@@ -591,7 +591,7 @@ class TestFestivalGreetingsSend:
             f"{BASE_URL}/api/auth/login",
             json={"email": "rajam@retoerp.com", "password": "12345678"}
         )
-        return response.json()["token"]
+        return response.json()["access_token"]
     
     @pytest.fixture(scope="class")
     def headers(self, auth_token):
