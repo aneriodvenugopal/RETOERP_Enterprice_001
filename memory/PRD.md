@@ -95,6 +95,17 @@ Build a comprehensive Real Estate ERP (RETOERP) SaaS platform for the Indian rea
 - [x] Cancel/expire queue entries
 - [x] Statistics: by status, conversion rate, properties with queue
 
+### Phase 2.1: Customer Database Enhancement (NEW - Jan 12, 2026)
+- [x] Full CRUD operations for customers
+- [x] Indian Real Estate specific fields (Aadhar, PAN, NRI, Passport)
+- [x] Search by name, phone, email
+- [x] Filter by status, NRI
+- [x] Tags management (add/remove)
+- [x] Wallet management (credit/debit with admin controls)
+- [x] Purchase history view (bookings, payments)
+- [x] Convert lead to customer
+- [x] Statistics: total, by status, NRI count, wallet balance
+
 ### Other Features
 - [x] SMS integration (MSG91 - MOCKED)
 - [x] AI Agents integration (OpenAI via Emergent LLM Key)
