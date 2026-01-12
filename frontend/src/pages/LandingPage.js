@@ -180,8 +180,38 @@ const LandingPage = () => {
     }
   };
 
+  // FAQ structured data for SEO
+  const faqStructuredData = generateFAQStructuredData([
+    {
+      question: "What is ExlainERP?",
+      answer: "ExlainERP is a comprehensive Real Estate ERP solution designed for property developers, builders, and real estate agencies in India. It includes project management, lead tracking, booking management, EMI payments, and more."
+    },
+    {
+      question: "How does ExlainERP help real estate businesses?",
+      answer: "ExlainERP automates property sales, tracks leads, manages bookings, handles EMI payments with late fees, generates receipts, and provides analytics dashboards - all in one platform designed for Indian real estate."
+    },
+    {
+      question: "Is ExlainERP RERA compliant?",
+      answer: "Yes, ExlainERP supports RERA registration numbers for projects and follows Indian real estate compliance requirements including TDS calculations and proper documentation."
+    },
+    {
+      question: "Can I try ExlainERP before purchasing?",
+      answer: "Yes, we offer a free demo and trial period. Contact us through the demo request form to get started with ExlainERP for your real estate business."
+    }
+  ]);
+
   return (
     <div className="min-h-screen bg-white">
+      {/* SEO Meta Tags */}
+      <SEOHead
+        title="ExlainERP - Best Real Estate ERP Software for India | Property Management CRM"
+        description="ExlainERP is India's leading Real Estate ERP solution. Manage projects, track leads, handle bookings, process EMI payments, and automate your property business. RERA compliant. Start free trial today!"
+        keywords="real estate ERP, property management software, real estate CRM India, builder software, developer ERP, plot management, apartment booking, EMI tracking, RERA compliant software, property sales automation"
+        url="/saas"
+        type="website"
+        structuredData={faqStructuredData}
+      />
+
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
