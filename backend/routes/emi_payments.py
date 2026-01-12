@@ -540,11 +540,18 @@ async def get_emi_stats(
     overdue_count = len([e for e in all_emis if e.get("is_overdue", False)])
     overdue_amount = sum(e.get("remaining_amount", 0) + e.get("late_fee_amount", 0) for e in all_emis if e.get("is_overdue", False))
     
-    # Due this week
+    # Due this week - helper function to normalize datetime
+    def normalize_datetime(dt):
+        if isinstance(dt, str):
+            return datetime.fromisoformat(dt.replace('Z', '+00:00'))
+        elif isinstance(dt, datetime) and dt.tzinfo is None:
+            return dt.replace(tzinfo=timezone.utc)
+        return dt
+    
     now = datetime.now(timezone.utc)
     week_end = now + timedelta(days=7)
     due_this_week = [e for e in all_emis if e["status"] not in ["paid", "waived"]]
-    due_this_week = [e for e in due_this_week if isinstance(e["due_date"], str) and datetime.fromisoformat(e["due_date"].replace('Z', '+00:00')) <= week_end or isinstance(e["due_date"], datetime) and e["due_date"] <= week_end]
+    due_this_week = [e for e in due_this_week if normalize_datetime(e["due_date"]) <= week_end]
     
     return {
         "success": True,
