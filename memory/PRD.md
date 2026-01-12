@@ -64,8 +64,30 @@ Build a comprehensive Real Estate ERP (RETOERP) SaaS platform for the Indian rea
 - [x] Bank account management
 - [x] Commission tracking models
 
+### Phase 1.4: Document Locker (NEW - Jan 12, 2026)
+- [x] Physical location master (e.g., OFFICE-STORAGE-1, SITE-OFFICE-RACK-A)
+- [x] Document upload (PDF, JPG, PNG, DOC, DOCX)
+- [x] Customer details (Name, Mobile - required; Email - optional)
+- [x] Manual keyword tagging for search
+- [x] Auto-generated physical code (e.g., OFFICE-STORAGE-1-001)
+- [x] Physical location visible to Admin/Accountant only
+- [x] Search by customer name, mobile, keyword
+- [x] Email sharing (manual, no tracking)
+- **NO AI, NO automation, NO smart features**
+
+### Phase 1.5: Festival Greetings System (NEW - Jan 12, 2026)
+- [x] Simple ON/OFF toggle (Admin only)
+- [x] Company name for message
+- [x] Fixed message format: "Warm wishes on [Festival] 🇮🇳 – {Company Name}"
+- [x] ONLY Republic Day (Jan 26) & Independence Day (Aug 15)
+- [x] Recipients: Customers only, NO leads
+- [x] Manual send trigger
+- [x] Send history/audit log
+- [x] SMS service (MOCKED - logs to DB)
+- **NO marketing, NO tracking, NO analytics**
+
 ### Other Features
-- [x] SMS integration (MSG91)
+- [x] SMS integration (MSG91 - MOCKED)
 - [x] AI Agents integration (OpenAI via Emergent LLM Key)
 - [x] Google OAuth integration
 - [x] Razorpay integration (configured, not fully tested)
@@ -74,9 +96,10 @@ Build a comprehensive Real Estate ERP (RETOERP) SaaS platform for the Indian rea
 
 ## Prioritized Backlog
 
-### P0 - Critical (Next Sprint)
-- [ ] Verify all UI bug fixes (pin size, labels, modal click) across all layouts
-- [ ] Create comprehensive test suite for layout editor
+### P0 - Critical (Completed)
+- [x] Fix plot mapping misalignment between editor and public view
+- [x] Document Locker with physical location mapping
+- [x] Festival Greetings system
 
 ### P1 - High Priority
 - [ ] Site Visit Management module
@@ -91,7 +114,6 @@ Build a comprehensive Real Estate ERP (RETOERP) SaaS platform for the Indian rea
 
 ### P3 - Lower Priority
 - [ ] Organic Referral & Wallet System
-- [ ] Festival Greeting automation (cron jobs)
 - [ ] Google Calendar integration for site visits
 - [ ] Complaint System
 
@@ -110,13 +132,19 @@ Build a comprehensive Real Estate ERP (RETOERP) SaaS platform for the Indian rea
 /app/
 ├── backend/
 │   ├── models/       (Pydantic models)
+│   │   ├── document_locker.py (NEW)
+│   │   └── festival_greeting.py (NEW)
 │   ├── routes/       (FastAPI routes)
+│   │   ├── document_locker.py (NEW)
+│   │   └── festival_greetings.py (NEW)
 │   ├── services/     (Business logic)
 │   ├── middleware/   (Auth, etc.)
 │   └── utils/        (Helpers)
 ├── frontend/
 │   └── src/
 │       ├── pages/    (React pages)
+│       │   ├── DocumentLocker.js (NEW)
+│       │   └── FestivalGreetings.js (NEW)
 │       ├── components/ui/  (Shadcn components)
 │       ├── contexts/ (Auth context)
 │       └── services/ (API services)
@@ -133,3 +161,7 @@ Build a comprehensive Real Estate ERP (RETOERP) SaaS platform for the Indian rea
 ## Test Credentials
 - **Super Admin**: superadmin@retoerp.com / admin123
 - **Tenant Admin**: rajam@retoerp.com / 12345678
+
+## Test Reports
+- `/app/test_reports/iteration_1.json` - Layout features
+- `/app/test_reports/iteration_2.json` - P1 features (Document Locker, Festival Greetings)
