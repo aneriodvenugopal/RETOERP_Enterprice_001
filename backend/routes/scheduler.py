@@ -59,6 +59,27 @@ async def run_follow_up_reminders(request: Request, background_tasks: Background
         "status": "running"
     }
 
+
+@router.post("/run/festival-greetings")
+async def run_festival_greetings(request: Request, background_tasks: BackgroundTasks):
+    """
+    Manually trigger festival greetings check.
+    Only sends greetings if today is Jan 26 (Republic Day) or Aug 15 (Independence Day).
+    """
+    db = get_db(request)
+    
+    scheduler = SchedulerService(db)
+    
+    # Run synchronously to return results
+    results = await scheduler.send_festival_greetings()
+    
+    return {
+        "message": "Festival greetings task completed",
+        "status": "completed",
+        "results": results
+    }
+
+
 @router.post("/run/all")
 async def run_all_tasks(request: Request):
     """Run all scheduled tasks (synchronous for testing)"""
