@@ -634,10 +634,26 @@ async def get_complaint_stats(
     if resolved_complaints:
         total_hours = 0
         for c in resolved_complaints:
-            created = datetime.fromisoformat(c["created_at"].replace('Z', '+00:00')) if isinstance(c["created_at"], str) else c["created_at"]
-            resolved = datetime.fromisoformat(c["resolved_at"].replace('Z', '+00:00')) if isinstance(c["resolved_at"], str) else c["resolved_at"]
-            total_hours += (resolved - created).total_seconds() / 3600
-        avg_resolution_hours = round(total_hours / len(resolved_complaints), 2)
+            try:
+                if isinstance(c["created_at"], str):
+                    created = datetime.fromisoformat(c["created_at"].replace('Z', '+00:00'))
+                else:
+                    created = c["created_at"]
+                    if created.tzinfo is None:
+                        created = created.replace(tzinfo=timezone.utc)
+                
+                if isinstance(c["resolved_at"], str):
+                    resolved = datetime.fromisoformat(c["resolved_at"].replace('Z', '+00:00'))
+                else:
+                    resolved = c["resolved_at"]
+                    if resolved.tzinfo is None:
+                        resolved = resolved.replace(tzinfo=timezone.utc)
+                
+                total_hours += (resolved - created).total_seconds() / 3600
+            except Exception:
+                continue  # Skip invalid datetime entries
+        if total_hours > 0:
+            avg_resolution_hours = round(total_hours / len(resolved_complaints), 2)
     
     # Satisfaction score
     rated = [c for c in all_complaints if c.get("satisfaction_rating")]
