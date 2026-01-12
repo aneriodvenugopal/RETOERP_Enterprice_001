@@ -128,7 +128,7 @@ const AuthenticatedLayout = ({ children }) => {
                   <DropdownMenuSeparator />
                   
                   <DropdownMenuItem onClick={() => navigate('/dashboard')} data-testid="menu-dashboard">
-                    <Building2 className="w-4 h-4 mr-2" />
+                    <FileText className="w-4 h-4 mr-2" />
                     Dashboard
                   </DropdownMenuItem>
                   
