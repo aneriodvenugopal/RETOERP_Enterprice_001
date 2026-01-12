@@ -186,3 +186,10 @@ Build a comprehensive Real Estate ERP (RETOERP) SaaS platform for the Indian rea
 - `/app/test_reports/iteration_1.json` - Layout features
 - `/app/test_reports/iteration_2.json` - Document Locker, Festival Greetings
 - `/app/test_reports/iteration_3.json` - Site Visits, Booking Queue (30/30 tests passed)
+
+## New Routes Added (Jan 12, 2026)
+- `/document-locker` - Document storage with physical location mapping
+- `/festival-greetings` - Republic Day & Independence Day greetings
+- `/site-visits` - Site visit management
+- `/booking-queue` - Property waitlist management
+- `/customers-management` - Customer database with wallet
