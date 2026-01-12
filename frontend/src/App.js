@@ -58,6 +58,7 @@ import Contact from "./pages/marketing/Contact";
 import TestimonialDetail from "./pages/marketing/TestimonialDetail";
 import LandingPage from "./pages/LandingPage";
 import TenantPublicPage from "./pages/TenantPublicPage";
+import ProjectPublicPage from "./pages/ProjectPublicPage";
 
 // Content Pages
 import ContentLibrary from "./pages/content/ContentLibrary";
