@@ -424,6 +424,13 @@ const TenantAdminDashboard = () => {
           onClick={() => navigate('/financials')}
         />
         <ActionCard
+          icon={CreditCard}
+          title="Payments Dashboard"
+          description="Track collections, overdue & targets"
+          onClick={() => navigate('/payments-dashboard')}
+          gradient="from-green-500 to-emerald-500"
+        />
+        <ActionCard
           icon={Bot}
           title="AI Agents"
           description="AI-powered assistants for your business"
