@@ -70,11 +70,17 @@ export const SEOHead = ({
       <meta name="language" content="English" />
       
       {/* JSON-LD Structured Data */}
-      {structuredData && (
+      {structuredData && Array.isArray(structuredData) ? (
+        structuredData.filter(Boolean).map((data, index) => (
+          <script key={index} type="application/ld+json">
+            {JSON.stringify(data)}
+          </script>
+        ))
+      ) : structuredData ? (
         <script type="application/ld+json">
           {JSON.stringify(structuredData)}
         </script>
-      )}
+      ) : null}
     </Helmet>
   );
 };
