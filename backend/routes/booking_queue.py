@@ -387,7 +387,8 @@ async def record_response(
         update_dict["converted_at"] = datetime.now(timezone.utc).isoformat()
     
     if response_data.notes:
-        update_dict["notes"] = (entry.get("notes", "") + "\n" + response_data.notes).strip()
+        existing_notes = entry.get("notes") or ""
+        update_dict["notes"] = (existing_notes + "\n" + response_data.notes).strip()
     
     await db.booking_queue.update_one(
         {"id": entry_id},
