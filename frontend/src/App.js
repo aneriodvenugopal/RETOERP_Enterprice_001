@@ -135,6 +135,7 @@ import AgentPayouts from "./pages/payouts/AgentPayouts";
 // Document & Greetings Pages
 import DocumentLocker from "./pages/DocumentLocker";
 import FestivalGreetings from "./pages/FestivalGreetings";
+import SiteVisits from "./pages/SiteVisits";
 
 // PWA Components
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
