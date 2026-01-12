@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 import uuid
 
 # Import routes
-from routes import auth, tenants, currencies, categories, projects, properties, leads, bookings, commissions, analytics, notifications, users, scheduler, customer, layouts, layouts_library, in_app_notifications, referrals, translations, content, advisory, admin_content, share_referral, resale, saas_admin, chatbot, public_pages, marketplace, incomelands, incomelands_auth, google_auth, calendar_integration, workforce, project_dashboard, marketing_dashboard, payment_schemes, customer_payments, staff_hierarchy, commission_management, property_categories, currency_management, usage_tracking, coupons, bank_accounts, vendors, payment_transfer, articles, project_staff, role_assignments, roles, financial, ai_agents, sms, document_locker, festival_greetings, site_visits, booking_queue, customers_management, resale_release_mgmt, emi_payments
+from routes import auth, tenants, currencies, categories, projects, properties, leads, bookings, commissions, analytics, notifications, users, scheduler, customer, layouts, layouts_library, in_app_notifications, referrals, translations, content, advisory, admin_content, share_referral, resale, saas_admin, chatbot, public_pages, marketplace, incomelands, incomelands_auth, google_auth, calendar_integration, workforce, project_dashboard, marketing_dashboard, payment_schemes, customer_payments, staff_hierarchy, commission_management, property_categories, currency_management, usage_tracking, coupons, bank_accounts, vendors, payment_transfer, articles, project_staff, role_assignments, roles, financial, ai_agents, sms, document_locker, festival_greetings, site_visits, booking_queue, customers_management, resale_release_mgmt, emi_payments, receipts
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -98,6 +98,7 @@ api_router.include_router(booking_queue.router)
 api_router.include_router(customers_management.router)
 api_router.include_router(resale_release_mgmt.router)
 api_router.include_router(emi_payments.router)
+api_router.include_router(receipts.router)
 
 # PWA Install tracking
 @api_router.post("/analytics/pwa-install")
