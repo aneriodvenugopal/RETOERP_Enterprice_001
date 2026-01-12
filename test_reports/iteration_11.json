@@ -58,7 +58,7 @@
         "filter_buttons": "PASS - All (22), Available (18), Booked (0)",
         "view_mode_toggle": "PASS - Grid/List toggle buttons present",
         "property_cards": "PASS - Shows property cards with status badges, area, price",
-        "property_card_display": "MINOR ISSUE - Shows 'Unit undefined' instead of property number"
+        "property_card_display": "PASS - Shows property numbers correctly (J-140, G-439, etc.)"
       },
       "inquiry_form": {
         "form_fields": "PASS - Name, Email, Phone, Message fields with data-testid",
