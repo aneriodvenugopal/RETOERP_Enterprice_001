@@ -630,18 +630,22 @@ class TestBookingQueuePropertyQueue:
     
     def test_get_property_queue(self, api_client):
         """Test GET /api/booking-queue/property/{property_id} - Get queue for specific property"""
+        import time
+        unique_suffix = str(int(time.time() * 1000))[-6:]
+        property_id = f"TEST-plot-propq-{unique_suffix}"
+        
         # First add some entries
         queue_data = {
             "project_id": TEST_PROJECT_ID,
-            "property_id": "TEST-plot-006",
+            "property_id": property_id,
             "customer_name": "TEST_Property_Queue",
-            "customer_mobile": "9988006611",
+            "customer_mobile": f"998807{unique_suffix[:4]}",
             "priority": 0
         }
         api_client.post(f"{BASE_URL}/api/booking-queue", json=queue_data)
         
         # Get property queue
-        response = api_client.get(f"{BASE_URL}/api/booking-queue/property/TEST-plot-006")
+        response = api_client.get(f"{BASE_URL}/api/booking-queue/property/{property_id}")
         assert response.status_code == 200
         data = response.json()
         assert data["success"] is True
