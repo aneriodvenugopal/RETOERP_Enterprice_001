@@ -9,10 +9,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, DollarSign, Calendar, CreditCard, CheckCircle, Clock } from 'lucide-react';
+import { Plus, DollarSign, Calendar, CreditCard, CheckCircle, Clock, Phone, Mail, ChevronRight, Building } from 'lucide-react';
 import { toast } from 'sonner';
 import { Progress } from '@/components/ui/progress';
 import PageInfoModal from '../components/PageInfoModal';
+import ClickableStatCard from '../components/ClickableStatCard';
 
 const Bookings = () => {
   const [bookings, setBookings] = useState([]);
