@@ -206,11 +206,13 @@ Build a comprehensive Real Estate ERP (RETOERP) SaaS platform for the Indian rea
 - [x] Vendor Management module - Directory, bills, payments
 
 ### P3 - Lower Priority
-- [ ] Organic Referral & Wallet System
+- [x] Organic Referral & Wallet System (Completed Jan 12, 2026)
 - [ ] Google Calendar integration for site visits
-- [ ] Complaint System
+- [x] Complaint System (Completed Jan 12, 2026)
 
 ### P4 - Future/Backlog
+- [ ] Finance Module - Banking/Cash Accounts & Dynamic Commission Tracking
+- [ ] Festival Greetings Automation - Backend cron job for Jan 26 & Aug 15
 - [ ] SaaS marketing pages
 - [ ] Tenant-specific public pages
 - [ ] Project landing pages with custom domains
