@@ -56,6 +56,7 @@ import About from "./pages/marketing/About";
 import Features from "./pages/marketing/Features";
 import Contact from "./pages/marketing/Contact";
 import TestimonialDetail from "./pages/marketing/TestimonialDetail";
+import LandingPage from "./pages/LandingPage";
 
 // Content Pages
 import ContentLibrary from "./pages/content/ContentLibrary";
