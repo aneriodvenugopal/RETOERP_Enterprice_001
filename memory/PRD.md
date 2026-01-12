@@ -115,7 +115,7 @@ Build a comprehensive Real Estate ERP (RETOERP) SaaS platform for the Indian rea
 - [x] Booking + Queue System - Waitlist for properties
 
 ### P2 - Medium Priority
-- [ ] Customer Database enhancement
+- [x] Customer Database enhancement - Full CRUD, search, wallet, purchase history
 - [ ] Resale/Release System with auto-marketing
 - [ ] Strict EMI Payment module
 - [ ] Receipt Generation
