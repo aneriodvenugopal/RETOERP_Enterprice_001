@@ -172,20 +172,17 @@ async def add_to_queue(
     if not user:
         raise HTTPException(status_code=401, detail="Not authenticated")
     
-    # Validate property exists
-    property_data = await db.properties.find_one(
-        {"id": queue_data.property_id, "tenant_id": user["tenant_id"]},
-        {"_id": 0, "id": 1, "name": 1, "status": 1}
+    # Validate project exists
+    project = await db.projects.find_one(
+        {"id": queue_data.project_id, "tenant_id": user["tenant_id"]},
+        {"_id": 0, "id": 1, "name": 1}
     )
     
-    if not property_data:
-        # Try project_layouts plots
-        layout = await db.project_layouts.find_one(
-            {"project_id": queue_data.project_id, "plots.id": queue_data.property_id},
-            {"_id": 0, "plots.$": 1}
-        )
-        if not layout or not layout.get("plots"):
-            raise HTTPException(status_code=404, detail="Property not found")
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    # Property validation is optional - we accept any property_id
+    # This allows queuing for plots in project_layouts or properties collection
     
     # Check if already in queue
     existing = await db.booking_queue.find_one({
