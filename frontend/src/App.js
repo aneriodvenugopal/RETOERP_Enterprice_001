@@ -489,6 +489,14 @@ function App() {
                 }
               />
               <Route
+                path="/complaints"
+                element={
+                  <PrivateRoute>
+                    <ComplaintManagement />
+                  </PrivateRoute>
+                }
+              />
+              <Route
                 path="/vendor-bills"
                 element={
                   <PrivateRoute>
