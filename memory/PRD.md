@@ -110,12 +110,12 @@ Build a comprehensive Real Estate ERP (RETOERP) SaaS platform for the Indian rea
 - [x] Document Locker with physical location mapping
 - [x] Festival Greetings system
 
-### P1 - High Priority
-- [ ] Site Visit Management module
-- [ ] Booking + Queue System (waitlist for plots)
-- [ ] Customer Database enhancement
+### P1 - High Priority (Completed)
+- [x] Site Visit Management module - Schedule, assign, track visits
+- [x] Booking + Queue System - Waitlist for properties
 
 ### P2 - Medium Priority
+- [ ] Customer Database enhancement
 - [ ] Resale/Release System with auto-marketing
 - [ ] Strict EMI Payment module
 - [ ] Receipt Generation
