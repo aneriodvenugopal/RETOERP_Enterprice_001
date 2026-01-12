@@ -205,7 +205,11 @@ const SiteVisits = () => {
       );
       
       if (response.data.success) {
-        toast.success(response.data.message);
+        let message = response.data.message;
+        if (response.data.calendar_synced) {
+          message += ' 📅 Synced to Google Calendar!';
+        }
+        toast.success(message);
         setShowScheduleModal(false);
         resetScheduleForm();
         loadData();
