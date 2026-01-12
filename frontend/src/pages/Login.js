@@ -58,10 +58,10 @@ const GoogleSignInButton = () => {
   };
 
   const handleGoogleSignIn = () => {
+    // REMINDER: DO NOT HARDCODE THE URL, OR ADD ANY FALLBACKS OR REDIRECT URLS, THIS BREAKS THE AUTH
     // Redirect to Emergent Google OAuth
-    const currentUrl = window.location.origin + '/login';
-    const redirectUri = encodeURIComponent(currentUrl);
-    window.location.href = `https://demobackend.emergentagent.com/auth/v1/env/oauth/google/start?redirect_uri=${redirectUri}`;
+    const redirectUrl = window.location.origin + '/dashboard';
+    window.location.href = `https://auth.emergentagent.com/?redirect=${encodeURIComponent(redirectUrl)}`;
   };
 
   return (
