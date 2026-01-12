@@ -185,6 +185,9 @@ function App() {
             <BrowserRouter>
               <ScrollToTop />
               <Routes>
+                {/* SaaS Landing Page - Public */}
+                <Route path="/saas" element={<LandingPage />} />
+                
                 {/* Marketing Routes - Public */}
                 <Route path="/" element={<Home />} />
                 <Route path="/pricing" element={<Pricing />} />
