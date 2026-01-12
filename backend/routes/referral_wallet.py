@@ -243,7 +243,12 @@ async def register_referred_person(
     
     # Check expiry
     if referral.get("expires_at"):
-        expires_at = datetime.fromisoformat(referral["expires_at"].replace('Z', '+00:00')) if isinstance(referral["expires_at"], str) else referral["expires_at"]
+        if isinstance(referral["expires_at"], str):
+            expires_at = datetime.fromisoformat(referral["expires_at"].replace('Z', '+00:00'))
+        else:
+            expires_at = referral["expires_at"]
+            if expires_at.tzinfo is None:
+                expires_at = expires_at.replace(tzinfo=timezone.utc)
         if datetime.now(timezone.utc) > expires_at:
             await db.referrals.update_one(
                 {"id": referral["id"]},
