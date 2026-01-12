@@ -3,7 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { LogOut, Building2, Users, BarChart3, FileText, UserCog, Home, Layers, MessageSquare, MapPin, Wallet, Shield, Tags, FolderTree, Settings, Bot, DollarSign, CreditCard } from 'lucide-react';
+import { LogOut, Building2, Users, BarChart3, FileText, UserCog, Home, Layers, MessageSquare, MapPin, Wallet, Shield, Tags, FolderTree, Settings, Bot, DollarSign, CreditCard, TrendingUp } from 'lucide-react';
 import NotificationCenter from '../components/notifications/NotificationCenter';
 import PageInfoModal from '../components/PageInfoModal';
 
