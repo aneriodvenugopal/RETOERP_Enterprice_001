@@ -15,11 +15,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Calendar, Clock, User, MapPin, Phone, Plus, Check, X,
   Play, Eye, Edit2, Trash2, Users, Building, ChevronRight,
-  AlertCircle, CheckCircle2, XCircle, RefreshCw
+  AlertCircle, CheckCircle2, XCircle, RefreshCw, TrendingUp
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
+import ClickableStatCard from '../components/ClickableStatCard';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
