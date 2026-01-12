@@ -435,6 +435,14 @@ function App() {
                 }
               />
               <Route
+                path="/booking-queue"
+                element={
+                  <PrivateRoute>
+                    <BookingQueue />
+                  </PrivateRoute>
+                }
+              />
+              <Route
                 path="/vendor-bills"
                 element={
                   <PrivateRoute>
