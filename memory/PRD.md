@@ -212,6 +212,9 @@ Build a comprehensive Real Estate ERP (RETOERP) SaaS platform for the Indian rea
 - [x] Site Visit SMS/WhatsApp/Email Reminders (Completed Jan 12, 2026)
 - [x] Global Header with User Info & Logout (Completed Jan 12, 2026)
 - [x] Dashboard Stats with Real Data (Completed Jan 12, 2026)
+- [x] UI Enhancement: Clickable Stat Cards across all pages (Completed Jan 12, 2026)
+- [x] UI Enhancement: Click-to-filter functionality (Completed Jan 12, 2026)
+- [x] UI Enhancement: Clickable phone/email links (Completed Jan 12, 2026)
 
 ### P4 - Future/Backlog
 - [x] Festival Greetings Automation - Backend cron job for Jan 26 & Aug 15 (Completed Jan 12, 2026)
