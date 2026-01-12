@@ -296,6 +296,218 @@ class SchedulerService:
             'reminders_sent': sent_count
         }
     
+    async def send_site_visit_reminders(self) -> Dict[str, Any]:
+        """
+        Send reminders for site visits scheduled for tomorrow.
+        Sends SMS/WhatsApp to visitors and reminder to assigned staff.
+        """
+        print("🏠 Checking site visit reminders...")
+        
+        # Get tomorrow's date
+        tomorrow = (datetime.now(timezone.utc) + timedelta(days=1)).strftime("%Y-%m-%d")
+        
+        # Find site visits scheduled for tomorrow
+        visits = await self.db.site_visits.find({
+            'scheduled_date': tomorrow,
+            'status': {'$in': ['scheduled', 'confirmed']},
+        }, {'_id': 0}).to_list(length=None)
+        
+        if not visits:
+            print(f"📅 No site visits scheduled for tomorrow ({tomorrow})")
+            return {
+                'target_date': tomorrow,
+                'total_visits': 0,
+                'visitor_reminders_sent': 0,
+                'staff_reminders_sent': 0
+            }
+        
+        visitor_sent = 0
+        staff_sent = 0
+        failed = 0
+        
+        for visit in visits:
+            # Get project details for location
+            project = await self.db.projects.find_one(
+                {'id': visit.get('project_id')},
+                {'_id': 0}
+            )
+            project_name = project.get('name', 'Property') if project else 'Property'
+            location = project.get('address') if project else None
+            
+            # Get staff details
+            staff = await self.db.users.find_one(
+                {'id': visit.get('assigned_to')},
+                {'_id': 0}
+            )
+            staff_name = visit.get('assigned_to_name', 'Our Team')
+            staff_phone = staff.get('phone') if staff else None
+            
+            # Format time
+            visit_date = visit.get('scheduled_date')
+            visit_time = visit.get('scheduled_time', '10:00')
+            
+            # Format date for display
+            try:
+                date_obj = datetime.strptime(visit_date, "%Y-%m-%d")
+                formatted_date = date_obj.strftime("%B %d, %Y")
+            except:
+                formatted_date = visit_date
+            
+            # Format time for display
+            try:
+                time_parts = visit_time.split(':')
+                hour = int(time_parts[0])
+                minute = time_parts[1] if len(time_parts) > 1 else '00'
+                ampm = 'AM' if hour < 12 else 'PM'
+                hour_12 = hour % 12 or 12
+                formatted_time = f"{hour_12}:{minute} {ampm}"
+            except:
+                formatted_time = visit_time
+            
+            visitor_name = visit.get('visitor_name', 'Customer')
+            visitor_phone = visit.get('visitor_mobile')
+            visitor_email = visit.get('visitor_email')
+            
+            # ===== SEND VISITOR REMINDER =====
+            if visitor_phone:
+                try:
+                    # Try WhatsApp first (more engaging)
+                    whatsapp_msg = NotificationTemplates.get_site_visit_reminder_whatsapp(
+                        visitor_name=visitor_name,
+                        project_name=project_name,
+                        visit_date=formatted_date,
+                        visit_time=formatted_time,
+                        staff_name=staff_name,
+                        staff_phone=staff_phone,
+                        location=location
+                    )
+                    
+                    wa_response = await self.notification_service.send_whatsapp(
+                        visitor_phone,
+                        whatsapp_msg
+                    )
+                    
+                    # Log WhatsApp notification
+                    await self.notification_service.log_notification(
+                        self.db,
+                        visitor_phone,
+                        'whatsapp',
+                        'site_visit_reminder',
+                        f"Site visit reminder for {project_name}",
+                        wa_response
+                    )
+                    
+                    # Also send SMS as backup
+                    sms_msg = NotificationTemplates.get_site_visit_reminder_sms(
+                        visitor_name=visitor_name,
+                        project_name=project_name,
+                        visit_date=formatted_date,
+                        visit_time=formatted_time,
+                        staff_name=staff_name,
+                        staff_phone=staff_phone
+                    )
+                    
+                    sms_response = await self.notification_service.send_sms(
+                        visitor_phone,
+                        sms_msg
+                    )
+                    
+                    await self.notification_service.log_notification(
+                        self.db,
+                        visitor_phone,
+                        'sms',
+                        'site_visit_reminder',
+                        sms_msg,
+                        sms_response
+                    )
+                    
+                    visitor_sent += 1
+                    
+                except Exception as e:
+                    print(f"Error sending visitor reminder: {e}")
+                    failed += 1
+            
+            # Send email reminder if visitor has email
+            if visitor_email:
+                try:
+                    email_html = NotificationTemplates.get_site_visit_reminder_email_html(
+                        visitor_name=visitor_name,
+                        project_name=project_name,
+                        visit_date=formatted_date,
+                        visit_time=formatted_time,
+                        staff_name=staff_name,
+                        staff_phone=staff_phone,
+                        location=location,
+                        duration=visit.get('duration_minutes', 60)
+                    )
+                    
+                    email_response = await self.notification_service.send_email(
+                        visitor_email,
+                        f"🏠 Site Visit Reminder - {project_name} - {formatted_date}",
+                        email_html,
+                        html=True
+                    )
+                    
+                    await self.notification_service.log_notification(
+                        self.db,
+                        visitor_email,
+                        'email',
+                        'site_visit_reminder',
+                        f"Site visit reminder email for {project_name}",
+                        email_response
+                    )
+                    
+                except Exception as e:
+                    print(f"Error sending visitor email reminder: {e}")
+            
+            # ===== SEND STAFF REMINDER =====
+            if staff and staff.get('phone'):
+                try:
+                    staff_sms = NotificationTemplates.get_site_visit_staff_reminder_sms(
+                        staff_name=staff_name,
+                        visitor_name=visitor_name,
+                        visitor_phone=visitor_phone or 'N/A',
+                        project_name=project_name,
+                        visit_time=formatted_time
+                    )
+                    
+                    staff_response = await self.notification_service.send_sms(
+                        staff['phone'],
+                        staff_sms
+                    )
+                    
+                    await self.notification_service.log_notification(
+                        self.db,
+                        staff['phone'],
+                        'sms',
+                        'site_visit_staff_reminder',
+                        staff_sms,
+                        staff_response
+                    )
+                    
+                    staff_sent += 1
+                    
+                except Exception as e:
+                    print(f"Error sending staff reminder: {e}")
+            
+            # Update visit to mark reminder sent
+            await self.db.site_visits.update_one(
+                {'id': visit['id']},
+                {'$set': {
+                    'reminder_sent': True,
+                    'reminder_sent_at': datetime.now(timezone.utc).isoformat()
+                }}
+            )
+        
+        print(f"✅ Site visit reminders: {visitor_sent} to visitors, {staff_sent} to staff, {failed} failed")
+        return {
+            'target_date': tomorrow,
+            'total_visits': len(visits),
+            'visitor_reminders_sent': visitor_sent,
+            'staff_reminders_sent': staff_sent,
+            'failed': failed
+        }
+    
     async def send_festival_greetings(self) -> Dict[str, Any]:
         """
         Send festival greetings on Republic Day (Jan 26) and Independence Day (Aug 15)
