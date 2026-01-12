@@ -328,7 +328,7 @@ const PublicLayoutView = () => {
                   height: '100%',
                   pointerEvents: 'all'
                 }}
-                viewBox={`0 0 ${svgDimensions.width} ${svgDimensions.height}`}
+                viewBox={`${svgDimensions.minX || 0} ${svgDimensions.minY || 0} ${svgDimensions.width} ${svgDimensions.height}`}
                 preserveAspectRatio="xMidYMid meet"
               >
                 {plots.map((plot) => (
