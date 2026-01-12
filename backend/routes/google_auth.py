@@ -16,7 +16,7 @@ DB_NAME = os.getenv("DB_NAME", "test_database")
 client = AsyncIOMotorClient(MONGO_URL)
 db = client[DB_NAME]
 
-FRONTEND_URL = os.getenv("REACT_APP_BACKEND_URL", "https://proptech-hub-54.preview.emergentagent.com")
+FRONTEND_URL = os.getenv("REACT_APP_BACKEND_URL", "https://realty-manager-27.preview.emergentagent.com")
 
 @router.get("/login")
 async def google_login():
