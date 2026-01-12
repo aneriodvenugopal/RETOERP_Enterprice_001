@@ -318,7 +318,12 @@ Build a comprehensive Real Estate ERP (ExlainERP) SaaS platform for the Indian r
 - `/resale-release` - Resale/Release management system
 - `/emi-payments` - EMI payment tracking and management
 - `/payments-dashboard` - Comprehensive payment tracking dashboard
-- `/commission-analytics` - Commission analytics with trends, leaderboard, TDS tracking (NEW)
+- `/commission-analytics` - Commission analytics with trends, leaderboard, TDS tracking
 - `/vendor-management` - Vendor directory, bills, and payments
 - `/complaints` - Customer complaint management system
 - `/referral-wallet` - Referral program & customer wallet
+
+## Public Routes (No Authentication Required)
+- `/saas` - SaaS marketing landing page
+- `/t/{tenant_id}` - Tenant public page with projects
+- `/p/{project_id}` - Project landing page with properties (NEW)
