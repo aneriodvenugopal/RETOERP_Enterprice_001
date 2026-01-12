@@ -105,7 +105,41 @@ const SiteVisits = () => {
 
   useEffect(() => {
     loadData();
+    checkCalendarStatus();
   }, []);
+
+  const checkCalendarStatus = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/api/site-visits/calendar/status`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      });
+      if (response.data.success) {
+        setCalendarConnected(response.data.calendar_connected);
+      }
+    } catch (error) {
+      console.error('Error checking calendar status:', error);
+    }
+  };
+
+  const handleSyncToCalendar = async (visitId) => {
+    try {
+      const response = await axios.post(
+        `${API_URL}/api/site-visits/${visitId}/sync-calendar`,
+        {},
+        { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+      );
+      
+      if (response.data.success) {
+        toast.success('📅 Synced to Google Calendar!');
+        if (response.data.calendar_link) {
+          window.open(response.data.calendar_link, '_blank');
+        }
+        loadData();
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Failed to sync to calendar');
+    }
+  };
 
   const loadData = async () => {
     setLoading(true);
