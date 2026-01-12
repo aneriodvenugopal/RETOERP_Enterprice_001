@@ -453,7 +453,8 @@ async def cancel_queue_entry(
     }
     
     if reason:
-        update_dict["notes"] = (entry.get("notes", "") + f"\nCancelled: {reason}").strip()
+        existing_notes = entry.get("notes") or ""
+        update_dict["notes"] = (existing_notes + f"\nCancelled: {reason}").strip()
     
     await db.booking_queue.update_one(
         {"id": entry_id},
