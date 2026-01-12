@@ -145,6 +145,7 @@ import EMIPaymentManagement from "./pages/EMIPaymentManagement";
 import VendorManagement from "./pages/VendorManagement";
 import ReferralWalletManagement from "./pages/ReferralWalletManagement";
 import ComplaintManagement from "./pages/ComplaintManagement";
+import PaymentsDashboard from "./pages/PaymentsDashboard";
 
 // PWA Components
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
@@ -501,6 +502,14 @@ function App() {
                 element={
                   <PrivateRoute>
                     <ComplaintManagement />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/payments-dashboard"
+                element={
+                  <PrivateRoute>
+                    <PaymentsDashboard />
                   </PrivateRoute>
                 }
               />
