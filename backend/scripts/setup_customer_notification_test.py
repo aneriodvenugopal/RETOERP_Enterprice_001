@@ -161,9 +161,9 @@ async def setup_customer_test():
     print("      → '🏠 Resale Request from Ramesh Kumar'")
     
     print("\n🔗 URLs:")
-    print("   Login: https://property-saas-4.preview.emergentagent.com/login")
-    print("   Properties: https://property-saas-4.preview.emergentagent.com/properties")
-    print("   Customer Dashboard: https://property-saas-4.preview.emergentagent.com/customer-dashboard")
+    print("   Login: https://proptech-hub-54.preview.emergentagent.com/login")
+    print("   Properties: https://proptech-hub-54.preview.emergentagent.com/properties")
+    print("   Customer Dashboard: https://proptech-hub-54.preview.emergentagent.com/customer-dashboard")
     
     print("\n💡 TIP: Keep both browsers open side-by-side to see")
     print("   notifications appear in real-time (refreshes every 30 seconds)")

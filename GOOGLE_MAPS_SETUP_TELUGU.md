@@ -184,7 +184,7 @@
 
    **మొదటి referrer:**
    ```
-   https://property-saas-4.preview.emergentagent.com/*
+   https://proptech-hub-54.preview.emergentagent.com/*
    ```
    - Paste చేసి Enter నొక్కండి
 
