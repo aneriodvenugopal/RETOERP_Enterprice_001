@@ -24,6 +24,7 @@ import {
 import { toast } from 'sonner';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import ClickableStatCard from '../components/ClickableStatCard';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
