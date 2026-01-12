@@ -574,11 +574,14 @@ class TestBookingQueueCancel:
     
     def test_cancel_queue_entry(self, api_client):
         """Test POST /api/booking-queue/{entry_id}/cancel - Cancel queue entry"""
+        import time
+        unique_suffix = str(int(time.time() * 1000))[-6:]
+        
         queue_data = {
             "project_id": TEST_PROJECT_ID,
-            "property_id": "TEST-plot-004",
+            "property_id": f"TEST-plot-cancel-{unique_suffix}",
             "customer_name": "TEST_Cancel_Customer",
-            "customer_mobile": "9988004411",
+            "customer_mobile": f"998805{unique_suffix[:4]}",
             "priority": 0
         }
         
