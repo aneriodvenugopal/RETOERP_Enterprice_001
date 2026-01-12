@@ -399,6 +399,19 @@ const Login = () => {
             </p>
           </div>
 
+          {/* Divider */}
+          <div className="relative py-2">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-200"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-4 bg-white text-gray-500">Or continue with</span>
+            </div>
+          </div>
+
+          {/* Google OAuth Button */}
+          <GoogleSignInButton />
+
           {/* Features */}
           <div className="grid grid-cols-3 gap-3 pt-4">
             <div className="text-center">
