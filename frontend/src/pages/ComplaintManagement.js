@@ -503,75 +503,55 @@ const ComplaintManagement = () => {
           </div>
         </div>
 
-        {/* Stats */}
+        {/* Stats - Clickable Cards */}
         {stats && (
           <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-blue-100 rounded-lg"><MessageSquare className="w-5 h-5 text-blue-600" /></div>
-                  <div>
-                    <p className="text-sm text-gray-500">Total</p>
-                    <p className="text-2xl font-bold">{stats.total}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-yellow-100 rounded-lg"><Clock className="w-5 h-5 text-yellow-600" /></div>
-                  <div>
-                    <p className="text-sm text-gray-500">Open</p>
-                    <p className="text-2xl font-bold">{stats.open}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-green-100 rounded-lg"><CheckCircle className="w-5 h-5 text-green-600" /></div>
-                  <div>
-                    <p className="text-sm text-gray-500">Resolved</p>
-                    <p className="text-2xl font-bold">{stats.by_status?.resolved || 0}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-red-100 rounded-lg"><AlertTriangle className="w-5 h-5 text-red-600" /></div>
-                  <div>
-                    <p className="text-sm text-gray-500">SLA Breached</p>
-                    <p className="text-2xl font-bold text-red-600">{stats.sla_breached}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-orange-100 rounded-lg"><ArrowUpCircle className="w-5 h-5 text-orange-600" /></div>
-                  <div>
-                    <p className="text-sm text-gray-500">Escalated</p>
-                    <p className="text-2xl font-bold">{stats.escalated}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-purple-100 rounded-lg"><Star className="w-5 h-5 text-purple-600" /></div>
-                  <div>
-                    <p className="text-sm text-gray-500">Avg Rating</p>
-                    <p className="text-2xl font-bold">{stats.avg_satisfaction || '-'}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <ClickableStatCard 
+              title="Total" 
+              value={stats.total} 
+              icon={MessageSquare} 
+              color="blue"
+              onClick={() => setActiveTab('all')}
+              className={activeTab === 'all' ? 'ring-2 ring-blue-500' : ''}
+            />
+            <ClickableStatCard 
+              title="Open" 
+              value={stats.open} 
+              icon={Clock} 
+              color="yellow"
+              onClick={() => setActiveTab('open')}
+              className={activeTab === 'open' ? 'ring-2 ring-yellow-500' : ''}
+            />
+            <ClickableStatCard 
+              title="Resolved" 
+              value={stats.by_status?.resolved || 0} 
+              icon={CheckCircle} 
+              color="green"
+              onClick={() => setActiveTab('resolved')}
+              className={activeTab === 'resolved' ? 'ring-2 ring-green-500' : ''}
+            />
+            <ClickableStatCard 
+              title="SLA Breached" 
+              value={stats.sla_breached} 
+              icon={AlertTriangle} 
+              color="red"
+              onClick={() => setActiveTab('sla_breached')}
+              className={activeTab === 'sla_breached' ? 'ring-2 ring-red-500' : ''}
+            />
+            <ClickableStatCard 
+              title="Escalated" 
+              value={stats.escalated} 
+              icon={ArrowUpCircle} 
+              color="orange"
+              onClick={() => setActiveTab('escalated')}
+              className={activeTab === 'escalated' ? 'ring-2 ring-orange-500' : ''}
+            />
+            <ClickableStatCard 
+              title="Avg Rating" 
+              value={stats.avg_satisfaction || '-'} 
+              icon={Star} 
+              color="purple"
+            />
           </div>
         )}
 
