@@ -296,6 +296,118 @@ class SchedulerService:
             'reminders_sent': sent_count
         }
     
+    async def send_festival_greetings(self) -> Dict[str, Any]:
+        """
+        Send festival greetings on Republic Day (Jan 26) and Independence Day (Aug 15)
+        Called daily by cron - only sends if today is a greeting day
+        """
+        print("🎉 Checking festival greetings...")
+        
+        today = datetime.now(timezone.utc).strftime("%m-%d")
+        
+        # Check if today is a greeting day
+        festival = None
+        if today == "01-26":
+            festival = "republic_day"
+        elif today == "08-15":
+            festival = "independence_day"
+        
+        if not festival:
+            print(f"📅 Today ({today}) is not a festival greeting day")
+            return {
+                'is_greeting_day': False,
+                'today': today,
+                'next_greeting': 'republic_day (01-26)' if today < '01-26' or today > '08-15' else 'independence_day (08-15)'
+            }
+        
+        print(f"🎊 Today is {festival}! Sending greetings...")
+        
+        # Get all enabled tenant configs
+        configs = await self.db.festival_greeting_configs.find(
+            {"is_enabled": True},
+            {"_id": 0}
+        ).to_list(1000)
+        
+        if not configs:
+            print("❌ No tenants have greetings enabled")
+            return {
+                'is_greeting_day': True,
+                'festival': festival,
+                'tenants_processed': 0,
+                'total_sent': 0
+            }
+        
+        # Message templates
+        GREETING_MESSAGES = {
+            "republic_day": "Warm wishes on Republic Day 🇮🇳\n– {company_name}",
+            "independence_day": "Warm wishes on Independence Day 🇮🇳\n– {company_name}"
+        }
+        
+        total_sent = 0
+        total_failed = 0
+        tenants_processed = 0
+        
+        for config in configs:
+            tenant_id = config.get("tenant_id")
+            company_name = config.get("company_name", "Your Company")
+            
+            # Get active recipients for this tenant
+            recipients = await self.db.greeting_recipients.find(
+                {
+                    "tenant_id": tenant_id,
+                    "is_active": True,
+                    "opted_out": {"$ne": True}
+                },
+                {"_id": 0}
+            ).to_list(10000)
+            
+            if not recipients:
+                continue
+            
+            message = GREETING_MESSAGES[festival].format(company_name=company_name)
+            today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+            
+            for recipient in recipients:
+                # Create log entry
+                log_entry = {
+                    "id": str(__import__('uuid').uuid4()),
+                    "tenant_id": tenant_id,
+                    "festival": festival,
+                    "festival_date": today_str,
+                    "recipient_id": recipient.get("id"),
+                    "recipient_name": recipient.get("name"),
+                    "recipient_mobile": recipient.get("mobile"),
+                    "message": message,
+                    "sent_at": datetime.now(timezone.utc).isoformat()
+                }
+                
+                # Try to send SMS
+                try:
+                    sms_response = await self.notification_service.send_sms(
+                        recipient["mobile"],
+                        message
+                    )
+                    log_entry["status"] = "sent"
+                    total_sent += 1
+                except Exception as e:
+                    log_entry["status"] = "failed"
+                    log_entry["error_message"] = str(e)
+                    total_failed += 1
+                
+                # Save log
+                await self.db.greeting_logs.insert_one(log_entry)
+            
+            tenants_processed += 1
+        
+        print(f"✅ Festival greetings: {total_sent} sent, {total_failed} failed across {tenants_processed} tenants")
+        return {
+            'is_greeting_day': True,
+            'festival': festival,
+            'tenants_processed': tenants_processed,
+            'total_sent': total_sent,
+            'total_failed': total_failed
+        }
+    
     async def run_all_tasks(self) -> Dict[str, Any]:
         """Run all scheduled tasks"""
         print("🚀 Starting scheduled tasks...")
@@ -323,6 +435,13 @@ class SchedulerService:
         except Exception as e:
             print(f"Error in follow-up reminders: {e}")
             results['follow_up_reminders'] = {'error': str(e)}
+        
+        # Run festival greetings check
+        try:
+            results['festival_greetings'] = await self.send_festival_greetings()
+        except Exception as e:
+            print(f"Error in festival greetings: {e}")
+            results['festival_greetings'] = {'error': str(e)}
         
         print("=" * 60)
         print("✅ All scheduled tasks completed")
