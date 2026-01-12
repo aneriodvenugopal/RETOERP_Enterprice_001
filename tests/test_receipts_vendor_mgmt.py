@@ -11,7 +11,7 @@ import os
 import uuid
 from datetime import datetime, timedelta
 
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://realty-manager-27.preview.emergentagent.com')
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://propmanager-41.preview.emergentagent.com')
 
 
 class TestAuth:

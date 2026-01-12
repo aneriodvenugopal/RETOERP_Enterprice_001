@@ -47,7 +47,7 @@
         tenantId: tenantId,
         position: position,
         primaryColor: primaryColor,
-        backendUrl: 'https://realty-manager-27.preview.emergentagent.com/api'
+        backendUrl: 'https://propmanager-41.preview.emergentagent.com/api'
       };
       
       // Load chat widget bundle

@@ -50,13 +50,13 @@
       "payment_receipt_pdf": {
         "status": "PASS",
         "api_endpoint": "GET /api/receipts/payment/{payment_id}",
-        "tested_with": "payment_id=67642298-f3cd-46c4-9c33-fbd9ccd83b3f",
+        "tested_with": "payment_id=propmanager-41",
         "response": "application/pdf, 3751 bytes"
       },
       "emi_schedule_pdf": {
         "status": "PASS",
         "api_endpoint": "GET /api/receipts/emi-schedule/{booking_id}",
-        "tested_with": "booking_id=5d3f65ac-6be8-4913-9a42-f2a6f2fa8e37",
+        "tested_with": "booking_id=propmanager-41",
         "response": "application/pdf, 3475 bytes"
       },
       "receipt_history": {
