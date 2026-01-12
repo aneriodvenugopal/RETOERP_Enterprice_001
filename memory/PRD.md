@@ -219,6 +219,9 @@ Build a comprehensive Real Estate ERP (ExlainERP) SaaS platform for the Indian r
 - [x] Brand Name Change: RETOERP → ExlainERP (Completed Jan 12, 2026)
 - [x] Logo Icon Fixed: Building2 icon for real estate (Completed Jan 12, 2026)
 - [x] SaaS Marketing Landing Page at /saas (Completed Jan 12, 2026)
+- [x] Demo Request Backend API: POST /api/public/demo-request (Completed Jan 12, 2026)
+- [x] Contact Inquiry Backend API: POST /api/public/contact-inquiry (Completed Jan 12, 2026)
+- [x] Tenant Public Pages at /t/{tenantId} (Completed Jan 12, 2026)
 
 ### P4 - Future/Backlog
 - [x] Festival Greetings Automation - Backend cron job for Jan 26 & Aug 15 (Completed Jan 12, 2026)
