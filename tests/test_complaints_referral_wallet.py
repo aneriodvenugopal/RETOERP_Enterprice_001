@@ -527,7 +527,7 @@ class TestReferralWalletSystem:
         """Get or create a test customer for referral/wallet tests"""
         # First try to get existing customers
         response = requests.get(
-            f"{BASE_URL}/api/customers-management/customers?limit=10",
+            f"{BASE_URL}/api/customers?limit=10",
             headers=headers
         )
         if response.status_code == 200:
@@ -542,7 +542,7 @@ class TestReferralWalletSystem:
             "email": "test.referral@example.com"
         }
         create_response = requests.post(
-            f"{BASE_URL}/api/customers-management/customers",
+            f"{BASE_URL}/api/customers",
             headers=headers,
             json=customer_data
         )
