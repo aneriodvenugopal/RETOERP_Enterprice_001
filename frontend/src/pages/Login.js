@@ -1,12 +1,109 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { authService } from '../services';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { FileText, Lock, Phone, KeyRound, ArrowRightLeft, Zap } from 'lucide-react';
+import { FileText, Lock, Phone, KeyRound, ArrowRightLeft, Zap, Loader2 } from 'lucide-react';
+
+const API_URL = process.env.REACT_APP_BACKEND_URL;
+
+// Google Sign-In Button Component
+const GoogleSignInButton = () => {
+  const [loading, setLoading] = useState(false);
+  const { login } = useAuth();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  // Check for OAuth callback
+  useEffect(() => {
+    const sessionId = searchParams.get('session_id');
+    if (sessionId) {
+      handleGoogleCallback(sessionId);
+    }
+  }, [searchParams]);
+
+  const handleGoogleCallback = async (sessionId) => {
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_URL}/api/auth/google/session`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ session_id: sessionId })
+      });
+
+      const data = await response.json();
+      
+      if (response.ok && data.access_token) {
+        // Store token and user data
+        localStorage.setItem('token', data.access_token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        
+        // Update auth context
+        await login(data.access_token, data.user);
+        
+        toast.success(`Welcome${data.user.is_new_user ? '! Account created' : ' back'}, ${data.user.name}!`);
+        navigate('/dashboard');
+      } else {
+        toast.error(data.detail || 'Google login failed');
+      }
+    } catch (error) {
+      console.error('Google auth error:', error);
+      toast.error('Failed to complete Google sign-in');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = () => {
+    // Redirect to Emergent Google OAuth
+    const currentUrl = window.location.origin + '/login';
+    const redirectUri = encodeURIComponent(currentUrl);
+    window.location.href = `https://demobackend.emergentagent.com/auth/v1/env/oauth/google/start?redirect_uri=${redirectUri}`;
+  };
+
+  return (
+    <Button
+      type="button"
+      variant="outline"
+      className="w-full py-6 border-2 border-gray-200 hover:border-gray-300 hover:bg-gray-50 font-medium"
+      onClick={handleGoogleSignIn}
+      disabled={loading}
+      data-testid="google-signin-btn"
+    >
+      {loading ? (
+        <div className="flex items-center gap-2">
+          <Loader2 className="w-5 h-5 animate-spin" />
+          Signing in with Google...
+        </div>
+      ) : (
+        <div className="flex items-center gap-3">
+          <svg className="w-5 h-5" viewBox="0 0 24 24">
+            <path
+              fill="#4285F4"
+              d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+            />
+            <path
+              fill="#34A853"
+              d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+            />
+            <path
+              fill="#FBBC05"
+              d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+            />
+            <path
+              fill="#EA4335"
+              d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+            />
+          </svg>
+          Continue with Google
+        </div>
+      )}
+    </Button>
+  );
+};
 
 const Login = () => {
   // Login mode: 'password' or 'otp'
