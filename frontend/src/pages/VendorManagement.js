@@ -429,66 +429,47 @@ const VendorManagement = () => {
           </div>
         </div>
 
-        {/* Stats */}
+        {/* Stats - Clickable Cards */}
         {stats && (
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-blue-100 rounded-lg"><Users className="w-5 h-5 text-blue-600" /></div>
-                  <div>
-                    <p className="text-sm text-gray-500">Total Vendors</p>
-                    <p className="text-2xl font-bold">{stats.total_vendors}</p>
-                    <p className="text-xs text-green-600">{stats.active_vendors} active</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-purple-100 rounded-lg"><FileText className="w-5 h-5 text-purple-600" /></div>
-                  <div>
-                    <p className="text-sm text-gray-500">Total Billed</p>
-                    <p className="text-xl font-bold">{formatCurrency(stats.total_billed)}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-green-100 rounded-lg"><CheckCircle className="w-5 h-5 text-green-600" /></div>
-                  <div>
-                    <p className="text-sm text-gray-500">Total Paid</p>
-                    <p className="text-xl font-bold">{formatCurrency(stats.total_paid)}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-yellow-100 rounded-lg"><Clock className="w-5 h-5 text-yellow-600" /></div>
-                  <div>
-                    <p className="text-sm text-gray-500">Outstanding</p>
-                    <p className="text-xl font-bold">{formatCurrency(stats.total_outstanding)}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-red-100 rounded-lg"><AlertTriangle className="w-5 h-5 text-red-600" /></div>
-                  <div>
-                    <p className="text-sm text-gray-500">Overdue</p>
-                    <p className="text-xl font-bold">{stats.overdue_count}</p>
-                    <p className="text-xs text-red-600">{formatCurrency(stats.overdue_amount)}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <ClickableStatCard 
+              title="Total Vendors" 
+              value={stats.total_vendors} 
+              icon={Users} 
+              color="blue"
+              subtitle={`${stats.active_vendors} active`}
+              onClick={() => setActiveTab('vendors')}
+              className={activeTab === 'vendors' ? 'ring-2 ring-blue-500' : ''}
+            />
+            <ClickableStatCard 
+              title="Total Billed" 
+              value={formatCurrency(stats.total_billed)} 
+              icon={FileText} 
+              color="purple"
+              onClick={() => setActiveTab('bills')}
+              className={activeTab === 'bills' ? 'ring-2 ring-purple-500' : ''}
+            />
+            <ClickableStatCard 
+              title="Total Paid" 
+              value={formatCurrency(stats.total_paid)} 
+              icon={CheckCircle} 
+              color="green"
+              onClick={() => setActiveTab('payments')}
+              className={activeTab === 'payments' ? 'ring-2 ring-green-500' : ''}
+            />
+            <ClickableStatCard 
+              title="Outstanding" 
+              value={formatCurrency(stats.total_outstanding)} 
+              icon={Clock} 
+              color="yellow"
+            />
+            <ClickableStatCard 
+              title="Overdue" 
+              value={stats.overdue_count} 
+              icon={AlertTriangle} 
+              color="red"
+              subtitle={formatCurrency(stats.overdue_amount)}
+            />
           </div>
         )}
 
