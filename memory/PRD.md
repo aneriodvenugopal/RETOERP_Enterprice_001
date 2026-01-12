@@ -236,13 +236,25 @@ Build a comprehensive Real Estate ERP (ExlainERP) SaaS platform for the Indian r
   - Project-wise commission breakdown
   - Staff performance details
   - Commission by Type (Direct vs Gap)
+- [x] **Project Landing Pages** - Public pages for each project (Completed Jan 12, 2026)
+  - Accessible at `/p/{project_id}` without authentication
+  - Hero section with project name, location, type, description
+  - Stats bar: Starting Price, Total Units, Available, Status
+  - Availability progress bar with color-coded segments
+  - Tabs: Overview, Properties, Amenities
+  - Property grid with filter by status and view modes (grid/list)
+  - Property detail modal on click
+  - Inquiry form that creates leads automatically
+  - Developer info with link to tenant page
+  - TenantPublicPage projects now link to project pages
 
 ### P4 - Future/Backlog
 - [x] Festival Greetings Automation - Backend cron job for Jan 26 & Aug 15 (Completed Jan 12, 2026)
+- [x] SaaS marketing pages - /saas landing page (Completed Jan 12, 2026)
+- [x] Tenant-specific public pages - /t/{tenant_id} (Completed Jan 12, 2026)
+- [x] Project landing pages - /p/{project_id} (Completed Jan 12, 2026)
 - [ ] Finance Module - Banking/Cash Accounts (Already exists - `/bank-accounts`, `/financials`)
-- [ ] SaaS marketing pages
-- [ ] Tenant-specific public pages
-- [ ] Project landing pages with custom domains
+- [ ] Custom domain support for tenant/project pages
 - [ ] React Native mobile app
 - [ ] AI Voice Assistant
 
