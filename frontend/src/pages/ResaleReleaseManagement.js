@@ -544,7 +544,7 @@ export default function ResaleReleaseManagement() {
                     <SelectValue placeholder="All Projects" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All Projects</SelectItem>
+                    <SelectItem value="all">All Projects</SelectItem>
                     {projects.map((p) => (
                       <SelectItem key={p.id} value={p.id}>
                         {p.name}
@@ -561,7 +561,7 @@ export default function ResaleReleaseManagement() {
                       <SelectValue placeholder="All Statuses" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All Statuses</SelectItem>
+                      <SelectItem value="all">All Statuses</SelectItem>
                       <SelectItem value="pending_approval">Pending Approval</SelectItem>
                       <SelectItem value="approved">Approved</SelectItem>
                       <SelectItem value="listed">Listed</SelectItem>
