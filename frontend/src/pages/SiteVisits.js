@@ -512,13 +512,26 @@ const SiteVisits = () => {
               <p className="text-slate-500">Schedule and track property visits</p>
             </div>
           </div>
-          <Button
-            onClick={() => setShowScheduleModal(true)}
-            className="gap-2 bg-blue-600 hover:bg-blue-700"
-          >
-            <Plus className="w-4 h-4" />
-            Schedule Visit
-          </Button>
+          <div className="flex items-center gap-3">
+            {calendarConnected ? (
+              <Badge className="bg-green-100 text-green-800 flex items-center gap-1">
+                <Calendar className="w-3 h-3" />
+                Google Calendar Connected
+              </Badge>
+            ) : (
+              <Badge className="bg-yellow-100 text-yellow-800 flex items-center gap-1" title="Connect in Settings to sync visits">
+                <AlertCircle className="w-3 h-3" />
+                Calendar Not Connected
+              </Badge>
+            )}
+            <Button
+              onClick={() => setShowScheduleModal(true)}
+              className="gap-2 bg-blue-600 hover:bg-blue-700"
+            >
+              <Plus className="w-4 h-4" />
+              Schedule Visit
+            </Button>
+          </div>
         </div>
       </div>
 
