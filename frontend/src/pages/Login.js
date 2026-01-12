@@ -153,12 +153,12 @@ const Login = () => {
       <Card className="w-full max-w-md shadow-2xl border-blue-200 relative z-10 bg-white/95 backdrop-blur">
         <CardHeader className="space-y-4 text-center">
           <div className="flex justify-center">
-            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shadow-lg">
-              <Waves className="w-10 h-10 text-white" />
+            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-green-500 to-blue-600 flex items-center justify-center shadow-lg">
+              <FileText className="w-10 h-10 text-white" />
             </div>
           </div>
           <div>
-            <CardTitle className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+            <CardTitle className="text-3xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
               ExlainERP
             </CardTitle>
             <CardDescription className="text-base mt-2 text-gray-600">
