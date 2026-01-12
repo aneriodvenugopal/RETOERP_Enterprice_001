@@ -240,62 +240,64 @@ const TenantPublicPage = () => {
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {projects.map((project) => (
-                <Card key={project.id} className="overflow-hidden hover:shadow-xl transition-all duration-300 group">
-                  {/* Project Image */}
-                  <div className="h-48 bg-gradient-to-br from-blue-100 to-purple-100 relative overflow-hidden">
-                    {project.image_url ? (
-                      <img 
-                        src={project.image_url} 
-                        alt={project.name} 
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <Building2 className="w-16 h-16 text-blue-300" />
+                <Link to={`/p/${project.id}`} key={project.id}>
+                  <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 group cursor-pointer">
+                    {/* Project Image */}
+                    <div className="h-48 bg-gradient-to-br from-blue-100 to-purple-100 relative overflow-hidden">
+                      {project.image_url ? (
+                        <img 
+                          src={project.image_url} 
+                          alt={project.name} 
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <Building2 className="w-16 h-16 text-blue-300" />
+                        </div>
+                      )}
+                      <div className="absolute top-3 right-3">
+                        <Badge className={`${
+                          project.status === 'completed' 
+                            ? 'bg-green-500' 
+                            : project.status === 'ongoing'
+                            ? 'bg-blue-500'
+                            : 'bg-orange-500'
+                        } text-white`}>
+                          {project.status || 'Ongoing'}
+                        </Badge>
                       </div>
-                    )}
-                    <div className="absolute top-3 right-3">
-                      <Badge className={`${
-                        project.status === 'completed' 
-                          ? 'bg-green-500' 
-                          : project.status === 'ongoing'
-                          ? 'bg-blue-500'
-                          : 'bg-orange-500'
-                      } text-white`}>
-                        {project.status || 'Ongoing'}
-                      </Badge>
                     </div>
-                  </div>
-                  
-                  <CardContent className="p-5">
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
-                      {project.name}
-                    </h3>
                     
-                    {project.location && (
-                      <div className="flex items-center gap-2 text-gray-600 text-sm mb-3">
-                        <MapPin className="w-4 h-4" />
-                        <span>{project.location || `${project.city}, ${project.state}`}</span>
+                    <CardContent className="p-5">
+                      <h3 className="text-xl font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
+                        {project.name}
+                      </h3>
+                      
+                      {project.location && (
+                        <div className="flex items-center gap-2 text-gray-600 text-sm mb-3">
+                          <MapPin className="w-4 h-4" />
+                          <span>{project.location || `${project.city}, ${project.state}`}</span>
+                        </div>
+                      )}
+                      
+                      <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                        {project.description || `${project.property_count || 0} properties available in this premium development.`}
+                      </p>
+                      
+                      <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+                        <div className="flex gap-4 text-sm">
+                          <span className="text-blue-600 font-medium">
+                            {project.available_count || 0} Available
+                          </span>
+                          <span className="text-gray-400">
+                            of {project.property_count || 0} units
+                          </span>
+                        </div>
+                        <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-blue-600 group-hover:translate-x-1 transition-all" />
                       </div>
-                    )}
-                    
-                    <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-                      {project.description || `${project.property_count || 0} properties available in this premium development.`}
-                    </p>
-                    
-                    <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-                      <div className="flex gap-4 text-sm">
-                        <span className="text-blue-600 font-medium">
-                          {project.available_count || 0} Available
-                        </span>
-                        <span className="text-gray-400">
-                          of {project.property_count || 0} units
-                        </span>
-                      </div>
-                      <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-blue-600 group-hover:translate-x-1 transition-all" />
-                    </div>
-                  </CardContent>
-                </Card>
+                    </CardContent>
+                  </Card>
+                </Link>
               ))}
             </div>
           )}
