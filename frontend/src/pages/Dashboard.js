@@ -341,11 +341,13 @@ const TenantAdminDashboard = () => {
       
       if (response.ok) {
         const data = await response.json();
+        // Data comes in overview object
+        const overview = data.overview || data;
         setStats({
-          projects: data.total_projects || 0,
-          leads: data.total_leads || 0,
-          bookings: data.total_bookings || 0,
-          team: data.total_staff || data.total_users || 0
+          projects: overview.total_projects || data.total_projects || 0,
+          leads: overview.total_leads || data.total_leads || 0,
+          bookings: overview.total_bookings || data.total_bookings || 0,
+          team: overview.total_staff || overview.total_users || data.total_staff || data.total_users || 0
         });
       }
     } catch (error) {
