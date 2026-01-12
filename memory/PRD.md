@@ -207,7 +207,7 @@ Build a comprehensive Real Estate ERP (RETOERP) SaaS platform for the Indian rea
 
 ### P3 - Lower Priority
 - [x] Organic Referral & Wallet System (Completed Jan 12, 2026)
-- [ ] Google Calendar integration for site visits
+- [x] Google Calendar integration for site visits (Completed Jan 12, 2026)
 - [x] Complaint System (Completed Jan 12, 2026)
 
 ### P4 - Future/Backlog
