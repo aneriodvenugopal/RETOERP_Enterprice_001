@@ -355,9 +355,14 @@ async def get_site_visit(visit_id: str, request: Request):
 @router.post("")
 async def create_site_visit(
     visit_data: SiteVisitCreate,
-    request: Request
+    request: Request,
+    sync_calendar: bool = True  # Optional param to sync with Google Calendar
 ):
-    """Schedule a new site visit"""
+    """
+    Schedule a new site visit.
+    If user has Google Calendar connected and sync_calendar=True,
+    automatically creates a calendar event.
+    """
     user = await get_current_user(request)
     db = get_db(request)
     
@@ -367,7 +372,7 @@ async def create_site_visit(
     # Validate project exists
     project = await db.projects.find_one(
         {"id": visit_data.project_id, "tenant_id": user["tenant_id"]},
-        {"_id": 0, "id": 1, "name": 1}
+        {"_id": 0}
     )
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
@@ -399,7 +404,18 @@ async def create_site_visit(
         created_by=user["user_id"]
     )
     
-    await db.site_visits.insert_one(visit.model_dump())
+    visit_dict = visit.model_dump()
+    
+    # Sync to Google Calendar if requested
+    calendar_result = None
+    if sync_calendar:
+        calendar_result = await sync_visit_to_calendar(db, visit_dict, user, project)
+        
+        if calendar_result and calendar_result.get("synced"):
+            visit_dict["google_event_id"] = calendar_result.get("google_event_id")
+            visit_dict["calendar_link"] = calendar_result.get("calendar_link")
+    
+    await db.site_visits.insert_one(visit_dict)
     
     # If linked to a lead, update lead status
     if visit_data.lead_id:
@@ -411,10 +427,15 @@ async def create_site_visit(
             }}
         )
     
+    # Remove MongoDB _id before returning
+    visit_dict.pop("_id", None)
+    
     return {
         "success": True,
-        "visit": visit.model_dump(),
-        "message": f"Site visit scheduled for {visit_data.scheduled_date} at {visit_data.scheduled_time}"
+        "visit": visit_dict,
+        "message": f"Site visit scheduled for {visit_data.scheduled_date} at {visit_data.scheduled_time}",
+        "calendar_synced": calendar_result.get("synced") if calendar_result else False,
+        "calendar_link": calendar_result.get("calendar_link") if calendar_result else None
     }
 
 
