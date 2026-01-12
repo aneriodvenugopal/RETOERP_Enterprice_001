@@ -211,8 +211,8 @@ Build a comprehensive Real Estate ERP (RETOERP) SaaS platform for the Indian rea
 - [x] Complaint System (Completed Jan 12, 2026)
 
 ### P4 - Future/Backlog
-- [ ] Finance Module - Banking/Cash Accounts & Dynamic Commission Tracking
-- [ ] Festival Greetings Automation - Backend cron job for Jan 26 & Aug 15
+- [x] Festival Greetings Automation - Backend cron job for Jan 26 & Aug 15 (Completed Jan 12, 2026)
+- [ ] Finance Module - Banking/Cash Accounts (Already exists - `/bank-accounts`, `/financials`)
 - [ ] SaaS marketing pages
 - [ ] Tenant-specific public pages
 - [ ] Project landing pages with custom domains
