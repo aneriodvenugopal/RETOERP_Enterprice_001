@@ -315,8 +315,8 @@ const ProjectPublicPage = () => {
               {tenant.logo_url ? (
                 <img src={tenant.logo_url} alt={tenant.company_name} className="h-10 w-auto" />
               ) : (
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center">
-                  <Building2 className="w-6 h-6 text-white" />
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-blue-600 flex items-center justify-center">
+                  <FileText className="w-6 h-6 text-white" />
                 </div>
               )}
               <div>
