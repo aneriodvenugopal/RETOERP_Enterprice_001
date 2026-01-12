@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="25" failures="1" skipped="0" tests="26" time="2.166" timestamp="2026-01-12T04:12:26.890993+00:00" hostname="agent-env-1ff34f67-12a2-4653-938f-7a82d3af75cc"><testcase classname="tests.test_p1_features.TestAuth" name="test_login_success" time="0.297"><failure message="AssertionError: assert 'token' in {'access_token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNmZlZTYyYTItMTljMC00M2JmLWI2MTctZjY3YmM4ZTQ4YTBjIiwidGVuYW50X2lkIjoiZjE4ZjdiZDYtM2ExZi00NzJkLWFjZjktYzJmYjE4MTc4N2U3Iiwicm9sZSI6InRlbmFudF9hZG1pbiIsImV4cCI6MTc2ODI3NzU0N30.-tJsxn8sD9AwTpbYFyO1NeMwDsodYLMVRNeCyNl5lII', 'token_type': 'bearer', 'user': {'email': 'rajam@retoerp.com', 'id': '6fee62a2-19c0-43bf-b617-f67bc8e48a0c', 'name': 'rajam', 'phone': '9908290239', ...}}">tests/test_p1_features.py:37: in test_login_success
+    assert "token" in data
+E   AssertionError: assert 'token' in {'access_token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNmZlZTYyYTItMTljMC00M2JmLWI2MTctZjY3YmM4ZTQ4YTBjIiwidGVuYW50X2lkIjoiZjE4ZjdiZDYtM2ExZi00NzJkLWFjZjktYzJmYjE4MTc4N2U3Iiwicm9sZSI6InRlbmFudF9hZG1pbiIsImV4cCI6MTc2ODI3NzU0N30.-tJsxn8sD9AwTpbYFyO1NeMwDsodYLMVRNeCyNl5lII', 'token_type': 'bearer', 'user': {'email': 'rajam@retoerp.com', 'id': '6fee62a2-19c0-43bf-b617-f67bc8e48a0c', 'name': 'rajam', 'phone': '9908290239', ...}}</failure></testcase><testcase classname="tests.test_p1_features.TestDocumentLockerPhysicalLocations" name="test_get_physical_locations" time="0.262"><error message="failed on setup with &quot;KeyError: 'token'&quot;">tests/test_p1_features.py:52: in auth_token
+    return response.json()["token"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'token'</error></testcase><testcase classname="tests.test_p1_features.TestDocumentLockerPhysicalLocations" name="test_create_physical_location" time="0.000"><error message="failed on setup with &quot;KeyError: 'token'&quot;">tests/test_p1_features.py:52: in auth_token
+    return response.json()["token"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'token'</error></testcase><testcase classname="tests.test_p1_features.TestDocumentLockerPhysicalLocations" name="test_create_duplicate_location_fails" time="0.000"><error message="failed on setup with &quot;KeyError: 'token'&quot;">tests/test_p1_features.py:52: in auth_token
+    return response.json()["token"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'token'</error></testcase><testcase classname="tests.test_p1_features.TestDocumentLockerDocuments" name="test_get_documents" time="0.267"><error message="failed on setup with &quot;KeyError: 'token'&quot;">tests/test_p1_features.py:124: in auth_token
+    return response.json()["token"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'token'</error></testcase><testcase classname="tests.test_p1_features.TestDocumentLockerDocuments" name="test_upload_file" time="0.000"><error message="failed on setup with &quot;KeyError: 'token'&quot;">tests/test_p1_features.py:124: in auth_token
+    return response.json()["token"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'token'</error></testcase><testcase classname="tests.test_p1_features.TestDocumentLockerDocuments" name="test_create_document_with_physical_location" time="0.000"><error message="failed on setup with &quot;KeyError: 'token'&quot;">tests/test_p1_features.py:124: in auth_token
+    return response.json()["token"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'token'</error></testcase><testcase classname="tests.test_p1_features.TestDocumentLockerDocuments" name="test_get_document_by_id" time="0.000"><error message="failed on setup with &quot;KeyError: 'token'&quot;">tests/test_p1_features.py:124: in auth_token
+    return response.json()["token"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'token'</error></testcase><testcase classname="tests.test_p1_features.TestDocumentLockerSearch" name="test_search_by_customer_name" time="0.262"><error message="failed on setup with &quot;KeyError: 'token'&quot;">tests/test_p1_features.py:279: in auth_token
+    return response.json()["token"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'token'</error></testcase><testcase classname="tests.test_p1_features.TestDocumentLockerSearch" name="test_search_by_mobile" time="0.000"><error message="failed on setup with &quot;KeyError: 'token'&quot;">tests/test_p1_features.py:279: in auth_token
+    return response.json()["token"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'token'</error></testcase><testcase classname="tests.test_p1_features.TestDocumentLockerSearch" name="test_search_by_keyword" time="0.000"><error message="failed on setup with &quot;KeyError: 'token'&quot;">tests/test_p1_features.py:279: in auth_token
+    return response.json()["token"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'token'</error></testcase><testcase classname="tests.test_p1_features.TestFestivalGreetingsConfig" name="test_get_greeting_config" time="0.264"><error message="failed on setup with &quot;KeyError: 'token'&quot;">tests/test_p1_features.py:389: in auth_token
+    return response.json()["token"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'token'</error></testcase><testcase classname="tests.test_p1_features.TestFestivalGreetingsConfig" name="test_update_greeting_config_enable" time="0.000"><error message="failed on setup with &quot;KeyError: 'token'&quot;">tests/test_p1_features.py:389: in auth_token
+    return response.json()["token"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'token'</error></testcase><testcase classname="tests.test_p1_features.TestFestivalGreetingsConfig" name="test_update_greeting_config_disable" time="0.000"><error message="failed on setup with &quot;KeyError: 'token'&quot;">tests/test_p1_features.py:389: in auth_token
+    return response.json()["token"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'token'</error></testcase><testcase classname="tests.test_p1_features.TestFestivalGreetingsConfig" name="test_config_requires_company_name" time="0.000"><error message="failed on setup with &quot;KeyError: 'token'&quot;">tests/test_p1_features.py:389: in auth_token
+    return response.json()["token"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'token'</error></testcase><testcase classname="tests.test_p1_features.TestFestivalGreetingsRecipients" name="test_get_recipients" time="0.263"><error message="failed on setup with &quot;KeyError: 'token'&quot;">tests/test_p1_features.py:453: in auth_token
+    return response.json()["token"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'token'</error></testcase><testcase classname="tests.test_p1_features.TestFestivalGreetingsRecipients" name="test_add_customer_recipient" time="0.000"><error message="failed on setup with &quot;KeyError: 'token'&quot;">tests/test_p1_features.py:453: in auth_token
+    return response.json()["token"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'token'</error></testcase><testcase classname="tests.test_p1_features.TestFestivalGreetingsRecipients" name="test_add_past_customer_recipient" time="0.000"><error message="failed on setup with &quot;KeyError: 'token'&quot;">tests/test_p1_features.py:453: in auth_token
+    return response.json()["token"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'token'</error></testcase><testcase classname="tests.test_p1_features.TestFestivalGreetingsRecipients" name="test_add_internal_contact_recipient" time="0.000"><error message="failed on setup with &quot;KeyError: 'token'&quot;">tests/test_p1_features.py:453: in auth_token
+    return response.json()["token"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'token'</error></testcase><testcase classname="tests.test_p1_features.TestFestivalGreetingsRecipients" name="test_reject_lead_as_recipient" time="0.000"><error message="failed on setup with &quot;KeyError: 'token'&quot;">tests/test_p1_features.py:453: in auth_token
+    return response.json()["token"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'token'</error></testcase><testcase classname="tests.test_p1_features.TestFestivalGreetingsRecipients" name="test_remove_recipient" time="0.000"><error message="failed on setup with &quot;KeyError: 'token'&quot;">tests/test_p1_features.py:453: in auth_token
+    return response.json()["token"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'token'</error></testcase><testcase classname="tests.test_p1_features.TestFestivalGreetingsSend" name="test_send_republic_day_greetings" time="0.260"><error message="failed on setup with &quot;KeyError: 'token'&quot;">tests/test_p1_features.py:594: in auth_token
+    return response.json()["token"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'token'</error></testcase><testcase classname="tests.test_p1_features.TestFestivalGreetingsSend" name="test_send_independence_day_greetings" time="0.000"><error message="failed on setup with &quot;KeyError: 'token'&quot;">tests/test_p1_features.py:594: in auth_token
+    return response.json()["token"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'token'</error></testcase><testcase classname="tests.test_p1_features.TestFestivalGreetingsSend" name="test_reject_invalid_festival" time="0.000"><error message="failed on setup with &quot;KeyError: 'token'&quot;">tests/test_p1_features.py:594: in auth_token
+    return response.json()["token"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'token'</error></testcase><testcase classname="tests.test_p1_features.TestFestivalGreetingsSend" name="test_get_greeting_logs" time="0.000"><error message="failed on setup with &quot;KeyError: 'token'&quot;">tests/test_p1_features.py:594: in auth_token
+    return response.json()["token"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'token'</error></testcase><testcase classname="tests.test_p1_features.TestFestivalGreetingsSend" name="test_check_today_greetings" time="0.000"><error message="failed on setup with &quot;KeyError: 'token'&quot;">tests/test_p1_features.py:594: in auth_token
+    return response.json()["token"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'token'</error></testcase></testsuite></testsuites>
