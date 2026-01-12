@@ -194,6 +194,7 @@ function App() {
                 
                 {/* Tenant Public Page - Custom branded pages */}
                 <Route path="/t/:tenantId" element={<TenantPublicPage />} />
+                <Route path="/p/:projectId" element={<ProjectPublicPage />} />
                 
                 {/* Marketing Routes - Public */}
                 <Route path="/" element={<Home />} />
