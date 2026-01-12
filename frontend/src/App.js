@@ -140,6 +140,7 @@ import BookingQueue from "./pages/BookingQueue";
 import CustomersManagement from "./pages/CustomersManagement";
 import ResaleReleaseManagement from "./pages/ResaleReleaseManagement";
 import EMIPaymentManagement from "./pages/EMIPaymentManagement";
+import VendorManagement from "./pages/VendorManagement";
 
 // PWA Components
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
@@ -466,6 +467,14 @@ function App() {
                 element={
                   <PrivateRoute>
                     <EMIPaymentManagement />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/vendor-management"
+                element={
+                  <PrivateRoute>
+                    <VendorManagement />
                   </PrivateRoute>
                 }
               />
