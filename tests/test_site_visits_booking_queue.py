@@ -503,11 +503,17 @@ class TestBookingQueueNotInterested:
         assert response.status_code == 200
         data = response.json()
         assert data["success"] is True
-        assert data["new_status"] == "skipped"
         
-        # Should indicate next in queue
+        # When there's a next person in queue, response includes next_in_queue
+        # Otherwise it includes new_status
         if "next_in_queue" in data:
             assert data["next_in_queue"]["id"] == entry2_id
+        else:
+            assert data["new_status"] == "skipped"
+        
+        # Verify first entry status changed to skipped
+        get_response = api_client.get(f"{BASE_URL}/api/booking-queue/{entry1_id}")
+        assert get_response.json()["entry"]["status"] == "skipped"
 
 
 class TestBookingQueueMoveUp:
