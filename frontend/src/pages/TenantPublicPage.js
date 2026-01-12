@@ -120,8 +120,26 @@ const TenantPublicPage = () => {
   const projects = tenantData?.projects || [];
   const stats = tenantData?.stats || {};
 
+  // Generate SEO structured data
+  const organizationData = tenantData ? generateOrganizationStructuredData(tenant) : null;
+  const breadcrumbData = generateBreadcrumbStructuredData([
+    { name: 'Home', url: '/' },
+    { name: tenant.company_name || 'Developer', url: `/t/${tenantId}` }
+  ]);
+
   return (
     <div className="min-h-screen bg-white">
+      {/* SEO Meta Tags */}
+      <SEOHead
+        title={`${tenant.company_name || 'Real Estate Developer'} | ${tenant.city || 'India'} - Properties & Projects`}
+        description={`${tenant.description || tenant.company_name} - ${stats.project_count || projects.length || 0} projects with ${stats.total_properties || 0}+ properties in ${tenant.city}, ${tenant.state}. ${stats.years_experience || 10}+ years of excellence in real estate.`}
+        keywords={`${tenant.company_name}, real estate ${tenant.city}, property developer ${tenant.state}, buy property, plots, apartments, villas, ${projects.map(p => p.name).slice(0, 5).join(', ')}`}
+        image={tenant.logo_url || tenant.banner_url}
+        url={`/t/${tenantId}`}
+        type="website"
+        structuredData={[organizationData, breadcrumbData]}
+      />
+
       {/* Header */}
       <header className="bg-white border-b border-gray-100 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
