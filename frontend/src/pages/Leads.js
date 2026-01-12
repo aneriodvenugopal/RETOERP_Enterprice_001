@@ -60,6 +60,21 @@ const Leads = () => {
     fetchProjects();
   }, []);
 
+  // Filter leads when filter changes
+  useEffect(() => {
+    if (activeFilter === 'all') {
+      setFilteredLeads(leads);
+    } else if (activeFilter === 'active') {
+      setFilteredLeads(leads.filter(l => !l.is_converted));
+    } else if (activeFilter === 'converted') {
+      setFilteredLeads(leads.filter(l => l.is_converted));
+    }
+  }, [leads, activeFilter]);
+
+  const handleFilterClick = (filter) => {
+    setActiveFilter(filter);
+  };
+
   const fetchLeads = async () => {
     try {
       const data = await leadService.getAll();
