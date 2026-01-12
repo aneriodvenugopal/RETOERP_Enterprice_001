@@ -11,6 +11,7 @@
  * - Price range
  * - Contact/Inquiry form
  * - Developer/Tenant info
+ * - SEO optimized with structured data
  */
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
@@ -29,6 +30,7 @@ import {
   Heart, Download, Eye, Grid, List, Filter, X
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { SEOHead, generateProjectStructuredData, generateBreadcrumbStructuredData } from '../components/SEOHead';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
