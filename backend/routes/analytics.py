@@ -35,6 +35,25 @@ async def get_dashboard_analytics(
         end_date=end
     )
     
+    # Add project and team counts
+    project_query = {"deleted_at": None}
+    user_query = {"deleted_at": None, "is_active": True}
+    
+    if tenant_id:
+        project_query["tenant_id"] = tenant_id
+        user_query["tenant_id"] = tenant_id
+    
+    total_projects = await db.projects.count_documents(project_query)
+    total_team = await db.users.count_documents(user_query)
+    
+    # Add to overview
+    if "overview" in metrics:
+        metrics["overview"]["total_projects"] = total_projects
+        metrics["overview"]["total_team"] = total_team
+    else:
+        metrics["total_projects"] = total_projects
+        metrics["total_team"] = total_team
+    
     return metrics
 
 @router.get("/leads")
