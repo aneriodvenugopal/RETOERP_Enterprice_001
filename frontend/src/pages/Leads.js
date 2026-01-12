@@ -16,12 +16,14 @@ import ClickableStatCard from '../components/ClickableStatCard';
 
 const Leads = () => {
   const [leads, setLeads] = useState([]);
+  const [filteredLeads, setFilteredLeads] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showDetailsDialog, setShowDetailsDialog] = useState(false);
   const [selectedLead, setSelectedLead] = useState(null);
   const [leadDetails, setLeadDetails] = useState(null);
+  const [activeFilter, setActiveFilter] = useState('all'); // all, active, converted
   
   const [leadStatuses, setLeadStatuses] = useState([]);
   const [leadSources, setLeadSources] = useState([]);
