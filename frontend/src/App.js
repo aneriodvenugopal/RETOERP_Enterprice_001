@@ -141,6 +141,7 @@ import CustomersManagement from "./pages/CustomersManagement";
 import ResaleReleaseManagement from "./pages/ResaleReleaseManagement";
 import EMIPaymentManagement from "./pages/EMIPaymentManagement";
 import VendorManagement from "./pages/VendorManagement";
+import ReferralWalletManagement from "./pages/ReferralWalletManagement";
 
 // PWA Components
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
@@ -475,6 +476,14 @@ function App() {
                 element={
                   <PrivateRoute>
                     <VendorManagement />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/referral-wallet"
+                element={
+                  <PrivateRoute>
+                    <ReferralWalletManagement />
                   </PrivateRoute>
                 }
               />
