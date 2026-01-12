@@ -27,7 +27,7 @@ import {
   CheckCircle, ArrowRight, Star, Calendar, Clock, IndianRupee,
   ChevronRight, AlertCircle, Bed, Bath, Square, Car, Trees,
   Shield, Dumbbell, Waves, Coffee, Wifi, Camera, Share2,
-  Heart, Download, Eye, Grid, List, Filter, X
+  Heart, Download, Eye, Grid, List, Filter, X, FileText
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { SEOHead, generateProjectStructuredData, generateBreadcrumbStructuredData } from '../components/SEOHead';
