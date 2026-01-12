@@ -274,7 +274,8 @@ Build a comprehensive Real Estate ERP (ExlainERP) SaaS platform for the Indian r
 
 ## Test Credentials
 - **Super Admin**: superadmin@exlainerp.com / admin123
-- **Tenant Admin**: rajam@exlainerp.com / 12345678
+- **Tenant Admin (phone)**: 9908290239 / 12345678
+- **Tenant Admin (email)**: rajam@retoerp.com / 12345678
 
 ## Test Reports
 - `/app/test_reports/iteration_1.json` - Layout features
@@ -284,6 +285,7 @@ Build a comprehensive Real Estate ERP (ExlainERP) SaaS platform for the Indian r
 - `/app/test_reports/iteration_5.json` - EMI Payment Module (22/22 tests passed)
 - `/app/test_reports/iteration_6.json` - Receipt Generation & Vendor Management (24/24 tests passed)
 - `/app/test_reports/iteration_8.json` - Complaint System & Referral/Wallet (33/34 tests passed)
+- `/app/test_reports/iteration_9.json` - Payments Dashboard (7/7 backend + full frontend pass)
 
 ## New Routes Added (Jan 12, 2026)
 - `/document-locker` - Document storage with physical location mapping
@@ -293,6 +295,7 @@ Build a comprehensive Real Estate ERP (ExlainERP) SaaS platform for the Indian r
 - `/customers-management` - Customer database with wallet
 - `/resale-release` - Resale/Release management system
 - `/emi-payments` - EMI payment tracking and management
+- `/payments-dashboard` - Comprehensive payment tracking dashboard (NEW)
 - `/vendor-management` - Vendor directory, bills, and payments
 - `/complaints` - Customer complaint management system (NEW)
 - `/referral-wallet` - Referral program & customer wallet (NEW)
