@@ -270,8 +270,41 @@ const ProjectPublicPage = () => {
   const priceRange = projectData?.price_range || {};
   const amenities = project.amenities || [];
 
+  // Generate SEO structured data
+  const projectStructuredData = projectData ? generateProjectStructuredData(
+    project,
+    tenant,
+    projectData.properties || [],
+    priceRange
+  ) : null;
+
+  const breadcrumbData = generateBreadcrumbStructuredData([
+    { name: 'Home', url: '/' },
+    { name: tenant.company_name || 'Developer', url: `/t/${tenant.id}` },
+    { name: project.name || 'Project', url: `/p/${projectId}` }
+  ]);
+
+  // Format price for SEO
+  const formatPriceForSEO = (price) => {
+    if (!price) return '';
+    if (price >= 10000000) return `₹${(price / 10000000).toFixed(2)} Cr`;
+    if (price >= 100000) return `₹${(price / 100000).toFixed(2)} L`;
+    return `₹${price.toLocaleString('en-IN')}`;
+  };
+
   return (
     <div className="min-h-screen bg-white" data-testid="project-public-page">
+      {/* SEO Meta Tags */}
+      <SEOHead
+        title={`${project.name} | ${tenant.company_name || 'Real Estate Project'} | ${project.city || 'India'}`}
+        description={`${project.description || project.name} - ${stats.available || 0} units available starting from ${formatPriceForSEO(priceRange.min)}. Located at ${project.location || project.city}. ${project.amenities?.slice(0, 3).join(', ') || 'Premium amenities'}. RERA: ${project.rera_number || 'Registered'}`}
+        keywords={`${project.name}, ${tenant.company_name}, ${project.city}, ${project.state}, real estate, property, ${project.project_type || 'residential'}, ${project.amenities?.join(', ') || ''}, buy property India`}
+        image={project.banner_url || project.image_url}
+        url={`/p/${projectId}`}
+        type="product"
+        structuredData={[projectStructuredData, breadcrumbData]}
+      />
+
       {/* Header */}
       <header className="bg-white border-b border-gray-100 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
