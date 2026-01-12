@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="8" skipped="0" tests="10" time="3.378" timestamp="2026-01-12T16:52:08.295403+00:00" hostname="agent-env-f7261539-d716-48fc-bd85-ee53f5637549"><testcase classname="tests.test_commission_analytics.TestCommissionAnalyticsAPI" name="test_login_success" time="0.568"><failure message="AssertionError: assert 'token' in {'access_token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNmZlZTYyYTItMTljMC00M2JmLWI2MTctZjY3YmM4ZTQ4YTBjIiwidGVuYW50X2lkIjoiZjE4ZjdiZDYtM2ExZi00NzJkLWFjZjktYzJmYjE4MTc4N2U3Iiwicm9sZSI6InRlbmFudF9hZG1pbiIsImV4cCI6MTc2ODMyMzEyOH0.LfZr3Vu5U2mudFjqXaksHkraRPp-GgRxpKV9D4IdaoI', 'token_type': 'bearer', 'user': {'email': 'rajam@retoerp.com', 'id': '6fee62a2-19c0-43bf-b617-f67bc8e48a0c', 'name': 'rajam', 'phone': '9908290239', ...}}">tests/test_commission_analytics.py:47: in test_login_success
+    assert "token" in data
+E   AssertionError: assert 'token' in {'access_token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNmZlZTYyYTItMTljMC00M2JmLWI2MTctZjY3YmM4ZTQ4YTBjIiwidGVuYW50X2lkIjoiZjE4ZjdiZDYtM2ExZi00NzJkLWFjZjktYzJmYjE4MTc4N2U3Iiwicm9sZSI6InRlbmFudF9hZG1pbiIsImV4cCI6MTc2ODMyMzEyOH0.LfZr3Vu5U2mudFjqXaksHkraRPp-GgRxpKV9D4IdaoI', 'token_type': 'bearer', 'user': {'email': 'rajam@retoerp.com', 'id': '6fee62a2-19c0-43bf-b617-f67bc8e48a0c', 'name': 'rajam', 'phone': '9908290239', ...}}</failure></testcase><testcase classname="tests.test_commission_analytics.TestCommissionAnalyticsAPI" name="test_dashboard_endpoint" time="0.273"><failure message="AssertionError: Expected 200, got 401&#10;assert 401 == 200&#10; +  where 401 = &lt;Response [401]&gt;.status_code">tests/test_commission_analytics.py:55: in test_dashboard_endpoint
+    assert response.status_code == 200, f"Expected 200, got {response.status_code}"
+E   AssertionError: Expected 200, got 401
+E   assert 401 == 200
+E    +  where 401 = &lt;Response [401]&gt;.status_code</failure></testcase><testcase classname="tests.test_commission_analytics.TestCommissionAnalyticsAPI" name="test_dashboard_with_project_filter" time="0.273" /><testcase classname="tests.test_commission_analytics.TestCommissionAnalyticsAPI" name="test_trends_endpoint" time="0.269"><failure message="AssertionError: Expected 200, got 401&#10;assert 401 == 200&#10; +  where 401 = &lt;Response [401]&gt;.status_code">tests/test_commission_analytics.py:130: in test_trends_endpoint
+    assert response.status_code == 200, f"Expected 200, got {response.status_code}"
+E   AssertionError: Expected 200, got 401
+E   assert 401 == 200
+E    +  where 401 = &lt;Response [401]&gt;.status_code</failure></testcase><testcase classname="tests.test_commission_analytics.TestCommissionAnalyticsAPI" name="test_trends_quarterly" time="0.276"><failure message="assert 401 == 200&#10; +  where 401 = &lt;Response [401]&gt;.status_code">tests/test_commission_analytics.py:157: in test_trends_quarterly
+    assert response.status_code == 200
+E   assert 401 == 200
+E    +  where 401 = &lt;Response [401]&gt;.status_code</failure></testcase><testcase classname="tests.test_commission_analytics.TestCommissionAnalyticsAPI" name="test_top_performers_endpoint" time="0.276"><failure message="AssertionError: Expected 200, got 401&#10;assert 401 == 200&#10; +  where 401 = &lt;Response [401]&gt;.status_code">tests/test_commission_analytics.py:169: in test_top_performers_endpoint
+    assert response.status_code == 200, f"Expected 200, got {response.status_code}"
+E   AssertionError: Expected 200, got 401
+E   assert 401 == 200
+E    +  where 401 = &lt;Response [401]&gt;.status_code</failure></testcase><testcase classname="tests.test_commission_analytics.TestCommissionAnalyticsAPI" name="test_top_performers_all_time" time="0.319"><failure message="assert 401 == 200&#10; +  where 401 = &lt;Response [401]&gt;.status_code">tests/test_commission_analytics.py:196: in test_top_performers_all_time
+    assert response.status_code == 200
+E   assert 401 == 200
+E    +  where 401 = &lt;Response [401]&gt;.status_code</failure></testcase><testcase classname="tests.test_commission_analytics.TestCommissionAnalyticsAPI" name="test_project_breakdown_endpoint" time="0.277"><failure message="AssertionError: Expected 200, got 401&#10;assert 401 == 200&#10; +  where 401 = &lt;Response [401]&gt;.status_code">tests/test_commission_analytics.py:206: in test_project_breakdown_endpoint
+    assert response.status_code == 200, f"Expected 200, got {response.status_code}"
+E   AssertionError: Expected 200, got 401
+E   assert 401 == 200
+E    +  where 401 = &lt;Response [401]&gt;.status_code</failure></testcase><testcase classname="tests.test_commission_analytics.TestCommissionAnalyticsAPI" name="test_payout_summary_endpoint" time="0.273"><failure message="AssertionError: Expected 200, got 401&#10;assert 401 == 200&#10; +  where 401 = &lt;Response [401]&gt;.status_code">tests/test_commission_analytics.py:231: in test_payout_summary_endpoint
+    assert response.status_code == 200, f"Expected 200, got {response.status_code}"
+E   AssertionError: Expected 200, got 401
+E   assert 401 == 200
+E    +  where 401 = &lt;Response [401]&gt;.status_code</failure></testcase><testcase classname="tests.test_commission_analytics.TestCommissionAnalyticsAPI" name="test_unauthorized_access" time="0.452" /></testsuite></testsuites>
