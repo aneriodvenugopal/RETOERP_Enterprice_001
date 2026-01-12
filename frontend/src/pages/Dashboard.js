@@ -431,6 +431,13 @@ const TenantAdminDashboard = () => {
           gradient="from-green-500 to-emerald-500"
         />
         <ActionCard
+          icon={TrendingUp}
+          title="Commission Analytics"
+          description="Track earnings, performance & payouts"
+          onClick={() => navigate('/commission-analytics')}
+          gradient="from-purple-500 to-violet-500"
+        />
+        <ActionCard
           icon={Bot}
           title="AI Agents"
           description="AI-powered assistants for your business"
