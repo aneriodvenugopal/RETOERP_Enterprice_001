@@ -55,6 +55,7 @@ const SiteVisits = () => {
   const [staff, setStaff] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('today');
+  const [calendarConnected, setCalendarConnected] = useState(false);
   
   // Modals
   const [showScheduleModal, setShowScheduleModal] = useState(false);
