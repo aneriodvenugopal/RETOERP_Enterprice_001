@@ -1,5 +1,5 @@
 {
-  "summary": "Project Landing Pages (P5) Feature Testing Complete - Backend: 18/18 tests passed (100%). Frontend: All major features working. Minor issue: Property cards show 'Unit undefined' instead of property number due to field name mismatch.",
+  "summary": "Project Landing Pages (P5) Feature Testing Complete - Backend: 18/18 tests passed (100%). Frontend: All features working correctly. Fixed minor property name display issue.",
   "backend_issues": {
     "critical": [],
     "minor": []
