@@ -3,6 +3,7 @@ Site Visit Management Routes
 - Schedule, assign, track site visits
 - Simple workflow: Schedule -> Confirm -> Complete/Cancel
 - Track outcomes and follow-ups
+- Google Calendar integration for scheduling
 """
 from fastapi import APIRouter, HTTPException, Request, Query
 from models.site_visit import (
@@ -10,6 +11,7 @@ from models.site_visit import (
     SiteVisitComplete, SiteVisitCancel, VisitStatus, VisitOutcome
 )
 from middleware.auth import get_current_user
+from services.google_calendar_service import GoogleCalendarService
 from datetime import datetime, timezone, timedelta
 from typing import Optional, List
 import uuid
