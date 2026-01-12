@@ -142,6 +142,7 @@ import ResaleReleaseManagement from "./pages/ResaleReleaseManagement";
 import EMIPaymentManagement from "./pages/EMIPaymentManagement";
 import VendorManagement from "./pages/VendorManagement";
 import ReferralWalletManagement from "./pages/ReferralWalletManagement";
+import ComplaintManagement from "./pages/ComplaintManagement";
 
 // PWA Components
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
