@@ -146,6 +146,7 @@ import VendorManagement from "./pages/VendorManagement";
 import ReferralWalletManagement from "./pages/ReferralWalletManagement";
 import ComplaintManagement from "./pages/ComplaintManagement";
 import PaymentsDashboard from "./pages/PaymentsDashboard";
+import CommissionAnalyticsDashboard from "./pages/CommissionAnalyticsDashboard";
 
 // PWA Components
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
