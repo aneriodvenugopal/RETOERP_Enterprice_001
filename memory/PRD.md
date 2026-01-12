@@ -303,7 +303,8 @@ Build a comprehensive Real Estate ERP (ExlainERP) SaaS platform for the Indian r
 - `/customers-management` - Customer database with wallet
 - `/resale-release` - Resale/Release management system
 - `/emi-payments` - EMI payment tracking and management
-- `/payments-dashboard` - Comprehensive payment tracking dashboard (NEW)
+- `/payments-dashboard` - Comprehensive payment tracking dashboard
+- `/commission-analytics` - Commission analytics with trends, leaderboard, TDS tracking (NEW)
 - `/vendor-management` - Vendor directory, bills, and payments
-- `/complaints` - Customer complaint management system (NEW)
-- `/referral-wallet` - Referral program & customer wallet (NEW)
+- `/complaints` - Customer complaint management system
+- `/referral-wallet` - Referral program & customer wallet
