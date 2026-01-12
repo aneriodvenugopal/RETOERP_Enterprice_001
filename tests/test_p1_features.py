@@ -23,8 +23,8 @@ class TestAuth:
         )
         assert response.status_code == 200, f"Login failed: {response.text}"
         data = response.json()
-        assert "token" in data, "No token in response"
-        return data["token"]
+        assert "access_token" in data, "No access_token in response"
+        return data["access_token"]
     
     def test_login_success(self):
         """Test login with valid credentials"""
@@ -34,7 +34,7 @@ class TestAuth:
         )
         assert response.status_code == 200
         data = response.json()
-        assert "token" in data
+        assert "access_token" in data
         assert "user" in data
         print(f"✅ Login successful, user role: {data['user'].get('role')}")
 
