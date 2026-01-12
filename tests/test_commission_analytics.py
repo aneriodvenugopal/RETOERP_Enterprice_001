@@ -45,7 +45,8 @@ class TestCommissionAnalyticsAPI:
         )
         assert response.status_code == 200
         data = response.json()
-        assert "token" in data
+        # API returns access_token, not token
+        assert "access_token" in data or "token" in data
         assert data.get("user", {}).get("role") == "tenant_admin"
         print(f"✓ Login successful - User: {data.get('user', {}).get('name')}")
     
