@@ -87,7 +87,7 @@ const AuthenticatedLayout = ({ children }) => {
               data-testid="header-logo"
             >
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center shadow-md">
-                <Home className="w-4 h-4 text-white" />
+                <Building2 className="w-4 h-4 text-white" />
               </div>
               <span className="text-lg font-bold text-gray-900 hidden sm:block">ExlainERP</span>
             </button>
