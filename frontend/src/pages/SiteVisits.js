@@ -536,39 +536,51 @@ const SiteVisits = () => {
         </div>
       </div>
 
-      {/* Stats */}
+      {/* Stats Cards */}
       {stats && (
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
-          <Card className="bg-blue-50 border-blue-200">
-            <CardContent className="p-4">
-              <p className="text-sm text-blue-600">Scheduled</p>
-              <p className="text-2xl font-bold text-blue-800">{stats.by_status?.scheduled || 0}</p>
-            </CardContent>
-          </Card>
-          <Card className="bg-purple-50 border-purple-200">
-            <CardContent className="p-4">
-              <p className="text-sm text-purple-600">Confirmed</p>
-              <p className="text-2xl font-bold text-purple-800">{stats.by_status?.confirmed || 0}</p>
-            </CardContent>
-          </Card>
-          <Card className="bg-green-50 border-green-200">
-            <CardContent className="p-4">
-              <p className="text-sm text-green-600">Completed</p>
-              <p className="text-2xl font-bold text-green-800">{stats.by_status?.completed || 0}</p>
-            </CardContent>
-          </Card>
-          <Card className="bg-orange-50 border-orange-200">
-            <CardContent className="p-4">
-              <p className="text-sm text-orange-600">Conversion</p>
-              <p className="text-2xl font-bold text-orange-800">{stats.conversion_rate || 0}%</p>
-            </CardContent>
-          </Card>
-          <Card className="bg-slate-50 border-slate-200">
-            <CardContent className="p-4">
-              <p className="text-sm text-slate-600">Total</p>
-              <p className="text-2xl font-bold text-slate-800">{stats.total || 0}</p>
-            </CardContent>
-          </Card>
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
+          <ClickableStatCard 
+            title="Today" 
+            value={stats.today || 0} 
+            icon={Calendar} 
+            color="blue"
+            onClick={() => setActiveTab('today')}
+            className={activeTab === 'today' ? 'ring-2 ring-blue-500' : ''}
+          />
+          <ClickableStatCard 
+            title="Scheduled" 
+            value={stats.by_status?.scheduled || 0} 
+            icon={Clock} 
+            color="cyan"
+            onClick={() => setActiveTab('all')}
+          />
+          <ClickableStatCard 
+            title="Confirmed" 
+            value={stats.by_status?.confirmed || 0} 
+            icon={CheckCircle2} 
+            color="purple"
+            onClick={() => setActiveTab('all')}
+          />
+          <ClickableStatCard 
+            title="Completed" 
+            value={stats.by_status?.completed || 0} 
+            icon={Check} 
+            color="green"
+            onClick={() => setActiveTab('all')}
+          />
+          <ClickableStatCard 
+            title="Conversion" 
+            value={`${stats.conversion_rate || 0}%`} 
+            icon={TrendingUp} 
+            color="orange"
+          />
+          <ClickableStatCard 
+            title="Total" 
+            value={stats.total || 0} 
+            icon={Users} 
+            color="gray"
+            onClick={() => setActiveTab('all')}
+          />
         </div>
       )}
 
