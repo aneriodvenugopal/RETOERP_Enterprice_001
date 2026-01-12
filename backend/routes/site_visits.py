@@ -729,11 +729,110 @@ async def delete_site_visit(visit_id: str, request: Request):
     if user.get("role") not in ["super_admin", "tenant_admin"]:
         raise HTTPException(status_code=403, detail="Only admin can delete visits")
     
-    result = await db.site_visits.delete_one(
-        {"id": visit_id, "tenant_id": user["tenant_id"]}
-    )
+    # Get visit to check for Google Calendar event
+    visit = await db.site_visits.find_one({"id": visit_id, "tenant_id": user["tenant_id"]})
     
-    if result.deleted_count == 0:
+    if not visit:
         raise HTTPException(status_code=404, detail="Visit not found")
     
+    # Delete from Google Calendar if synced
+    if visit.get("google_event_id"):
+        try:
+            user_full = await db.users.find_one({"id": user["user_id"]}, {"_id": 0})
+            if user_full and user_full.get("google_tokens"):
+                await GoogleCalendarService.delete_calendar_event(
+                    user_full["google_tokens"],
+                    visit["google_event_id"]
+                )
+        except Exception as e:
+            print(f"Failed to delete calendar event: {e}")
+    
+    result = await db.site_visits.delete_one({"id": visit_id})
+    
     return {"success": True, "message": "Visit deleted"}
+
+
+# ==================== CALENDAR INTEGRATION ====================
+
+@router.get("/calendar/status")
+async def get_calendar_status(request: Request):
+    """Check if current user has Google Calendar connected"""
+    user = await get_current_user(request)
+    db = get_db(request)
+    
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    
+    user_full = await db.users.find_one({"id": user["user_id"]}, {"_id": 0})
+    
+    return {
+        "success": True,
+        "calendar_connected": bool(user_full.get("google_connected")),
+        "google_email": user_full.get("google_email"),
+        "message": "Google Calendar is connected" if user_full.get("google_connected") else "Google Calendar not connected. Connect in Settings."
+    }
+
+
+@router.post("/{visit_id}/sync-calendar")
+async def sync_visit_to_calendar_endpoint(visit_id: str, request: Request):
+    """
+    Manually sync a site visit to Google Calendar.
+    Use this for visits that weren't synced during creation.
+    """
+    user = await get_current_user(request)
+    db = get_db(request)
+    
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    
+    # Get visit
+    visit = await db.site_visits.find_one(
+        {"id": visit_id, "tenant_id": user["tenant_id"]},
+        {"_id": 0}
+    )
+    
+    if not visit:
+        raise HTTPException(status_code=404, detail="Visit not found")
+    
+    if visit.get("google_event_id"):
+        return {
+            "success": True,
+            "message": "Visit already synced to calendar",
+            "calendar_link": visit.get("calendar_link")
+        }
+    
+    # Get project
+    project = await db.projects.find_one(
+        {"id": visit["project_id"]},
+        {"_id": 0}
+    )
+    
+    if not project:
+        project = {"name": "Unknown Project"}
+    
+    # Sync to calendar
+    result = await sync_visit_to_calendar(db, visit, user, project)
+    
+    if result and result.get("synced"):
+        # Update visit with calendar info
+        await db.site_visits.update_one(
+            {"id": visit_id},
+            {"$set": {
+                "google_event_id": result.get("google_event_id"),
+                "calendar_link": result.get("calendar_link"),
+                "updated_at": datetime.now(timezone.utc).isoformat()
+            }}
+        )
+        
+        return {
+            "success": True,
+            "message": "Visit synced to Google Calendar",
+            "calendar_link": result.get("calendar_link")
+        }
+    else:
+        error_msg = result.get("error") if result else "Google Calendar not connected"
+        raise HTTPException(
+            status_code=400,
+            detail=f"Failed to sync to calendar: {error_msg}"
+        )
+
