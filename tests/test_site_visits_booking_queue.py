@@ -526,25 +526,30 @@ class TestBookingQueueMoveUp:
     
     def test_move_up_in_queue(self, api_client):
         """Test POST /api/booking-queue/{entry_id}/move-up - Move entry up in queue"""
+        import time
+        unique_suffix = str(int(time.time() * 1000))[-6:]
+        
         # Add two customers to same property
         queue_data1 = {
             "project_id": TEST_PROJECT_ID,
-            "property_id": "TEST-plot-003",
+            "property_id": f"TEST-plot-moveup-{unique_suffix}",
             "customer_name": "TEST_Position1",
-            "customer_mobile": "9988003311",
+            "customer_mobile": f"998803{unique_suffix[:4]}",
             "priority": 0
         }
         response1 = api_client.post(f"{BASE_URL}/api/booking-queue", json=queue_data1)
+        assert response1.status_code == 200
         entry1_id = response1.json()["entry"]["id"]
         
         queue_data2 = {
             "project_id": TEST_PROJECT_ID,
-            "property_id": "TEST-plot-003",
+            "property_id": f"TEST-plot-moveup-{unique_suffix}",
             "customer_name": "TEST_Position2",
-            "customer_mobile": "9988003322",
+            "customer_mobile": f"998804{unique_suffix[:4]}",
             "priority": 0
         }
         response2 = api_client.post(f"{BASE_URL}/api/booking-queue", json=queue_data2)
+        assert response2.status_code == 200
         entry2_id = response2.json()["entry"]["id"]
         
         # Verify initial positions
