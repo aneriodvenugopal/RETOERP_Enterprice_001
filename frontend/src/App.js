@@ -824,6 +824,7 @@ function App() {
         </LanguageProvider>
       </CurrencyProvider>
     </AuthProvider>
+    </HelmetProvider>
   );
 }
 
