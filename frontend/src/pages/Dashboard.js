@@ -516,13 +516,76 @@ const TenantAdminDashboard = () => {
 
 // Staff Dashboard
 const StaffDashboard = () => {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const [stats, setStats] = React.useState({
+    myLeads: 0,
+    conversions: 0,
+    followUps: 0
+  });
+  const [loading, setLoading] = React.useState(true);
+  
+  React.useEffect(() => {
+    fetchStaffStats();
+  }, []);
+  
+  const fetchStaffStats = async () => {
+    try {
+      setLoading(true);
+      const apiUrl = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      const token = localStorage.getItem('token');
+      
+      // Fetch leads assigned to this staff
+      const leadsResponse = await fetch(`${apiUrl}/api/leads?assigned_to=${user?.id}&limit=1000`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (leadsResponse.ok) {
+        const data = await leadsResponse.json();
+        const leads = data.leads || [];
+        const today = new Date().toISOString().split('T')[0];
+        
+        setStats({
+          myLeads: leads.length,
+          conversions: leads.filter(l => l.is_converted).length,
+          followUps: leads.filter(l => l.next_followup_date && l.next_followup_date.startsWith(today)).length
+        });
+      }
+    } catch (error) {
+      console.error('Failed to fetch staff stats:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
   return (
     <div className="space-y-6">
       <h2 className="text-3xl font-bold text-gray-900">Staff Dashboard</h2>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <StatCard icon={Users} title="My Leads" value="0" gradient="from-ocean-primary to-ocean-secondary" />
-        <StatCard icon={BarChart3} title="Conversions" value="0" gradient="from-ocean-secondary to-ocean-success" />
-        <StatCard icon={Building2} title="Follow-ups Today" value="0" gradient="from-ocean-success to-ocean-accent" />
+        <StatCard 
+          icon={Users} 
+          title="My Leads" 
+          value={loading ? '...' : stats.myLeads.toString()} 
+          gradient="from-ocean-primary to-ocean-secondary"
+          onClick={() => navigate('/leads')}
+        />
+        <StatCard 
+          icon={BarChart3} 
+          title="Conversions" 
+          value={loading ? '...' : stats.conversions.toString()} 
+          gradient="from-ocean-secondary to-ocean-success"
+          onClick={() => navigate('/bookings')}
+        />
+        <StatCard 
+          icon={Building2} 
+          title="Follow-ups Today" 
+          value={loading ? '...' : stats.followUps.toString()} 
+          gradient="from-ocean-success to-ocean-accent"
+          onClick={() => navigate('/leads')}
+        />
       </div>
     </div>
   );
