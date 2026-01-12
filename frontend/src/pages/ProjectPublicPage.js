@@ -685,7 +685,7 @@ const ProjectPublicPage = () => {
                           <div className="flex items-start justify-between">
                             <div>
                               <h4 className="font-semibold text-gray-900">
-                                {property.name || property.plot_number || `Unit ${property.unit_number}`}
+                                {property.name || property.property_number || property.plot_number || `Unit ${property.unit_number}`}
                               </h4>
                               <div className="flex items-center gap-4 mt-1 text-sm text-gray-500">
                                 {property.area && <span>{property.area} {property.area_unit || 'sq.ft'}</span>}
