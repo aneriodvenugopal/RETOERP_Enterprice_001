@@ -648,6 +648,13 @@ class SchedulerService:
             print(f"Error in follow-up reminders: {e}")
             results['follow_up_reminders'] = {'error': str(e)}
         
+        # Run site visit reminders
+        try:
+            results['site_visit_reminders'] = await self.send_site_visit_reminders()
+        except Exception as e:
+            print(f"Error in site visit reminders: {e}")
+            results['site_visit_reminders'] = {'error': str(e)}
+        
         # Run festival greetings check
         try:
             results['festival_greetings'] = await self.send_festival_greetings()
