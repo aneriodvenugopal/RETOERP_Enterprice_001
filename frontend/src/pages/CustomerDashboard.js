@@ -274,7 +274,7 @@ const CustomerDashboard = () => {
                 <Home className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-bold bg-gradient-to-r from-ocean-primary to-ocean-secondary bg-clip-text text-transparent">RETOERP</h1>
+                <h1 className="text-xl font-bold bg-gradient-to-r from-ocean-primary to-ocean-secondary bg-clip-text text-transparent">ExlainERP</h1>
                 <p className="text-xs text-gray-500">Customer Portal</p>
               </div>
             </div>

@@ -18,7 +18,7 @@ class AdvisoryService:
     def get_category_prompt(self, category: str, user_inputs: dict, projects: list) -> str:
         """Get category-specific system prompt"""
         
-        base_instruction = """You are an expert real estate advisor for RETOERP platform. 
+        base_instruction = """You are an expert real estate advisor for ExlainERP platform. 
 Provide helpful, accurate, and personalized advice based on user's needs.
 Be conversational, friendly, and professional. Keep responses concise (300-400 words).
 Always end with actionable next steps."""

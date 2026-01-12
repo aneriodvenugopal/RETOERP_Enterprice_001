@@ -74,7 +74,7 @@ class MockSMSProvider(SMSProvider):
         }
     
     async def send_otp(self, phone: str, otp: str) -> Dict[str, Any]:
-        message = f"Your RETOERP verification code is: {otp}. Valid for 10 minutes."
+        message = f"Your ExlainERP verification code is: {otp}. Valid for 10 minutes."
         return await self.send_sms(phone, message)
 
 

@@ -65,7 +65,7 @@ const AppHeader = ({ title, showBackToDashboard = true }) => {
                 <Home className="w-5 h-5 text-white" />
               </div>
               <div className="hidden sm:block">
-                <span className="text-lg font-bold text-gray-900">RETOERP</span>
+                <span className="text-lg font-bold text-gray-900">ExlainERP</span>
               </div>
             </Link>
             

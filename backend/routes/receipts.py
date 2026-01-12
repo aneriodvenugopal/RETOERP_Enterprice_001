@@ -119,7 +119,7 @@ async def generate_payment_receipt(
         )
         if tenant:
             company_info = {
-                "name": tenant.get("name", "RETOERP"),
+                "name": tenant.get("name", "ExlainERP"),
                 "address": tenant.get("address", ""),
                 "city": tenant.get("city", ""),
                 "phone": tenant.get("phone", ""),
@@ -258,7 +258,7 @@ async def generate_emi_schedule_receipt(
         )
         if tenant:
             company_info = {
-                "name": tenant.get("name", "RETOERP"),
+                "name": tenant.get("name", "ExlainERP"),
                 "address": tenant.get("address", "")
             }
     

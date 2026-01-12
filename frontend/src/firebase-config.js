@@ -2,7 +2,7 @@
 import { initializeApp } from 'firebase/app';
 import { getMessaging, getToken, onMessage } from 'firebase/messaging';
 
-// Firebase config for RETOERP
+// Firebase config for ExlainERP
 const firebaseConfig = {
   apiKey: "AIzaSyBLdLj5EGwRxHbsCqEbngRWbEFn4RUHQdI",
   authDomain: "retoerp-5ff78.firebaseapp.com",

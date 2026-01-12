@@ -189,7 +189,7 @@ Be direct."""
             return None
     
     def _format_response(self, category: str, user_inputs: dict, ai_insights: str, location_data: dict, projects: list) -> str:
-        """Format final response with RETOERP projects and coupon"""
+        """Format final response with ExlainERP projects and coupon"""
         
         # Category icons and titles
         titles = {
@@ -214,7 +214,7 @@ Be direct."""
         if location_data and location_data.get('coordinates'):
             response += self._format_compact_location_data(location_data)
         
-        # RETOERP Projects nearby
+        # ExlainERP Projects nearby
         location = user_inputs.get('location') or user_inputs.get('work_location')
         if projects and location:
             response += self._format_retoerp_projects(projects, location)
@@ -226,12 +226,12 @@ Be direct."""
 
 🎁 **SPECIAL OFFER - ₹5,000 DISCOUNT!**
 
-Get exclusive **₹5,000 OFF** on any property purchase through RETOERP!
+Get exclusive **₹5,000 OFF** on any property purchase through ExlainERP!
 
 📱 **How to claim:**
 Send your mobile number to our sales team and get your unique coupon code instantly.
 
-✓ Valid on all RETOERP projects
+✓ Valid on all ExlainERP projects
 ✓ Can be used for booking or final payment
 ✓ Limited time offer!
 
@@ -239,7 +239,7 @@ Send your mobile number to our sales team and get your unique coupon code instan
 
 ---
 
-*Note: RETOERP has projects across Telangana, AP, and India. Even if we don't have a project in your exact location, we'll help you find the perfect property nearby.*
+*Note: ExlainERP has projects across Telangana, AP, and India. Even if we don't have a project in your exact location, we'll help you find the perfect property nearby.*
 """
         
         return response
@@ -312,7 +312,7 @@ Send your mobile number to our sales team and get your unique coupon code instan
         return text + "\n"
     
     def _format_retoerp_projects(self, projects: list, location: str) -> str:
-        """Format RETOERP projects available nearby"""
+        """Format ExlainERP projects available nearby"""
         
         # Filter by location
         location_lower = location.lower()
@@ -322,7 +322,7 @@ Send your mobile number to our sales team and get your unique coupon code instan
             # Show any 2 projects if no exact match
             matched = projects[:2]
         
-        text = f"\n**🏘️ RETOERP Projects Near {location}:**\n\n"
+        text = f"\n**🏘️ ExlainERP Projects Near {location}:**\n\n"
         
         for i, project in enumerate(matched[:3], 1):
             text += f"{i}. **{project.get('name', 'Project')}**\n"

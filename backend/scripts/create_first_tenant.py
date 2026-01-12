@@ -1,4 +1,4 @@
-"""Create first tenant for RETOERP"""
+"""Create first tenant for ExlainERP"""
 import asyncio
 from motor.motor_asyncio import AsyncIOMotorClient
 import os

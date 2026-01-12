@@ -75,7 +75,7 @@ async def get_project_price_range(project_id: str) -> dict:
 
 @router.post("/agents/register")
 async def register_agent(agent_data: AgentProfileCreate):
-    """Register a new IncomeLands agent in RETOERP marketplace"""
+    """Register a new IncomeLands agent in ExlainERP marketplace"""
     # Check if agent already exists
     existing = await db.marketplace_agents.find_one({"phone": agent_data.phone}, {"_id": 0})
     if existing:
@@ -439,8 +439,8 @@ async def unlock_developer_contact(unlock_data: PropertyContactUnlockCreate):
 @router.post("/leads/submit")
 async def submit_marketplace_lead(lead_data: MarketplaceLeadCreate):
     """
-    IncomeLands agent submits a lead to RETOERP developer
-    This creates a lead in marketplace and optionally in RETOERP leads table
+    IncomeLands agent submits a lead to ExlainERP developer
+    This creates a lead in marketplace and optionally in ExlainERP leads table
     """
     # Verify agent
     agent = await db.marketplace_agents.find_one({"id": lead_data.agent_id}, {"_id": 0})
@@ -456,12 +456,12 @@ async def submit_marketplace_lead(lead_data: MarketplaceLeadCreate):
     lead = MarketplaceLead(**lead_data.dict())
     await db.marketplace_leads.insert_one(lead.dict())
     
-    # Also create in RETOERP leads table for developer to see
+    # Also create in ExlainERP leads table for developer to see
     # Get lead status category (new)
     lead_status = await db.master_categories.find_one({"slug": "new", "type": "lead_status"}, {"_id": 0})
     lead_source = await db.master_categories.find_one({"slug": "incomelands", "type": "lead_source"}, {"_id": 0})
     
-    # Create RETOERP lead
+    # Create ExlainERP lead
     from models.lead import Lead
     retoerp_lead = Lead(
         tenant_id=lead_data.tenant_id,
@@ -477,7 +477,7 @@ async def submit_marketplace_lead(lead_data: MarketplaceLeadCreate):
     )
     await db.leads.insert_one(retoerp_lead.dict())
     
-    # Update marketplace lead with RETOERP lead ID
+    # Update marketplace lead with ExlainERP lead ID
     await db.marketplace_leads.update_one(
         {"id": lead.id},
         {"$set": {"retoerp_lead_id": retoerp_lead.id}}
@@ -720,7 +720,7 @@ async def get_requirement_matches(requirement_id: str, limit: int = Query(20)):
 async def calculate_agent_commission(commission_data: AgentCommissionCreate):
     """
     Calculate and create commission record when lead converts to booking
-    Called by RETOERP when booking is created
+    Called by ExlainERP when booking is created
     """
     # Get marketplace lead
     lead = await db.marketplace_leads.find_one({"id": commission_data.marketplace_lead_id}, {"_id": 0})

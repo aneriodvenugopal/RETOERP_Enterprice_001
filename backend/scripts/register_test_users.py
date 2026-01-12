@@ -71,7 +71,7 @@ async def register_test_users():
     db = client[db_name]
     
     print("=" * 70)
-    print("REGISTERING TEST USERS FOR RETOERP")
+    print("REGISTERING TEST USERS FOR ExlainERP")
     print("=" * 70)
     print()
     

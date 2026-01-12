@@ -13,7 +13,7 @@ class Article(BaseModel):
     sub_category: str  # e.g., 'problem-solution', 'features', 'insights'
     keywords: List[str] = []  # SEO keywords
     meta_description: str  # SEO meta description
-    author: str = "RETOERP Team"
+    author: str = "ExlainERP Team"
     reading_time: int = 5  # Minutes
     featured_image: Optional[str] = None
     tags: List[str] = []
@@ -39,7 +39,7 @@ class ArticleCreate(BaseModel):
     sub_category: str
     keywords: List[str] = []
     meta_description: str
-    author: str = "RETOERP Team"
+    author: str = "ExlainERP Team"
     reading_time: int = 5
     featured_image: Optional[str] = None
     tags: List[str] = []

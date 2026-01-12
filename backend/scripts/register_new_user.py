@@ -39,7 +39,7 @@ async def register_user():
     # Create new user
     user = User(
         phone=phone,
-        name="RETOERP User",
+        name="ExlainERP User",
         email="user@retoerp.com",
         role_id=role['id'],
         tenant_id="test-tenant-1"

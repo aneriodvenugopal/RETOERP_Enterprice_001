@@ -17,7 +17,7 @@ const ShippingPolicy = () => {
           <section>
             <div className="bg-blue-50 border-l-4 border-blue-600 p-4 mb-6">
               <p className="text-blue-900 font-semibold">
-                RETOERP is a digital SaaS platform. No physical products are shipped.
+                ExlainERP is a digital SaaS platform. No physical products are shipped.
               </p>
             </div>
           </section>
@@ -25,7 +25,7 @@ const ShippingPolicy = () => {
           <section>
             <h2 className="text-2xl font-bold text-gray-900 mb-4">1. Service Delivery</h2>
             <p className="text-gray-700 leading-relaxed">
-              All RETOERP services are delivered digitally:
+              All ExlainERP services are delivered digitally:
             </p>
             <ul className="list-disc ml-6 mt-2 text-gray-700 space-y-2">
               <li><strong>Instant Access:</strong> Account activated immediately upon successful payment</li>
@@ -38,7 +38,7 @@ const ShippingPolicy = () => {
           <section>
             <h2 className="text-2xl font-bold text-gray-900 mb-4">2. Onboarding & Setup</h2>
             <p className="text-gray-700 leading-relaxed">
-              Get started with RETOERP in minutes:
+              Get started with ExlainERP in minutes:
             </p>
             <ul className="list-disc ml-6 mt-2 text-gray-700 space-y-2">
               <li><strong>Immediate Access:</strong> Login credentials sent via email within 5 minutes</li>

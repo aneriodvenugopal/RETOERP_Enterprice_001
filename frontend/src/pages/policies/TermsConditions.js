@@ -17,14 +17,14 @@ const TermsConditions = () => {
           <section>
             <h2 className="text-2xl font-bold text-gray-900 mb-4">1. Acceptance of Terms</h2>
             <p className="text-gray-700 leading-relaxed">
-              By accessing and using RETOERP services, you accept and agree to be bound by these Terms and Conditions. If you do not agree to these terms, please do not use our services.
+              By accessing and using ExlainERP services, you accept and agree to be bound by these Terms and Conditions. If you do not agree to these terms, please do not use our services.
             </p>
           </section>
 
           <section>
             <h2 className="text-2xl font-bold text-gray-900 mb-4">2. Service Description</h2>
             <p className="text-gray-700 leading-relaxed">
-              RETOERP provides a comprehensive real estate management platform including:
+              ExlainERP provides a comprehensive real estate management platform including:
             </p>
             <ul className="list-disc ml-6 mt-2 text-gray-700 space-y-2">
               <li>Lead and CRM management</li>
@@ -39,7 +39,7 @@ const TermsConditions = () => {
           <section>
             <h2 className="text-2xl font-bold text-gray-900 mb-4">3. User Responsibilities</h2>
             <p className="text-gray-700 leading-relaxed">
-              As a user of RETOERP, you agree to:
+              As a user of ExlainERP, you agree to:
             </p>
             <ul className="list-disc ml-6 mt-2 text-gray-700 space-y-2">
               <li>Provide accurate and complete information</li>
@@ -67,7 +67,7 @@ const TermsConditions = () => {
           <section>
             <h2 className="text-2xl font-bold text-gray-900 mb-4">5. Data Ownership</h2>
             <p className="text-gray-700 leading-relaxed">
-              You retain ownership of all data you upload to RETOERP. We provide:
+              You retain ownership of all data you upload to ExlainERP. We provide:
             </p>
             <ul className="list-disc ml-6 mt-2 text-gray-700 space-y-2">
               <li>Data export functionality</li>
@@ -87,7 +87,7 @@ const TermsConditions = () => {
           <section>
             <h2 className="text-2xl font-bold text-gray-900 mb-4">7. Limitation of Liability</h2>
             <p className="text-gray-700 leading-relaxed">
-              RETOERP shall not be liable for any indirect, incidental, special, or consequential damages arising from use of our services. Our total liability is limited to the amount paid by you in the past 12 months.
+              ExlainERP shall not be liable for any indirect, incidental, special, or consequential damages arising from use of our services. Our total liability is limited to the amount paid by you in the past 12 months.
             </p>
           </section>
 
@@ -101,7 +101,7 @@ const TermsConditions = () => {
           <section>
             <h2 className="text-2xl font-bold text-gray-900 mb-4">9. Contact Information</h2>
             <div className="mt-4 p-4 bg-blue-50 rounded-lg">
-              <p className="text-gray-900 font-semibold">RETOERP</p>
+              <p className="text-gray-900 font-semibold">ExlainERP</p>
               <p className="text-gray-700">Email: <a href="mailto:enquiry@retoerp.com" className="text-blue-600 hover:underline">enquiry@retoerp.com</a></p>
               <p className="text-gray-700">Phone: <a href="tel:+919948303060" className="text-blue-600 hover:underline">+91-9948303060</a></p>
             </div>

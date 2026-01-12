@@ -159,7 +159,7 @@ const Login = () => {
           </div>
           <div>
             <CardTitle className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-              RETOERP
+              ExlainERP
             </CardTitle>
             <CardDescription className="text-base mt-2 text-gray-600">
               Real Estate Automation Software

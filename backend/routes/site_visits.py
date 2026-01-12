@@ -60,7 +60,7 @@ Duration: {duration} minutes
 Notes: {visit.get('staff_notes', 'No additional notes')}
 
 ---
-Created via RETOERP Site Visit Management
+Created via ExlainERP Site Visit Management
 Visit ID: {visit.get('id')}
         """.strip()
         

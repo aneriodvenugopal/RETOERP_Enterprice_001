@@ -111,7 +111,7 @@ async def populate_data():
     db = client[db_name]
     
     print("=" * 80)
-    print("POPULATING RETOERP WITH REALISTIC INDIAN REAL ESTATE DATA")
+    print("POPULATING ExlainERP WITH REALISTIC INDIAN REAL ESTATE DATA")
     print("=" * 80)
     print()
     

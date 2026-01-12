@@ -5,7 +5,7 @@ import StickyNavbar from '../../components/StickyNavbar';
 
 const LeadLeakageExample = () => {
   const beforeScenario = {
-    title: "Without RETOERP - Traditional Process",
+    title: "Without ExlainERP - Traditional Process",
     problems: [
       { icon: "📞", issue: "Customer calls, receptionist writes on paper" },
       { icon: "⏰", issue: "Paper sits on desk for 2 hours" },
@@ -27,7 +27,7 @@ const LeadLeakageExample = () => {
   };
 
   const afterScenario = {
-    title: "With RETOERP - Automated Process",
+    title: "With ExlainERP - Automated Process",
     solutions: [
       { icon: "📱", solution: "Customer calls, system auto-captures details" },
       { icon: "⚡", solution: "Lead instantly assigned to nearest agent" },
@@ -43,7 +43,7 @@ const LeadLeakageExample = () => {
       { label: "Manual Work", value: "0 hrs/week", good: true }
     ],
     realStory: {
-      company: "ABC Developers After RETOERP",
+      company: "ABC Developers After ExlainERP",
       quote: "We now capture 100% of leads. Our conversion rate jumped from 18% to 45%. Zero leakage, zero manual work!"
     }
   };
@@ -177,11 +177,11 @@ const LeadLeakageExample = () => {
             Stop Losing Leads Today
           </h3>
           <p className="text-xl text-gray-600 mb-8">
-            See how RETOERP can eliminate your lead leakage in just 1 day
+            See how ExlainERP can eliminate your lead leakage in just 1 day
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
-              href="https://wa.me/919948303060?text=I want to stop lead leakage with RETOERP!"
+              href="https://wa.me/919948303060?text=I want to stop lead leakage with ExlainERP!"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-block bg-green-500 hover:bg-green-600 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all shadow-xl"

@@ -285,7 +285,7 @@ async def unlock_contact(
     if not property_doc:
         raise HTTPException(status_code=404, detail="Property not found")
     
-    # Free for RETOERP properties
+    # Free for ExlainERP properties
     if property_doc.get("is_retoerp_property", False):
         await db.incomelands_properties.update_one(
             {"id": property_id},

@@ -92,7 +92,7 @@ class FreeAIChat:
             "Could you provide more details? I'm here to help with properties, bookings, payments, or workers.",
             "I can assist with: Properties, Bookings, Payments, Commission, Workforce. What do you need?",
             "Let me help! Which area: Properties, Staff, Payments, or Reports?",
-            "I'm your RETOERP assistant. Ask about: listings, bookings, payments, agents, or workers.",
+            "I'm your ExlainERP assistant. Ask about: listings, bookings, payments, agents, or workers.",
         ]
         
         import random

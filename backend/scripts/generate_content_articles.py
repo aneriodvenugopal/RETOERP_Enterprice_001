@@ -104,7 +104,7 @@ async def generate_article_content(title, prompt_topic):
 Your goal is to write highly persuasive educational articles that:
 1. Identify a specific problem real estate businesses face
 2. Explain the business impact with real numbers
-3. Present RETOERP as the solution naturally
+3. Present ExlainERP as the solution naturally
 4. Show clear ROI and benefits
 5. Include success metrics and CTAs
 
@@ -119,7 +119,7 @@ Structure the article with these sections:
 1. Opening hook (2-3 sentences that grab attention)
 2. Problem Statement (What's the pain point?)
 3. Impact Analysis (How much is this costing businesses?)
-4. The Solution (How RETOERP solves this)
+4. The Solution (How ExlainERP solves this)
 5. ROI & Benefits (Specific numbers and outcomes)
 6. Success Metrics (What results to expect)
 7. Conclusion with strong CTA
@@ -158,10 +158,10 @@ async def generate_all_articles():
     if not admin_user:
         print("No admin user found, using default ID")
         author_id = str(uuid.uuid4())
-        author_name = "RETOERP Team"
+        author_name = "ExlainERP Team"
     else:
         author_id = admin_user['id']
-        author_name = admin_user.get('name', 'RETOERP Team')
+        author_name = admin_user.get('name', 'ExlainERP Team')
     
     print(f"Starting to generate {len(ARTICLE_TOPICS)} articles...")
     print("This may take a few minutes...\n")
@@ -211,7 +211,7 @@ async def generate_all_articles():
             "author_name": author_name,
             "problem_statement": f"Real estate businesses struggle with {topic['prompt']}",
             "impact_analysis": "This problem costs businesses crores in lost revenue annually",
-            "solution_description": f"RETOERP provides automated solutions for {topic['prompt']}",
+            "solution_description": f"ExlainERP provides automated solutions for {topic['prompt']}",
             "roi_benefits": "40X faster growth, zero leakage, maximum profits",
             "success_metrics": "Increased sales by 40%, reduced costs by 60%",
             "reading_time": 7,

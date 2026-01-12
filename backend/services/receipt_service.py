@@ -22,7 +22,7 @@ class ReceiptGenerator:
     
     def __init__(self, company_info: dict = None):
         self.company_info = company_info or {
-            "name": "RETOERP Real Estate",
+            "name": "ExlainERP Real Estate",
             "address": "123 Business Park, Main Road",
             "city": "Hyderabad, Telangana - 500001",
             "phone": "+91 9876543210",

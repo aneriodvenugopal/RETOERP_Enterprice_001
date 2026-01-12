@@ -16,16 +16,16 @@ class ChatbotBranding(BaseModel):
 class ChatbotConfig(BaseModel):
     """Chatbot configuration for tenant"""
     id: str = Field(default_factory=lambda: str(uuid4()))
-    tenant_id: Optional[str] = Field(None, description="Tenant ID (None for shared RETOERP chatbot)")
+    tenant_id: Optional[str] = Field(None, description="Tenant ID (None for shared ExlainERP chatbot)")
     
     # Bot personality
-    bot_name: str = Field(default="RETOERP Assistant", description="Chatbot name")
+    bot_name: str = Field(default="ExlainERP Assistant", description="Chatbot name")
     welcome_message: str = Field(
         default="👋 Hi! I'm here to help you find your perfect property. How can I assist you today?",
         description="Initial greeting message"
     )
     system_prompt: str = Field(
-        default="You are a helpful real estate assistant for RETOERP platform. You help customers find properties, answer questions about real estate, and capture their contact information naturally during conversation. Always be friendly, professional, and helpful.",
+        default="You are a helpful real estate assistant for ExlainERP platform. You help customers find properties, answer questions about real estate, and capture their contact information naturally during conversation. Always be friendly, professional, and helpful.",
         description="AI personality instructions"
     )
     
@@ -49,7 +49,7 @@ class ChatbotConfig(BaseModel):
 class ChatbotConfigCreate(BaseModel):
     """Create chatbot configuration"""
     tenant_id: Optional[str] = None
-    bot_name: str = "RETOERP Assistant"
+    bot_name: str = "ExlainERP Assistant"
     welcome_message: str = "👋 Hi! I'm here to help you find your perfect property. How can I assist you today?"
     system_prompt: Optional[str] = None
     languages: List[str] = ["en", "te"]

@@ -162,7 +162,7 @@ class SchedulerService:
             # Send URGENT SMS
             if booking.get('customer_phone'):
                 try:
-                    sms_message = f"URGENT: Payment of ₹{schedule['amount']:,.2f} for {property_doc.get('property_number', 'Property')} is OVERDUE by {days_overdue} days. Please pay immediately to avoid penalties. - RETOERP"
+                    sms_message = f"URGENT: Payment of ₹{schedule['amount']:,.2f} for {property_doc.get('property_number', 'Property')} is OVERDUE by {days_overdue} days. Please pay immediately to avoid penalties. - ExlainERP"
                     
                     sms_response = await self.notification_service.send_sms(
                         booking['customer_phone'],

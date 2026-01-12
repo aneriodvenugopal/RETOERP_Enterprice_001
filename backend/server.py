@@ -20,7 +20,7 @@ client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
 # Create the main app without a prefix
-app = FastAPI(title="RETOERP API", version="1.0.0")
+app = FastAPI(title="ExlainERP API", version="1.0.0")
 
 # Store db in app state for access in routes
 app.state.db = db
@@ -32,7 +32,7 @@ api_router = APIRouter(prefix="/api")
 @api_router.get("/")
 async def root():
     return {
-        "message": "RETOERP API is running",
+        "message": "ExlainERP API is running",
         "version": "1.0.0",
         "status": "healthy"
     }

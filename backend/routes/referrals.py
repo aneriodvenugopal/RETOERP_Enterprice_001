@@ -312,7 +312,7 @@ async def complete_referral(referral_id: str, request: Request):
             user_id=referral['referee_id'],
             tenant_id=referral['tenant_id'],
             title='🎁 Welcome Bonus!',
-            message=f'Welcome to RETOERP! You received ₹{referral["referee_reward"]} bonus from your referral!',
+            message=f'Welcome to ExlainERP! You received ₹{referral["referee_reward"]} bonus from your referral!',
             notification_type='success',
             priority='normal',
             action_url='/dashboard',
@@ -372,7 +372,7 @@ async def get_share_templates(request: Request):
             "language": "telugu",
             "message": f"""🏠 నమస్కారం!
 
-నేను RETOERP app use చేస్తున్నాను - Real Estate management చాలా easy అవుతుంది!
+నేను ExlainERP app use చేస్తున్నాను - Real Estate management చాలా easy అవుతుంది!
 
 ప్రయోజనాలు:
 ✅ Property search సులభం
@@ -393,7 +393,7 @@ async def get_share_templates(request: Request):
             "language": "english",
             "message": f"""🏠 Hi there!
 
-I'm using RETOERP for real estate management and it's amazing!
+I'm using ExlainERP for real estate management and it's amazing!
 
 Benefits:
 ✅ Easy property search
@@ -412,18 +412,18 @@ I'll also earn ₹500 reward!
             "id": "sms_short",
             "platform": "sms",
             "language": "english",
-            "message": f"""RETOERP - Real Estate made easy! Join now & get ₹500 OFF: {code_doc['referral_link']} - {user.get('name')}"""
+            "message": f"""ExlainERP - Real Estate made easy! Join now & get ₹500 OFF: {code_doc['referral_link']} - {user.get('name')}"""
         },
         {
             "id": "email",
             "platform": "email",
             "language": "english",
-            "subject": "Join RETOERP & Get ₹500 Bonus!",
+            "subject": "Join ExlainERP & Get ₹500 Bonus!",
             "message": f"""Hello!
 
 I wanted to share something exciting with you.
 
-I've been using RETOERP for managing real estate, and it has made everything so much easier - from property listings to bookings to payments.
+I've been using ExlainERP for managing real estate, and it has made everything so much easier - from property listings to bookings to payments.
 
 I thought you might find it useful too!
 

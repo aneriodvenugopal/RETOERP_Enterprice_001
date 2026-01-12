@@ -111,7 +111,7 @@ async def get_advisory(request: Request, advisory_request: AdvisoryRequest):
                 projects
             )
             # Add contact prompt for free users (subtle, no AI mention)
-            ai_response += "\n\n---\n\n📞 **Need More Detailed Advisory?**\n\nFor specialized, in-depth analysis tailored to your specific situation, please contact our property consultants or login to your RETOERP account.\n"
+            ai_response += "\n\n---\n\n📞 **Need More Detailed Advisory?**\n\nFor specialized, in-depth analysis tailored to your specific situation, please contact our property consultants or login to your ExlainERP account.\n"
             advisory_type = "template_based"
         
         # Extract recommended project names from response (simple matching)

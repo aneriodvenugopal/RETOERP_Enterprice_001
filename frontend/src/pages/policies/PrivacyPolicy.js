@@ -17,7 +17,7 @@ const PrivacyPolicy = () => {
           <section>
             <h2 className="text-2xl font-bold text-gray-900 mb-4">1. Information We Collect</h2>
             <p className="text-gray-700 leading-relaxed">
-              At RETOERP, we collect information that you provide directly to us, including:
+              At ExlainERP, we collect information that you provide directly to us, including:
             </p>
             <ul className="list-disc ml-6 mt-2 text-gray-700 space-y-2">
               <li>Name, email address, phone number, and company details</li>
@@ -87,7 +87,7 @@ const PrivacyPolicy = () => {
               If you have any questions about this Privacy Policy, please contact us at:
             </p>
             <div className="mt-4 p-4 bg-blue-50 rounded-lg">
-              <p className="text-gray-900 font-semibold">RETOERP</p>
+              <p className="text-gray-900 font-semibold">ExlainERP</p>
               <p className="text-gray-700">
                 Email: <a href="mailto:enquiry@retoerp.com" className="text-blue-600 hover:underline">enquiry@retoerp.com</a>
               </p>

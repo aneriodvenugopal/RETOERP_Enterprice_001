@@ -8,14 +8,14 @@ class NotificationTemplates:
     @staticmethod
     def get_otp_sms(otp: str) -> str:
         """OTP SMS template"""
-        return f"Your RETOERP verification code is: {otp}. Valid for 10 minutes. Do not share this code with anyone."
+        return f"Your ExlainERP verification code is: {otp}. Valid for 10 minutes. Do not share this code with anyone."
     
     @staticmethod
     def get_payment_reminder_sms(customer_name: str, amount: float, due_date: str, property_name: str) -> str:
         """Payment reminder SMS template"""
         return (
             f"Dear {customer_name}, reminder: Payment of ₹{amount:,.2f} for {property_name} "
-            f"is due on {due_date}. Please make payment to avoid penalties. - RETOERP"
+            f"is due on {due_date}. Please make payment to avoid penalties. - ExlainERP"
         )
     
     @staticmethod
@@ -23,7 +23,7 @@ class NotificationTemplates:
         """Booking confirmation SMS template"""
         return (
             f"Dear {customer_name}, your booking for {property_name} is confirmed! "
-            f"Booking ID: {booking_id}. Thank you for choosing us. - RETOERP"
+            f"Booking ID: {booking_id}. Thank you for choosing us. - ExlainERP"
         )
     
     @staticmethod
@@ -31,7 +31,7 @@ class NotificationTemplates:
         """Follow-up reminder SMS template"""
         return (
             f"Hi {staff_name}, reminder: {follow_up_type} scheduled with {lead_name}. "
-            f"Please follow up today. - RETOERP"
+            f"Please follow up today. - ExlainERP"
         )
     
     @staticmethod
@@ -53,11 +53,11 @@ class NotificationTemplates:
         <body>
             <div class="container">
                 <div class="header">
-                    <h1>Welcome to RETOERP!</h1>
+                    <h1>Welcome to ExlainERP!</h1>
                 </div>
                 <div class="content">
                     <p>Dear {customer_name},</p>
-                    <p>Welcome to RETOERP - Your Complete Real Estate Automation Solution!</p>
+                    <p>Welcome to ExlainERP - Your Complete Real Estate Automation Solution!</p>
                     <p>We're excited to have you on board. You can now:</p>
                     <ul>
                         <li>Track your property bookings</li>
@@ -69,10 +69,10 @@ class NotificationTemplates:
                         <a href="{login_url}" class="button">Login to Your Account</a>
                     </p>
                     <p>If you have any questions, feel free to reach out to our support team.</p>
-                    <p>Best regards,<br>The RETOERP Team</p>
+                    <p>Best regards,<br>The ExlainERP Team</p>
                 </div>
                 <div class="footer">
-                    <p>© 2025 RETOERP. All rights reserved.</p>
+                    <p>© 2025 ExlainERP. All rights reserved.</p>
                 </div>
             </div>
         </body>
@@ -154,10 +154,10 @@ class NotificationTemplates:
                     </div>
                     
                     <p>Thank you for choosing us. We look forward to serving you!</p>
-                    <p>Best regards,<br>The RETOERP Team</p>
+                    <p>Best regards,<br>The ExlainERP Team</p>
                 </div>
                 <div class="footer">
-                    <p>© 2025 RETOERP. All rights reserved.</p>
+                    <p>© 2025 ExlainERP. All rights reserved.</p>
                 </div>
             </div>
         </body>
@@ -226,10 +226,10 @@ class NotificationTemplates:
                     <p><strong>Remaining Balance:</strong> ₹{balance_amount:,.2f}</p>
                     
                     <p>This is a system-generated receipt. Please keep it for your records.</p>
-                    <p>Best regards,<br>The RETOERP Team</p>
+                    <p>Best regards,<br>The ExlainERP Team</p>
                 </div>
                 <div class="footer">
-                    <p>© 2025 RETOERP. All rights reserved.</p>
+                    <p>© 2025 ExlainERP. All rights reserved.</p>
                     <p>This is an automatically generated email. Please do not reply.</p>
                 </div>
             </div>
@@ -292,10 +292,10 @@ class NotificationTemplates:
                     </ul>
                     
                     <p>For any queries, please contact our accounts team.</p>
-                    <p>Best regards,<br>The RETOERP Team</p>
+                    <p>Best regards,<br>The ExlainERP Team</p>
                 </div>
                 <div class="footer">
-                    <p>© 2025 RETOERP. All rights reserved.</p>
+                    <p>© 2025 ExlainERP. All rights reserved.</p>
                 </div>
             </div>
         </body>
@@ -316,7 +316,7 @@ class NotificationTemplates:
 
 For more details, please contact us or visit our office.
 
-*RETOERP* - Your Real Estate Partner
+*ExlainERP* - Your Real Estate Partner
         """.strip()
     
     # ==================== SITE VISIT REMINDERS ====================
@@ -334,7 +334,7 @@ For more details, please contact us or visit our office.
         contact_info = f" Contact: {staff_phone}" if staff_phone else ""
         return (
             f"Dear {visitor_name}, reminder: Your site visit at {project_name} is scheduled for "
-            f"{visit_date} at {visit_time}. {staff_name} will assist you.{contact_info} - RETOERP"
+            f"{visit_date} at {visit_time}. {staff_name} will assist you.{contact_info} - ExlainERP"
         )
     
     @staticmethod
@@ -369,7 +369,7 @@ Need to reschedule? Reply to this message or call us.
 
 Looking forward to seeing you! 🙂
 
-*RETOERP* - Your Real Estate Partner
+*ExlainERP* - Your Real Estate Partner
         """.strip()
     
     @staticmethod
@@ -383,7 +383,7 @@ Looking forward to seeing you! 🙂
         """Site visit reminder SMS template for staff"""
         return (
             f"Hi {staff_name}, reminder: Site visit with {visitor_name} ({visitor_phone}) "
-            f"at {project_name} today at {visit_time}. Please be prepared. - RETOERP"
+            f"at {project_name} today at {visit_time}. Please be prepared. - ExlainERP"
         )
     
     @staticmethod
@@ -396,7 +396,7 @@ Looking forward to seeing you! 🙂
         """Site visit confirmation SMS when visit is scheduled"""
         return (
             f"Dear {visitor_name}, your site visit at {project_name} is confirmed for "
-            f"{visit_date} at {visit_time}. We'll send you a reminder before your visit. - RETOERP"
+            f"{visit_date} at {visit_time}. We'll send you a reminder before your visit. - ExlainERP"
         )
     
     @staticmethod
@@ -493,10 +493,10 @@ Looking forward to seeing you! 🙂
                     </div>
                     
                     <p>We look forward to meeting you!</p>
-                    <p>Best regards,<br>The RETOERP Team</p>
+                    <p>Best regards,<br>The ExlainERP Team</p>
                 </div>
                 <div class="footer">
-                    <p>© 2025 RETOERP. All rights reserved.</p>
+                    <p>© 2025 ExlainERP. All rights reserved.</p>
                     <p>This is an automated reminder. Please do not reply to this email.</p>
                 </div>
             </div>

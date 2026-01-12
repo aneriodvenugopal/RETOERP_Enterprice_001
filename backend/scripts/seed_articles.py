@@ -251,7 +251,7 @@ async def main():
     
     start_time = datetime.now()
     print("\n" + "="*60)
-    print("RETOERP Article Generation Script")
+    print("ExlainERP Article Generation Script")
     print("Using OpenAI GPT-5 via Emergent LLM Key")
     print("="*60)
     

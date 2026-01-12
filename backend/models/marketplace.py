@@ -8,7 +8,7 @@ import uuid
 # ============================================
 
 class AgentProfile(BaseModel):
-    """IncomeLands Agent Profile for RETOERP integration"""
+    """IncomeLands Agent Profile for ExlainERP integration"""
     model_config = ConfigDict(extra="ignore")
     
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
@@ -141,7 +141,7 @@ class MarketplaceLead(BaseModel):
     
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     
-    # RETOERP references
+    # ExlainERP references
     tenant_id: str  # Developer
     project_id: str
     property_id: Optional[str] = None  # Specific property interested in
@@ -165,8 +165,8 @@ class MarketplaceLead(BaseModel):
     source: str = "incomelands"  # Always from IncomeLands
     source_detail: Optional[str] = None  # Map view, requirement match, search
     
-    # Status in RETOERP
-    retoerp_lead_id: Optional[str] = None  # Once created in RETOERP leads table
+    # Status in ExlainERP
+    retoerp_lead_id: Optional[str] = None  # Once created in ExlainERP leads table
     status: str = "new"  # new, contacted, site_visit, negotiation, converted, lost
     
     # Conversion tracking
@@ -226,7 +226,7 @@ class AgentCommission(BaseModel):
     tenant_id: str  # Developer
     project_id: str
     property_id: str
-    booking_id: str  # RETOERP booking
+    booking_id: str  # ExlainERP booking
     
     # Property details
     property_value: float

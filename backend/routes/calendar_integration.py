@@ -76,7 +76,7 @@ Type: {event_type_labels.get(event_data.followup_type, 'Follow-up')}
 Notes: {event_data.notes or 'No additional notes'}
 
 ---
-Created via RETOERP Lead Management
+Created via ExlainERP Lead Management
         """.strip()
         
         # Get property/project details if available

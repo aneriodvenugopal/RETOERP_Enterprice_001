@@ -36,7 +36,7 @@ class ChatbotService:
             self.api_key = os.getenv('EMERGENT_LLM_KEY')
         
         # Default system prompt for real estate assistant
-        self.default_system_prompt = """You are a helpful and friendly real estate assistant for RETOERP platform.
+        self.default_system_prompt = """You are a helpful and friendly real estate assistant for ExlainERP platform.
 
 Your goals:
 1. Help customers find their perfect property

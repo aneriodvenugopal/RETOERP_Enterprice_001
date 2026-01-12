@@ -1,7 +1,7 @@
 import React from 'react';
 
 /**
- * RETOERP Logo Component
+ * ExlainERP Logo Component
  * 
  * Usage:
  * <RetoerpLogo variant="full" size="md" />
@@ -56,7 +56,7 @@ const RetoerpLogo = ({
   return (
     <img
       src={logoPath}
-      alt="RETOERP - Real Estate Automation SaaS"
+      alt="ExlainERP - Real Estate Automation SaaS"
       width={dimensions.width}
       height={dimensions.height}
       className={className}

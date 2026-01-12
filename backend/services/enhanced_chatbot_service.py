@@ -1,5 +1,5 @@
 """
-Enhanced RETOERP Chatbot Service
+Enhanced ExlainERP Chatbot Service
 Complete conversation flow with lead capture, verification, advisory, and scheduling
 100% FREE for all users
 """
@@ -159,7 +159,7 @@ Or: "Tomorrow at 3 PM"
         
         # Check if asking about features or user typed "1"
         if any(word in msg for word in ["feature", "what can", "help", "how does", "what is"]) or msg in ["1", "one"]:
-            response = """Hello! 👋 I'm your RETOERP Assistant!
+            response = """Hello! 👋 I'm your ExlainERP Assistant!
 
 **Our Key Features:**
 
@@ -185,7 +185,7 @@ Or type 0 to continue conversation"""
             }
         
         # Default greeting
-        response = """Hello! 👋 Welcome to RETOERP!
+        response = """Hello! 👋 Welcome to ExlainERP!
 
 I'm here to help you explore our real estate ERP platform.
 
@@ -243,7 +243,7 @@ Example: "50 lakhs budget, looking for flat in Banjara Hills"
             state["stage"] = "collecting_feedback"
             
         elif any(word in msg for word in ["business", "company", "manage", "crm", "erp", "3", "three"]) or msg == "3":
-            response = """Perfect! RETOERP can streamline your real estate business. 📈
+            response = """Perfect! ExlainERP can streamline your real estate business. 📈
 
 **What's your biggest challenge? (Select number)**
 
@@ -612,7 +612,7 @@ Looking forward to helping you find your perfect property! 🏡"""
         
         # Feature questions
         if any(word in msg for word in ["feature", "what can", "how does", "price", "cost"]):
-            response = """**RETOERP Features:**
+            response = """**ExlainERP Features:**
 
 1️⃣ Property Management - Layouts, availability
 2️⃣ Payment Automation - Razorpay/Stripe
@@ -633,7 +633,7 @@ Or type:
 
 **What would you like to know? (Type number)**
 
-1️⃣ RETOERP Features
+1️⃣ ExlainERP Features
 2️⃣ Pricing & Plans
 3️⃣ Property Advisory
 4️⃣ Schedule Expert Call
