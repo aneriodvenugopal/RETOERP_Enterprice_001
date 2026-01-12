@@ -94,6 +94,7 @@ api_router.include_router(usage_tracking.router)
 api_router.include_router(document_locker.router)
 api_router.include_router(festival_greetings.router)
 api_router.include_router(site_visits.router)
+api_router.include_router(booking_queue.router)
 
 # PWA Install tracking
 @api_router.post("/analytics/pwa-install")
