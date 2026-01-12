@@ -409,76 +409,47 @@ const EMIPaymentManagement = () => {
           </div>
         </div>
 
-        {/* Stats Cards */}
+        {/* Stats Cards - Clickable */}
         {stats && (
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-blue-100 rounded-lg">
-                    <CreditCard className="w-5 h-5 text-blue-600" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500">Total EMIs</p>
-                    <p className="text-2xl font-bold">{stats.total_emis}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-green-100 rounded-lg">
-                    <TrendingUp className="w-5 h-5 text-green-600" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500">Collected</p>
-                    <p className="text-xl font-bold">{formatCurrency(stats.total_paid)}</p>
-                    <p className="text-xs text-green-600">{stats.collection_rate}%</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-yellow-100 rounded-lg">
-                    <Clock className="w-5 h-5 text-yellow-600" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500">Pending</p>
-                    <p className="text-xl font-bold">{formatCurrency(stats.total_pending)}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-red-100 rounded-lg">
-                    <AlertTriangle className="w-5 h-5 text-red-600" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500">Overdue</p>
-                    <p className="text-xl font-bold">{stats.overdue_count}</p>
-                    <p className="text-xs text-red-600">{formatCurrency(stats.overdue_amount)}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-orange-100 rounded-lg">
-                    <Percent className="w-5 h-5 text-orange-600" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500">Late Fees</p>
-                    <p className="text-xl font-bold">{formatCurrency(stats.total_late_fees)}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <ClickableStatCard 
+              title="Total EMIs" 
+              value={stats.total_emis} 
+              icon={CreditCard} 
+              color="blue"
+              onClick={() => setActiveTab('schedules')}
+              className={activeTab === 'schedules' ? 'ring-2 ring-blue-500' : ''}
+            />
+            <ClickableStatCard 
+              title="Collected" 
+              value={formatCurrency(stats.total_paid)} 
+              icon={TrendingUp} 
+              color="green"
+              subtitle={`${stats.collection_rate}% rate`}
+            />
+            <ClickableStatCard 
+              title="Pending" 
+              value={formatCurrency(stats.total_pending)} 
+              icon={Clock} 
+              color="yellow"
+              onClick={() => setActiveTab('due-soon')}
+              className={activeTab === 'due-soon' ? 'ring-2 ring-yellow-500' : ''}
+            />
+            <ClickableStatCard 
+              title="Overdue" 
+              value={stats.overdue_count} 
+              icon={AlertTriangle} 
+              color="red"
+              subtitle={formatCurrency(stats.overdue_amount)}
+              onClick={() => setActiveTab('overdue')}
+              className={activeTab === 'overdue' ? 'ring-2 ring-red-500' : ''}
+            />
+            <ClickableStatCard 
+              title="Late Fees" 
+              value={formatCurrency(stats.total_late_fees)} 
+              icon={Percent} 
+              color="orange"
+            />
           </div>
         )}
 
