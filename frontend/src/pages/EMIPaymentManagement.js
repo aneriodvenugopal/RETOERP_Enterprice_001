@@ -1166,6 +1166,14 @@ const EMIPaymentManagement = () => {
               </div>
             )}
             <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => handleDownloadSchedule(selectedBookingDetail.summary.booking_id)}
+                data-testid="download-schedule-btn"
+              >
+                <Download className="w-4 h-4 mr-2" />
+                Download Schedule PDF
+              </Button>
               <Button variant="outline" onClick={() => setShowDetailDialog(false)}>
                 Close
               </Button>
