@@ -444,6 +444,14 @@ function App() {
                 }
               />
               <Route
+                path="/customers-management"
+                element={
+                  <PrivateRoute>
+                    <CustomersManagement />
+                  </PrivateRoute>
+                }
+              />
+              <Route
                 path="/vendor-bills"
                 element={
                   <PrivateRoute>
