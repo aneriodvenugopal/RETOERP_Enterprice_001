@@ -67,7 +67,51 @@ const ProjectLayoutEditor = () => {
     loadProjectAndLayout();
   }, [projectId]);
 
-  // Extract SVG dimensions when URL changes
+  // Calculate viewBox based on plot coordinates OR SVG dimensions
+  // Priority: 1. Plot coordinates (if they exist and are larger), 2. SVG viewBox
+  useEffect(() => {
+    // First try to calculate from existing plots
+    if (plots && plots.length > 0) {
+      let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+      
+      plots.forEach(plot => {
+        if (plot.coordinates && Array.isArray(plot.coordinates)) {
+          plot.coordinates.forEach(coord => {
+            if (typeof coord.x === 'number' && typeof coord.y === 'number') {
+              minX = Math.min(minX, coord.x);
+              minY = Math.min(minY, coord.y);
+              maxX = Math.max(maxX, coord.x);
+              maxY = Math.max(maxY, coord.y);
+            }
+          });
+        }
+      });
+      
+      if (minX !== Infinity && maxX !== -Infinity) {
+        const padding = 100;
+        const width = maxX - minX + (padding * 2);
+        const height = maxY - minY + (padding * 2);
+        
+        // Only update if plot bounds are larger than current dimensions
+        if (width > svgDimensions.width || height > svgDimensions.height) {
+          setSvgDimensions({ 
+            width, 
+            height,
+            minX: minX - padding,
+            minY: minY - padding
+          });
+          console.log('📐 Editor: ViewBox calculated from plots:', { 
+            minX: minX - padding, 
+            minY: minY - padding, 
+            width, 
+            height 
+          });
+        }
+      }
+    }
+  }, [plots]);
+
+  // Extract SVG dimensions when URL changes (fallback if no plots or small plots)
   useEffect(() => {
     if (svgUrl) {
       fetch(svgUrl)
@@ -81,8 +125,15 @@ const ProjectLayoutEditor = () => {
             const viewBox = svgElement.getAttribute('viewBox');
             if (viewBox) {
               const [x, y, width, height] = viewBox.split(' ').map(Number);
-              setSvgDimensions({ width, height });
-              console.log('📐 SVG ViewBox detected:', { width, height });
+              // Only set from SVG if we don't have plot-based dimensions already
+              if (!svgDimensions.minX) {
+                setSvgDimensions(prev => ({ 
+                  ...prev, 
+                  width: prev.width || width, 
+                  height: prev.height || height 
+                }));
+                console.log('📐 SVG ViewBox detected:', { width, height });
+              }
             }
           }
         })
