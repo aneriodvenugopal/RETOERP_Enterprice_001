@@ -120,6 +120,30 @@ Build a comprehensive Real Estate ERP (RETOERP) SaaS platform for the Indian rea
 - [x] Statistics: by status, total commission earned
 - [x] Full CRUD APIs with authentication
 
+### Phase 2.3: Strict EMI Payment Module (NEW - Jan 12, 2026)
+- [x] **EMI Schedule Creation** - Create payment schedules for bookings
+  - Configurable down payment and monthly installments
+  - Automatic due date calculation
+  - Configurable late fee percentage (default 2% per month)
+- [x] **Payment Tracking** - Track payments against EMI schedules
+  - Status: pending, paid, partial, overdue, waived
+  - Payment method tracking (cash, bank_transfer, upi, cheque, razorpay)
+  - Receipt number generation
+- [x] **Late Fee Management** - Automatic late fee calculation
+  - Days overdue tracking
+  - Late fee waiver (full or partial) by admin
+  - Waiver reason logging
+- [x] **Overdue Detection** - Real-time overdue status updates
+  - Automatic late fee recalculation
+  - Overdue EMI listing with customer details
+- [x] **Due Soon Alerts** - EMIs due within specified days
+- [x] **Statistics Dashboard** - Collection metrics
+  - Total EMIs, collected, pending, overdue
+  - Collection rate percentage
+  - Late fees accumulated
+  - By status breakdown
+- [x] Full CRUD APIs with authentication
+
 ### Other Features
 - [x] SMS integration (MSG91 - MOCKED)
 - [x] AI Agents integration (OpenAI via Emergent LLM Key)
@@ -142,8 +166,8 @@ Build a comprehensive Real Estate ERP (RETOERP) SaaS platform for the Indian rea
 ### P2 - Medium Priority
 - [x] Customer Database enhancement - Full CRUD, search, wallet, purchase history
 - [x] Resale/Release System with auto-notifications
-- [ ] Strict EMI Payment module
-- [ ] Receipt Generation
+- [x] Strict EMI Payment module with late fees
+- [ ] Receipt Generation (PDF)
 - [ ] Vendor Management module
 
 ### P3 - Lower Priority
@@ -201,6 +225,7 @@ Build a comprehensive Real Estate ERP (RETOERP) SaaS platform for the Indian rea
 - `/app/test_reports/iteration_2.json` - Document Locker, Festival Greetings
 - `/app/test_reports/iteration_3.json` - Site Visits, Booking Queue (30/30 tests passed)
 - `/app/test_reports/iteration_4.json` - Resale/Release System (17/17 tests passed)
+- `/app/test_reports/iteration_5.json` - EMI Payment Module (22/22 tests passed)
 
 ## New Routes Added (Jan 12, 2026)
 - `/document-locker` - Document storage with physical location mapping
@@ -209,3 +234,4 @@ Build a comprehensive Real Estate ERP (RETOERP) SaaS platform for the Indian rea
 - `/booking-queue` - Property waitlist management
 - `/customers-management` - Customer database with wallet
 - `/resale-release` - Resale/Release management system
+- `/emi-payments` - EMI payment tracking and management
