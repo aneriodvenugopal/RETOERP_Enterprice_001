@@ -86,8 +86,8 @@ const AuthenticatedLayout = ({ children }) => {
               className="flex items-center gap-2 hover:opacity-80 transition-opacity"
               data-testid="header-logo"
             >
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center shadow-md">
-                <Building2 className="w-4 h-4 text-white" />
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-green-500 to-blue-600 flex items-center justify-center shadow-md">
+                <FileText className="w-4 h-4 text-white" />
               </div>
               <span className="text-lg font-bold text-gray-900 hidden sm:block">ExlainERP</span>
             </button>
