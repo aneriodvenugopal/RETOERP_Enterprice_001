@@ -39,7 +39,11 @@ async def update_overdue_status(db, emi: dict) -> dict:
         return emi
     
     now = datetime.now(timezone.utc)
-    due_date = emi["due_date"] if isinstance(emi["due_date"], datetime) else datetime.fromisoformat(emi["due_date"].replace('Z', '+00:00'))
+    due_date = emi["due_date"]
+    if isinstance(due_date, str):
+        due_date = datetime.fromisoformat(due_date.replace('Z', '+00:00'))
+    elif isinstance(due_date, datetime) and due_date.tzinfo is None:
+        due_date = due_date.replace(tzinfo=timezone.utc)
     
     if now > due_date:
         days_overdue = (now - due_date).days
