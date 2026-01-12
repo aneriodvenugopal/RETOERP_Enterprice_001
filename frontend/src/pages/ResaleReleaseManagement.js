@@ -125,7 +125,7 @@ export default function ResaleReleaseManagement() {
     setLoading(true);
     try {
       let url = `${API_URL}/api/resale-release/releases?limit=100`;
-      if (selectedProject) url += `&project_id=${selectedProject}`;
+      if (selectedProject && selectedProject !== "all") url += `&project_id=${selectedProject}`;
       
       const res = await fetch(url, { headers });
       const data = await res.json();
@@ -145,8 +145,8 @@ export default function ResaleReleaseManagement() {
     setLoading(true);
     try {
       let url = `${API_URL}/api/resale-release/resales?limit=100`;
-      if (selectedProject) url += `&project_id=${selectedProject}`;
-      if (statusFilter) url += `&status=${statusFilter}`;
+      if (selectedProject && selectedProject !== "all") url += `&project_id=${selectedProject}`;
+      if (statusFilter && statusFilter !== "all") url += `&status=${statusFilter}`;
       
       const res = await fetch(url, { headers });
       const data = await res.json();
