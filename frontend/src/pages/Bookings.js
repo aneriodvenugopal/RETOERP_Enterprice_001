@@ -393,22 +393,64 @@ const Bookings = () => {
               </Button>
             </div>
           ) : (
-            <div className="space-y-2">
+            <div className="space-y-3">
               {bookings.map((booking) => (
                 <div
                   key={booking.id}
-                  className="flex items-center justify-between p-4 border rounded hover:bg-gray-50 cursor-pointer"
+                  className="flex items-center justify-between p-4 border-2 border-gray-100 rounded-xl bg-white hover:border-blue-300 hover:shadow-lg hover:-translate-y-0.5 cursor-pointer transition-all duration-200 group"
                   onClick={() => handleViewBookingDetails(booking)}
+                  data-testid={`booking-item-${booking.id}`}
                 >
-                  <div>
-                    <div className="font-semibold">{booking.customer_name}</div>
-                    <div className="text-sm text-gray-600">{booking.customer_phone}</div>
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-green-700 flex items-center justify-center text-white font-semibold shadow-md">
+                      {booking.customer_name?.charAt(0)?.toUpperCase() || 'B'}
+                    </div>
+                    <div>
+                      <div className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
+                        {booking.customer_name}
+                      </div>
+                      <div className="flex items-center gap-3 text-sm text-gray-600 mt-1">
+                        <a 
+                          href={`tel:${booking.customer_phone}`}
+                          className="flex items-center gap-1 hover:text-blue-600"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <Phone className="w-3 h-3" />
+                          {booking.customer_phone}
+                        </a>
+                        {booking.customer_email && (
+                          <a 
+                            href={`mailto:${booking.customer_email}`}
+                            className="flex items-center gap-1 hover:text-blue-600"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <Mail className="w-3 h-3" />
+                            {booking.customer_email}
+                          </a>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
+                        <Building className="w-3 h-3" />
+                        {booking.project_name || 'Project'}
+                      </div>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <div className="font-semibold">₹{(booking.total_amount / 100000).toFixed(2)}L</div>
-                    <Badge variant={booking.status === 'completed' ? 'default' : 'secondary'}>
-                      {booking.status}
-                    </Badge>
+                  <div className="flex items-center gap-4">
+                    <div className="text-right">
+                      <div className="text-lg font-bold text-gray-900">₹{(booking.total_amount / 100000).toFixed(2)}L</div>
+                      <Badge 
+                        className={
+                          booking.status === 'completed' 
+                            ? 'bg-green-100 text-green-800' 
+                            : booking.status === 'cancelled'
+                            ? 'bg-red-100 text-red-800'
+                            : 'bg-blue-100 text-blue-800'
+                        }
+                      >
+                        {booking.status}
+                      </Badge>
+                    </div>
+                    <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-blue-500 group-hover:translate-x-1 transition-all" />
                   </div>
                 </div>
               ))}
