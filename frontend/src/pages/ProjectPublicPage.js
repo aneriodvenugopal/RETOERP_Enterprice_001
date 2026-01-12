@@ -84,7 +84,7 @@ const PropertyCard = ({ property, onClick }) => {
       </div>
       <CardContent className="p-4">
         <h4 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
-          {property.name || property.plot_number || `Unit ${property.unit_number}`}
+          {property.name || property.property_number || property.plot_number || `Unit ${property.unit_number}`}
         </h4>
         <div className="flex items-center gap-2 mt-2 text-sm text-gray-600">
           {property.area && (
