@@ -1,7 +1,7 @@
-# RETOERP - Real Estate ERP SaaS Platform
+# ExlainERP - Real Estate ERP SaaS Platform
 
 ## Original Problem Statement
-Build a comprehensive Real Estate ERP (RETOERP) SaaS platform for the Indian real estate market, featuring:
+Build a comprehensive Real Estate ERP (ExlainERP) SaaS platform for the Indian real estate market, featuring:
 - Multi-tenant architecture with RBAC
 - Project financial management
 - Custom fields system
