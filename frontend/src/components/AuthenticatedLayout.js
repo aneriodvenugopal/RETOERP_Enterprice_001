@@ -7,7 +7,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { 
-  LogOut, Building2, User, ChevronDown, 
+  LogOut, FileText, User, ChevronDown, 
   Settings, HelpCircle, Bell
 } from 'lucide-react';
 import {
