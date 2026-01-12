@@ -144,6 +144,41 @@ Build a comprehensive Real Estate ERP (RETOERP) SaaS platform for the Indian rea
   - By status breakdown
 - [x] Full CRUD APIs with authentication
 
+### Phase 2.4: Receipt Generation (NEW - Jan 12, 2026)
+- [x] **Payment Receipt PDF** - Professional PDF receipts for all payments
+  - Company branding with logo/header
+  - Customer and property details
+  - Payment breakdown with late fees if applicable
+  - Amount in words (Indian format - Lakhs, Crores)
+  - Receipt number and date
+  - Digital signature area
+- [x] **EMI Schedule PDF** - Downloadable EMI schedule documents
+  - Payment progress summary
+  - Full installment list with status
+  - Color-coded status (paid=green, overdue=red)
+- [x] **Receipt History** - Track all generated receipts
+- [x] **Regenerate Receipt** - Create new receipt number if needed
+
+### Phase 2.5: Vendor Management (NEW - Jan 12, 2026)
+- [x] **Vendor Directory** - Full CRUD for vendors
+  - Categories: construction, electrical, plumbing, interior, etc.
+  - Contact details, bank info, GSTIN/PAN
+  - Status: active, inactive, blacklisted
+  - Rating system
+- [x] **Bill Management** - Track vendor invoices
+  - Bill number, dates, amounts with tax
+  - Status: pending, partial, paid, overdue
+  - Automatic overdue detection
+- [x] **Payment Recording** - Record payments to vendors
+  - Multiple payment methods
+  - Reference/transaction tracking
+  - Automatic bill status updates
+- [x] **Statistics Dashboard**
+  - Total billed, paid, outstanding
+  - Overdue count and amount
+  - By category breakdown
+  - Monthly payment tracking
+
 ### Other Features
 - [x] SMS integration (MSG91 - MOCKED)
 - [x] AI Agents integration (OpenAI via Emergent LLM Key)
@@ -167,8 +202,8 @@ Build a comprehensive Real Estate ERP (RETOERP) SaaS platform for the Indian rea
 - [x] Customer Database enhancement - Full CRUD, search, wallet, purchase history
 - [x] Resale/Release System with auto-notifications
 - [x] Strict EMI Payment module with late fees
-- [ ] Receipt Generation (PDF)
-- [ ] Vendor Management module
+- [x] Receipt Generation (PDF) - Payment & EMI schedule PDFs
+- [x] Vendor Management module - Directory, bills, payments
 
 ### P3 - Lower Priority
 - [ ] Organic Referral & Wallet System
@@ -226,6 +261,7 @@ Build a comprehensive Real Estate ERP (RETOERP) SaaS platform for the Indian rea
 - `/app/test_reports/iteration_3.json` - Site Visits, Booking Queue (30/30 tests passed)
 - `/app/test_reports/iteration_4.json` - Resale/Release System (17/17 tests passed)
 - `/app/test_reports/iteration_5.json` - EMI Payment Module (22/22 tests passed)
+- `/app/test_reports/iteration_6.json` - Receipt Generation & Vendor Management (24/24 tests passed)
 
 ## New Routes Added (Jan 12, 2026)
 - `/document-locker` - Document storage with physical location mapping
@@ -235,3 +271,4 @@ Build a comprehensive Real Estate ERP (RETOERP) SaaS platform for the Indian rea
 - `/customers-management` - Customer database with wallet
 - `/resale-release` - Resale/Release management system
 - `/emi-payments` - EMI payment tracking and management
+- `/vendor-management` - Vendor directory, bills, and payments
