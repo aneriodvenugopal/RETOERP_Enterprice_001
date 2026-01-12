@@ -1,6 +1,7 @@
 /**
  * SaaS Marketing Landing Page for ExlainERP
  * Public page showcasing features, pricing, and testimonials
+ * SEO optimized with structured data
  */
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -15,6 +16,7 @@ import {
   ChevronRight, Menu, X, BarChart3, Layers, Lock
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { SEOHead, generateFAQStructuredData } from '../components/SEOHead';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
