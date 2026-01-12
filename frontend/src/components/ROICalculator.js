@@ -21,22 +21,22 @@ const ROICalculator = () => {
     const annualCurrentRevenue = currentRevenue * 12;
 
     // With ExlainERP (0% leakage, better conversion)
-    const retoerpLeads = leads; // No leakage
-    const retoerpConversions = (retoerpLeads * conversionRate) / 100;
-    const retoerpRevenue = retoerpConversions * avgCommission;
-    const annualRetoerpRevenue = retoerpRevenue * 12;
+    const exlainerpLeads = leads; // No leakage
+    const exlainerpConversions = (exlainerpLeads * conversionRate) / 100;
+    const exlainerpRevenue = exlainerpConversions * avgCommission;
+    const annualExlainERPRevenue = exlainerpRevenue * 12;
 
     // Savings and gains
     const additionalLeads = leadsLost;
-    const additionalConversions = retoerpConversions - currentConversions;
-    const monthlyGain = retoerpRevenue - currentRevenue;
+    const additionalConversions = exlainerpConversions - currentConversions;
+    const monthlyGain = exlainerpRevenue - currentRevenue;
     const annualGain = monthlyGain * 12;
     const timeSaved = 20; // hours per week
     const costSaved = timeSaved * 4 * 500; // 500 per hour * 4 weeks
 
     setResults({
       currentRevenue: annualCurrentRevenue,
-      retoerpRevenue: annualRetoerpRevenue,
+      exlainerpRevenue: annualExlainERPRevenue,
       additionalLeads: additionalLeads * 12, // Annual
       additionalConversions: additionalConversions * 12,
       annualGain,

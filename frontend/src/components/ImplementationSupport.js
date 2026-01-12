@@ -84,7 +84,7 @@ const ImplementationSupport = () => {
                   </ul>
                   <div className="mt-4 bg-green-100 p-3 rounded-lg">
                     <p className="text-sm text-green-900">
-                      📞 <strong>Contact:</strong> +91 99483 03060 | support@retoerp.com
+                      📞 <strong>Contact:</strong> +91 99483 03060 | support@exlainerp.com
                     </p>
                   </div>
                 </div>
@@ -277,7 +277,7 @@ const ImplementationSupport = () => {
                 WhatsApp Support
               </a>
               <a
-                href="mailto:support@retoerp.com"
+                href="mailto:support@exlainerp.com"
                 className="inline-flex items-center gap-2 bg-blue-700 text-white px-6 py-3 rounded-lg font-bold hover:bg-blue-800 transition-all border-2 border-white"
               >
                 Email Us

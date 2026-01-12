@@ -4,12 +4,12 @@ import React from 'react';
  * ExlainERP Logo Component
  * 
  * Usage:
- * <RetoerpLogo variant="full" size="md" />
- * <RetoerpLogo variant="icon" size="sm" />
- * <RetoerpLogo variant="white" size="lg" />
+ * <ExlainERPLogo variant="full" size="md" />
+ * <ExlainERPLogo variant="icon" size="sm" />
+ * <ExlainERPLogo variant="white" size="lg" />
  */
 
-const RetoerpLogo = ({ 
+const ExlainERPLogo = ({ 
   variant = 'full', // 'full', 'icon', 'white'
   size = 'md', // 'sm', 'md', 'lg', 'xl'
   className = '' 
@@ -33,12 +33,12 @@ const RetoerpLogo = ({
   const getLogoPath = () => {
     switch (variant) {
       case 'icon':
-        return '/retoerp-logo-icon.svg';
+        return '/exlainerp-logo-icon.svg';
       case 'white':
-        return '/retoerp-logo-white.svg';
+        return '/exlainerp-logo-white.svg';
       case 'full':
       default:
-        return '/retoerp-logo-full.svg';
+        return '/exlainerp-logo-full.svg';
     }
   };
 
@@ -65,9 +65,9 @@ const RetoerpLogo = ({
   );
 };
 
-export default RetoerpLogo;
+export default ExlainERPLogo;
 
 // Export individual logo components for convenience
-export const RetoerpIconLogo = (props) => <RetoerpLogo variant="icon" {...props} />;
-export const RetoerpFullLogo = (props) => <RetoerpLogo variant="full" {...props} />;
-export const RetoerpWhiteLogo = (props) => <RetoerpLogo variant="white" {...props} />;
+export const ExlainERPIconLogo = (props) => <ExlainERPLogo variant="icon" {...props} />;
+export const ExlainERPFullLogo = (props) => <ExlainERPLogo variant="full" {...props} />;
+export const ExlainERPWhiteLogo = (props) => <ExlainERPLogo variant="white" {...props} />;

@@ -44,7 +44,7 @@ const StickyNavbar = () => {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3">
-            <img src="/retoerp-logo-icon.svg" alt="ExlainERP SOFTWARE" className="h-10 w-10" />
+            <img src="/exlainerp-logo-icon.svg" alt="ExlainERP SOFTWARE" className="h-10 w-10" />
             <div className="flex flex-col">
               <span className="text-2xl font-bold text-blue-600 leading-tight">ExlainERP SOFTWARE</span>
               <span className="text-xs font-medium text-gray-600 tracking-wide">Real Estate Automation Software</span>

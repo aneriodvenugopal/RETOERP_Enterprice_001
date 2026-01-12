@@ -5,9 +5,9 @@ import { getMessaging, getToken, onMessage } from 'firebase/messaging';
 // Firebase config for ExlainERP
 const firebaseConfig = {
   apiKey: "AIzaSyBLdLj5EGwRxHbsCqEbngRWbEFn4RUHQdI",
-  authDomain: "retoerp-5ff78.firebaseapp.com",
-  projectId: "retoerp-5ff78",
-  storageBucket: "retoerp-5ff78.firebasestorage.app",
+  authDomain: "exlainerp-5ff78.firebaseapp.com",
+  projectId: "exlainerp-5ff78",
+  storageBucket: "exlainerp-5ff78.firebasestorage.app",
   messagingSenderId: "999459364917",
   appId: "1:999459364917:web:ab67804d48b20e288bd17c"
 };

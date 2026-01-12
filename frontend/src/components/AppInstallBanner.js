@@ -35,7 +35,7 @@ const AppInstallBanner = () => {
                 <div className="flex items-center gap-3 mb-3">
                   <div className="bg-white p-2 rounded-xl">
                     <img 
-                      src="/retoerp-logo-icon.svg" 
+                      src="/exlainerp-logo-icon.svg" 
                       alt="ExlainERP" 
                       className="w-12 h-12"
                       onError={(e) => {

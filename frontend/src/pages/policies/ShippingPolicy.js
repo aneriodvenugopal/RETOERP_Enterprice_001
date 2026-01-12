@@ -118,7 +118,7 @@ const ShippingPolicy = () => {
             <h2 className="text-2xl font-bold text-gray-900 mb-4">8. Contact Information</h2>
             <div className="mt-4 p-4 bg-blue-50 rounded-lg">
               <p className="text-gray-900 font-semibold">Digital Delivery Support</p>
-              <p className="text-gray-700">Email: <a href="mailto:enquiry@retoerp.com" className="text-blue-600 hover:underline">enquiry@retoerp.com</a></p>
+              <p className="text-gray-700">Email: <a href="mailto:enquiry@exlainerp.com" className="text-blue-600 hover:underline">enquiry@exlainerp.com</a></p>
               <p className="text-gray-700">Phone: <a href="tel:+919948303060" className="text-blue-600 hover:underline">+91-9948303060</a></p>
               <p className="text-gray-700 mt-2">For immediate access issues, contact our 24×7 support team</p>
             </div>
