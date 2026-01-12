@@ -469,26 +469,31 @@ class TestBookingQueueNotInterested:
     
     def test_add_and_respond_not_interested(self, api_client):
         """Test not interested response - should skip to next in queue"""
+        import time
+        unique_suffix = str(int(time.time() * 1000))[-6:]
+        
         # Add first customer
         queue_data1 = {
             "project_id": TEST_PROJECT_ID,
-            "property_id": "TEST-plot-002",
+            "property_id": f"TEST-plot-notint-{unique_suffix}",
             "customer_name": "TEST_First_Customer",
-            "customer_mobile": "9988002211",
+            "customer_mobile": f"998800{unique_suffix[:4]}",
             "priority": 0
         }
         response1 = api_client.post(f"{BASE_URL}/api/booking-queue", json=queue_data1)
+        assert response1.status_code == 200, f"Failed to create first entry: {response1.text}"
         entry1_id = response1.json()["entry"]["id"]
         
         # Add second customer
         queue_data2 = {
             "project_id": TEST_PROJECT_ID,
-            "property_id": "TEST-plot-002",
+            "property_id": f"TEST-plot-notint-{unique_suffix}",
             "customer_name": "TEST_Second_Customer",
-            "customer_mobile": "9988002222",
+            "customer_mobile": f"998801{unique_suffix[:4]}",
             "priority": 0
         }
         response2 = api_client.post(f"{BASE_URL}/api/booking-queue", json=queue_data2)
+        assert response2.status_code == 200, f"Failed to create second entry: {response2.text}"
         entry2_id = response2.json()["entry"]["id"]
         
         # Notify first customer
