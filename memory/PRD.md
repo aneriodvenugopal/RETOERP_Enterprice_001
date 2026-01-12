@@ -215,6 +215,8 @@ Build a comprehensive Real Estate ERP (ExlainERP) SaaS platform for the Indian r
 - [x] UI Enhancement: Clickable Stat Cards across all pages (Completed Jan 12, 2026)
 - [x] UI Enhancement: Click-to-filter functionality (Completed Jan 12, 2026)
 - [x] UI Enhancement: Clickable phone/email links (Completed Jan 12, 2026)
+- [x] UI Enhancement: Better hover effects on list rows (Completed Jan 12, 2026)
+- [x] Brand Name Change: RETOERP → ExlainERP (Completed Jan 12, 2026)
 
 ### P4 - Future/Backlog
 - [x] Festival Greetings Automation - Backend cron job for Jan 26 & Aug 15 (Completed Jan 12, 2026)
