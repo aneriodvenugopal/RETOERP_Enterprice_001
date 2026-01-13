@@ -333,6 +333,22 @@ const Login = () => {
                 )}
               </div>
 
+              {/* Remember Me Checkbox */}
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="remember-me" 
+                  checked={rememberMe}
+                  onCheckedChange={setRememberMe}
+                  data-testid="remember-me-checkbox"
+                />
+                <label 
+                  htmlFor="remember-me" 
+                  className="text-sm font-medium text-gray-700 cursor-pointer select-none"
+                >
+                  Remember me for 30 days
+                </label>
+              </div>
+
               <Button
                 type="submit"
                 className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-6 rounded-lg shadow-lg"
