@@ -263,6 +263,16 @@ Build a comprehensive Real Estate ERP (ExlainERP) SaaS platform for the Indian r
   - JWT tokens with session management - Working ✅
   - AuthCallback component for OAuth redirect handling
   - Proper redirect URL to /auth/callback for Google OAuth
+  - **Remember Me functionality** - 30-day session persistence ✅
+
+- [x] **Stripe Payment Gateway Integration** (Completed Jan 13, 2026)
+  - Payment packages: booking_token (₹50,000), booking_advance (₹1,00,000), emi_standard, custom
+  - Stripe Checkout integration via emergentintegrations library
+  - Payment transaction tracking in MongoDB
+  - Stripe Payments admin page at /stripe-payments
+  - Payment Success/Cancelled pages with polling status
+  - PaymentButton reusable component for initiating payments
+  - Webhook endpoint at /api/webhook/stripe
 
 ### P4 - Future/Backlog
 - [x] Festival Greetings Automation - Backend cron job for Jan 26 & Aug 15 (Completed Jan 12, 2026)
