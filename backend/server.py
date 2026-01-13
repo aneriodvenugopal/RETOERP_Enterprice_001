@@ -103,6 +103,8 @@ api_router.include_router(vendor_management.router)
 api_router.include_router(referral_wallet.router)
 api_router.include_router(complaints.router)
 api_router.include_router(commission_analytics.router)
+api_router.include_router(stripe_payments.router)
+api_router.include_router(stripe_webhook.router)
 
 # PWA Install tracking
 @api_router.post("/analytics/pwa-install")
