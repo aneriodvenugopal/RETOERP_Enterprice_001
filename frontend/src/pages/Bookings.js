@@ -468,12 +468,16 @@ const Bookings = () => {
           </DialogHeader>
           {bookingDetails && (
             <Tabs defaultValue="details" className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
+              <TabsList className="grid w-full grid-cols-4">
                 <TabsTrigger value="details">Details</TabsTrigger>
                 <TabsTrigger value="payments">
                   Payments ({bookingDetails.payments?.length || 0})
                 </TabsTrigger>
-                <TabsTrigger value="add-payment">Add Payment</TabsTrigger>
+                <TabsTrigger value="pay-online">
+                  <Banknote className="w-4 h-4 mr-1" />
+                  Pay Online
+                </TabsTrigger>
+                <TabsTrigger value="add-payment">Record Payment</TabsTrigger>
               </TabsList>
               
               <TabsContent value="details" className="space-y-4">
