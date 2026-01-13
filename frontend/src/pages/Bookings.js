@@ -571,6 +571,117 @@ const Bookings = () => {
                 )}
               </TabsContent>
 
+              {/* Pay Online Tab */}
+              <TabsContent value="pay-online" className="space-y-4">
+                <div className="bg-gradient-to-br from-indigo-50 to-blue-50 rounded-xl p-6 border border-indigo-100">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                    <CreditCard className="w-5 h-5 text-indigo-600" />
+                    Pay Online with Stripe
+                  </h3>
+                  <p className="text-gray-600 text-sm mb-4">
+                    Secure online payment via credit/debit card or UPI. Your payment will be processed instantly.
+                  </p>
+                  
+                  <div className="grid grid-cols-2 gap-4 mb-4">
+                    <div className="bg-white rounded-lg p-3 border">
+                      <div className="text-sm text-gray-500">Total Amount</div>
+                      <div className="text-xl font-bold text-gray-900">
+                        ₹{((bookingDetails.booking.total_amount || 0) / 100000).toFixed(2)}L
+                      </div>
+                    </div>
+                    <div className="bg-white rounded-lg p-3 border">
+                      <div className="text-sm text-gray-500">Pending Amount</div>
+                      <div className="text-xl font-bold text-red-600">
+                        ₹{((bookingDetails.total_pending || 0) / 100000).toFixed(2)}L
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {bookingDetails.total_pending > 0 ? (
+                    <div className="space-y-3">
+                      {/* Quick Payment Options */}
+                      <div className="grid grid-cols-2 gap-3">
+                        <PaymentButton
+                          packageId="booking_token"
+                          bookingId={selectedBooking?.id}
+                          customerId={selectedBooking?.customer_id}
+                          projectId={selectedBooking?.project_id}
+                          propertyId={selectedBooking?.property_id}
+                          description={`Booking Token for ${selectedBooking?.customer_name}`}
+                          buttonText="Pay ₹50,000 Token"
+                          className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white"
+                          onSuccess={() => toast.success('Redirecting to payment...')}
+                        />
+                        <PaymentButton
+                          packageId="booking_advance"
+                          bookingId={selectedBooking?.id}
+                          customerId={selectedBooking?.customer_id}
+                          projectId={selectedBooking?.project_id}
+                          propertyId={selectedBooking?.property_id}
+                          description={`Booking Advance for ${selectedBooking?.customer_name}`}
+                          buttonText="Pay ₹1,00,000 Advance"
+                          className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white"
+                          onSuccess={() => toast.success('Redirecting to payment...')}
+                        />
+                      </div>
+                      
+                      {/* Custom Amount */}
+                      <div className="bg-white rounded-lg p-4 border">
+                        <div className="text-sm font-medium text-gray-700 mb-2">Pay Custom Amount</div>
+                        <div className="flex gap-2">
+                          <Input
+                            type="number"
+                            placeholder="Enter amount (min ₹100)"
+                            id="custom-payment-amount"
+                            min="100"
+                            className="flex-1"
+                          />
+                          <PaymentButton
+                            packageId="custom"
+                            bookingId={selectedBooking?.id}
+                            customerId={selectedBooking?.customer_id}
+                            projectId={selectedBooking?.project_id}
+                            propertyId={selectedBooking?.property_id}
+                            description={`Custom Payment for ${selectedBooking?.customer_name}`}
+                            customAmount={(() => {
+                              const input = document.getElementById('custom-payment-amount');
+                              return input ? parseFloat(input.value) || 0 : 0;
+                            })()}
+                            buttonText="Pay"
+                            className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-6"
+                            onSuccess={() => toast.success('Redirecting to payment...')}
+                          />
+                        </div>
+                      </div>
+                      
+                      {/* Full Pending Amount */}
+                      <PaymentButton
+                        packageId="custom"
+                        bookingId={selectedBooking?.id}
+                        customerId={selectedBooking?.customer_id}
+                        projectId={selectedBooking?.project_id}
+                        propertyId={selectedBooking?.property_id}
+                        description={`Full Pending Payment for ${selectedBooking?.customer_name}`}
+                        customAmount={bookingDetails.total_pending}
+                        buttonText={`Pay Full Pending Amount (₹${((bookingDetails.total_pending || 0) / 100000).toFixed(2)}L)`}
+                        className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white py-6"
+                        onSuccess={() => toast.success('Redirecting to payment...')}
+                      />
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 bg-green-50 rounded-lg border border-green-200">
+                      <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-2" />
+                      <p className="text-green-700 font-medium">All payments completed!</p>
+                      <p className="text-green-600 text-sm">This booking has no pending dues.</p>
+                    </div>
+                  )}
+                </div>
+                
+                <div className="text-xs text-gray-500 text-center">
+                  Powered by Stripe • Secure SSL encrypted payment
+                </div>
+              </TabsContent>
+
               <TabsContent value="add-payment">
                 <form onSubmit={handleAddPayment} className="space-y-4">
                   <div className="space-y-2">
