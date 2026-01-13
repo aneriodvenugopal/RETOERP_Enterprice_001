@@ -108,6 +108,7 @@ async def login_with_password(data: dict, request: Request):
     phone = data.get('phone')
     email = data.get('email')
     password = data.get('password')
+    remember_me = data.get('remember_me', False)
     
     if not password:
         raise HTTPException(status_code=400, detail="Password is required")
@@ -142,11 +143,12 @@ async def login_with_password(data: dict, request: Request):
     role_doc = await db.roles.find_one({'id': user_doc['role_id']}, {"_id": 0})
     role_slug = role_doc['slug'] if role_doc else 'user'
     
-    # Generate JWT token
+    # Generate JWT token with remember_me support
     token = AuthService.create_access_token(
         user_id=user_doc['id'],
         tenant_id=user_doc['tenant_id'],
-        role=role_slug
+        role=role_slug,
+        remember_me=remember_me
     )
     
     # Update last login
@@ -155,9 +157,18 @@ async def login_with_password(data: dict, request: Request):
         {'$set': {'last_login': datetime.now(timezone.utc).isoformat()}}
     )
     
+    # Calculate token expiry for frontend
+    from datetime import timedelta
+    if remember_me:
+        expires_in = 30 * 24 * 60 * 60  # 30 days in seconds
+    else:
+        expires_in = 24 * 60 * 60  # 24 hours in seconds
+    
     return {
         "access_token": token,
         "token_type": "bearer",
+        "expires_in": expires_in,
+        "remember_me": remember_me,
         "user": {
             "id": user_doc['id'],
             "name": user_doc['name'],
