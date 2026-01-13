@@ -4,6 +4,7 @@ import { authService } from '../services';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { FileText, Lock, Phone, KeyRound, ArrowRightLeft, Zap, Loader2 } from 'lucide-react';
