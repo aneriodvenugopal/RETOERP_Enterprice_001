@@ -8,6 +8,7 @@ import os
 JWT_SECRET = os.environ.get('JWT_SECRET', 'your-secret-key-change-in-production')
 JWT_ALGORITHM = 'HS256'
 JWT_EXPIRATION_HOURS = 24
+JWT_REMEMBER_ME_DAYS = 30
 
 class AuthService:
     @staticmethod
@@ -16,13 +17,26 @@ class AuthService:
         return ''.join(random.choices(string.digits, k=length))
     
     @staticmethod
-    def create_access_token(user_id: str, tenant_id: Optional[str] = None, role: str = 'user') -> str:
-        """Create JWT access token"""
+    def create_access_token(user_id: str, tenant_id: Optional[str] = None, role: str = 'user', remember_me: bool = False) -> str:
+        """Create JWT access token
+        
+        Args:
+            user_id: User identifier
+            tenant_id: Tenant identifier (optional)
+            role: User role
+            remember_me: If True, token expires in 30 days; otherwise 24 hours
+        """
+        if remember_me:
+            expiration = datetime.now(timezone.utc) + timedelta(days=JWT_REMEMBER_ME_DAYS)
+        else:
+            expiration = datetime.now(timezone.utc) + timedelta(hours=JWT_EXPIRATION_HOURS)
+        
         payload = {
             'user_id': user_id,
             'tenant_id': tenant_id,
             'role': role,
-            'exp': datetime.now(timezone.utc) + timedelta(hours=JWT_EXPIRATION_HOURS)
+            'remember_me': remember_me,
+            'exp': expiration
         }
         return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
     
