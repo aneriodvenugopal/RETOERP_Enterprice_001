@@ -298,7 +298,7 @@ class TestStripeCheckoutSession:
         # Verify response structure
         assert "checkout_url" in data, "Missing checkout_url in response"
         assert "transaction_id" in data, "Missing transaction_id in response"
-        assert "stripe_session_id" in data, "Missing stripe_session_id in response"
+        assert "session_id" in data, "Missing session_id in response"
         
         # Verify checkout URL is valid Stripe URL
         checkout_url = data["checkout_url"]
@@ -306,7 +306,7 @@ class TestStripeCheckoutSession:
         
         print(f"✓ Checkout session created:")
         print(f"  - Transaction ID: {data['transaction_id']}")
-        print(f"  - Stripe Session ID: {data['stripe_session_id']}")
+        print(f"  - Stripe Session ID: {data['session_id']}")
         print(f"  - Checkout URL: {checkout_url[:80]}...")
     
     def test_create_checkout_session_with_booking_token_package(self):
