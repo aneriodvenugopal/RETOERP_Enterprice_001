@@ -116,6 +116,7 @@ const Login = () => {
   const [showOTP, setShowOTP] = useState(false);
   const [loading, setLoading] = useState(false);
   const [generatedOTP, setGeneratedOTP] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
   
   const { login, loginWithPassword } = useAuth();
   const navigate = useNavigate();
@@ -162,12 +163,16 @@ const Login = () => {
       // Check if identifier is phone or email
       const isPhone = /^\d{10}$/.test(identifier);
       const loginData = isPhone 
-        ? { phone: identifier, password }
-        : { email: identifier, password };
+        ? { phone: identifier, password, remember_me: rememberMe }
+        : { email: identifier, password, remember_me: rememberMe };
 
       const response = await authService.loginWithPassword(loginData);
-      await loginWithPassword(response.access_token, response.user);
-      toast.success(`Welcome back, ${response.user.name}!`);
+      await loginWithPassword(response.access_token, response.user, rememberMe);
+      
+      const welcomeMsg = rememberMe 
+        ? `Welcome back, ${response.user.name}! You'll stay logged in for 30 days.`
+        : `Welcome back, ${response.user.name}!`;
+      toast.success(welcomeMsg);
       navigate('/dashboard');
     } catch (error) {
       toast.error(error.response?.data?.detail || 'Invalid credentials');
