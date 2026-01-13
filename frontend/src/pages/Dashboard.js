@@ -438,6 +438,13 @@ const TenantAdminDashboard = () => {
           gradient="from-purple-500 to-violet-500"
         />
         <ActionCard
+          icon={Banknote}
+          title="Stripe Payments"
+          description="Online payments & transaction history"
+          onClick={() => navigate('/stripe-payments')}
+          gradient="from-indigo-500 to-blue-500"
+        />
+        <ActionCard
           icon={Bot}
           title="AI Agents"
           description="AI-powered assistants for your business"
