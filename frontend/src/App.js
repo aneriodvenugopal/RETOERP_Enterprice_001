@@ -533,6 +533,17 @@ function App() {
                   </PrivateRoute>
                 }
               />
+              {/* Stripe Payment Routes */}
+              <Route path="/payment-success" element={<PaymentSuccess />} />
+              <Route path="/payment-cancelled" element={<PaymentCancelled />} />
+              <Route
+                path="/stripe-payments"
+                element={
+                  <PrivateRoute>
+                    <StripePayments />
+                  </PrivateRoute>
+                }
+              />
               <Route
                 path="/vendor-bills"
                 element={
