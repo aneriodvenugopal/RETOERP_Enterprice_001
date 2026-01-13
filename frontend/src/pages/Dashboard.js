@@ -258,6 +258,13 @@ const SuperAdminDashboard = () => {
           gradient="from-purple-500 to-pink-500"
         />
         <ActionCard
+          icon={Banknote}
+          title="Stripe Payments"
+          description="Online payments & transaction history"
+          onClick={() => navigate('/stripe-payments')}
+          gradient="from-indigo-500 to-blue-500"
+        />
+        <ActionCard
           icon={Home}
           title="Customer Portal"
           description="Preview customer experience"
