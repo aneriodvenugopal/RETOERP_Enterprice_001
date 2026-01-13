@@ -273,6 +273,12 @@ Build a comprehensive Real Estate ERP (ExlainERP) SaaS platform for the Indian r
   - Payment Success/Cancelled pages with polling status
   - PaymentButton reusable component for initiating payments
   - Webhook endpoint at /api/webhook/stripe
+  - **Dashboard Integration**: Stripe Payments card in Dashboard navigation ✅
+  - **Bookings Integration**: "Pay Online" tab with quick payment options ✅
+    - Pay ₹50,000 Token button
+    - Pay ₹1,00,000 Advance button
+    - Custom amount payment
+    - Pay Full Pending Amount button
 
 ### P4 - Future/Backlog
 - [x] Festival Greetings Automation - Backend cron job for Jan 26 & Aug 15 (Completed Jan 12, 2026)
