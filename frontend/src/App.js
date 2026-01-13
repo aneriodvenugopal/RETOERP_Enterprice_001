@@ -16,6 +16,7 @@ import { LanguageProvider } from "./contexts/LanguageContext";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ForgotPassword from "./pages/ForgotPassword";
+import AuthCallback from "./components/AuthCallback";
 import Dashboard from "./pages/Dashboard";
 import Projects from "./pages/Projects";
 import ProjectDetail from "./pages/ProjectDetail";
