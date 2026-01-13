@@ -151,6 +151,11 @@ import ComplaintManagement from "./pages/ComplaintManagement";
 import PaymentsDashboard from "./pages/PaymentsDashboard";
 import CommissionAnalyticsDashboard from "./pages/CommissionAnalyticsDashboard";
 
+// Stripe Payment Pages
+import PaymentSuccess from "./pages/PaymentSuccess";
+import PaymentCancelled from "./pages/PaymentCancelled";
+import StripePayments from "./pages/StripePayments";
+
 // PWA Components
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
 import AvatarAssistant from "./components/AvatarAssistant";
