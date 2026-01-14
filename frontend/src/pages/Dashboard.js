@@ -272,6 +272,13 @@ const SuperAdminDashboard = () => {
           gradient="from-blue-500 to-cyan-500"
         />
         <ActionCard
+          icon={Receipt}
+          title="Billing & Subscription"
+          description="Manage your plan and view invoices"
+          onClick={() => navigate('/billing')}
+          gradient="from-indigo-500 to-purple-500"
+        />
+        <ActionCard
           icon={Home}
           title="Customer Portal"
           description="Preview customer experience"
