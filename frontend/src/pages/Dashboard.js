@@ -265,6 +265,13 @@ const SuperAdminDashboard = () => {
           gradient="from-indigo-500 to-blue-500"
         />
         <ActionCard
+          icon={Mail}
+          title="Email Management"
+          description="Send and track transactional emails"
+          onClick={() => navigate('/email-management')}
+          gradient="from-blue-500 to-cyan-500"
+        />
+        <ActionCard
           icon={Home}
           title="Customer Portal"
           description="Preview customer experience"
