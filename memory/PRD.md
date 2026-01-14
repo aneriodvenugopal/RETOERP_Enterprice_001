@@ -280,6 +280,19 @@ Build a comprehensive Real Estate ERP (ExlainERP) SaaS platform for the Indian r
     - Custom amount payment
     - Pay Full Pending Amount button
 
+- [x] **Email Notifications (Resend Integration)** (Completed Jan 14, 2026)
+  - Resend email provider integration with mock fallback
+  - 8 email templates: welcome, otp, password_reset, booking_confirmation, payment_confirmation, payment_reminder, site_visit, lead_inquiry
+  - Email Management admin page at /email-management
+  - Dashboard card for quick access
+  - Features:
+    - Send test emails with any template
+    - Preview email templates
+    - Email logs with pagination
+    - Email statistics dashboard
+    - Mock mode warning banner when API key not configured
+  - Backend integration: password reset now sends email + SMS
+
 ### P4 - Future/Backlog
 - [x] Festival Greetings Automation - Backend cron job for Jan 26 & Aug 15 (Completed Jan 12, 2026)
 - [x] SaaS marketing pages - /saas landing page (Completed Jan 12, 2026)
