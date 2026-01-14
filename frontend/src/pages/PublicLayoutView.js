@@ -413,27 +413,27 @@ const PublicLayoutView = () => {
         </div>
       </div>
 
-      {/* Bottom Stats Bar - Minimal floating design */}
+      {/* Bottom Stats Bar - With labels */}
       <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-20">
-        <div className="flex items-center gap-3 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full shadow-sm border border-gray-200/50">
+        <div className="flex items-center gap-4 bg-white/90 backdrop-blur-sm px-5 py-2.5 rounded-full shadow-lg border border-gray-200/50">
           <div className="flex items-center gap-2">
-            <div className="w-2.5 h-2.5 rounded-full bg-green-500"></div>
-            <span className="text-green-700 text-xs font-medium">{availablePlots.length}</span>
+            <div className="w-3 h-3 rounded-full bg-green-500"></div>
+            <span className="text-gray-700 text-sm"><span className="font-bold text-green-600">{availablePlots.length}</span> Available</span>
           </div>
-          <div className="w-px h-4 bg-gray-300"></div>
+          <div className="w-px h-5 bg-gray-300"></div>
           <div className="flex items-center gap-2">
-            <div className="w-2.5 h-2.5 rounded-full bg-yellow-500"></div>
-            <span className="text-yellow-700 text-xs font-medium">{bookedPlots.length}</span>
+            <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+            <span className="text-gray-700 text-sm"><span className="font-bold text-yellow-600">{bookedPlots.length}</span> Booked</span>
           </div>
-          <div className="w-px h-4 bg-gray-300"></div>
+          <div className="w-px h-5 bg-gray-300"></div>
           <div className="flex items-center gap-2">
-            <div className="w-2.5 h-2.5 rounded-full bg-orange-500"></div>
-            <span className="text-orange-700 text-xs font-medium">{blockedPlots.length}</span>
+            <div className="w-3 h-3 rounded-full bg-orange-500"></div>
+            <span className="text-gray-700 text-sm"><span className="font-bold text-orange-600">{blockedPlots.length}</span> Blocked</span>
           </div>
-          <div className="w-px h-4 bg-gray-300"></div>
+          <div className="w-px h-5 bg-gray-300"></div>
           <div className="flex items-center gap-2">
-            <div className="w-2.5 h-2.5 rounded-full bg-red-500"></div>
-            <span className="text-red-700 text-xs font-medium">{soldPlots.length}</span>
+            <div className="w-3 h-3 rounded-full bg-red-500"></div>
+            <span className="text-gray-700 text-sm"><span className="font-bold text-red-600">{soldPlots.length}</span> Sold</span>
           </div>
         </div>
       </div>
