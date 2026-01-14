@@ -554,11 +554,51 @@ const PublicLayoutView = () => {
 
                   {/* Gallery Tab */}
                   <TabsContent value="gallery" className="mt-0">
-                    <div className="text-center py-12">
-                      <ImageIcon className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-                      <h3 className="text-lg font-semibold text-gray-700 mb-2">No Images Available</h3>
-                      <p className="text-gray-500">Gallery images will be added soon</p>
-                    </div>
+                    {(selectedPlot.images && selectedPlot.images.length > 0) || (project?.images && project.images.length > 0) ? (
+                      <div className="space-y-4">
+                        {/* Plot specific images */}
+                        {selectedPlot.images && selectedPlot.images.length > 0 && (
+                          <div>
+                            <h4 className="font-semibold text-gray-900 mb-3">Plot Images</h4>
+                            <div className="grid grid-cols-3 gap-3">
+                              {selectedPlot.images.map((image, idx) => (
+                                <div key={idx} className="relative rounded-lg overflow-hidden bg-gray-100 aspect-square cursor-pointer hover:opacity-90 transition">
+                                  <img 
+                                    src={image.url || image} 
+                                    alt={`Plot ${selectedPlot.display_name} - ${idx + 1}`}
+                                    className="w-full h-full object-cover"
+                                  />
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        
+                        {/* Project/Layout images */}
+                        {project?.images && project.images.length > 0 && (
+                          <div>
+                            <h4 className="font-semibold text-gray-900 mb-3">Project Gallery</h4>
+                            <div className="grid grid-cols-3 gap-3">
+                              {project.images.map((image, idx) => (
+                                <div key={idx} className="relative rounded-lg overflow-hidden bg-gray-100 aspect-square cursor-pointer hover:opacity-90 transition">
+                                  <img 
+                                    src={image.url || image} 
+                                    alt={`${project.name} - ${idx + 1}`}
+                                    className="w-full h-full object-cover"
+                                  />
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="text-center py-12">
+                        <ImageIcon className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+                        <h3 className="text-lg font-semibold text-gray-700 mb-2">No Images Available</h3>
+                        <p className="text-gray-500">Gallery images will be added soon</p>
+                      </div>
+                    )}
                   </TabsContent>
 
                   {/* Videos Tab */}
