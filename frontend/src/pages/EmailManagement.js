@@ -60,11 +60,7 @@ const EmailManagement = () => {
       setLogs(logsData.logs || []);
     } catch (error) {
       console.error('Error fetching data:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to load email data',
-        variant: 'destructive'
-      });
+      toast.error('Failed to load email data');
     }
     setLoading(false);
   };
