@@ -399,9 +399,9 @@ const PublicLayoutView = () => {
               </svg>
             </div>
           ) : (
-            <div className="text-center text-white">
-              <Building2 className="w-24 h-24 mx-auto text-slate-600 mb-4" />
-              <p className="text-xl text-slate-400">No layout available</p>
+            <div className="text-center">
+              <Building2 className="w-24 h-24 mx-auto text-gray-400 mb-4" />
+              <p className="text-xl text-gray-600">No layout available</p>
             </div>
           )}
         </div>
