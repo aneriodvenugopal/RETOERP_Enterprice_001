@@ -267,10 +267,10 @@ const PublicLayoutView = () => {
 
   if (loading) {
     return (
-      <div className="fixed inset-0 bg-gradient-to-br from-slate-900 to-slate-800 flex items-center justify-center">
+      <div className="fixed inset-0 bg-gradient-to-br from-gray-100 via-gray-50 to-white flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-cyan-400 mx-auto mb-4"></div>
-          <p className="text-cyan-100 text-lg">Loading layout...</p>
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-700 text-lg">Loading layout...</p>
         </div>
       </div>
     );
