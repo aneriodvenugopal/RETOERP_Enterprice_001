@@ -20,10 +20,50 @@ const LayoutViewer = () => {
   const navigate = useNavigate();
   const [layout, setLayout] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [svgDimensions, setSvgDimensions] = useState({ width: 1200, height: 800, minX: 0, minY: 0 });
 
   useEffect(() => {
     loadLayout();
   }, [layoutId]);
+
+  // Calculate viewBox based on plot coordinates - ensures plots align correctly
+  useEffect(() => {
+    if (layout?.plots && layout.plots.length > 0) {
+      let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+      
+      layout.plots.forEach(plot => {
+        if (plot.coordinates && Array.isArray(plot.coordinates)) {
+          plot.coordinates.forEach(coord => {
+            if (typeof coord.x === 'number' && typeof coord.y === 'number') {
+              minX = Math.min(minX, coord.x);
+              minY = Math.min(minY, coord.y);
+              maxX = Math.max(maxX, coord.x);
+              maxY = Math.max(maxY, coord.y);
+            }
+          });
+        }
+      });
+      
+      if (minX !== Infinity && maxX !== -Infinity) {
+        const padding = 100;
+        const width = maxX - minX + (padding * 2);
+        const height = maxY - minY + (padding * 2);
+        
+        setSvgDimensions({ 
+          width, 
+          height,
+          minX: minX - padding,
+          minY: minY - padding
+        });
+        console.log('📐 LayoutViewer: ViewBox calculated from plots:', { 
+          minX: minX - padding, 
+          minY: minY - padding, 
+          width, 
+          height 
+        });
+      }
+    }
+  }, [layout]);
 
   const loadLayout = async () => {
     setLoading(true);
