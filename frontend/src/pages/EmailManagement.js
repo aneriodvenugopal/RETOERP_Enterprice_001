@@ -114,11 +114,7 @@ const EmailManagement = () => {
       setPreviewHtml(result.html);
       setShowPreview(true);
     } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to preview template',
-        variant: 'destructive'
-      });
+      toast.error('Failed to preview template');
     }
   };
 
