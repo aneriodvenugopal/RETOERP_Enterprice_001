@@ -348,6 +348,12 @@ class NotificationProviderFactory:
         """Create email provider based on environment configuration"""
         provider = os.getenv('EMAIL_PROVIDER', 'mock')
         
+        if provider == 'resend':
+            api_key = os.getenv('RESEND_API_KEY')
+            from_email = os.getenv('SENDER_EMAIL', 'ExlainERP <onboarding@resend.dev>')
+            if api_key:
+                return ResendProvider(api_key, from_email)
+        
         if provider == 'sendgrid':
             api_key = os.getenv('SENDGRID_API_KEY')
             from_email = os.getenv('SENDGRID_FROM_EMAIL')
