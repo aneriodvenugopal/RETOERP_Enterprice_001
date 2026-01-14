@@ -297,18 +297,18 @@ const PublicLayoutView = () => {
   const soldPlots = plots.filter(p => p.status === 'sold');
 
   return (
-    <div ref={containerRef} className="fixed inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 overflow-hidden">
+    <div ref={containerRef} className="fixed inset-0 bg-gradient-to-br from-gray-100 via-gray-50 to-white overflow-hidden">
       {/* Top Bar */}
-      <div className="absolute top-0 left-0 right-0 z-20 bg-gradient-to-b from-black/60 to-transparent">
+      <div className="absolute top-0 left-0 right-0 z-20 bg-white/90 backdrop-blur border-b border-gray-200 shadow-sm">
         <div className="flex items-center justify-between px-6 py-4">
           <div className="flex items-center gap-4">
-            <div className="p-2 bg-cyan-500/20 backdrop-blur rounded-xl border border-cyan-500/30">
-              <Building2 className="w-6 h-6 text-cyan-400" />
+            <div className="p-2 bg-blue-500/10 rounded-xl border border-blue-500/20">
+              <Building2 className="w-6 h-6 text-blue-600" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-white">{project?.name || 'Project Layout'}</h1>
+              <h1 className="text-xl font-bold text-gray-900">{project?.name || 'Project Layout'}</h1>
               {project?.location && (
-                <p className="text-sm text-cyan-200 flex items-center gap-1">
+                <p className="text-sm text-gray-600 flex items-center gap-1">
                   <MapPin className="w-3 h-3" />
                   {project.location}, {project.city}
                 </p>
@@ -318,21 +318,21 @@ const PublicLayoutView = () => {
           
           <div className="flex items-center gap-3">
             {/* Zoom Controls */}
-            <div className="flex items-center gap-1 bg-white/10 backdrop-blur rounded-lg p-1 border border-white/20">
-              <Button onClick={() => setZoom(z => Math.max(0.3, z - 0.2))} size="sm" variant="ghost" className="text-white hover:bg-white/20">
+            <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1 border border-gray-200">
+              <Button onClick={() => setZoom(z => Math.max(0.3, z - 0.2))} size="sm" variant="ghost" className="text-gray-700 hover:bg-gray-200">
                 <ZoomOut className="w-4 h-4" />
               </Button>
-              <span className="text-white text-sm px-2 min-w-[50px] text-center">{(zoom * 100).toFixed(0)}%</span>
-              <Button onClick={() => setZoom(z => Math.min(3, z + 0.2))} size="sm" variant="ghost" className="text-white hover:bg-white/20">
+              <span className="text-gray-700 text-sm px-2 min-w-[50px] text-center">{(zoom * 100).toFixed(0)}%</span>
+              <Button onClick={() => setZoom(z => Math.min(3, z + 0.2))} size="sm" variant="ghost" className="text-gray-700 hover:bg-gray-200">
                 <ZoomIn className="w-4 h-4" />
               </Button>
             </div>
             
-            <Button onClick={toggleFullScreen} size="sm" variant="ghost" className="text-white hover:bg-white/20">
+            <Button onClick={toggleFullScreen} size="sm" variant="ghost" className="text-gray-700 hover:bg-gray-200">
               {isFullScreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
             </Button>
             
-            <Button onClick={handleShare} size="sm" className="bg-cyan-500 hover:bg-cyan-600 text-white">
+            <Button onClick={handleShare} size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
               <Share2 className="w-4 h-4 mr-2" />
               Share
             </Button>
