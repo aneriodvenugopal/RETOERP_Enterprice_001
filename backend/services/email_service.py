@@ -451,13 +451,13 @@ class EmailService:
         """
         if not EmailService.is_configured():
             # Mock mode - log to console
-            print(f"\n{'='*60}")
-            print(f"📧 [MOCK EMAIL] - Resend not configured")
-            print(f"{'='*60}")
+            print("\n" + "="*60)
+            print("📧 [MOCK EMAIL] - Resend not configured")
+            print("="*60)
             print(f"To: {to_email}")
             print(f"Subject: {subject}")
             print(f"Content: HTML Email ({len(html_content)} chars)")
-            print(f"{'='*60}\n")
+            print("="*60 + "\n")
             return {
                 "success": True,
                 "provider": "mock",
