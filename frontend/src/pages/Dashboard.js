@@ -463,6 +463,13 @@ const TenantAdminDashboard = () => {
           description="Automated SMS for leads & bookings"
           onClick={() => navigate('/sms')}
         />
+        <ActionCard
+          icon={Mail}
+          title="Email Management"
+          description="Send and track transactional emails"
+          onClick={() => navigate('/email-management')}
+          gradient="from-blue-500 to-indigo-500"
+        />
       </div>
       
       {/* Settings & Management Section */}
