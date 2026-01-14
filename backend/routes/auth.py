@@ -283,9 +283,18 @@ async def forgot_password(login: UserLogin, request: Request):
     # Send OTP via SMS
     await AuthService.send_otp_sms(login.phone, otp)
     
+    # Also send via email if user has email
+    if user.get('email'):
+        await AuthService.send_password_reset_email(
+            email=user['email'],
+            name=user.get('name', 'User'),
+            otp=otp
+        )
+    
     return {
         "message": "Password reset OTP sent successfully",
         "phone": login.phone,
+        "email_sent": bool(user.get('email')),
         "reset_token": reset_token,
         "otp": otp  # TODO: Remove in production
     }
