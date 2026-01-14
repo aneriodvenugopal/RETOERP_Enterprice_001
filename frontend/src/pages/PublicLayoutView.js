@@ -408,25 +408,25 @@ const PublicLayoutView = () => {
       </div>
 
       {/* Bottom Stats Bar */}
-      <div className="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-black/80 to-transparent">
+      <div className="absolute bottom-0 left-0 right-0 z-20 bg-white/90 backdrop-blur border-t border-gray-200 shadow-sm">
         <div className="flex items-center justify-center gap-6 px-6 py-4 flex-wrap">
-          <div className="flex items-center gap-3 bg-green-500/20 backdrop-blur px-4 py-2 rounded-full border border-green-500/30">
+          <div className="flex items-center gap-3 bg-green-50 px-4 py-2 rounded-full border border-green-200">
             <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse"></div>
-            <span className="text-green-300 font-medium">{availablePlots.length} Available</span>
+            <span className="text-green-700 font-medium">{availablePlots.length} Available</span>
           </div>
-          <div className="flex items-center gap-3 bg-yellow-500/20 backdrop-blur px-4 py-2 rounded-full border border-yellow-500/30">
+          <div className="flex items-center gap-3 bg-yellow-50 px-4 py-2 rounded-full border border-yellow-200">
             <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-            <span className="text-yellow-300 font-medium">{bookedPlots.length} Booked</span>
+            <span className="text-yellow-700 font-medium">{bookedPlots.length} Booked</span>
           </div>
-          <div className="flex items-center gap-3 bg-orange-500/20 backdrop-blur px-4 py-2 rounded-full border border-orange-500/30">
+          <div className="flex items-center gap-3 bg-orange-50 px-4 py-2 rounded-full border border-orange-200">
             <div className="w-3 h-3 rounded-full bg-orange-500"></div>
-            <span className="text-orange-300 font-medium">{blockedPlots.length} Blocked</span>
+            <span className="text-orange-700 font-medium">{blockedPlots.length} Blocked</span>
           </div>
-          <div className="flex items-center gap-3 bg-red-500/20 backdrop-blur px-4 py-2 rounded-full border border-red-500/30">
+          <div className="flex items-center gap-3 bg-red-50 px-4 py-2 rounded-full border border-red-200">
             <div className="w-3 h-3 rounded-full bg-red-500"></div>
-            <span className="text-red-300 font-medium">{soldPlots.length} Sold</span>
+            <span className="text-red-700 font-medium">{soldPlots.length} Sold</span>
           </div>
-          <div className="text-slate-400 text-sm">
+          <div className="text-gray-600 text-sm">
             Click on any plot to view details
           </div>
         </div>
