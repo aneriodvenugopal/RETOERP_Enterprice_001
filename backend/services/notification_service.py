@@ -325,6 +325,53 @@ class AWSSESProvider(EmailProvider):
             }
 
 
+class ResendProvider(EmailProvider):
+    """Resend email provider - Modern email API"""
+    
+    def __init__(self, api_key: str, from_email: str):
+        self.api_key = api_key
+        self.from_email = from_email
+        import resend
+        resend.api_key = api_key
+    
+    async def send_email(
+        self, 
+        to: str, 
+        subject: str, 
+        body: str, 
+        html: bool = True,
+        attachments: Optional[List[Dict]] = None
+    ) -> Dict[str, Any]:
+        try:
+            import resend
+            import asyncio
+            
+            params = {
+                "from": self.from_email,
+                "to": [to],
+                "subject": subject,
+                "html": body if html else None,
+                "text": body if not html else None
+            }
+            
+            # Run sync SDK in thread to keep FastAPI non-blocking
+            email = await asyncio.to_thread(resend.Emails.send, params)
+            
+            return {
+                "success": True,
+                "provider": "resend",
+                "message_id": email.get("id"),
+                "status": "sent"
+            }
+        except Exception as e:
+            return {
+                "success": False,
+                "provider": "resend",
+                "error": str(e),
+                "status": "failed"
+            }
+
+
 # Provider Factory
 class NotificationProviderFactory:
     """Factory to create notification providers based on configuration"""
