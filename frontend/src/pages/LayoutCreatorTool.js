@@ -24,6 +24,7 @@ const LayoutCreatorTool = () => {
   const [zoom, setZoom] = useState(1);
   const [editingPlot, setEditingPlot] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [svgDimensions, setSvgDimensions] = useState({ width: 1122.6667, height: 793.33331, minX: 0, minY: 0 });
   
   // Plot form data
   const [plotForm, setPlotForm] = useState({
@@ -37,6 +38,41 @@ const LayoutCreatorTool = () => {
   
   const svgRef = useRef(null);
   const fileInputRef = useRef(null);
+
+  // Calculate viewBox based on plot coordinates
+  useEffect(() => {
+    if (plots && plots.length > 0) {
+      let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+      
+      plots.forEach(plot => {
+        if (plot.coordinates && Array.isArray(plot.coordinates)) {
+          plot.coordinates.forEach(coord => {
+            if (typeof coord.x === 'number' && typeof coord.y === 'number') {
+              minX = Math.min(minX, coord.x);
+              minY = Math.min(minY, coord.y);
+              maxX = Math.max(maxX, coord.x);
+              maxY = Math.max(maxY, coord.y);
+            }
+          });
+        }
+      });
+      
+      if (minX !== Infinity && maxX !== -Infinity) {
+        const padding = 100;
+        const width = maxX - minX + (padding * 2);
+        const height = maxY - minY + (padding * 2);
+        
+        if (width > svgDimensions.width || height > svgDimensions.height) {
+          setSvgDimensions({ 
+            width, 
+            height,
+            minX: minX - padding,
+            minY: minY - padding
+          });
+        }
+      }
+    }
+  }, [plots]);
 
   // Handle layout file upload
   const handleFileUpload = (e) => {
