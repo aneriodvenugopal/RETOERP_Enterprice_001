@@ -293,6 +293,21 @@ Build a comprehensive Real Estate ERP (ExlainERP) SaaS platform for the Indian r
     - Mock mode warning banner when API key not configured
   - Backend integration: password reset now sends email + SMS
 
+- [x] **SaaS Subscription & Billing (Stripe)** (Completed Jan 14, 2026)
+  - 3 subscription packages: Starter (₹999), Pro (₹2,999), Enterprise (₹9,999)
+  - Usage limits enforcement (projects, users, properties, leads, SMS/email credits)
+  - Stripe checkout for subscription payments
+  - Invoice history tracking
+  - Subscription management (cancel at period end, reactivate)
+  - Billing page at /billing with usage metrics
+  - Dashboard card for quick access
+  - Features:
+    - Current plan status with usage progress bars
+    - Monthly and yearly billing options (17% savings)
+    - Package comparison with feature checkmarks
+    - Automatic credit reset on subscription activation
+    - Payment confirmation emails
+
 ### P4 - Future/Backlog
 - [x] Festival Greetings Automation - Backend cron job for Jan 26 & Aug 15 (Completed Jan 12, 2026)
 - [x] SaaS marketing pages - /saas landing page (Completed Jan 12, 2026)
