@@ -548,6 +548,14 @@ function App() {
                 }
               />
               <Route
+                path="/email-management"
+                element={
+                  <PrivateRoute>
+                    <EmailManagement />
+                  </PrivateRoute>
+                }
+              />
+              <Route
                 path="/vendor-bills"
                 element={
                   <PrivateRoute>
