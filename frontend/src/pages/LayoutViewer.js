@@ -63,6 +63,7 @@ const LayoutViewer = () => {
         });
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [layout]);
 
   const loadLayout = async () => {
