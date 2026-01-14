@@ -338,70 +338,78 @@ const PublicLayoutView = () => {
         </div>
       </div>
 
-      {/* Main Layout Area - Full Screen */}
-      <div className="absolute inset-0 pt-20 pb-24 px-4 overflow-auto">
+      {/* Main Layout Area - Full Screen with proper scroll support */}
+      <div className="absolute inset-0 pt-14 pb-16 overflow-auto">
         <div 
-          className="min-h-full flex items-center justify-center"
+          className="flex items-center justify-center"
           style={{ 
-            transform: `scale(${zoom})`,
-            transformOrigin: 'center center'
+            minWidth: `${Math.max(100, zoom * 100)}%`,
+            minHeight: `${Math.max(100, zoom * 100)}%`,
+            padding: `${zoom > 1 ? (zoom - 1) * 50 : 0}vh ${zoom > 1 ? (zoom - 1) * 50 : 0}vw`
           }}
         >
-          {svgUrl ? (
-            <div style={{ position: 'relative', display: 'inline-block' }} className="shadow-2xl rounded-xl overflow-hidden border-4 border-white/20">
-              <img src={svgUrl} alt="Layout" style={{ display: 'block', maxWidth: '100%' }} />
-              
-              <svg
-                style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  width: '100%',
-                  height: '100%',
-                  pointerEvents: 'all'
-                }}
-                viewBox={`${svgDimensions.minX || 0} ${svgDimensions.minY || 0} ${svgDimensions.width} ${svgDimensions.height}`}
-                preserveAspectRatio="xMidYMid meet"
-              >
-                {plots.map((plot) => (
-                  <g 
-                    key={plot.id} 
-                    style={{ cursor: 'pointer' }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handlePlotClick(plot);
-                    }}
-                  >
-                    <polygon
-                      points={getPolygonPoints(plot.coordinates)}
-                      fill={getStatusColor(plot.status)}
-                      stroke={selectedPlot?.id === plot.id ? '#06b6d4' : '#64748b'}
-                      strokeWidth={selectedPlot?.id === plot.id ? '4' : '2'}
+          <div
+            style={{ 
+              transform: `scale(${zoom})`,
+              transformOrigin: 'center center'
+            }}
+          >
+            {svgUrl ? (
+              <div style={{ position: 'relative', display: 'inline-block' }} className="shadow-2xl rounded-xl overflow-hidden border-4 border-white/20">
+                <img src={svgUrl} alt="Layout" style={{ display: 'block', maxWidth: 'none' }} />
+                
+                <svg
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    pointerEvents: 'all'
+                  }}
+                  viewBox={`${svgDimensions.minX || 0} ${svgDimensions.minY || 0} ${svgDimensions.width} ${svgDimensions.height}`}
+                  preserveAspectRatio="xMidYMid meet"
+                >
+                  {plots.map((plot) => (
+                    <g 
+                      key={plot.id} 
                       style={{ cursor: 'pointer' }}
-                    />
-                    {/* Plot number label - just the number inside the plot */}
-                    <text
-                      x={plot.coordinates.reduce((sum, c) => sum + c.x, 0) / plot.coordinates.length}
-                      y={plot.coordinates.reduce((sum, c) => sum + c.y, 0) / plot.coordinates.length}
-                      textAnchor="middle"
-                      dominantBaseline="middle"
-                      fill="#1e293b"
-                      fontSize="11"
-                      fontWeight="bold"
-                      style={{ textShadow: '0 0 3px white, 0 0 3px white', pointerEvents: 'none' }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handlePlotClick(plot);
+                      }}
                     >
-                      {getPlotLabel(plot.display_name)}
-                    </text>
-                  </g>
-                ))}
-              </svg>
-            </div>
-          ) : (
-            <div className="text-center">
-              <Building2 className="w-24 h-24 mx-auto text-gray-400 mb-4" />
-              <p className="text-xl text-gray-600">No layout available</p>
-            </div>
-          )}
+                      <polygon
+                        points={getPolygonPoints(plot.coordinates)}
+                        fill={getStatusColor(plot.status)}
+                        stroke={selectedPlot?.id === plot.id ? '#06b6d4' : '#64748b'}
+                        strokeWidth={selectedPlot?.id === plot.id ? '4' : '2'}
+                        style={{ cursor: 'pointer' }}
+                      />
+                      {/* Plot number label - just the number inside the plot */}
+                      <text
+                        x={plot.coordinates.reduce((sum, c) => sum + c.x, 0) / plot.coordinates.length}
+                        y={plot.coordinates.reduce((sum, c) => sum + c.y, 0) / plot.coordinates.length}
+                        textAnchor="middle"
+                        dominantBaseline="middle"
+                        fill="#1e293b"
+                        fontSize="11"
+                        fontWeight="bold"
+                        style={{ textShadow: '0 0 3px white, 0 0 3px white', pointerEvents: 'none' }}
+                      >
+                        {getPlotLabel(plot.display_name)}
+                      </text>
+                    </g>
+                  ))}
+                </svg>
+              </div>
+            ) : (
+              <div className="text-center">
+                <Building2 className="w-24 h-24 mx-auto text-gray-400 mb-4" />
+                <p className="text-xl text-gray-600">No layout available</p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
