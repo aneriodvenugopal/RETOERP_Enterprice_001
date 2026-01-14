@@ -62,6 +62,22 @@ class AuthService:
         return response.get('success', False)
     
     @staticmethod
+    async def send_otp_email(email: str, name: str, otp: str, purpose: str = "verification") -> bool:
+        """Send OTP via Email using email service"""
+        from services.email_service import EmailService
+        
+        response = await EmailService.send_otp_email(email, name, otp, purpose)
+        return response.get('success', False)
+    
+    @staticmethod
+    async def send_password_reset_email(email: str, name: str, otp: str) -> bool:
+        """Send password reset OTP via Email"""
+        from services.email_service import EmailService
+        
+        response = await EmailService.send_password_reset_email(email, name, otp)
+        return response.get('success', False)
+    
+    @staticmethod
     def validate_otp_expiry(otp_expires_at: datetime) -> bool:
         """Check if OTP is still valid"""
         if not otp_expires_at:
