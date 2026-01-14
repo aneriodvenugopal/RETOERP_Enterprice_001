@@ -177,7 +177,7 @@ async def send_test_email(request_data: TestEmailRequest, request: Request, user
     else:
         raise HTTPException(
             status_code=400, 
-            detail=f"Invalid template type. Available types: welcome, otp, password_reset, booking_confirmation, payment_confirmation, payment_reminder, site_visit"
+            detail="Invalid template type. Available types: welcome, otp, password_reset, booking_confirmation, payment_confirmation, payment_reminder, site_visit"
         )
     
     # Log test email
