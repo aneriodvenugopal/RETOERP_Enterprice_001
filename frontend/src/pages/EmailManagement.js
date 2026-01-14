@@ -67,11 +67,7 @@ const EmailManagement = () => {
 
   const sendTestEmail = async () => {
     if (!testEmail || !selectedTemplate) {
-      toast({
-        title: 'Missing Fields',
-        description: 'Please enter email and select a template',
-        variant: 'destructive'
-      });
+      toast.error('Please enter email and select a template');
       return;
     }
     
@@ -92,20 +88,13 @@ const EmailManagement = () => {
       const result = await res.json();
       
       if (result.success) {
-        toast({
-          title: 'Email Sent',
-          description: `Test ${selectedTemplate} email sent to ${testEmail}`,
-        });
+        toast.success(`Test ${selectedTemplate} email sent to ${testEmail}`);
         fetchData(); // Refresh stats
       } else {
         throw new Error(result.error || 'Failed to send email');
       }
     } catch (error) {
-      toast({
-        title: 'Error',
-        description: error.message,
-        variant: 'destructive'
-      });
+      toast.error(error.message);
     }
     setSendingTest(false);
   };
