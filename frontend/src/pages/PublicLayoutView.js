@@ -278,12 +278,12 @@ const PublicLayoutView = () => {
 
   if (error) {
     return (
-      <div className="fixed inset-0 bg-gradient-to-br from-slate-900 to-slate-800 flex items-center justify-center">
-        <Card className="max-w-md bg-white/10 backdrop-blur border-white/20">
+      <div className="fixed inset-0 bg-gradient-to-br from-gray-100 via-gray-50 to-white flex items-center justify-center">
+        <Card className="max-w-md bg-white border border-gray-200 shadow-lg">
           <CardContent className="pt-8 text-center">
-            <AlertCircle className="w-16 h-16 text-red-400 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-white mb-2">Layout Not Available</h2>
-            <p className="text-slate-300">{error}</p>
+            <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Layout Not Available</h2>
+            <p className="text-gray-600">{error}</p>
           </CardContent>
         </Card>
       </div>
