@@ -563,10 +563,130 @@ const PublicLayoutView = () => {
 
                   {/* Videos Tab */}
                   <TabsContent value="videos" className="mt-0">
-                    <div className="text-center py-12">
-                      <Video className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-                      <h3 className="text-lg font-semibold text-gray-700 mb-2">No Videos Available</h3>
-                      <p className="text-gray-500">Property videos will be added soon</p>
+                    {selectedPlot.videos && selectedPlot.videos.length > 0 ? (
+                      <div className="grid grid-cols-2 gap-4">
+                        {selectedPlot.videos.map((video, idx) => (
+                          <div key={idx} className="relative rounded-lg overflow-hidden bg-gray-100 aspect-video">
+                            <video 
+                              src={video.url} 
+                              controls 
+                              className="w-full h-full object-cover"
+                              poster={video.thumbnail}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-12">
+                        <Video className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+                        <h3 className="text-lg font-semibold text-gray-700 mb-2">No Videos Available</h3>
+                        <p className="text-gray-500">Property videos will be added soon</p>
+                      </div>
+                    )}
+                  </TabsContent>
+
+                  {/* Location Tab with Embedded Google Maps */}
+                  <TabsContent value="location" className="mt-0">
+                    <div className="space-y-4">
+                      {/* Project Location Info */}
+                      <div className="flex items-center gap-3 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                        <MapPin className="w-6 h-6 text-blue-600 flex-shrink-0" />
+                        <div>
+                          <p className="font-semibold text-gray-900">{project?.name}</p>
+                          <p className="text-sm text-gray-600">
+                            {project?.location && `${project.location}, `}
+                            {project?.city && `${project.city}, `}
+                            {project?.state}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Embedded Google Map */}
+                      <div className="rounded-lg overflow-hidden border border-gray-200 bg-gray-100">
+                        {project?.latitude && project?.longitude ? (
+                          <iframe
+                            src={`https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3000!2d${project.longitude}!3d${project.latitude}!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zM${project.latitude}!5e0!3m2!1sen!2sin!4v1609459200000!5m2!1sen!2sin`}
+                            width="100%"
+                            height="300"
+                            style={{ border: 0 }}
+                            allowFullScreen=""
+                            loading="lazy"
+                            referrerPolicy="no-referrer-when-downgrade"
+                            title="Property Location"
+                          />
+                        ) : project?.google_maps_url ? (
+                          <iframe
+                            src={project.google_maps_url.replace('/maps/', '/maps/embed/')}
+                            width="100%"
+                            height="300"
+                            style={{ border: 0 }}
+                            allowFullScreen=""
+                            loading="lazy"
+                            referrerPolicy="no-referrer-when-downgrade"
+                            title="Property Location"
+                          />
+                        ) : (
+                          <div className="h-[300px] flex flex-col items-center justify-center">
+                            <Map className="w-16 h-16 text-gray-300 mb-4" />
+                            <p className="text-gray-500">Map location not available</p>
+                            <p className="text-sm text-gray-400 mt-1">Contact us for directions</p>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Action Buttons */}
+                      <div className="flex gap-3">
+                        {(project?.latitude && project?.longitude) || project?.google_maps_url ? (
+                          <>
+                            <Button 
+                              className="flex-1 bg-blue-600 hover:bg-blue-700"
+                              onClick={() => {
+                                const url = project?.google_maps_url || 
+                                  `https://www.google.com/maps/dir/?api=1&destination=${project.latitude},${project.longitude}`;
+                                window.open(url, '_blank');
+                              }}
+                            >
+                              <Navigation className="w-4 h-4 mr-2" />
+                              Get Directions
+                            </Button>
+                            <Button 
+                              variant="outline"
+                              className="flex-1"
+                              onClick={() => {
+                                const url = project?.google_maps_url || 
+                                  `https://www.google.com/maps/@${project.latitude},${project.longitude},17z`;
+                                window.open(url, '_blank');
+                              }}
+                            >
+                              <ExternalLink className="w-4 h-4 mr-2" />
+                              Open in Google Maps
+                            </Button>
+                          </>
+                        ) : (
+                          <Button 
+                            className="w-full"
+                            onClick={() => setActiveTab('interest')}
+                          >
+                            <Phone className="w-4 h-4 mr-2" />
+                            Contact for Location Details
+                          </Button>
+                        )}
+                      </div>
+
+                      {/* Nearby Landmarks */}
+                      {project?.landmarks && project.landmarks.length > 0 && (
+                        <div className="mt-4">
+                          <h4 className="font-semibold text-gray-900 mb-3">Nearby Landmarks</h4>
+                          <div className="grid grid-cols-2 gap-2">
+                            {project.landmarks.map((landmark, idx) => (
+                              <div key={idx} className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg text-sm">
+                                <MapPin className="w-4 h-4 text-gray-400" />
+                                <span className="text-gray-700">{landmark}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </TabsContent>
 
