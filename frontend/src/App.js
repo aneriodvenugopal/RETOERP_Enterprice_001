@@ -159,6 +159,10 @@ import StripePayments from "./pages/StripePayments";
 // Email Management
 import EmailManagement from "./pages/EmailManagement";
 
+// Billing & Subscriptions
+import Billing from "./pages/Billing";
+import SubscriptionSuccess from "./pages/SubscriptionSuccess";
+
 // PWA Components
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
 import AvatarAssistant from "./components/AvatarAssistant";
