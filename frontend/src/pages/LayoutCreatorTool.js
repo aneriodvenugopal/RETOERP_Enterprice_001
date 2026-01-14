@@ -503,7 +503,7 @@ const LayoutCreatorTool = () => {
                             height: '100%',
                             cursor: 'crosshair'
                           }}
-                          viewBox="0 0 1122.6667 793.33331"
+                          viewBox={`${svgDimensions.minX} ${svgDimensions.minY} ${svgDimensions.width} ${svgDimensions.height}`}
                           preserveAspectRatio="xMidYMid meet"
                         >
                           {/* Show saved plots */}
