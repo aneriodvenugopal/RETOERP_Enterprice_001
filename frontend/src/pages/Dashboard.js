@@ -484,6 +484,13 @@ const TenantAdminDashboard = () => {
           onClick={() => navigate('/email-management')}
           gradient="from-blue-500 to-indigo-500"
         />
+        <ActionCard
+          icon={Receipt}
+          title="Billing & Subscription"
+          description="Manage your plan and view invoices"
+          onClick={() => navigate('/billing')}
+          gradient="from-indigo-500 to-purple-500"
+        />
       </div>
       
       {/* Settings & Management Section */}
