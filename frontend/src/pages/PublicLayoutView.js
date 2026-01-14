@@ -80,11 +80,15 @@ const PublicLayoutView = () => {
         const height = maxY - minY + (padding * 2);
         
         // Store both dimensions and offset for viewBox
-        setSvgDimensions({ 
-          width, 
-          height,
-          minX: minX - padding,
-          minY: minY - padding
+        // Only update if we haven't extracted from SVG yet
+        setSvgDimensions(prev => {
+          if (prev.fromSvg) return prev; // Don't override SVG-based dimensions
+          return { 
+            width, 
+            height,
+            minX: minX - padding,
+            minY: minY - padding
+          };
         });
         console.log('📐 Public View: ViewBox calculated from plots:', { 
           minX: minX - padding, 
@@ -95,6 +99,36 @@ const PublicLayoutView = () => {
       }
     }
   }, [layout]);
+
+  // Extract SVG viewBox from the actual SVG file - this is the KEY fix
+  // The overlay must match the original SVG's coordinate system
+  useEffect(() => {
+    if (svgUrl) {
+      fetch(svgUrl)
+        .then(res => res.text())
+        .then(svgText => {
+          const parser = new DOMParser();
+          const svgDoc = parser.parseFromString(svgText, 'image/svg+xml');
+          const svgElement = svgDoc.querySelector('svg');
+          
+          if (svgElement) {
+            const viewBox = svgElement.getAttribute('viewBox');
+            if (viewBox) {
+              const [x, y, width, height] = viewBox.split(' ').map(Number);
+              setSvgDimensions({ 
+                width, 
+                height,
+                minX: x,
+                minY: y,
+                fromSvg: true // Flag to indicate this came from SVG file
+              });
+              console.log('📐 Public View: ViewBox extracted from SVG file:', { x, y, width, height });
+            }
+          }
+        })
+        .catch(err => console.warn('Could not read SVG dimensions:', err));
+    }
+  }, [svgUrl]);
 
   const fetchPublicLayout = async () => {
     setLoading(true);
