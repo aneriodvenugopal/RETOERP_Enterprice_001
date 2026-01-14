@@ -405,27 +405,27 @@ const PublicLayoutView = () => {
         </div>
       </div>
 
-      {/* Bottom Stats Bar */}
-      <div className="absolute bottom-0 left-0 right-0 z-20 bg-white/90 backdrop-blur border-t border-gray-200 shadow-sm">
-        <div className="flex items-center justify-center gap-6 px-6 py-4 flex-wrap">
-          <div className="flex items-center gap-3 bg-green-50 px-4 py-2 rounded-full border border-green-200">
-            <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse"></div>
-            <span className="text-green-700 font-medium">{availablePlots.length} Available</span>
+      {/* Bottom Stats Bar - Minimal floating design */}
+      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-20">
+        <div className="flex items-center gap-3 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full shadow-sm border border-gray-200/50">
+          <div className="flex items-center gap-2">
+            <div className="w-2.5 h-2.5 rounded-full bg-green-500"></div>
+            <span className="text-green-700 text-xs font-medium">{availablePlots.length}</span>
           </div>
-          <div className="flex items-center gap-3 bg-yellow-50 px-4 py-2 rounded-full border border-yellow-200">
-            <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-            <span className="text-yellow-700 font-medium">{bookedPlots.length} Booked</span>
+          <div className="w-px h-4 bg-gray-300"></div>
+          <div className="flex items-center gap-2">
+            <div className="w-2.5 h-2.5 rounded-full bg-yellow-500"></div>
+            <span className="text-yellow-700 text-xs font-medium">{bookedPlots.length}</span>
           </div>
-          <div className="flex items-center gap-3 bg-orange-50 px-4 py-2 rounded-full border border-orange-200">
-            <div className="w-3 h-3 rounded-full bg-orange-500"></div>
-            <span className="text-orange-700 font-medium">{blockedPlots.length} Blocked</span>
+          <div className="w-px h-4 bg-gray-300"></div>
+          <div className="flex items-center gap-2">
+            <div className="w-2.5 h-2.5 rounded-full bg-orange-500"></div>
+            <span className="text-orange-700 text-xs font-medium">{blockedPlots.length}</span>
           </div>
-          <div className="flex items-center gap-3 bg-red-50 px-4 py-2 rounded-full border border-red-200">
-            <div className="w-3 h-3 rounded-full bg-red-500"></div>
-            <span className="text-red-700 font-medium">{soldPlots.length} Sold</span>
-          </div>
-          <div className="text-gray-600 text-sm">
-            Click on any plot to view details
+          <div className="w-px h-4 bg-gray-300"></div>
+          <div className="flex items-center gap-2">
+            <div className="w-2.5 h-2.5 rounded-full bg-red-500"></div>
+            <span className="text-red-700 text-xs font-medium">{soldPlots.length}</span>
           </div>
         </div>
       </div>
