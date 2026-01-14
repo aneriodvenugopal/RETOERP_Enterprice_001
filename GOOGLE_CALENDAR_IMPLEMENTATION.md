@@ -77,7 +77,7 @@ Will add:
    - Google People API (for user info)
 4. Create OAuth 2.0 credentials:
    - Application type: Web application
-   - Authorized redirect URIs: `https://realestate-erp-4.preview.emergentagent.com/api/auth/google/callback`
+   - Authorized redirect URIs: `https://realestate-erp-5.preview.emergentagent.com/api/auth/google/callback`
 5. Copy Client ID and Client Secret
 
 **Update `.env` file:**
@@ -90,14 +90,14 @@ GOOGLE_CLIENT_SECRET=your_actual_secret_here
 
 ```bash
 # 1. Start Google OAuth flow
-curl https://realestate-erp-4.preview.emergentagent.com/api/auth/google/login
+curl https://realestate-erp-5.preview.emergentagent.com/api/auth/google/login
 
 # 2. Check connection status (requires JWT token)
 curl -H "Authorization: Bearer YOUR_JWT_TOKEN" \
-  https://realestate-erp-4.preview.emergentagent.com/api/auth/google/status
+  https://realestate-erp-5.preview.emergentagent.com/api/auth/google/status
 
 # 3. Create calendar event
-curl -X POST https://realestate-erp-4.preview.emergentagent.com/api/calendar/create-event \
+curl -X POST https://realestate-erp-5.preview.emergentagent.com/api/calendar/create-event \
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -112,7 +112,7 @@ curl -X POST https://realestate-erp-4.preview.emergentagent.com/api/calendar/cre
 
 # 4. Get calendar events
 curl -H "Authorization: Bearer YOUR_JWT_TOKEN" \
-  "https://realestate-erp-4.preview.emergentagent.com/api/calendar/events?view=today"
+  "https://realestate-erp-5.preview.emergentagent.com/api/calendar/events?view=today"
 ```
 
 ---
