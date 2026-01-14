@@ -329,7 +329,7 @@ const LayoutViewer = () => {
                           height: '100%',
                           pointerEvents: 'none'
                         }}
-                        viewBox="0 0 1122.6667 793.33331"
+                        viewBox={`${svgDimensions.minX} ${svgDimensions.minY} ${svgDimensions.width} ${svgDimensions.height}`}
                         preserveAspectRatio="xMidYMid meet"
                       >
                         {layout.plots && layout.plots.map((plot) => (
