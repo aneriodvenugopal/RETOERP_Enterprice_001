@@ -156,6 +156,9 @@ import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentCancelled from "./pages/PaymentCancelled";
 import StripePayments from "./pages/StripePayments";
 
+// Email Management
+import EmailManagement from "./pages/EmailManagement";
+
 // PWA Components
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
 import AvatarAssistant from "./components/AvatarAssistant";
