@@ -560,6 +560,22 @@ function App() {
                 }
               />
               <Route
+                path="/billing"
+                element={
+                  <PrivateRoute>
+                    <Billing />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/subscription-success"
+                element={
+                  <PrivateRoute>
+                    <SubscriptionSuccess />
+                  </PrivateRoute>
+                }
+              />
+              <Route
                 path="/vendor-bills"
                 element={
                   <PrivateRoute>
