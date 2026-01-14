@@ -471,6 +471,10 @@ const PublicLayoutView = () => {
                     <Video className="w-4 h-4 mr-2" />
                     Videos
                   </TabsTrigger>
+                  <TabsTrigger value="location" className="py-3 px-6 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-cyan-600 data-[state=active]:text-cyan-600">
+                    <Map className="w-4 h-4 mr-2" />
+                    Location
+                  </TabsTrigger>
                   <TabsTrigger value="interest" className="py-3 px-6 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-cyan-600 data-[state=active]:text-cyan-600">
                     <Heart className="w-4 h-4 mr-2" />
                     Show Interest
