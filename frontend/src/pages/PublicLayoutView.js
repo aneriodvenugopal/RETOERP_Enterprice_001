@@ -11,7 +11,7 @@ import {
   MapPin, Building2, Home, Phone, Mail, User, MessageSquare,
   Check, Clock, AlertCircle, ZoomIn, ZoomOut, Maximize2, Minimize2,
   IndianRupee, Share2, ImageIcon, Video, Heart, CreditCard, X,
-  ChevronLeft, ChevronRight, Play, Calendar, FileText
+  ChevronLeft, ChevronRight, Play, Calendar, FileText, Navigation, ExternalLink, Map
 } from 'lucide-react';
 import { toast } from 'sonner';
 
