@@ -16,7 +16,6 @@ const API_URL = process.env.REACT_APP_BACKEND_URL;
 const EmailManagement = () => {
   const navigate = useNavigate();
   const { token } = useAuth();
-  const { toast } = useToast();
   
   const [loading, setLoading] = useState(true);
   const [sendingTest, setSendingTest] = useState(false);
