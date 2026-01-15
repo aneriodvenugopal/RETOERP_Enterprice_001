@@ -163,6 +163,9 @@ import EmailManagement from "./pages/EmailManagement";
 import Billing from "./pages/Billing";
 import SubscriptionSuccess from "./pages/SubscriptionSuccess";
 
+// Certified Property
+import CertifiedPropertyPage from "./pages/CertifiedPropertyPage";
+
 // PWA Components
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
 import AvatarAssistant from "./components/AvatarAssistant";
