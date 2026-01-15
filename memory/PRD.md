@@ -386,6 +386,7 @@ Build a comprehensive Real Estate ERP (ExlainERP) SaaS platform for the Indian r
 - `/app/test_reports/iteration_11.json` - Project Landing Pages (18/18 backend + full frontend pass)
 - `/app/test_reports/iteration_14.json` - Email Notifications (21/21 tests passed)
 - `/app/test_reports/iteration_15.json` - SaaS Subscription & Billing (25/25 tests passed)
+- `/app/test_reports/iteration_16.json` - Block Location Editor (15/15 tests passed)
 
 ## New Routes Added (Jan 12, 2026)
 - `/document-locker` - Document storage with physical location mapping
@@ -403,6 +404,7 @@ Build a comprehensive Real Estate ERP (ExlainERP) SaaS platform for the Indian r
 - `/email-management` - Email notifications management (NEW - Jan 14, 2026)
 - `/billing` - Subscription billing & plan management (NEW - Jan 14, 2026)
 - `/subscription-success` - Post-payment success page (NEW - Jan 14, 2026)
+- `/block-locations` - Block Location Editor for GPS coordinates (NEW - Jan 15, 2026)
 
 ## Public Routes (No Authentication Required)
 - `/saas` - SaaS marketing landing page
