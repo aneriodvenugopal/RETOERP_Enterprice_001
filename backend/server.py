@@ -107,6 +107,7 @@ api_router.include_router(complaints.router)
 api_router.include_router(commission_analytics.router)
 api_router.include_router(email.router)
 api_router.include_router(subscriptions.router)
+api_router.include_router(certified_property.router)
 
 # PWA Install tracking
 @api_router.post("/analytics/pwa-install")
