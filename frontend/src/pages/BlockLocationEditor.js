@@ -280,7 +280,7 @@ const BlockLocationEditor = () => {
 
   const fetchProjects = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/projects`, {
+      const response = await fetch(`${API_URL}/api/projects/`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (!response.ok) throw new Error('Failed to fetch projects');
