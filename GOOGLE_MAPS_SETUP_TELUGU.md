@@ -184,7 +184,7 @@
 
    **మొదటి referrer:**
    ```
-   https://realestate-erp-5.preview.emergentagent.com/*
+   https://certified-property.preview.emergentagent.com/*
    ```
    - Paste చేసి Enter నొక్కండి
 

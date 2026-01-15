@@ -1,5 +1,14 @@
 <analysis>**original_problem_statement:**
-The initial request was to build a comprehensive Real Estate ERP (RETOERP) SaaS platform, rebranded to ExlainERP. The project scope includes a major UI/UX overhaul, implementation of core ERP/CRM modules, public-facing SaaS marketing pages, and ongoing feature enhancements. Recent user requests involved fixing a broken Google OAuth flow, implementing Remember Me functionality, integrating a payment gateway (Stripe), and preparing SMS templates for DLT (Distributed Ledger Technology) approval to enable real SMS notifications. The user also requested a high-level analysis of the project's status from a first principles perspective.
+The user requested to build a comprehensive Real Estate ERP, ExlainERP, with a focus on UI/UX, core ERP/CRM modules, and public-facing marketing pages.
+
+The most recent request is to implement a Certified Property Detail Page feature. This feature aims to create a permanent, shareable, and verifiable digital identity for each property. Key requirements include:
+- A public, tamper-proof page for each property with a Certified look and feel.
+- Property-wise location data (Latitude/Longitude) managed via a block-wise editor, using Google Places Suggest for accuracy.
+- A media fallback system (property-specific images/videos fall back to project-level media).
+- The page must be branded with the tenant's company logo and name.
+- The page should include details, a gallery, videos, and an embedded Google Map.
+
+This follows the completion of several UI/UX bug fixes related to plot mapping alignment and presentation on the public layout view.
 
 **PRODUCT REQUIREMENTS**:
 - Implement full SaaS subscription management (Packages, Billing, Usage Limits).
@@ -7,53 +16,61 @@ The initial request was to build a comprehensive Real Estate ERP (RETOERP) SaaS 
 - Build out missing core ERP modules (e-Sign, Handover, Legal/Registration Tracking).
 - Develop a mobile app for field staff.
 - Add comprehensive reporting and data export capabilities.
+- Complete the Certified Property Detail Page feature.
 
-**User's preferred language**: English (but occasionally requests explanations in Telugu)
+**User's preferred language**: English (with occasional requests for explanations in Telugu)
 
 **what currently exists?**
-The application is a full-stack project (React, FastAPI, MongoDB) branded as ExlainERP. It has a robust multi-tenant architecture with role-based access control.
+The application is a full-stack project (React, FastAPI, MongoDB) branded as ExlainERP. It has a robust multi-tenant architecture with role-based access control, a completed Stripe payment integration for one-time payments, a newly added SaaS subscription system, and a newly integrated (but mocked) email notification service using Resend.
 
-In this session, several critical features and fixes were completed:
-1.  **Google OAuth Fixed**: The broken Google single sign-on flow was completely repaired and tested.
-2.  **Remember Me Functionality**: A Remember me for 30 days option was added to the login page, which extends the JWT token's validity from 24 hours to 30 days.
-3.  **Stripe Payment Gateway Integrated**: A full Stripe integration was completed using the . This includes backend routes for creating checkout sessions and handling webhooks, and frontend components to display payment options.
-4.  **Payments Integrated into UI**: The Stripe functionality was integrated directly into the application's UI. A Stripe Payments card was added to the main dashboard, and a Pay Online tab was added to the booking details modal, allowing users to pay booking amounts directly.
-5.  **SMS DLT Templates Created**: A comprehensive set of 45+ SMS templates for various application events (authentication, leads, payments, etc.) was created and saved to . These are formatted for DLT approval in India.
+The agent has just begun implementing the Certified Property Detail Page feature. The backend models () have been updated, a new API endpoint () has been created, and a basic frontend page () is rendering initial data from this new endpoint.
 
 **Last working item**:
-- **Last item agent was working**: The agent generated and provided detailed, DLT-compliant SMS templates as requested by the user. This followed a detailed analysis (in Telugu) of the project's completed features versus critical missing functionality. The user confirmed they would proceed with getting the templates approved.
-- **Status**: USER VERIFICATION PENDING (User needs to get DLT templates approved before SMS integration can begin).
-- **Agent Testing Done**: Y
-- **Which testing method agent to use?**: NA. The last item was providing a document. The next task will be a new feature implementation.
+- **Last item agent was working**: The agent was in the initial phase of building the Certified Property Detail Page. It successfully created the backend API endpoint and the basic frontend page, and verified that the page can fetch and display data for a specific property.
+- **Status**: IN PROGRESS
+- **Agent Testing Done**: Y (Tested the new API endpoint via curl and rendered the initial page via screenshot).
+- **Which testing method agent to use?**: Frontend testing agent. This is a large new feature with significant UI/UX components that requires comprehensive validation.
 - **User Testing Done**: N
 
 **All Pending/In progress Issue list**:
-- There are no active or pending technical issues.
+- **Issue 1: Plot Mapping Discrepancy (P0 - HIGH)**
+  - This was a recurring issue where plot overlays in the public/shared layout view were misaligned with the background map. The agent has applied multiple fixes. While the last screenshot looked correct, this has been a persistent problem.
+  - **Status**: USER VERIFICATION PENDING
+  - **Is recurring issue?**: Y
+  - **Should Test frontend/backend/both after fix?**: Frontend
 
 **In progress Task List**:
-- There are no tasks currently in the middle of implementation.
+- **Task 1: Implement Certified Property Detail Page (P0 - HIGHEST)**
+  - **Where to resume**: The agent just created the basic frontend page () and confirmed it renders data. The next step, as per user requirements, is to build the **Block-wise Location Editor** for admins. This component should allow admins to manage location data (latitude/longitude) for logical blocks of properties within a venture.
+  - **What will be achieved with this?**: A complete, shareable, and verifiable public page for each property, enhancing trust and resale value as per the user's detailed PRD.
+  - **Status**: IN PROGRESS
+  - **Should Test frontend/backend/both after fix?**: Both
+  - **Blocked on something**: No.
 
 **Upcoming and Future Tasks**
-- **Upcoming Tasks (P0 - Critical for Business)**:
-    - **P0: Real SMS Integration**: Once the user gets DLT templates approved, integrate a real SMS provider (e.g., MSG91, Twilio) to replace the current mock service for OTPs, reminders, and notifications.
-    - **P0: SaaS Subscription & Billing**: Implement a full SaaS billing system for tenants. This includes creating subscription packages (e.g., Basic, Pro), managing usage limits, and integrating a payment gateway like Razorpay or Stripe for recurring subscription payments.
-    - **P0: Email Notifications**: Integrate an email service (e.g., SendGrid, Resend) to send transactional emails for payment confirmations, booking details, and password resets.
-- **Upcoming Tasks (P1 - High Priority)**:
-    - **P1: WhatsApp Business API Integration**: Add WhatsApp as a communication channel for leads and customers.
-    - **P1: Reports & Export**: Develop a reporting module that allows admins to generate and export data (e.g., sales, collections, leads) to Excel/PDF.
-    - **P1: Audit Trail**: Implement a system-wide audit log to track significant actions performed by users (who did what, and when).
+- **Upcoming Tasks**:
+    - **P0: Enforce SaaS Usage Limits**: The subscription system is built, but the backend logic to block actions (e.g., creating more projects/users) when a tenant exceeds their plan's limits is not implemented.
+    - **P0: Real SMS Integration**: Integrate a real SMS provider (e.g., Twilio). This is blocked until the user confirms they have gotten the DLT templates from  approved.
+    - **P1: Real Email Integration**: The Resend integration is complete but running in MOCK mode. The user needs to be prompted to provide a  in the  file to enable sending real emails.
+    - **P1: WhatsApp Business API Integration**: Add WhatsApp as a communication channel.
+    - **P1: Reports & Export**: Develop a module for exporting data to Excel/PDF.
+    - **P1: Audit Trail**: Implement a system-wide audit log.
 - **Future Tasks**:
-    - **P2: Mobile App**: Develop a React Native application for field staff.
-    - **P2: Legal & Handover Modules**: Build modules to track property registration and the final handover process.
-    - **P2: AI-Powered Features**: Implement an AI voice assistant or chatbot.
-    - **P2: White-labeling**: Allow tenants to use custom domains and branding.
+    - Mobile App development.
+    - Legal & Handover Modules.
+    - AI-Powered Features (Voice Assistant, Chatbot).
+    - White-labeling for tenants (custom domains, branding).
 
 **Completed work in this session**
-- **Google OAuth Flow Fixed**: Repaired the entire Google sign-in process, including correcting the redirect URL and implementing the callback logic in  and . (DONE)
-- **Remember Me Implemented**: Added a checkbox to  and updated  to issue 30-day JWT tokens. (DONE)
-- **Stripe Payment Gateway Integrated**: Created backend routes (, ), installed , and added frontend pages () and components (). (DONE)
-- **Stripe UI Integration**: Added a link to the Stripe Payments dashboard on  and integrated the  into the  page modal. (DONE)
-- **SMS DLT Templates Generated**: Created a detailed markdown file () with 45+ templates ready for DLT approval. (DONE)
+- **Email Notifications Integrated (Resend)**: Implemented a full email service with a provider-based architecture, templates, backend API, and a frontend management dashboard. (DONE, but in MOCK mode).
+- **SaaS Subscription & Billing System (Stripe)**: Extended Stripe integration to support recurring subscriptions, with a frontend billing page for tenants. (DONE).
+- **Plot Mapping Alignment Fixed**: Resolved a critical bug causing plot overlays to be misaligned in public layout views by implementing dynamic SVG  calculation.
+- **Public Layout UI/UX Overhaul**:
+    - Redesigned the public layout view with a light theme.
+    - Made the header/footer into minimal, non-obstructive floating pills.
+    - Fixed a zoom/scroll bug to enable panning in all directions.
+    - Enhanced the plot modal with new tabs for Gallery, Videos, and an embedded Google Map.
+    - Added descriptive labels to the bottom statistics bar.
 
 **Earlier issues found/mentioned but not fixed**
 - None.
@@ -65,19 +82,20 @@ In this session, several critical features and fixes were completed:
 
 
 **Key Technical Concepts**
-- **Payment Gateway Integration**: Used  library to integrate Stripe for creating checkout sessions and handling webhook events.
-- **Extended Session Management**: Modified JWT creation logic in the backend () to support long-lived sessions based on a frontend Remember Me flag.
-- **Route Conflict Resolution**: Identified and temporarily resolved a route prefix conflict between two different payment routers by re-ordering their inclusion in .
-- **DLT Template Preparation**: Created structured, variable-based SMS templates compliant with Indian telecom regulations for bulk messaging approval.
+- **Email Service Integration (Resend)**: Built a modular notification service that can switch between a mock provider and a real Resend provider.
+- **SaaS Subscription Billing (Stripe)**: Extended the existing one-time payment integration to handle recurring subscriptions via Stripe Checkout and webhooks.
+- **Dynamic SVG ViewBox Calculation**: Fixed layout rendering bugs by dynamically matching the overlay SVG's  to the background image SVG's dimensions, ensuring correct alignment of plot data.
+- **Component Refactoring**: Significantly refactored  and related components to fix bugs and add new features like zoom/pan, an enhanced modal, and a cleaner UI.
 
 **key DB schema**
-- **transactions**: A new collection (implicitly managed by ) to store details of Stripe payment transactions, including , , , etc.
+- **property** (collection): Updated to include new fields: , , , , , ,  (Array of objects for images/videos).
 
 **changes in tech stack**
-- : Installed via pip to facilitate Stripe integration.
+- : Added to  for email notifications.
 
 **All files of reference**
 - **Created**:
+  - 
   - 
   - 
   - 
@@ -95,61 +113,64 @@ In this session, several critical features and fixes were completed:
   - 
   - 
   - 
+  - 
 
 **Areas that need refactoring**:
-- **API Route Prefixes**: A route conflict was found between  (which has a generic  route) and the new  (which has ). The fix was to re-order the  calls in . A more robust solution would be to assign specific, non-conflicting prefixes to these routers, e.g.,  and .
+- **API Route Prefixes**: A route conflict noted in a previous fork between  and  was temporarily fixed by re-ordering routes. A more robust fix using distinct prefixes (e.g., ) is still needed.
+- **Frontend Linting**: Pre-existing lint errors were noted in  and  that should be resolved.
 
 **key api endpoints**
--  (updated to accept  boolean)
--  (new)
--  (new)
--  (new)
--  (new)
+-  (new, for testing email templates)
+-  (new, for initiating SaaS plan subscription)
+-  (new, fetches data for the public certified page)
 
 **Critical Info for New Agent**
-- **Await User Action for SMS**: The immediate next step for the SMS feature is blocked on the user getting the DLT templates (from ) approved by telecom operators. Do not proceed with SMS integration until the user confirms approval.
-- **Focus on P0 Tasks**: The user is aware of the critical missing features. Your next proposal should focus on the P0 tasks: **SaaS Subscription/Billing** or **Email Notifications**.
-- **SaaS Billing is a Major Task**: If you start SaaS billing, plan it carefully. It will involve creating new DB models for packages/subscriptions, new admin UI for package management, and integrating a recurring payment provider.
+- **Priority Task**: Your immediate focus is to continue implementing the Certified Property Detail Page feature. The very next step is to **create the Block-wise Location Editor** for admins.
+- **Use Existing Google Maps Key**: The user confirmed to use the existing  from the environment. Do not ask for a new key.
+- **Activation of Services**:
+    - **Email**: The email service is in **MOCK** mode. To enable real emails, you must prompt the user to add their  to the  file.
+    - **SMS**: SMS integration is **BLOCKED** pending user confirmation of DLT template approval. Do not start implementation until this confirmation is received.
 
 **documents and test reports created in this job**
 - 
 - 
 - 
--  (updated multiple times)
 
 **Last 10 User Messages and any pending HUMAN messages**
-10. **User**: Requests payment integration into the booking flow. - **Status**: COMPLETED.
-9.  **User**: Requests DLT templates for SMS approval. - **Status**: COMPLETED.
-8.  **User**: Asks for specific templates for Authentication and Lead Management. - **Status**: COMPLETED.
-7.  **User**: Asks to consolidate templates to be more common/reusable. - **Status**: COMPLETED.
-6.  **User**: Asks to add tenant names to the templates for branding. - **Status**: COMPLETED.
-5.  **User**: Asks for a brutal truth analysis of implemented vs. pending features in Telugu. - **Status**: COMPLETED.
-4.  **User**: Confirms they will get SMS templates approved and to continue with the mentioned list (referring to the pending features). - **Status**: ACKNOWLEDGED. This is the current state.
-3.  **User**:  - **Status**: Agent was paused, user resumed.
-2.  **User**:  - **Status**: Agent was paused, user resumed.
-1.  **User**:  - **Status**: Agent was paused, user resumed.
+10. **User**: Reports that the background color of the public layout view is too dark and doesn't match the editor. - **Status**: COMPLETED.
+9. **User**: Reports that the header/footer menus on the public layout view are obstructing the plot map. - **Status**: COMPLETED.
+8. **User**: Reports that zooming on the public layout view only allows scrolling right/down, not left/up. - **Status**: COMPLETED.
+7. **User**: Requests UI/UX improvements for the public layout view: labeled stats bar and an enhanced plot modal with tabs for media and an embedded Google Map to prevent users from leaving the site. - **Status**: COMPLETED.
+6. **User**: Provides a detailed PRD for a new Certified Property Detail Page feature. - **Status**: ACKNOWLEDGED, implementation started.
+5. **User**:  - Agent was paused.
+4. **User**: Clarifies implementation details for the Certified Property page: use existing Maps key, block-wise editing is fine, and use tenant's company info for branding. Asks agent to proceed. - **Status**: ACKNOWLEDGED.
+3. **User**:  - Agent was paused.
+2. **User**:  - Agent was paused.
+1. **User**:  - Agent was paused.
 
 **Project Health Check:**
 - **Broken**:
-    - SMS/Email notifications are still using mock services and are not functional for production use. This is the highest priority business-critical gap.
+    - Real SMS/Email notifications are not functional. This is a critical business gap.
 - **Mocked**:
-    - All SMS sending functionality.
+    - The entire Email notification system is in  mode, pending a Resend API key.
+    - All SMS sending functionality is mocked.
 
 **3rd Party Integrations**
 - **OpenAI GPT-4o**: For AI features (via Emergent LLM Key).
 - **Google Calendar**: For site visit scheduling.
-- **Google OAuth**: For user authentication (Emergent-managed). **(Now Fixed)**
-- **Stripe**: For one-time payments. **(Newly Added)**
+- **Google OAuth**: For user authentication (Emergent-managed).
+- **Stripe**: For one-time payments and recurring subscriptions.
+- **Resend**: For email notifications (**Newly Added**, in mock mode).
 
 **Testing status**
-- **Testing agent used after significant changes**: YES. The agent was used twice to validate the Remember Me & Stripe implementation () and the UI integration of payments (). All tests passed.
+- **Testing agent used after significant changes**: YES. Used to validate the Email and SaaS Subscription features.
 - **Troubleshoot agent used after agent stuck in loop**: NO.
-- **Test files created**: Test files in  were updated by the testing agent.
-- **Known regressions**: None.
+- **Test files created**: None manually.
+- **Known regressions**: None identified.
 
 **Credentials to test flow:**
 - **Super Admin**:  / 
 - **Tenant Admin**:  / 
 
 **What agent forgot to execute**
-- The agent successfully completed all user requests from the session.</analysis>
+- **SaaS Usage Limit Enforcement**: While the agent built the SaaS subscription and billing system, it did not implement the backend logic to actually *enforce* the usage limits (e.g., prevent a tenant from creating projects/users beyond their plan's quota). This is a critical missing piece of the SaaS functionality.</analysis>
