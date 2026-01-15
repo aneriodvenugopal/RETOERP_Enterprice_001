@@ -1,7 +1,21 @@
 from pydantic import BaseModel, Field, ConfigDict
-from typing import Optional
+from typing import Optional, List, Dict, Any
 from datetime import datetime, timezone
 import uuid
+
+class PropertyImage(BaseModel):
+    """Property image with metadata"""
+    url: str
+    caption: Optional[str] = None
+    is_cover: bool = False
+    uploaded_at: Optional[str] = None
+
+class PropertyVideo(BaseModel):
+    """Property video with metadata"""
+    url: str  # YouTube URL or direct video URL
+    title: Optional[str] = None
+    thumbnail: Optional[str] = None
+    is_youtube: bool = False
 
 class Property(BaseModel):
     model_config = ConfigDict(extra="ignore")
@@ -49,8 +63,10 @@ class Property(BaseModel):
     # Features
     features: list[str] = []  # Corner plot, park facing, etc.
     
-    # Media
-    images: list[str] = []
+    # Media - Enhanced with property-wise images and videos
+    images: List[str] = []  # Legacy: simple URL list
+    property_images: List[Dict[str, Any]] = []  # New: images with metadata
+    property_videos: List[Dict[str, Any]] = []  # New: videos with metadata
     
     # Dimensions (for plots)
     length: Optional[float] = None
@@ -61,6 +77,25 @@ class Property(BaseModel):
     resale_requested_at: Optional[datetime] = None
     resale_approved_at: Optional[datetime] = None
     original_owner_id: Optional[str] = None
+    
+    # ========== NEW: Certification & Location Fields ==========
+    # Location (property-wise or inherited from block)
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    google_address: Optional[str] = None  # Full address from Google Places
+    location_source: Optional[str] = None  # 'property', 'block', 'project'
+    
+    # Certification
+    is_certified: bool = False
+    certified_at: Optional[datetime] = None
+    certified_by: Optional[str] = None  # User ID who certified
+    certification_note: Optional[str] = None
+    
+    # Legal Info (optional)
+    survey_number: Optional[str] = None
+    registration_number: Optional[str] = None
+    approval_number: Optional[str] = None
+    legal_documents: List[str] = []  # Document URLs
     
     is_active: bool = True
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
