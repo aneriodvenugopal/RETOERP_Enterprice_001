@@ -498,6 +498,13 @@ const TenantAdminDashboard = () => {
           onClick={() => navigate('/billing')}
           gradient="from-indigo-500 to-purple-500"
         />
+        <ActionCard
+          icon={MapPin}
+          title="Block Locations"
+          description="Configure GPS locations for property blocks"
+          onClick={() => navigate('/block-locations')}
+          gradient="from-emerald-500 to-teal-500"
+        />
       </div>
       
       {/* Settings & Management Section */}
