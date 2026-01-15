@@ -238,6 +238,9 @@ function App() {
                 <Route path="/shipping-policy" element={<ShippingPolicy />} />
                 <Route path="/faq" element={<FAQRealEstate />} />
                 
+                {/* Certified Property - Public */}
+                <Route path="/property/:propertyId/certified" element={<CertifiedPropertyPage />} />
+                
                 {/* Solution Routes - Public */}
                 <Route path="/solutions/crm" element={<CRMSolution />} />
                 <Route path="/solutions/multi-project-management" element={<MultiProjectManagement />} />
