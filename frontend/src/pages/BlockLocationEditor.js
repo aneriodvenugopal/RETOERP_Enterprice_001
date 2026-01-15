@@ -223,9 +223,9 @@ const BlockLocationCard = ({ block, projectId, onSave, isLoading }) => {
                   {block.google_address || `${block.latitude}, ${block.longitude}`}
                 </div>
                 <div className="flex items-center gap-2 text-xs text-slate-400">
-                  <span>Lat: {block.latitude?.toFixed(6)}</span>
+                  <span>Lat: {typeof block.latitude === 'number' ? block.latitude.toFixed(6) : parseFloat(block.latitude).toFixed(6)}</span>
                   <span>•</span>
-                  <span>Lng: {block.longitude?.toFixed(6)}</span>
+                  <span>Lng: {typeof block.longitude === 'number' ? block.longitude.toFixed(6) : parseFloat(block.longitude).toFixed(6)}</span>
                 </div>
                 <div className="rounded-lg overflow-hidden border border-slate-200">
                   <iframe
