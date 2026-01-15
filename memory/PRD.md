@@ -308,6 +308,22 @@ Build a comprehensive Real Estate ERP (ExlainERP) SaaS platform for the Indian r
     - Automatic credit reset on subscription activation
     - Payment confirmation emails
 
+- [x] **Block Location Editor** (Completed Jan 15, 2026)
+  - Admin page at /block-locations for configuring GPS coordinates per block
+  - Projects sidebar with search functionality
+  - Block cards showing location status (Set/Pending)
+  - Google Places Autocomplete for location search
+  - Manual lat/lng input fields
+  - Embedded Google Maps preview in edit mode
+  - Progress tracking: Total Blocks, Locations Set, Completion %
+  - Location hierarchy: property > block > project
+  - Certified Property Page shows "Source: block" badge when inheriting from block
+  - Features:
+    - Edit mode with Save/Cancel buttons
+    - Save All Locations bulk action
+    - "View Public Page" link to project page
+    - Location Hierarchy info banner
+
 ### P4 - Future/Backlog
 - [x] Festival Greetings Automation - Backend cron job for Jan 26 & Aug 15 (Completed Jan 12, 2026)
 - [x] SaaS marketing pages - /saas landing page (Completed Jan 12, 2026)
