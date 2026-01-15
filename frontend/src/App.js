@@ -293,6 +293,14 @@ function App() {
                   } 
                 />
                 <Route 
+                  path="/block-locations" 
+                  element={
+                    <PrivateRoute>
+                      <BlockLocationEditor />
+                    </PrivateRoute>
+                  } 
+                />
+                <Route 
                   path="/resale" 
                   element={
                     <PrivateRoute>
