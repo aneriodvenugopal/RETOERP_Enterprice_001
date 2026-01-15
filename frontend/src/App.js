@@ -165,6 +165,7 @@ import SubscriptionSuccess from "./pages/SubscriptionSuccess";
 
 // Certified Property
 import CertifiedPropertyPage from "./pages/CertifiedPropertyPage";
+import BlockLocationEditor from "./pages/BlockLocationEditor";
 
 // PWA Components
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
