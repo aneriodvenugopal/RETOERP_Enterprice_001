@@ -118,9 +118,21 @@ const BlockLocationCard = ({ block, projectId, onSave, isLoading }) => {
       return;
     }
 
+    // Convert to proper floats
+    const saveData = {
+      latitude: parseFloat(localData.latitude),
+      longitude: parseFloat(localData.longitude),
+      google_address: localData.google_address || ''
+    };
+
+    if (isNaN(saveData.latitude) || isNaN(saveData.longitude)) {
+      toast.error('Invalid latitude or longitude values');
+      return;
+    }
+
     setSaving(true);
     try {
-      await onSave(block.block_name, localData);
+      await onSave(block.block_name, saveData);
       setIsEditing(false);
       toast.success(`Location saved for Block ${block.block_name}`);
     } catch (error) {
