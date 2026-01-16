@@ -1,8 +1,9 @@
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request, Depends
 from models.project import Project, ProjectCreate, ProjectUpdate
 from utils.helpers import serialize_doc, deserialize_doc
 from services.audit_log_service import AuditLogService
 from middleware.auth import get_current_user
+from middleware.usage_limits import check_project_limit
 from typing import List, Optional
 from datetime import datetime, timezone
 
@@ -12,10 +13,13 @@ def get_db(request: Request):
     return request.app.state.db
 
 @router.post("/", response_model=Project)
-async def create_project(project_create: ProjectCreate, request: Request):
+async def create_project(
+    project_create: ProjectCreate, 
+    request: Request,
+    user: dict = Depends(check_project_limit)  # Enforce project limit
+):
     """Create a new project"""
     db = get_db(request)
-    user = await get_current_user(request)
     
     # Check if tenant exists
     tenant = await db.tenants.find_one({'id': project_create.tenant_id, 'deleted_at': None}, {"_id": 0})
