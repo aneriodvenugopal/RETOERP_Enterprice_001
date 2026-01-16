@@ -221,13 +221,14 @@ async def check_lead_limit(request: Request, user: dict = Depends(get_current_us
     
     if lead_count >= max_leads:
         tenant = await db.tenants.find_one({"id": tenant_id}, {"_id": 0, "package_id": 1})
-        package_id = tenant.get("package_id", "starter") if tenant else "starter"
+        package_id = (tenant.get("package_id") if tenant else None) or "starter"
+        package_name = SUBSCRIPTION_PACKAGES.get(package_id, SUBSCRIPTION_PACKAGES["starter"])["name"]
         
         raise HTTPException(
             status_code=403,
             detail={
                 "code": "LIMIT_EXCEEDED",
-                "message": f"Monthly lead limit reached. Your {package_id.capitalize()} plan allows {max_leads} leads per month. Please upgrade or wait until next month.",
+                "message": f"Monthly lead limit reached. Your {package_name} plan allows {max_leads} leads per month. Please upgrade or wait until next month.",
                 "limit_type": "leads_per_month",
                 "current_usage": lead_count,
                 "limit": max_leads,
