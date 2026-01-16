@@ -398,6 +398,7 @@ Build a comprehensive Real Estate ERP (ExlainERP) SaaS platform for the Indian r
 - `/app/test_reports/iteration_14.json` - Email Notifications (21/21 tests passed)
 - `/app/test_reports/iteration_15.json` - SaaS Subscription & Billing (25/25 tests passed)
 - `/app/test_reports/iteration_16.json` - Block Location Editor (15/15 tests passed)
+- `/app/test_reports/iteration_17.json` - SaaS Usage Limits Enforcement (14/14 tests passed)
 
 ## New Routes Added (Jan 12, 2026)
 - `/document-locker` - Document storage with physical location mapping
