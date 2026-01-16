@@ -295,7 +295,6 @@ Build a comprehensive Real Estate ERP (ExlainERP) SaaS platform for the Indian r
 
 - [x] **SaaS Subscription & Billing (Stripe)** (Completed Jan 14, 2026)
   - 3 subscription packages: Starter (₹999), Pro (₹2,999), Enterprise (₹9,999)
-  - Usage limits enforcement (projects, users, properties, leads, SMS/email credits)
   - Stripe checkout for subscription payments
   - Invoice history tracking
   - Subscription management (cancel at period end, reactivate)
@@ -307,6 +306,18 @@ Build a comprehensive Real Estate ERP (ExlainERP) SaaS platform for the Indian r
     - Package comparison with feature checkmarks
     - Automatic credit reset on subscription activation
     - Payment confirmation emails
+
+- [x] **SaaS Usage Limits Enforcement** (Completed Jan 16, 2026)
+  - Middleware enforcement for projects, users, properties, and leads
+  - Returns 403 with LIMIT_EXCEEDED code when limits exceeded
+  - Error response includes: code, message, limit_type, current_usage, limit, upgrade_url
+  - Subscription package limits:
+    - Starter: 3 projects, 2 users, 50 properties, 100 leads/month
+    - Pro: 15 projects, 10 users, 500 properties, 500 leads/month
+    - Enterprise: Unlimited
+  - Frontend UsageLimitBanner component for displaying limit errors
+  - Usage warning banners for near-limit scenarios (80%+)
+  - GET /api/subscriptions/usage-check endpoint for pre-flight checks
 
 - [x] **Block Location Editor** (Completed Jan 15, 2026)
   - Admin page at /block-locations for configuring GPS coordinates per block
