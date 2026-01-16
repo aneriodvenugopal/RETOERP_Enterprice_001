@@ -1,0 +1,76 @@
+{
+  "summary": "SaaS Usage Limits Enforcement testing complete. All 14 backend API tests passed (100%). The middleware correctly enforces subscription limits for projects, users, and properties. Error responses include all required fields (code, message, limit_type, current_usage, limit, upgrade_url).",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/tests/test_usage_limits_enforcement.py",
+    "/app/test_reports/pytest/pytest_usage_limits.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [],
+  "updated_files": [
+    "/app/tests/test_usage_limits_enforcement.py"
+  ],
+  "success_rate": {
+    "backend": "100% (14/14 tests passed)",
+    "frontend": "N/A (backend only testing)"
+  },
+  "test_credentials": {
+    "phone": "9908290239",
+    "password": "12345678",
+    "role": "tenant_admin",
+    "tenant_id": "f18f7bd6-3a1f-472d-acf9-c2fb181787e7"
+  },
+  "seed_data_creation": "One test lead created during testing (ID: 7005a255-e62d-474d-9fee-bf42873ff0b9)",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "SaaS Usage Limits Enforcement fully functional. Tenant 'Rajam Developers' on Starter plan has exceeded limits for projects (32/3), users (5/2), and properties (544/50). Monthly lead limit (4/100) not exceeded. All create operations for exceeded resources return 403 with LIMIT_EXCEEDED code.",
+  "features_tested": {
+    "limit_enforcement": {
+      "POST /api/projects/": "PASS - Returns 403 with LIMIT_EXCEEDED (32 projects > 3 limit)",
+      "POST /api/users/": "PASS - Returns 403 with LIMIT_EXCEEDED (5 users > 2 limit)",
+      "POST /api/properties/": "PASS - Returns 403 with LIMIT_EXCEEDED (544 properties > 50 limit)",
+      "POST /api/leads/": "PASS - Lead created (4/100 monthly limit not exceeded)"
+    },
+    "error_response_structure": {
+      "code": "PASS - Returns 'LIMIT_EXCEEDED'",
+      "message": "PASS - Human-readable message with plan name and limit",
+      "limit_type": "PASS - Returns 'projects', 'users', 'properties', or 'leads_per_month'",
+      "current_usage": "PASS - Returns integer count of current usage",
+      "limit": "PASS - Returns integer limit from subscription package",
+      "upgrade_url": "PASS - Returns '/billing'"
+    },
+    "subscription_endpoints": {
+      "GET /api/subscriptions/current": "PASS - Returns subscription status with usage vs limits",
+      "GET /api/subscriptions/usage-check": "PASS - Returns limits_exceeded and warnings arrays",
+      "GET /api/subscriptions/packages": "PASS - Returns 3 packages (Starter, Pro, Enterprise)"
+    },
+    "authentication": {
+      "all_endpoints_require_auth": "PASS - Returns 401/403 without token"
+    }
+  },
+  "usage_data": {
+    "tenant": "Rajam Developers",
+    "package": "Starter",
+    "projects": {"used": 32, "limit": 3, "exceeded": true},
+    "users": {"used": 5, "limit": 2, "exceeded": true},
+    "properties": {"used": 544, "limit": 50, "exceeded": true},
+    "leads_this_month": {"used": 4, "limit": 100, "exceeded": false},
+    "sms_credits": {"remaining": 0, "limit": 100, "exceeded": true}
+  },
+  "starter_package_limits": {
+    "max_projects": 3,
+    "max_users": 2,
+    "max_properties": 50,
+    "max_leads_per_month": 100,
+    "sms_credits": 100,
+    "email_credits": 500
+  }
+}
