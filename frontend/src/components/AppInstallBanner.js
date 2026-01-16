@@ -35,9 +35,9 @@ const AppInstallBanner = () => {
                 <div className="flex items-center gap-3 mb-3">
                   <div className="bg-white p-2 rounded-xl">
                     <img 
-                      src="/exlainerp-logo-icon.svg" 
+                      src="/exlainerp-logo.png" 
                       alt="ExlainERP" 
-                      className="w-12 h-12"
+                      className="w-12 h-12 object-contain"
                       onError={(e) => {
                         e.target.onerror = null;
                         e.target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect fill="%233B82F6" width="100" height="100"/><text x="50" y="55" font-size="40" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-weight="bold">RE</text></svg>';
