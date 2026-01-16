@@ -85,7 +85,11 @@ async def get_user(user_id: str, request: Request):
     return user
 
 @router.post("/")
-async def create_user(user_data: UserCreate, request: Request):
+async def create_user(
+    user_data: UserCreate, 
+    request: Request,
+    current_user: dict = Depends(check_user_limit)  # Enforce user limit
+):
     """Create new user (admin only)"""
     db = get_db(request)
     
