@@ -1,8 +1,9 @@
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request, Depends
 from models.property import Property, PropertyCreate, PropertyUpdate, PropertyBlock, PropertyBook
 from utils.helpers import serialize_doc, deserialize_doc
 from services.audit_log_service import AuditLogService
 from middleware.auth import get_current_user
+from middleware.usage_limits import check_property_limit
 from typing import List, Optional
 from datetime import datetime, timedelta, timezone
 
@@ -12,10 +13,13 @@ def get_db(request: Request):
     return request.app.state.db
 
 @router.post("/", response_model=Property)
-async def create_property(property_create: PropertyCreate, request: Request):
+async def create_property(
+    property_create: PropertyCreate, 
+    request: Request,
+    user: dict = Depends(check_property_limit)  # Enforce property limit
+):
     """Create a new property"""
     db = get_db(request)
-    user = await get_current_user(request)
     
     # Check if project exists
     project = await db.projects.find_one({'id': property_create.project_id, 'deleted_at': None}, {"_id": 0})
