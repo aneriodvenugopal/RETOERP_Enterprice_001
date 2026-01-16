@@ -43,19 +43,19 @@ const StickyNavbar = () => {
       <div className="container mx-auto px-6">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-3">
-            <img src="/exlainerp-logo-icon.svg" alt="ExlainERP SOFTWARE" className="h-10 w-10" />
+          <Link to="/" className="flex items-center gap-2 flex-shrink-0">
+            <img src="/exlainerp-logo.png" alt="ExlainERP" className="h-9 w-auto" />
             <div className="flex flex-col">
-              <span className="text-2xl font-bold text-blue-600 leading-tight">ExlainERP SOFTWARE</span>
-              <span className="text-xs font-medium text-gray-600 tracking-wide">Real Estate Automation Software</span>
+              <span className="text-xl font-bold text-blue-600 leading-tight tracking-tight">ExlainERP</span>
+              <span className="text-[10px] font-medium text-gray-500 tracking-wide">Real Estate Automation Software</span>
             </div>
           </Link>
 
           {/* Desktop Menu */}
-          <div className="hidden lg:flex items-center space-x-8">
+          <div className="hidden lg:flex items-center space-x-5">
             <Link
               to="/"
-              className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
+              className="text-sm text-gray-700 hover:text-blue-600 font-medium transition-colors whitespace-nowrap"
             >
               Home
             </Link>
@@ -63,12 +63,12 @@ const StickyNavbar = () => {
             {/* Solutions Dropdown */}
             <div className="relative group">
               <button
-                className="flex items-center text-gray-700 hover:text-blue-600 font-medium transition-colors"
+                className="flex items-center text-sm text-gray-700 hover:text-blue-600 font-medium transition-colors whitespace-nowrap"
                 onMouseEnter={() => setSolutionsOpen(true)}
                 onMouseLeave={() => setSolutionsOpen(false)}
               >
                 Solutions
-                <ChevronDown className="w-4 h-4 ml-1" />
+                <ChevronDown className="w-3.5 h-3.5 ml-1" />
               </button>
               
               {/* Dropdown Menu */}
@@ -83,7 +83,7 @@ const StickyNavbar = () => {
                   <Link
                     key={solution.link}
                     to={solution.link}
-                    className="block px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
                   >
                     {solution.name}
                   </Link>
@@ -93,42 +93,42 @@ const StickyNavbar = () => {
 
             <Link
               to="/features"
-              className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
+              className="text-sm text-gray-700 hover:text-blue-600 font-medium transition-colors whitespace-nowrap"
             >
               Features
             </Link>
 
             <Link
               to="/pricing"
-              className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
+              className="text-sm text-gray-700 hover:text-blue-600 font-medium transition-colors whitespace-nowrap"
             >
               Pricing
             </Link>
 
             <Link
               to="/advisory"
-              className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
+              className="text-sm text-gray-700 hover:text-blue-600 font-medium transition-colors whitespace-nowrap"
             >
-              FREE Expert Advisory
+              FREE Expert
+            </Link>
+
+            <Link
+              to="/workforce-map"
+              className="text-sm text-gray-700 hover:text-blue-600 font-medium transition-colors whitespace-nowrap"
+            >
+              Workforce
             </Link>
 
             <Link
               to="/faq"
-              className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
+              className="text-sm text-gray-700 hover:text-blue-600 font-medium transition-colors whitespace-nowrap"
             >
               FAQ
             </Link>
 
             <Link
-              to="/workforce-map"
-              className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
-            >
-              Workforce Map
-            </Link>
-
-            <Link
               to="/contact"
-              className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
+              className="text-sm text-gray-700 hover:text-blue-600 font-medium transition-colors whitespace-nowrap"
             >
               Contact
             </Link>
