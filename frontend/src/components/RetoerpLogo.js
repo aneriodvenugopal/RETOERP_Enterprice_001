@@ -33,12 +33,12 @@ const ExlainERPLogo = ({
   const getLogoPath = () => {
     switch (variant) {
       case 'icon':
-        return '/exlainerp-logo-icon.svg';
+        return '/exlainerp-logo.png';
       case 'white':
-        return '/exlainerp-logo-white.svg';
+        return '/exlainerp-logo.png'; // Same logo, can be styled with CSS filter
       case 'full':
       default:
-        return '/exlainerp-logo-full.svg';
+        return '/exlainerp-logo.png';
     }
   };
 
