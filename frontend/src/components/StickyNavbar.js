@@ -135,16 +135,16 @@ const StickyNavbar = () => {
           </div>
 
           {/* CTA Buttons */}
-          <div className="hidden lg:flex items-center space-x-4">
+          <div className="hidden lg:flex items-center space-x-3 flex-shrink-0">
             <Link
               to="/login"
-              className="px-6 py-2 text-blue-600 font-semibold hover:text-blue-700 transition-colors"
+              className="px-4 py-2 text-sm text-blue-600 font-semibold hover:text-blue-700 transition-colors"
             >
               Login
             </Link>
             <Link
               to="/register"
-              className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all"
+              className="px-4 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all"
             >
               Start Free Trial
             </Link>
