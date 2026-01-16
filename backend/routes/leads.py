@@ -1,10 +1,11 @@
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request, Depends
 from models.lead import Lead, LeadCreate, LeadUpdate, LeadFollowup, LeadFollowupCreate, LeadConvert
 from models.user import User, UserCreate
 from models.role import Role
 from utils.helpers import serialize_doc, deserialize_doc
 from services.audit_log_service import AuditLogService
 from middleware.auth import get_current_user
+from middleware.usage_limits import check_lead_limit
 from typing import List, Optional
 from datetime import datetime, timezone
 
@@ -14,10 +15,13 @@ def get_db(request: Request):
     return request.app.state.db
 
 @router.post("/", response_model=Lead)
-async def create_lead(lead_create: LeadCreate, request: Request):
+async def create_lead(
+    lead_create: LeadCreate, 
+    request: Request,
+    user: dict = Depends(check_lead_limit)  # Enforce monthly lead limit
+):
     """Create a new lead"""
     db = get_db(request)
-    user = await get_current_user(request)
     
     # Check if lead with same phone already exists in tenant
     existing = await db.leads.find_one({
