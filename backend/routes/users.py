@@ -1,8 +1,10 @@
-from fastapi import APIRouter, HTTPException, Request, Query
+from fastapi import APIRouter, HTTPException, Request, Query, Depends
 from models.user import User, UserCreate, UserUpdate
 from datetime import datetime, timezone
 from typing import Optional
 from utils.helpers import serialize_doc, deserialize_doc
+from middleware.auth import get_current_user as auth_get_current_user
+from middleware.usage_limits import check_user_limit
 
 router = APIRouter(prefix="/users", tags=["users"])
 
