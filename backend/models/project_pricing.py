@@ -59,7 +59,7 @@ class ProjectPricingConfig(BaseModel):
 
 class ProjectPricingConfigCreate(BaseModel):
     """Create pricing configuration"""
-    project_id: str
+    project_id: Optional[str] = None  # Optional since we get from URL
     unit_type: str = "sq.yard"
     unit_label: str = "Sq. Yard"
     base_price_per_unit: float = 0
