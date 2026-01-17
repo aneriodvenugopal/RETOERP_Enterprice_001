@@ -483,6 +483,34 @@ const Bookings = () => {
               </TabsList>
               
               <TabsContent value="details" className="space-y-4">
+                {/* PDF Download Actions */}
+                <div className="flex gap-2 p-3 bg-blue-50 rounded-lg">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => window.open(`${API_URL}/api/pdf/booking-confirmation/${bookingDetails.property?.id || selectedBooking?.id}`, '_blank')}
+                  >
+                    <FileText className="w-4 h-4 mr-1" />
+                    Booking Letter
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => window.open(`${API_URL}/api/pdf/allotment-letter/${bookingDetails.property?.id || selectedBooking?.id}`, '_blank')}
+                  >
+                    <Download className="w-4 h-4 mr-1" />
+                    Allotment Letter
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => window.open(`${API_URL}/api/pdf/payment-schedule/${bookingDetails.property?.id || selectedBooking?.id}`, '_blank')}
+                  >
+                    <Calendar className="w-4 h-4 mr-1" />
+                    Payment Schedule
+                  </Button>
+                </div>
+                
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="text-sm font-medium text-gray-500">Property</label>
