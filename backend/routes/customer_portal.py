@@ -892,3 +892,103 @@ async def download_payment_receipt(payment_id: str, request: Request):
         media_type="application/pdf",
         headers={"Content-Disposition": f"attachment; filename={filename}"}
     )
+
+
+
+# ==================== Resale Request ====================
+
+class ResaleRequestCreate(BaseModel):
+    property_id: str
+    reason: str
+    expected_price: Optional[float] = None
+
+
+@router.post("/resale-request")
+async def create_resale_request(request_data: ResaleRequestCreate, request: Request):
+    """Submit a resale request for a property"""
+    db = get_db(request)
+    session = await get_portal_session(request)
+    
+    if not session:
+        raise HTTPException(status_code=401, detail="Please login to continue")
+    
+    customer_id = session["customer_id"]
+    
+    # Verify ownership
+    booking = await db.bookings.find_one({
+        "property_id": request_data.property_id,
+        "customer_id": customer_id,
+        "deleted_at": None
+    }, {"_id": 0})
+    
+    if not booking:
+        raise HTTPException(status_code=403, detail="You don't own this property")
+    
+    # Check if there's already a pending resale request
+    existing = await db.resale_requests.find_one({
+        "property_id": request_data.property_id,
+        "customer_id": customer_id,
+        "status": {"$in": ["pending", "processing"]}
+    })
+    
+    if existing:
+        raise HTTPException(status_code=400, detail="You already have a pending resale request for this property")
+    
+    # Get property and project details
+    property_doc = await db.properties.find_one({"id": request_data.property_id}, {"_id": 0})
+    
+    # Create resale request
+    resale_request = {
+        "id": str(uuid.uuid4()),
+        "tenant_id": session["tenant_id"],
+        "customer_id": customer_id,
+        "property_id": request_data.property_id,
+        "booking_id": booking.get("id"),
+        "property_number": property_doc.get("property_number") if property_doc else None,
+        "project_id": property_doc.get("project_id") if property_doc else None,
+        "reason": request_data.reason,
+        "expected_price": request_data.expected_price,
+        "current_price": property_doc.get("price") if property_doc else None,
+        "paid_amount": booking.get("paid_amount", 0),
+        "status": "pending",
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "updated_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    await db.resale_requests.insert_one(resale_request)
+    
+    # Send notification to admin (mock)
+    try:
+        from services.notification_service import send_notification
+        await send_notification(
+            db=db,
+            tenant_id=session["tenant_id"],
+            title="New Resale Request",
+            message=f"Customer requested resale for Plot {property_doc.get('property_number', 'N/A')}",
+            notification_type="resale_request",
+            reference_id=resale_request["id"]
+        )
+    except:
+        pass  # Notification is optional
+    
+    return {
+        "success": True,
+        "message": "Resale request submitted successfully",
+        "request_id": resale_request["id"]
+    }
+
+
+@router.get("/resale-requests")
+async def get_my_resale_requests(request: Request):
+    """Get all resale requests by the customer"""
+    db = get_db(request)
+    session = await get_portal_session(request)
+    
+    if not session:
+        raise HTTPException(status_code=401, detail="Please login to continue")
+    
+    requests = await db.resale_requests.find({
+        "customer_id": session["customer_id"]
+    }, {"_id": 0}).sort("created_at", -1).to_list(50)
+    
+    return {"requests": requests}
