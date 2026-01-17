@@ -377,6 +377,27 @@ Build a comprehensive Real Estate ERP (ExlainERP) SaaS platform for the Indian r
   - FileGallery.js component for displaying uploaded files
   - Integration in PropertyCertifiedSettings page for property images
 
+- [x] **Customer Self-Service Portal** (Completed Jan 17, 2026)
+  - Public portal at /customer-portal for customers to access their property information
+  - OTP-based authentication (phone number + 6-digit OTP)
+  - Session management with 24-hour expiry (X-Portal-Session header)
+  - Dashboard with overview stats: Properties, Total Paid, Pending, Overdue
+  - Properties tab: View property details with payment progress bar
+  - Payments tab: Payment schedule, EMI status, payment history
+  - Documents tab: Download booking confirmation, payment schedule, allotment letter PDFs
+  - Mock mode: OTP displayed in UI for testing (SMS integration pending)
+  - APIs:
+    - POST /api/customer-portal/login - Request OTP
+    - POST /api/customer-portal/verify-otp - Verify and create session
+    - GET /api/customer-portal/me - Get profile
+    - GET /api/customer-portal/dashboard - Dashboard overview
+    - GET /api/customer-portal/properties - List properties
+    - GET /api/customer-portal/payments - Payment history
+    - GET /api/customer-portal/payment-schedule - EMI schedule
+    - GET /api/customer-portal/documents - Available documents
+    - GET /api/customer-portal/download/{type}/{id} - Download PDFs
+    - POST /api/customer-portal/logout - Logout
+
 ### P4 - Future/Backlog
 - [x] Festival Greetings Automation - Backend cron job for Jan 26 & Aug 15 (Completed Jan 12, 2026)
 - [x] SaaS marketing pages - /saas landing page (Completed Jan 12, 2026)
