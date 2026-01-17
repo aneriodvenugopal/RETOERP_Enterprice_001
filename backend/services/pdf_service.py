@@ -148,11 +148,11 @@ class PDFGenerator:
         elements.append(Spacer(1, 10))
         elements.append(Paragraph(
             f"Generated on {datetime.now().strftime('%d %b %Y at %H:%M')} | This is a computer-generated document",
-            self.styles['Footer']
+            self.styles['DocFooter']
         ))
         elements.append(Paragraph(
             f"Powered by ExlainERP - Real Estate Automation Software",
-            self.styles['Footer']
+            self.styles['DocFooter']
         ))
     
     def generate_booking_confirmation(self, booking_data: dict) -> BytesIO:
