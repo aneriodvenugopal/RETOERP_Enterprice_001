@@ -358,6 +358,25 @@ Build a comprehensive Real Estate ERP (ExlainERP) SaaS platform for the Indian r
   - Download buttons in Bookings page (Details dialog)
   - Download buttons in Customer Dashboard (Properties and Payments)
 
+- [x] **File Upload Service** (Completed Jan 17, 2026)
+  - Comprehensive file upload system for property media, customer documents, agreements
+  - Supported file types: Images (jpg, png, webp, gif), Documents (pdf, doc, docx, xls, xlsx), Videos (mp4, webm, mov)
+  - File validation with type and size limits (Images: 10MB, Documents: 20MB, Videos: 100MB)
+  - Automatic thumbnail generation for images
+  - Upload contexts: property_media, customer_document, agreement, payment_proof, project_media, profile, general
+  - Security: Path traversal protection, authentication required on all endpoints
+  - APIs: 
+    - POST /api/files/upload - Single file upload
+    - POST /api/files/upload/multiple - Multiple files (up to 10)
+    - GET /api/files/ - List files with filters
+    - GET /api/files/{context}/{tenant_id}/{filename} - Serve files
+    - DELETE /api/files/{file_id} - Soft delete
+    - GET /api/files/property/{property_id} - Get property media
+    - GET /api/files/customer/{customer_id} - Get customer documents
+  - FileUploader.js React component with drag-and-drop support
+  - FileGallery.js component for displaying uploaded files
+  - Integration in PropertyCertifiedSettings page for property images
+
 ### P4 - Future/Backlog
 - [x] Festival Greetings Automation - Backend cron job for Jan 26 & Aug 15 (Completed Jan 12, 2026)
 - [x] SaaS marketing pages - /saas landing page (Completed Jan 12, 2026)
