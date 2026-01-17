@@ -240,7 +240,7 @@ const Reports = () => {
                 <Card>
                   <CardHeader>
                     <CardTitle>Leads by Source</CardTitle>
-                    <CardDescription>Lead generation channels</CardDescription>
+                    <CardDescription>Lead generation channels - Click bar to view leads</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <ResponsiveContainer width="100%" height={300}>
@@ -248,9 +248,18 @@ const Reports = () => {
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="source" angle={-45} textAnchor="end" height={100} />
                         <YAxis />
-                        <Tooltip />
+                        <Tooltip formatter={(value) => [`${value} leads`, 'Count']} />
                         <Legend />
-                        <Bar dataKey="count" fill="#0088FE" />
+                        <Bar 
+                          dataKey="count" 
+                          fill="#0088FE" 
+                          onClick={(data) => {
+                            if (data?.source) {
+                              navigate(`/leads?source=${encodeURIComponent(data.source)}`);
+                            }
+                          }}
+                          style={{ cursor: 'pointer' }}
+                        />
                       </BarChart>
                     </ResponsiveContainer>
                   </CardContent>
@@ -260,7 +269,7 @@ const Reports = () => {
                 <Card>
                   <CardHeader>
                     <CardTitle>Lead Pipeline</CardTitle>
-                    <CardDescription>Leads by status stage</CardDescription>
+                    <CardDescription>Leads by status stage - Click bar to view leads</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <ResponsiveContainer width="100%" height={300}>
@@ -268,9 +277,18 @@ const Reports = () => {
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="status" angle={-45} textAnchor="end" height={100} />
                         <YAxis />
-                        <Tooltip />
+                        <Tooltip formatter={(value) => [`${value} leads`, 'Count']} />
                         <Legend />
-                        <Bar dataKey="count" fill="#00C49F" />
+                        <Bar 
+                          dataKey="count" 
+                          fill="#00C49F" 
+                          onClick={(data) => {
+                            if (data?.status) {
+                              navigate(`/leads?status=${encodeURIComponent(data.status)}`);
+                            }
+                          }}
+                          style={{ cursor: 'pointer' }}
+                        />
                       </BarChart>
                     </ResponsiveContainer>
                   </CardContent>
