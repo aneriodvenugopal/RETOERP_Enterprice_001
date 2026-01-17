@@ -623,7 +623,7 @@ const CustomerDashboard = () => {
                       <th className="px-4 py-3 text-left text-sm font-semibold">Property</th>
                       <th className="px-4 py-3 text-left text-sm font-semibold">Mode</th>
                       <th className="px-4 py-3 text-left text-sm font-semibold">Status</th>
-                      <th className="px-4 py-3 text-left text-sm font-semibold">Receipt</th>
+                      <th className="px-4 py-3 text-left text-sm font-semibold">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -645,7 +645,18 @@ const CustomerDashboard = () => {
                             {payment.status}
                           </Badge>
                         </td>
-                        <td className="px-4 py-3 text-sm">{payment.receipt_number || '-'}</td>
+                        <td className="px-4 py-3">
+                          {payment.status === 'Success' && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => window.open(`${API_URL}/api/pdf/payment-receipt/${payment.id}`, '_blank')}
+                            >
+                              <Download className="w-3 h-3 mr-1" />
+                              Receipt
+                            </Button>
+                          )}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
