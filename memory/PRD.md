@@ -346,6 +346,18 @@ Build a comprehensive Real Estate ERP (ExlainERP) SaaS platform for the Indian r
   - Toggle switch to enable/disable property-specific location
   - Google Maps preview for location verification
 
+- [x] **PDF Generation Service** (Completed Jan 17, 2026)
+  - Professional PDF generation using reportlab library
+  - Booking Confirmation Letter - Full booking details with payment schedule
+  - Payment Receipt - Transaction receipt with amount in words
+  - Payment Schedule/EMI Statement - Installment breakdown with status
+  - Property Allotment Letter - Formal allotment document
+  - Customer Statement - Account summary with all transactions
+  - Company branding (name, address, phone, email) from tenant settings
+  - APIs: GET /api/pdf/booking-confirmation/:id, /payment-receipt/:id, /payment-schedule/:id, /allotment-letter/:id
+  - Download buttons in Bookings page (Details dialog)
+  - Download buttons in Customer Dashboard (Properties and Payments)
+
 ### P4 - Future/Backlog
 - [x] Festival Greetings Automation - Backend cron job for Jan 26 & Aug 15 (Completed Jan 12, 2026)
 - [x] SaaS marketing pages - /saas landing page (Completed Jan 12, 2026)
