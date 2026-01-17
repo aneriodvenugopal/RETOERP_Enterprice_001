@@ -151,10 +151,26 @@ async def generate_booking_confirmation_pdf(
 
 
 @router.get("/payment-receipt/{payment_id}")
-async def generate_payment_receipt_pdf(payment_id: str, request: Request):
-    """Generate Payment Receipt PDF"""
+async def generate_payment_receipt_pdf(
+    payment_id: str, 
+    request: Request,
+    token: Optional[str] = Query(None, description="Optional auth token for direct access")
+):
+    """Generate Payment Receipt PDF
+    
+    Can be accessed publicly for payment receipts
+    """
     db = get_db(request)
-    user = await get_current_user(request)
+    
+    # Try to authenticate, but don't require it
+    user = None
+    try:
+        if token:
+            user = await get_user_from_request_or_token(request, token)
+        else:
+            user = await get_current_user(request)
+    except:
+        pass  # Allow public access
     
     # Get payment details
     payment = await db.payments.find_one({"id": payment_id}, {"_id": 0})
