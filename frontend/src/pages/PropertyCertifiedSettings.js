@@ -39,12 +39,14 @@ const PropertyCertifiedSettings = () => {
   // Media state
   const [images, setImages] = useState([]);
   const [videos, setVideos] = useState([]);
+  const [uploadedFiles, setUploadedFiles] = useState([]);
   const [newImageUrl, setNewImageUrl] = useState('');
   const [newVideoUrl, setNewVideoUrl] = useState('');
   const [newVideoTitle, setNewVideoTitle] = useState('');
 
   useEffect(() => {
     fetchPropertyData();
+    fetchUploadedFiles();
   }, [propertyId, token]);
 
   const fetchPropertyData = async () => {
