@@ -232,7 +232,7 @@ class TestAuthenticatedCertifiedPropertyEndpoints:
         """POST /api/certified/property/:id/certify - Certify property"""
         response = authenticated_client.post(
             f"{BASE_URL}/api/certified/property/{TEST_PROPERTY_ID}/certify",
-            json={}
+            json={"property_id": TEST_PROPERTY_ID}
         )
         
         assert response.status_code == 200, f"Expected 200, got {response.status_code}: {response.text}"
