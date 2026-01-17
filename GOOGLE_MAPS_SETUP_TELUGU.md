@@ -184,7 +184,7 @@
 
    **మొదటి referrer:**
    ```
-   https://certified-property.preview.emergentagent.com/*
+   https://exlain-realestate.preview.emergentagent.com/*
    ```
    - Paste చేసి Enter నొక్కండి
 
