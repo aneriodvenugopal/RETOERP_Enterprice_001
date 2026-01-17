@@ -387,6 +387,16 @@ Build a comprehensive Real Estate ERP (ExlainERP) SaaS platform for the Indian r
 - [ ] React Native mobile app
 - [ ] AI Voice Assistant
 
+### Pending/Upcoming Tasks
+- [ ] **P1: Customer Self-Service Portal** - Portal for customers to login, view property/payment details, download documents
+- [ ] **P1: Reports & Export Module** - Export data to Excel/PDF
+- [ ] **P1: Audit Trail** - System-wide activity logging
+
+### Blocked Items
+- [ ] Real Email Integration - Waiting for `RESEND_API_KEY` (Currently in MOCK mode)
+- [ ] Real SMS Integration - Waiting for DLT template approval
+- [ ] WhatsApp Business API - Needs Meta Business credentials
+
 ---
 
 ## Technical Architecture
