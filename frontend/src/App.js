@@ -379,6 +379,14 @@ function App() {
                 }
               />
               <Route
+                path="/projects/:projectId/pricing"
+                element={
+                  <PrivateRoute>
+                    <ProjectPricingSettings />
+                  </PrivateRoute>
+                }
+              />
+              <Route
                 path="/public/layout/:projectId"
                 element={<PublicLayoutView />}
               />
