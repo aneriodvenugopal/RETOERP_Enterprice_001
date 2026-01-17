@@ -110,6 +110,7 @@ api_router.include_router(subscriptions.router)
 api_router.include_router(certified_property.router)
 api_router.include_router(pdf.router)
 api_router.include_router(files.router)
+api_router.include_router(customer_portal.router)
 
 # PWA Install tracking
 @api_router.post("/analytics/pwa-install")
