@@ -1,0 +1,72 @@
+{
+  "summary": "Certified Property Page feature testing complete. All 13 backend API tests passed (100%). Frontend UI testing verified all features: Location tab with hierarchy display, Images tab, Videos tab, Save Location, Save Media, Certify Property, and Preview functionality.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {
+        "screen": "Images Tab",
+        "issues": ["Test images show broken image placeholders (expected - test URLs are not real images)"]
+      }
+    ]
+  },
+  "test_report_links": [
+    "/app/tests/test_certified_property.py",
+    "/app/test_reports/pytest/pytest_certified_property.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [],
+  "updated_files": [
+    "/app/tests/test_certified_property.py"
+  ],
+  "success_rate": {
+    "backend": "100% (13/13 tests passed)",
+    "frontend": "100% (all UI elements and interactions working)"
+  },
+  "test_credentials": {
+    "phone": "9908290239",
+    "password": "12345678",
+    "role": "tenant_admin"
+  },
+  "seed_data_creation": "Test property already exists with ID: 3f61fcf3-dbff-44d3-8ea3-c49452b78dc5. Location set to Pune (18.5204, 73.8567). 2 test images and 1 test video added.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Certified Property Page feature fully functional. Property ID 3f61fcf3-dbff-44d3-8ea3-c49452b78dc5 is certified with property-specific location (source: property). All CRUD operations for location and media work correctly.",
+  "features_tested": {
+    "backend_apis": {
+      "GET /api/certified/property/:id": "PASS - Public endpoint returns property, project, location, media, company data",
+      "GET /api/certified/property/:id/qr": "PASS - Returns QR code data",
+      "PUT /api/certified/property/:id/location": "PASS - Updates property-specific GPS coordinates",
+      "PUT /api/certified/property/:id/media": "PASS - Updates property images and videos",
+      "POST /api/certified/property/:id/certify": "PASS - Marks property as certified",
+      "POST /api/certified/property/:id/uncertify": "PASS - Removes certification",
+      "GET /api/properties/:id": "PASS - Returns property details for settings page"
+    },
+    "frontend_ui": {
+      "settings_page_loads": "PASS - /property/:propertyId/settings loads correctly",
+      "location_tab": "PASS - Shows location hierarchy (Property > Block > Project)",
+      "toggle_property_location": "PASS - Toggle enables/disables property-specific location",
+      "save_location_button": "PASS - Calls PUT /api/certified/property/:id/location, shows success toast",
+      "images_tab": "PASS - Shows image URL input, Add button, image grid, Save Images button",
+      "videos_tab": "PASS - Shows video URL input, title input, Add button, video list, Save Videos button",
+      "preview_button": "PASS - Opens public certified page in new tab",
+      "certify_button": "PASS - Property shows 'Certified' badge when certified",
+      "public_certified_page": "PASS - Shows property details, location with source badge, map, media"
+    },
+    "location_hierarchy": {
+      "property_source": "PASS - When property has lat/lng, source shows 'property'",
+      "coordinates_displayed": "PASS - Lat: 18.5204, Lng: 73.8567 shown correctly"
+    }
+  },
+  "screenshots": [
+    ".screenshots/certified_property_public.png",
+    ".screenshots/property_settings_location.png",
+    ".screenshots/property_settings_images.png",
+    ".screenshots/property_settings_videos.png",
+    ".screenshots/save_location_result.png"
+  ]
+}
