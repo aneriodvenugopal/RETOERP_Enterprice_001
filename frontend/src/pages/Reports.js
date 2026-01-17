@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import { analyticsService } from '../services';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -12,7 +13,7 @@ import {
 } from 'recharts';
 import {
   TrendingUp, Users, DollarSign, FileText, Award, Download,
-  Calendar, TrendingDown, AlertCircle
+  Calendar, TrendingDown, AlertCircle, ExternalLink
 } from 'lucide-react';
 import PageInfoModal from '../components/PageInfoModal';
 
