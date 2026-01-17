@@ -246,6 +246,10 @@ function App() {
                 {/* Certified Property - Public */}
                 <Route path="/property/:propertyId/certified" element={<CertifiedPropertyPage />} />
                 
+                {/* Customer Self-Service Portal - Public */}
+                <Route path="/customer-portal" element={<CustomerPortal />} />
+                <Route path="/my-property" element={<CustomerPortal />} />
+                
                 {/* Solution Routes - Public */}
                 <Route path="/solutions/crm" element={<CRMSolution />} />
                 <Route path="/solutions/multi-project-management" element={<MultiProjectManagement />} />
