@@ -280,7 +280,7 @@ const Reports = () => {
                 <Card>
                   <CardHeader>
                     <CardTitle>Lead Quality</CardTitle>
-                    <CardDescription>Distribution by quality rating</CardDescription>
+                    <CardDescription>Distribution by quality rating - Click to view leads</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <ResponsiveContainer width="100%" height={300}>
@@ -292,14 +292,25 @@ const Reports = () => {
                           cx="50%"
                           cy="50%"
                           outerRadius={100}
-                          label
+                          label={({ quality, count }) => `${quality}: ${count}`}
+                          onClick={(data) => {
+                            if (data?.quality) {
+                              navigate(`/leads?quality=${encodeURIComponent(data.quality)}`);
+                            }
+                          }}
+                          style={{ cursor: 'pointer' }}
                         >
                           {leadAnalytics.leads_by_quality.map((entry, index) => (
                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                           ))}
                         </Pie>
-                        <Tooltip />
-                        <Legend />
+                        <Tooltip formatter={(value, name) => [`${value} leads`, name]} />
+                        <Legend 
+                          onClick={(e) => {
+                            navigate(`/leads?quality=${encodeURIComponent(e.value)}`);
+                          }}
+                          wrapperStyle={{ cursor: 'pointer' }}
+                        />
                       </PieChart>
                     </ResponsiveContainer>
                   </CardContent>
