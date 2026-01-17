@@ -80,14 +80,10 @@ def get_styles():
         borderPadding=(5, 5, 5, 5)
     ))
     
-    # Body text
-    styles.add(ParagraphStyle(
-        name='BodyText',
-        parent=styles['Normal'],
-        fontSize=10,
-        leading=14,
-        alignment=TA_JUSTIFY
-    ))
+    # Body text - use existing BodyText and modify
+    styles['BodyText'].fontSize = 10
+    styles['BodyText'].leading = 14
+    styles['BodyText'].alignment = TA_JUSTIFY
     
     # Right aligned
     styles.add(ParagraphStyle(
@@ -99,7 +95,7 @@ def get_styles():
     
     # Footer
     styles.add(ParagraphStyle(
-        name='Footer',
+        name='DocFooter',
         parent=styles['Normal'],
         fontSize=8,
         alignment=TA_CENTER,
