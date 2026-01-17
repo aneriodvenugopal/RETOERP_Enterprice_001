@@ -247,7 +247,7 @@ async def create_or_update_project_pricing(
             **config_data
         )
         new_config_dict = new_config.model_dump()
-        new_config_dict["created_by"] = current_user["id"]
+        new_config_dict["created_by"] = current_user.get("user_id") or current_user.get("id")
         
         await db.project_pricing_configs.insert_one(new_config_dict)
         
