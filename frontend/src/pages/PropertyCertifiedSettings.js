@@ -8,6 +8,7 @@ import { Label } from '../components/ui/label';
 import { Badge } from '../components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { Switch } from '../components/ui/switch';
+import FileUploader, { FileGallery } from '../components/FileUploader';
 import { 
   ArrowLeft, MapPin, Image, Video, Save, Trash2, Plus, Upload,
   CheckCircle2, AlertCircle, ExternalLink, Eye, Search, Loader2,
