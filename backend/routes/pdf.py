@@ -275,10 +275,29 @@ async def generate_payment_schedule_pdf(property_id: str, request: Request):
 
 
 @router.get("/allotment-letter/{property_id}")
-async def generate_allotment_letter_pdf(property_id: str, request: Request):
-    """Generate Property Allotment Letter PDF"""
+async def generate_allotment_letter_pdf(
+    property_id: str, 
+    request: Request,
+    token: Optional[str] = Query(None, description="Optional auth token for direct access")
+):
+    """Generate Property Allotment Letter PDF
+    
+    Can be accessed:
+    1. With Bearer token in Authorization header (logged in users)
+    2. With token query parameter for direct link sharing
+    3. Without auth for public property documents (limited info)
+    """
     db = get_db(request)
-    user = await get_current_user(request)
+    
+    # Try to authenticate, but don't require it
+    user = None
+    try:
+        if token:
+            user = await get_user_from_request_or_token(request, token)
+        else:
+            user = await get_current_user(request)
+    except:
+        pass  # Allow public access with limited info
     
     # Get property details
     property_doc = await db.properties.find_one({"id": property_id}, {"_id": 0})
