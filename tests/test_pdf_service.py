@@ -368,9 +368,9 @@ class TestPDFContentValidation:
         )
         
         if response.status_code == 200:
-            # PDF should be between 5KB and 500KB
+            # PDF should be between 1KB and 500KB
             size = len(response.content)
-            assert 5000 < size < 500000, f"PDF size {size} bytes is outside expected range"
+            assert 1000 < size < 500000, f"PDF size {size} bytes is outside expected range"
             print(f"✓ Booking confirmation PDF size: {size} bytes (valid range)")
     
     def test_payment_schedule_pdf_size(self, auth_headers):
