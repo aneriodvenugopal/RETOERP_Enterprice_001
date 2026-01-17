@@ -462,12 +462,44 @@ const Leads = () => {
       {/* Leads Table */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>
-            {activeFilter === 'all' ? 'All Leads' : activeFilter === 'active' ? 'Active Leads' : 'Converted Leads'}
-            <span className="ml-2 text-sm font-normal text-gray-500">
-              ({filteredLeads.length} {filteredLeads.length === 1 ? 'lead' : 'leads'})
-            </span>
-          </CardTitle>
+          <div>
+            <CardTitle>
+              {activeFilter === 'all' ? 'All Leads' : activeFilter === 'active' ? 'Active Leads' : 'Converted Leads'}
+              <span className="ml-2 text-sm font-normal text-gray-500">
+                ({filteredLeads.length} {filteredLeads.length === 1 ? 'lead' : 'leads'})
+              </span>
+            </CardTitle>
+            {/* URL Filter Indicator */}
+            {hasActiveUrlFilters && (
+              <div className="flex items-center gap-2 mt-2 flex-wrap">
+                <Filter className="w-4 h-4 text-blue-500" />
+                <span className="text-sm text-blue-600">Filtered by:</span>
+                {urlFilters.quality && (
+                  <Badge variant="secondary" className="text-xs">
+                    Quality: {urlFilters.quality}
+                  </Badge>
+                )}
+                {urlFilters.source && (
+                  <Badge variant="secondary" className="text-xs">
+                    Source: {urlFilters.source}
+                  </Badge>
+                )}
+                {urlFilters.status && (
+                  <Badge variant="secondary" className="text-xs">
+                    Status: {urlFilters.status}
+                  </Badge>
+                )}
+                {urlFilters.assigned_to && (
+                  <Badge variant="secondary" className="text-xs">
+                    Staff: {urlFilters.assigned_to}
+                  </Badge>
+                )}
+                <Button variant="ghost" size="sm" className="h-6 px-2 text-xs" onClick={clearUrlFilters}>
+                  <X className="w-3 h-3 mr-1" /> Clear
+                </Button>
+              </div>
+            )}
+          </div>
           {activeFilter !== 'all' && (
             <Button variant="ghost" size="sm" onClick={() => setActiveFilter('all')}>
               Clear Filter
