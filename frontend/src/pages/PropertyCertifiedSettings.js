@@ -468,11 +468,46 @@ const PropertyCertifiedSettings = () => {
                   Property Images
                 </CardTitle>
                 <CardDescription>
-                  Add property-specific images. If none are added, project images will be shown.
+                  Upload property-specific images or add via URL. If none are added, project images will be shown.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                {/* Add Image */}
+                {/* File Upload */}
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Upload Images</Label>
+                  <FileUploader
+                    context="property_media"
+                    relatedId={propertyId}
+                    accept="image/*"
+                    multiple={true}
+                    maxFiles={10}
+                    onUploadComplete={handleFileUploadComplete}
+                  />
+                </div>
+
+                {/* Uploaded Files Gallery */}
+                {uploadedFiles.length > 0 && (
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Uploaded Images ({uploadedFiles.length})</Label>
+                    <FileGallery 
+                      files={uploadedFiles} 
+                      onDelete={handleDeleteFile}
+                      columns={4}
+                    />
+                  </div>
+                )}
+
+                {/* Divider */}
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-white px-2 text-muted-foreground">Or add via URL</span>
+                  </div>
+                </div>
+
+                {/* Add Image URL */}
                 <div className="flex gap-2">
                   <Input
                     value={newImageUrl}
@@ -485,30 +520,36 @@ const PropertyCertifiedSettings = () => {
                   </Button>
                 </div>
 
-                {/* Image Grid */}
-                {images.length > 0 ? (
-                  <div className="grid grid-cols-3 md:grid-cols-4 gap-4">
-                    {images.map((img, idx) => (
-                      <div key={idx} className="relative group aspect-square rounded-lg overflow-hidden border border-slate-200 bg-slate-50">
-                        <img src={img.url} alt={`Property ${idx + 1}`} className="w-full h-full object-cover" />
-                        {img.is_cover && (
-                          <Badge className="absolute top-2 left-2 bg-blue-600 text-xs">Cover</Badge>
-                        )}
-                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                          {!img.is_cover && (
-                            <Button size="sm" variant="secondary" onClick={() => setCoverImage(idx)}>
-                              Set Cover
-                            </Button>
+                {/* URL-based Image Grid */}
+                {images.length > 0 && (
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">URL Images ({images.length})</Label>
+                    <div className="grid grid-cols-3 md:grid-cols-4 gap-4">
+                      {images.map((img, idx) => (
+                        <div key={idx} className="relative group aspect-square rounded-lg overflow-hidden border border-slate-200 bg-slate-50">
+                          <img src={img.url} alt={`Property ${idx + 1}`} className="w-full h-full object-cover" />
+                          {img.is_cover && (
+                            <Badge className="absolute top-2 left-2 bg-blue-600 text-xs">Cover</Badge>
                           )}
-                          <Button size="sm" variant="destructive" onClick={() => removeImage(idx)}>
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
+                          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                            {!img.is_cover && (
+                              <Button size="sm" variant="secondary" onClick={() => setCoverImage(idx)}>
+                                Set Cover
+                              </Button>
+                            )}
+                            <Button size="sm" variant="destructive" onClick={() => removeImage(idx)}>
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
-                ) : (
-                  <div className="text-center py-12 bg-slate-50 rounded-lg border-2 border-dashed border-slate-200">
+                )}
+
+                {/* Empty State */}
+                {images.length === 0 && uploadedFiles.length === 0 && (
+                  <div className="text-center py-8 bg-slate-50 rounded-lg border-2 border-dashed border-slate-200">
                     <Image className="w-12 h-12 text-slate-300 mx-auto mb-3" />
                     <p className="text-slate-500">No property images added</p>
                     <p className="text-sm text-slate-400">Project images will be used as fallback</p>
@@ -517,7 +558,7 @@ const PropertyCertifiedSettings = () => {
 
                 <Button onClick={handleSaveMedia} disabled={saving} className="w-full">
                   {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
-                  Save Images
+                  Save URL Images
                 </Button>
               </CardContent>
             </Card>
