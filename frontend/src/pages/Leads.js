@@ -16,6 +16,7 @@ import PageInfoModal from '../components/PageInfoModal';
 import ClickableStatCard from '../components/ClickableStatCard';
 
 const Leads = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [leads, setLeads] = useState([]);
   const [filteredLeads, setFilteredLeads] = useState([]);
   const [stats, setStats] = useState(null);
@@ -25,6 +26,14 @@ const Leads = () => {
   const [selectedLead, setSelectedLead] = useState(null);
   const [leadDetails, setLeadDetails] = useState(null);
   const [activeFilter, setActiveFilter] = useState('all'); // all, active, converted
+  
+  // URL query filters
+  const [urlFilters, setUrlFilters] = useState({
+    quality: searchParams.get('quality') || '',
+    source: searchParams.get('source') || '',
+    status: searchParams.get('status') || '',
+    assigned_to: searchParams.get('assigned_to') || ''
+  });
   
   const [leadStatuses, setLeadStatuses] = useState([]);
   const [leadSources, setLeadSources] = useState([]);
