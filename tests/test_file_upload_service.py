@@ -47,8 +47,10 @@ class TestFileUploadService:
         
         if response.status_code == 200:
             data = response.json()
-            self.token = data.get("token")
+            # API returns access_token, not token
+            self.token = data.get("access_token") or data.get("token")
             return self.token
+        print(f"Auth failed: {response.status_code} - {response.text}")
         return None
     
     def get_auth_headers(self):
