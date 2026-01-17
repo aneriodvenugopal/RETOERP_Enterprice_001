@@ -88,6 +88,45 @@ const PropertyCertifiedSettings = () => {
     setLoading(false);
   };
 
+  const fetchUploadedFiles = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/files/property/${propertyId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setUploadedFiles(data.images || []);
+      }
+    } catch (error) {
+      console.error('Error fetching uploaded files:', error);
+    }
+  };
+
+  const handleFileUploadComplete = (fileData) => {
+    // Add uploaded file to local state
+    if (Array.isArray(fileData)) {
+      setUploadedFiles(prev => [...fileData, ...prev]);
+    } else {
+      setUploadedFiles(prev => [fileData, ...prev]);
+    }
+    toast.success('File uploaded successfully');
+  };
+
+  const handleDeleteFile = async (fileId) => {
+    try {
+      const response = await fetch(`${API_URL}/api/files/${fileId}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (response.ok) {
+        setUploadedFiles(prev => prev.filter(f => f.id !== fileId && f.file_id !== fileId));
+        toast.success('File deleted');
+      }
+    } catch (error) {
+      toast.error('Failed to delete file');
+    }
+  };
+
   const handleSaveLocation = async () => {
     setSaving(true);
     try {
