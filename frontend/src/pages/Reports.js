@@ -320,14 +320,21 @@ const Reports = () => {
                 <Card>
                   <CardHeader>
                     <CardTitle>Top Performing Staff</CardTitle>
-                    <CardDescription>By lead count</CardDescription>
+                    <CardDescription>By lead count - Click to view staff leads</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
                       {leadAnalytics.top_staff.map((staff, index) => (
-                        <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded">
-                          <span className="font-medium">{staff.staff_name}</span>
-                          <span className="text-blue-600 font-bold">{staff.lead_count} leads</span>
+                        <div 
+                          key={index} 
+                          className="flex justify-between items-center p-3 bg-gray-50 rounded hover:bg-blue-50 cursor-pointer transition-colors group"
+                          onClick={() => navigate(`/leads?assigned_to=${encodeURIComponent(staff.staff_id || staff.staff_name)}`)}
+                        >
+                          <span className="font-medium group-hover:text-blue-600">{staff.staff_name}</span>
+                          <span className="text-blue-600 font-bold flex items-center gap-1">
+                            {staff.lead_count} leads
+                            <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                          </span>
                         </div>
                       ))}
                       {leadAnalytics.top_staff.length === 0 && (
