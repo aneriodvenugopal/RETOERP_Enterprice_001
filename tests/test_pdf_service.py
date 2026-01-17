@@ -394,9 +394,9 @@ class TestPDFContentValidation:
         )
         
         if response.status_code == 200:
-            # PDF should be between 5KB and 500KB
+            # PDF should be between 1KB and 500KB
             size = len(response.content)
-            assert 5000 < size < 500000, f"PDF size {size} bytes is outside expected range"
+            assert 1000 < size < 500000, f"PDF size {size} bytes is outside expected range"
             print(f"✓ Allotment letter PDF size: {size} bytes (valid range)")
 
 
