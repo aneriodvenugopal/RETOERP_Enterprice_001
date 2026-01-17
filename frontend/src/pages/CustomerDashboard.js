@@ -697,9 +697,32 @@ const CustomerDashboard = () => {
                         <p className="text-sm"><span className="text-gray-600">Price:</span> ₹{formatCurrency(property.price)}</p>
                         <p className="text-sm"><span className="text-gray-600">Payment:</span> {property.payment_status}</p>
                       </div>
+                      
+                      {/* PDF Download Buttons */}
+                      <div className="flex gap-2 mt-4">
+                        <Button 
+                          size="sm"
+                          variant="outline"
+                          className="flex-1 text-xs"
+                          onClick={() => window.open(`${API_URL}/api/pdf/allotment-letter/${property.id}`, '_blank')}
+                        >
+                          <FileText className="w-3 h-3 mr-1" />
+                          Allotment
+                        </Button>
+                        <Button 
+                          size="sm"
+                          variant="outline"
+                          className="flex-1 text-xs"
+                          onClick={() => window.open(`${API_URL}/api/pdf/payment-schedule/${property.id}`, '_blank')}
+                        >
+                          <Calendar className="w-3 h-3 mr-1" />
+                          Schedule
+                        </Button>
+                      </div>
+                      
                       {!property.booking_id ? (
                         <Button 
-                          className="w-full mt-4 bg-gray-100 text-gray-500 border-gray-300" 
+                          className="w-full mt-2 bg-gray-100 text-gray-500 border-gray-300" 
                           variant="outline"
                           disabled
                         >
@@ -707,7 +730,7 @@ const CustomerDashboard = () => {
                         </Button>
                       ) : propertyResaleStatus[property.id]?.hasRequest ? (
                         <Button 
-                          className="w-full mt-4 bg-green-100 text-green-700 hover:bg-green-200 border-green-300" 
+                          className="w-full mt-2 bg-green-100 text-green-700 hover:bg-green-200 border-green-300" 
                           variant="outline"
                           disabled
                         >
@@ -715,7 +738,7 @@ const CustomerDashboard = () => {
                         </Button>
                       ) : (
                         <Button 
-                          className="w-full mt-4" 
+                          className="w-full mt-2" 
                           variant="outline"
                           onClick={() => {
                             console.log('Property selected for resale:', property);
