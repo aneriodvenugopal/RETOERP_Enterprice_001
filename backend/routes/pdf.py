@@ -198,10 +198,26 @@ async def generate_payment_receipt_pdf(payment_id: str, request: Request):
 
 
 @router.get("/payment-schedule/{property_id}")
-async def generate_payment_schedule_pdf(property_id: str, request: Request):
-    """Generate Payment Schedule / EMI Statement PDF"""
+async def generate_payment_schedule_pdf(
+    property_id: str, 
+    request: Request,
+    token: Optional[str] = Query(None, description="Optional auth token for direct access")
+):
+    """Generate Payment Schedule / EMI Statement PDF
+    
+    Can be accessed publicly for property payment schedules
+    """
     db = get_db(request)
-    user = await get_current_user(request)
+    
+    # Try to authenticate, but don't require it
+    user = None
+    try:
+        if token:
+            user = await get_user_from_request_or_token(request, token)
+        else:
+            user = await get_current_user(request)
+    except:
+        pass  # Allow public access
     
     # Get property details
     property_doc = await db.properties.find_one({"id": property_id}, {"_id": 0})
