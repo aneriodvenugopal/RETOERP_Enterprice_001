@@ -279,7 +279,7 @@ async def update_project_pricing(
         raise HTTPException(status_code=400, detail="No fields to update")
     
     update_data["updated_at"] = datetime.now(timezone.utc).isoformat()
-    update_data["updated_by"] = current_user["id"]
+    update_data["updated_by"] = current_user.get("user_id") or current_user.get("id")
     
     await db.project_pricing_configs.update_one(
         {"project_id": project_id, "tenant_id": current_user["tenant_id"]},
