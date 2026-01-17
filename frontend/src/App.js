@@ -302,6 +302,14 @@ function App() {
                   } 
                 />
                 <Route 
+                  path="/property/:propertyId/settings" 
+                  element={
+                    <PrivateRoute>
+                      <PropertyCertifiedSettings />
+                    </PrivateRoute>
+                  } 
+                />
+                <Route 
                   path="/resale" 
                   element={
                     <PrivateRoute>
