@@ -171,6 +171,9 @@ import PropertyCertifiedSettings from "./pages/PropertyCertifiedSettings";
 // Customer Portal
 import CustomerPortal from "./pages/CustomerPortal";
 
+// Project Pricing Settings
+import ProjectPricingSettings from "./pages/ProjectPricingSettings";
+
 // PWA Components
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
 import AvatarAssistant from "./components/AvatarAssistant";
