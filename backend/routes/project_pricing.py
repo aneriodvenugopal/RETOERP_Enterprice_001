@@ -239,11 +239,12 @@ async def create_or_update_project_pricing(
         )
         return {"message": "Pricing configuration updated", "config": updated}
     else:
-        # Create new
+        # Create new - exclude project_id from config as we set it explicitly
+        config_data = config.model_dump(exclude={"project_id"})
         new_config = ProjectPricingConfig(
             project_id=project_id,
             tenant_id=current_user["tenant_id"],
-            **config.model_dump()
+            **config_data
         )
         new_config_dict = new_config.model_dump()
         new_config_dict["created_by"] = current_user["id"]
