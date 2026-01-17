@@ -48,10 +48,26 @@ async def get_company_info(db, tenant_id: str) -> dict:
 
 
 @router.get("/booking-confirmation/{booking_id}")
-async def generate_booking_confirmation_pdf(booking_id: str, request: Request):
-    """Generate Booking Confirmation Letter PDF"""
+async def generate_booking_confirmation_pdf(
+    booking_id: str, 
+    request: Request,
+    token: Optional[str] = Query(None, description="Optional auth token for direct access")
+):
+    """Generate Booking Confirmation Letter PDF
+    
+    Can be accessed publicly for booking confirmations
+    """
     db = get_db(request)
-    user = await get_current_user(request)
+    
+    # Try to authenticate, but don't require it
+    user = None
+    try:
+        if token:
+            user = await get_user_from_request_or_token(request, token)
+        else:
+            user = await get_current_user(request)
+    except:
+        pass  # Allow public access
     
     # Get booking details
     booking = await db.bookings.find_one({"id": booking_id}, {"_id": 0})
