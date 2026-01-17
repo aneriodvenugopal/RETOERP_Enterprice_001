@@ -279,7 +279,7 @@ class TestAuthenticatedCertifiedPropertyEndpoints:
         # Re-certify for subsequent tests
         authenticated_client.post(
             f"{BASE_URL}/api/certified/property/{TEST_PROPERTY_ID}/certify",
-            json={}
+            json={"property_id": TEST_PROPERTY_ID}
         )
         print(f"✓ Re-certified property for subsequent tests")
 
