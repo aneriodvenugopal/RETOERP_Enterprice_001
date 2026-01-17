@@ -335,6 +335,17 @@ Build a comprehensive Real Estate ERP (ExlainERP) SaaS platform for the Indian r
     - "View Public Page" link to project page
     - Location Hierarchy info banner
 
+- [x] **Property Certified Settings** (Completed Jan 17, 2026)
+  - Admin page at /property/:propertyId/settings for per-property configuration
+  - Location Tab: Override block/project location with property-specific GPS
+  - Images Tab: Add property-specific images via URL (fallback to project images)
+  - Videos Tab: Add property-specific videos/YouTube links (fallback to project videos)
+  - Certify Property button to mark property as verified
+  - Preview button to view public certified page
+  - Location hierarchy display (Property > Block > Project)
+  - Toggle switch to enable/disable property-specific location
+  - Google Maps preview for location verification
+
 ### P4 - Future/Backlog
 - [x] Festival Greetings Automation - Backend cron job for Jan 26 & Aug 15 (Completed Jan 12, 2026)
 - [x] SaaS marketing pages - /saas landing page (Completed Jan 12, 2026)
