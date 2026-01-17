@@ -9,7 +9,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
-import { Home, CreditCard, Calendar, AlertCircle, DollarSign, Building, CheckCircle, LogOut, ArrowLeft } from 'lucide-react';
+import { Home, CreditCard, Calendar, AlertCircle, DollarSign, Building, CheckCircle, LogOut, ArrowLeft, Download, FileText } from 'lucide-react';
+
+const API_URL = process.env.REACT_APP_BACKEND_URL;
 
 const CustomerDashboard = () => {
   const { user, logout } = useAuth();
