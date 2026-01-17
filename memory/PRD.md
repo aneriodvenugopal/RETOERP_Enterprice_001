@@ -398,6 +398,27 @@ Build a comprehensive Real Estate ERP (ExlainERP) SaaS platform for the Indian r
     - GET /api/customer-portal/download/{type}/{id} - Download PDFs
     - POST /api/customer-portal/logout - Logout
 
+- [x] **Project Pricing Configuration** (Completed Jan 17, 2026)
+  - Project-level pricing settings for Indian real estate
+  - Unit types: sq.yard, sq.ft, acre, gunta, cent, bigha, marla, kanal, plot, unit
+  - Base price per unit with flexible unit selection
+  - Booking amount: Fixed OR Percentage of total (with min/max limits)
+  - Additional charges: Both fixed amount AND percentage options
+  - Quick-add presets: Registration, Stamp Duty, GST, Documentation Fee, etc.
+  - Property-level override: Premium/discount for corner plots, road-facing
+  - Real-time price calculator with breakdown
+  - Apply to all properties in project
+  - APIs:
+    - GET /api/project-pricing/unit-types - Available unit types
+    - GET /api/project-pricing/charge-presets - Preset charges
+    - GET /api/project-pricing/project/{id} - Get pricing config
+    - POST /api/project-pricing/project/{id} - Create/update config
+    - PATCH /api/project-pricing/project/{id} - Partial update
+    - POST/DELETE /api/project-pricing/project/{id}/charges - Manage charges
+    - GET /api/project-pricing/property/{id}/breakdown - Price breakdown
+    - POST /api/project-pricing/project/{id}/apply-to-properties - Bulk apply
+  - Frontend: /projects/:projectId/pricing
+
 ### P4 - Future/Backlog
 - [x] Festival Greetings Automation - Backend cron job for Jan 26 & Aug 15 (Completed Jan 12, 2026)
 - [x] SaaS marketing pages - /saas landing page (Completed Jan 12, 2026)
