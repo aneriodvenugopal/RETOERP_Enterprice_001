@@ -72,14 +72,47 @@ const Leads = () => {
 
   // Filter leads when filter changes
   useEffect(() => {
-    if (activeFilter === 'all') {
-      setFilteredLeads(leads);
-    } else if (activeFilter === 'active') {
-      setFilteredLeads(leads.filter(l => !l.is_converted));
+    let result = [...leads];
+    
+    // Apply basic filter (all/active/converted)
+    if (activeFilter === 'active') {
+      result = result.filter(l => !l.is_converted);
     } else if (activeFilter === 'converted') {
-      setFilteredLeads(leads.filter(l => l.is_converted));
+      result = result.filter(l => l.is_converted);
     }
-  }, [leads, activeFilter]);
+    
+    // Apply URL filters
+    if (urlFilters.quality) {
+      result = result.filter(l => {
+        const rating = l.rating || 0;
+        if (urlFilters.quality === 'Hot') return rating >= 4;
+        if (urlFilters.quality === 'Warm') return rating === 3;
+        if (urlFilters.quality === 'Cold') return rating <= 2;
+        return true;
+      });
+    }
+    
+    if (urlFilters.source) {
+      result = result.filter(l => l.source_name?.toLowerCase() === urlFilters.source.toLowerCase());
+    }
+    
+    if (urlFilters.status) {
+      result = result.filter(l => l.status_name?.toLowerCase() === urlFilters.status.toLowerCase());
+    }
+    
+    if (urlFilters.assigned_to) {
+      result = result.filter(l => l.assigned_to === urlFilters.assigned_to || l.assigned_to_name?.toLowerCase().includes(urlFilters.assigned_to.toLowerCase()));
+    }
+    
+    setFilteredLeads(result);
+  }, [leads, activeFilter, urlFilters]);
+
+  const clearUrlFilters = () => {
+    setUrlFilters({ quality: '', source: '', status: '', assigned_to: '' });
+    setSearchParams({});
+  };
+
+  const hasActiveUrlFilters = urlFilters.quality || urlFilters.source || urlFilters.status || urlFilters.assigned_to;
 
   const handleFilterClick = (filter) => {
     setActiveFilter(filter);
