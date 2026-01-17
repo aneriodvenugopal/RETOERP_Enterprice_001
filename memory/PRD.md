@@ -409,7 +409,7 @@ Build a comprehensive Real Estate ERP (ExlainERP) SaaS platform for the Indian r
 - [ ] AI Voice Assistant
 
 ### Pending/Upcoming Tasks
-- [ ] **P1: Customer Self-Service Portal** - Portal for customers to login, view property/payment details, download documents
+- [x] **P1: Customer Self-Service Portal** - Completed Jan 17, 2026
 - [ ] **P1: Reports & Export Module** - Export data to Excel/PDF
 - [ ] **P1: Audit Trail** - System-wide activity logging
 
