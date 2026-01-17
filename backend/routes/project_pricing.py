@@ -226,7 +226,7 @@ async def create_or_update_project_pricing(
         # Update existing
         update_data = config.model_dump(exclude_unset=True)
         update_data["updated_at"] = now
-        update_data["updated_by"] = current_user["id"]
+        update_data["updated_by"] = current_user.get("user_id") or current_user.get("id")
         
         await db.project_pricing_configs.update_one(
             {"project_id": project_id, "tenant_id": current_user["tenant_id"]},
