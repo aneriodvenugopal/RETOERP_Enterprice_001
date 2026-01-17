@@ -3,11 +3,12 @@ PDF Generation API Routes
 Endpoints for generating and downloading PDFs
 """
 
-from fastapi import APIRouter, HTTPException, Request, Response
+from fastapi import APIRouter, HTTPException, Request, Response, Query
 from fastapi.responses import StreamingResponse
 from services.pdf_service import PDFGenerator, number_to_words
 from middleware.auth import get_current_user
 from datetime import datetime, timezone
+from typing import Optional
 import uuid
 
 router = APIRouter(prefix="/pdf", tags=["pdf"])
@@ -15,6 +16,19 @@ router = APIRouter(prefix="/pdf", tags=["pdf"])
 
 def get_db(request: Request):
     return request.app.state.db
+
+
+async def get_user_from_request_or_token(request: Request, token: Optional[str] = None):
+    """Get user from request header or query parameter token"""
+    # If token provided as query param, temporarily add it to headers
+    if token:
+        # Create a modified request with the token in header
+        from starlette.datastructures import Headers, MutableHeaders
+        new_headers = MutableHeaders(request._headers)
+        new_headers["authorization"] = f"Bearer {token}"
+        request._headers = new_headers
+    
+    return await get_current_user(request)
 
 
 async def get_company_info(db, tenant_id: str) -> dict:
