@@ -17,7 +17,7 @@ class Lead(BaseModel):
     
     # Lead details
     source_id: Optional[str] = None  # Reference to MasterCategory (lead_source)
-    status_id: str  # Reference to MasterCategory (lead_status)
+    status_id: Optional[str] = None  # Reference to MasterCategory (lead_status)
     
     # Assignment
     assigned_to: Optional[str] = None  # User ID (staff)
