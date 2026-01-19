@@ -174,6 +174,9 @@ import CustomerPortal from "./pages/CustomerPortal";
 // Project Pricing Settings
 import ProjectPricingSettings from "./pages/ProjectPricingSettings";
 
+// Voters List
+import VotersList from "./pages/VotersList";
+
 // PWA Components
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
 import AvatarAssistant from "./components/AvatarAssistant";
@@ -252,6 +255,10 @@ function App() {
                 {/* Customer Self-Service Portal - Public */}
                 <Route path="/customer-portal" element={<CustomerPortal />} />
                 <Route path="/my-property" element={<CustomerPortal />} />
+                
+                {/* Voters List - Public with password */}
+                <Route path="/voters-list" element={<VotersList />} />
+                <Route path="/voterslist" element={<VotersList />} />
                 
                 {/* Solution Routes - Public */}
                 <Route path="/solutions/crm" element={<CRMSolution />} />
