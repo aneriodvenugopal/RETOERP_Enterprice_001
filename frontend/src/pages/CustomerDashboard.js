@@ -95,54 +95,149 @@ const CustomerDashboard = () => {
   };
 
   useEffect(() => {
-    loadDashboard();
-    loadBookings();
-    loadPayments();
-    loadProperties();
-    loadPaymentSchedules();
-    loadResaleRequests();
-  }, []);
+    loadAllData();
+  }, [isCustomerPortal]);
 
-  const loadDashboard = async () => {
+  const loadAllData = async () => {
     setLoading(true);
     try {
+      if (isCustomerPortal) {
+        // Use customer portal APIs
+        await Promise.all([
+          loadPortalDashboard(),
+          loadPortalProperties(),
+          loadPortalPayments(),
+          loadPortalSchedules()
+        ]);
+      } else {
+        // Use regular customer service APIs
+        await Promise.all([
+          loadDashboard(),
+          loadBookings(),
+          loadPayments(),
+          loadProperties(),
+          loadPaymentSchedules(),
+          loadResaleRequests()
+        ]);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Portal-specific data loaders
+  const loadPortalDashboard = async () => {
+    try {
+      const res = await fetch(`${API_URL}/api/customer-portal/dashboard`, { headers: portalHeaders });
+      if (res.ok) {
+        const data = await res.json();
+        setDashboardData({
+          overview: data.overview,
+          properties: [],
+          upcoming_payments: data.upcoming_payments || [],
+          recent_payments: data.recent_payments || []
+        });
+      }
+    } catch (error) {
+      console.error('Portal dashboard error:', error);
+    }
+  };
+
+  const loadPortalProperties = async () => {
+    try {
+      const res = await fetch(`${API_URL}/api/customer-portal/properties`, { headers: portalHeaders });
+      if (res.ok) {
+        const data = await res.json();
+        const props = data.properties || [];
+        setProperties(props);
+        
+        // Build project tree
+        const projectMap = new Map();
+        props.forEach(prop => {
+          const projectId = prop.project?.id || 'unknown';
+          const projectName = prop.project?.name || 'Other Properties';
+          
+          if (!projectMap.has(projectId)) {
+            projectMap.set(projectId, {
+              id: projectId,
+              name: projectName,
+              location: prop.project?.location,
+              children: [],
+              propertyCount: 0
+            });
+          }
+          
+          const project = projectMap.get(projectId);
+          project.children.push({
+            ...prop,
+            paymentProgress: Math.round((prop.booking?.paid_amount / prop.booking?.total_amount) * 100) || 0
+          });
+          project.propertyCount++;
+        });
+        
+        setProjectTree(Array.from(projectMap.values()));
+        
+        // Auto-expand first project
+        if (projectMap.size > 0) {
+          const firstProject = Array.from(projectMap.values())[0];
+          setExpandedProjects(new Set([firstProject.id]));
+          if (firstProject.children.length > 0) {
+            setSelectedProperty(firstProject.children[0]);
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Portal properties error:', error);
+    }
+  };
+
+  const loadPortalPayments = async () => {
+    try {
+      const res = await fetch(`${API_URL}/api/customer-portal/payments`, { headers: portalHeaders });
+      if (res.ok) {
+        const data = await res.json();
+        setPayments(data.payments || []);
+      }
+    } catch (error) {
+      console.error('Portal payments error:', error);
+    }
+  };
+
+  const loadPortalSchedules = async () => {
+    try {
+      const res = await fetch(`${API_URL}/api/customer-portal/payment-schedule`, { headers: portalHeaders });
+      if (res.ok) {
+        const data = await res.json();
+        setPaymentSchedules(data.schedules || []);
+      }
+    } catch (error) {
+      console.error('Portal schedules error:', error);
+    }
+  };
+
+  // Regular service-based loaders
+  const loadDashboard = async () => {
+    try {
       const data = await customerService.getDashboard();
-      console.log('Dashboard data received:', data);
-      console.log('Dashboard properties count:', data?.properties?.length || 0);
-      console.log('Dashboard upcoming_payments count:', data?.upcoming_payments?.length || 0);
-      
-      // Check if data has the expected structure
       if (data && data.overview) {
         setDashboardData(data);
-        
-        // If properties are included in dashboard data, use them as initial state
         if (data.properties && data.properties.length > 0) {
-          console.log('Setting properties from dashboard data:', data.properties.length);
           setProperties(data.properties);
         }
       } else {
-        console.error('Invalid dashboard data structure:', data);
-        // Set empty data structure to prevent errors
         setDashboardData({
-          overview: {
-            total_bookings: 0,
-            active_bookings: 0,
-            total_invested: 0,
-            total_paid: 0,
-            total_pending: 0,
-            overdue_amount: 0,
-            overdue_count: 0
-          },
-          properties: [],
-          upcoming_payments: [],
-          recent_payments: []
+          overview: { total_bookings: 0, active_bookings: 0, total_invested: 0, total_paid: 0, total_pending: 0, overdue_amount: 0, overdue_count: 0 },
+          properties: [], upcoming_payments: [], recent_payments: []
         });
       }
     } catch (error) {
       console.error('Error loading dashboard:', error);
-      const errorMsg = typeof error.response?.data?.detail === 'string' 
-        ? error.response.data.detail 
-        : error.message || 'Failed to load dashboard';
+      setDashboardData({
+        overview: { total_bookings: 0, active_bookings: 0, total_invested: 0, total_paid: 0, total_pending: 0, overdue_amount: 0, overdue_count: 0 },
+        properties: [], upcoming_payments: [], recent_payments: []
+      });
+    }
+  };
       toast.error(errorMsg);
       // Set empty data structure
       setDashboardData({
