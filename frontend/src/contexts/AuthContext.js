@@ -36,6 +36,15 @@ export const AuthProvider = ({ children }) => {
   const login = async (phone, otp) => {
     try {
       const data = await authService.verifyOTP(phone, otp);
+      
+      // Check if this is a customer login (no regular user account)
+      if (data.account_type === 'customer' || data.token_type === 'customer_session') {
+        // For customer portal, don't set regular auth state
+        // The Login.js will handle storing customerPortalSession
+        return data;
+      }
+      
+      // Regular user login
       setToken(data.access_token);
       setUser(data.user);
       localStorage.setItem('token', data.access_token);
