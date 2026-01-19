@@ -226,8 +226,22 @@ const Login = () => {
     setLoading(true);
     try {
       const data = await login(identifier, otp);
-      toast.success(`Welcome ${data.user.name}!`);
-      navigate('/dashboard');
+      
+      // Check if this is a customer login
+      if (data.account_type === 'customer' || data.token_type === 'customer_session') {
+        // Store customer session
+        localStorage.setItem('customerPortalSession', JSON.stringify({
+          session_id: data.session_id || data.access_token,
+          customer: data.user,
+          expires_at: data.expires_at
+        }));
+        toast.success(`Welcome ${data.user.name}!`);
+        navigate('/customer-dashboard');
+      } else {
+        // Regular user login
+        toast.success(`Welcome ${data.user.name}!`);
+        navigate('/dashboard');
+      }
     } catch (error) {
       toast.error(error.response?.data?.detail || 'Invalid OTP');
     } finally {
