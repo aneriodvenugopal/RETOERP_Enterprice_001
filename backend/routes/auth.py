@@ -89,58 +89,132 @@ async def send_otp(login: UserLogin, request: Request):
 
 @router.post("/verify-otp")
 async def verify_otp(verify: OTPVerify, request: Request):
-    """Verify OTP and login user"""
+    """Verify OTP and login - works for both users AND customers"""
     db = get_db(request)
+    phone = verify.phone.strip()
+    phone_digits = ''.join(filter(str.isdigit, phone))
     
-    # Find user
-    user_doc = await db.users.find_one({'phone': verify.phone}, {"_id": 0})
+    # Try to find user first
+    user_doc = await db.users.find_one({
+        '$or': [
+            {'phone': phone},
+            {'phone': phone_digits},
+            {'phone': phone_digits[-10:]}
+        ]
+    }, {"_id": 0})
     
-    if not user_doc:
-        raise HTTPException(status_code=404, detail="User not found")
+    if user_doc:
+        # User login flow
+        user_doc = deserialize_doc(user_doc)
+        user = User(**user_doc)
+        
+        # Verify OTP
+        if user.otp != verify.otp:
+            raise HTTPException(status_code=400, detail="Invalid OTP")
+        
+        # Check OTP expiry
+        if not AuthService.validate_otp_expiry(user.otp_expires_at):
+            raise HTTPException(status_code=400, detail="OTP has expired")
+        
+        # Get user's role
+        role_doc = await db.roles.find_one({'id': user.role_id}, {"_id": 0})
+        role_slug = role_doc['slug'] if role_doc else 'user'
+        
+        # Generate JWT token
+        token = AuthService.create_access_token(
+            user_id=user.id,
+            tenant_id=user.tenant_id,
+            role=role_slug
+        )
+        
+        # Update last login
+        await db.users.update_one(
+            {'id': user.id},
+            {'$set': {
+                'last_login': datetime.now(timezone.utc).isoformat(),
+                'otp': None,
+                'otp_expires_at': None
+            }}
+        )
+        
+        return {
+            "access_token": token,
+            "token_type": "bearer",
+            "account_type": "user",
+            "user": {
+                "id": user.id,
+                "name": user.name,
+                "phone": user.phone,
+                "email": user.email,
+                "role": role_slug,
+                "tenant_id": user.tenant_id
+            }
+        }
     
-    user_doc = deserialize_doc(user_doc)
-    user = User(**user_doc)
+    # Try customer login flow
+    customer = await db.customers.find_one({
+        '$or': [
+            {'phone': phone},
+            {'phone': phone_digits},
+            {'phone': phone_digits[-10:]},
+            {'phone': f'+91{phone_digits[-10:]}'}
+        ],
+        'status': {'$ne': 'blacklisted'},
+        'deleted_at': None
+    }, {"_id": 0})
     
-    # Verify OTP
-    if user.otp != verify.otp:
+    if not customer:
+        raise HTTPException(status_code=404, detail="No account found with this phone number")
+    
+    # Verify customer OTP
+    otp_record = await db.customer_portal_otps.find_one({
+        "phone": phone_digits[-10:],
+        "expires_at": {"$gt": datetime.now(timezone.utc).isoformat()}
+    })
+    
+    if not otp_record:
+        raise HTTPException(status_code=400, detail="OTP expired. Please request a new one.")
+    
+    if otp_record.get("otp") != verify.otp:
+        await db.customer_portal_otps.update_one(
+            {"phone": phone_digits[-10:]},
+            {"$inc": {"attempts": 1}}
+        )
         raise HTTPException(status_code=400, detail="Invalid OTP")
     
-    # Check OTP expiry
-    if not AuthService.validate_otp_expiry(user.otp_expires_at):
-        raise HTTPException(status_code=400, detail="OTP has expired")
+    # Create customer session
+    session_id = str(uuid.uuid4())
+    expires_at = (datetime.now(timezone.utc) + timedelta(hours=24)).isoformat()
     
-    # Get user's role
-    role_doc = await db.roles.find_one({'id': user.role_id}, {"_id": 0})
-    role_slug = role_doc['slug'] if role_doc else 'user'
+    session = {
+        "session_id": session_id,
+        "customer_id": customer["id"],
+        "phone": phone_digits[-10:],
+        "tenant_id": customer["tenant_id"],
+        "customer_name": customer.get("name", "Customer"),
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "expires_at": expires_at
+    }
     
-    # Generate JWT token
-    token = AuthService.create_access_token(
-        user_id=user.id,
-        tenant_id=user.tenant_id,
-        role=role_slug
-    )
+    await db.customer_portal_sessions.insert_one(session)
     
-    # Update last login
-    await db.users.update_one(
-        {'phone': verify.phone},
-        {'$set': {
-            'last_login': datetime.now(timezone.utc).isoformat(),
-            'otp': None,  # Clear OTP after successful login
-            'otp_expires_at': None
-        }}
-    )
+    # Clear OTP
+    await db.customer_portal_otps.delete_one({"phone": phone_digits[-10:]})
     
     return {
-        "access_token": token,
-        "token_type": "bearer",
+        "access_token": session_id,  # Use session_id as token for customers
+        "token_type": "customer_session",
+        "account_type": "customer",
         "user": {
-            "id": user.id,
-            "name": user.name,
-            "phone": user.phone,
-            "email": user.email,
-            "role": role_slug,
-            "tenant_id": user.tenant_id
-        }
+            "id": customer["id"],
+            "name": customer.get("name"),
+            "phone": customer.get("phone"),
+            "email": customer.get("email"),
+            "role": "customer",
+            "tenant_id": customer["tenant_id"]
+        },
+        "session_id": session_id,
+        "expires_at": expires_at
     }
 
 
