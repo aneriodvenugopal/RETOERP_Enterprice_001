@@ -6,12 +6,36 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
-import { Home, CreditCard, Calendar, AlertCircle, DollarSign, Building, CheckCircle, LogOut, ArrowLeft, Download, FileText } from 'lucide-react';
+import { 
+  Home, CreditCard, Calendar, AlertCircle, DollarSign, Building, CheckCircle, LogOut, 
+  ArrowLeft, Download, FileText, FolderOpen, Folder, ChevronRight, ChevronDown,
+  MapPin, IndianRupee, TrendingUp, Banknote, Send, RefreshCw, Clock, Loader2,
+  Copy, ExternalLink
+} from 'lucide-react';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
+
+// Get customer portal session from localStorage
+const getCustomerSession = () => {
+  try {
+    const session = localStorage.getItem('customerPortalSession');
+    if (!session) return null;
+    const parsed = JSON.parse(session);
+    if (new Date(parsed.expires_at) < new Date()) {
+      localStorage.removeItem('customerPortalSession');
+      return null;
+    }
+    return parsed;
+  } catch {
+    return null;
+  }
+};
 
 const CustomerDashboard = () => {
   const { user, logout } = useAuth();
@@ -35,13 +59,39 @@ const CustomerDashboard = () => {
     notes: ''
   });
   const [propertyResaleStatus, setPropertyResaleStatus] = useState({});
+  
+  // Customer portal specific state
+  const [customerSession, setCustomerSession] = useState(getCustomerSession());
+  const [projectTree, setProjectTree] = useState([]);
+  const [expandedProjects, setExpandedProjects] = useState(new Set());
+  const [showPayDialog, setShowPayDialog] = useState(false);
+  const [paymentItem, setPaymentItem] = useState(null);
+
+  // Determine if using customer portal session
+  const isCustomerPortal = !!customerSession && !user;
+  const currentUser = isCustomerPortal ? customerSession.customer : user;
+  
+  // Headers for customer portal API calls
+  const portalHeaders = customerSession ? {
+    'X-Portal-Session': customerSession.session_id,
+    'Content-Type': 'application/json'
+  } : {};
 
   // Helper function to safely format numbers
   const formatCurrency = (value) => {
     if (value === null || value === undefined || isNaN(value)) {
-      return '0';
+      return '₹0';
     }
-    return Number(value).toLocaleString();
+    return `₹${Number(value).toLocaleString('en-IN')}`;
+  };
+  
+  const formatDate = (dateStr) => {
+    if (!dateStr) return '-';
+    try {
+      return new Date(dateStr).toLocaleDateString('en-IN', {
+        day: 'numeric', month: 'short', year: 'numeric'
+      });
+    } catch { return dateStr; }
   };
 
   useEffect(() => {
