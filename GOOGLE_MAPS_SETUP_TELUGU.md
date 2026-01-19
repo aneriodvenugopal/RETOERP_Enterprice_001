@@ -184,7 +184,7 @@
 
    **మొదటి referrer:**
    ```
-   https://exlain-realestate.preview.emergentagent.com/*
+   https://property-manage-12.preview.emergentagent.com/*
    ```
    - Paste చేసి Enter నొక్కండి
 

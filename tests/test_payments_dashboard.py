@@ -6,7 +6,7 @@ import pytest
 import requests
 import os
 
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://exlain-realestate.preview.emergentagent.com')
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://property-manage-12.preview.emergentagent.com')
 
 class TestPaymentsDashboardAPIs:
     """Test EMI Payments APIs used by Payments Dashboard"""
