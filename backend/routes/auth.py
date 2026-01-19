@@ -4,6 +4,7 @@ from services.auth_service import AuthService
 from datetime import datetime, timedelta, timezone
 from utils.helpers import serialize_doc, deserialize_doc
 from typing import Optional
+import uuid
 
 router = APIRouter(prefix="/auth", tags=["authentication"])
 
@@ -12,34 +13,77 @@ def get_db(request: Request):
 
 @router.post("/send-otp")
 async def send_otp(login: UserLogin, request: Request):
-    """Send OTP to user's phone"""
+    """Send OTP to user's phone - checks both users AND customers"""
     db = get_db(request)
+    phone = login.phone.strip()
     
-    # Check if user exists
-    user = await db.users.find_one({'phone': login.phone}, {"_id": 0})
+    # Normalize phone
+    phone_digits = ''.join(filter(str.isdigit, phone))
     
+    # Check if user exists in users collection
+    user = await db.users.find_one({
+        '$or': [
+            {'phone': phone},
+            {'phone': phone_digits},
+            {'phone': phone_digits[-10:]}
+        ]
+    }, {"_id": 0})
+    
+    # Check if customer exists (property buyer without user account)
+    customer = None
     if not user:
-        raise HTTPException(status_code=404, detail="User not found. Please register first.")
+        customer = await db.customers.find_one({
+            '$or': [
+                {'phone': phone},
+                {'phone': phone_digits},
+                {'phone': phone_digits[-10:]},
+                {'phone': f'+91{phone_digits[-10:]}'}
+            ],
+            'status': {'$ne': 'blacklisted'},
+            'deleted_at': None
+        }, {"_id": 0})
+    
+    if not user and not customer:
+        raise HTTPException(status_code=404, detail="No account found with this phone number. Please contact support.")
     
     # Generate OTP
     otp = AuthService.generate_otp()
     otp_expires_at = datetime.now(timezone.utc) + timedelta(minutes=10)
     
-    # Update user with OTP
-    await db.users.update_one(
-        {'phone': login.phone},
-        {'$set': {
-            'otp': otp,
-            'otp_expires_at': otp_expires_at.isoformat()
-        }}
-    )
+    if user:
+        # Update user with OTP
+        await db.users.update_one(
+            {'phone': phone},
+            {'$set': {
+                'otp': otp,
+                'otp_expires_at': otp_expires_at.isoformat()
+            }}
+        )
+        account_type = "user"
+    else:
+        # Store OTP for customer portal
+        await db.customer_portal_otps.update_one(
+            {"phone": phone_digits[-10:]},
+            {
+                "$set": {
+                    "phone": phone_digits[-10:],
+                    "otp": otp,
+                    "attempts": 0,
+                    "expires_at": otp_expires_at.isoformat(),
+                    "created_at": datetime.now(timezone.utc).isoformat()
+                }
+            },
+            upsert=True
+        )
+        account_type = "customer"
     
     # Send OTP via SMS
-    await AuthService.send_otp_sms(login.phone, otp)
+    await AuthService.send_otp_sms(phone, otp)
     
     return {
         "message": "OTP sent successfully",
-        "phone": login.phone,
+        "phone": phone,
+        "account_type": account_type,  # "user" or "customer"
         "otp": otp  # TODO: Remove in production
     }
 
