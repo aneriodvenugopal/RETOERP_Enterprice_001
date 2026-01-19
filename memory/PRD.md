@@ -377,31 +377,15 @@ Build a comprehensive Real Estate ERP (ExlainERP) SaaS platform for the Indian r
   - FileGallery.js component for displaying uploaded files
   - Integration in PropertyCertifiedSettings page for property images
 
-- [x] **Customer Self-Service Portal** (Completed Jan 17, 2026)
-  - Public portal at /customer-portal for customers to access their property information
-  - OTP-based authentication (phone number + 6-digit OTP)
-  - Session management with 24-hour expiry (X-Portal-Session header)
-  - **Directory Structure UI** - Projects as folders, properties as files in tree view
-  - Dashboard with overview stats: Properties, Total Paid, Pending, Overdue
-  - Properties tab: View property details with payment progress bar
-  - Payments tab: Payment schedule, EMI status, payment history
-  - Documents tab: Download booking confirmation, payment schedule, allotment letter PDFs
-  - **Resale Request** - Submit property resale requests with reason and expected price
-  - **Pay Now** - Payment dialog with Card/UPI and bank transfer options
-  - Mock mode: OTP displayed in UI for testing (SMS integration pending)
-  - APIs:
-    - POST /api/customer-portal/login - Request OTP
-    - POST /api/customer-portal/verify-otp - Verify and create session
-    - GET /api/customer-portal/me - Get profile
-    - GET /api/customer-portal/dashboard - Dashboard overview
-    - GET /api/customer-portal/properties - List properties with project grouping
-    - GET /api/customer-portal/payments - Payment history
-    - GET /api/customer-portal/payment-schedule - EMI schedule
-    - GET /api/customer-portal/documents - Available documents
-    - GET /api/customer-portal/download/{type}/{id} - Download PDFs
-    - POST /api/customer-portal/resale-request - Submit resale request
-    - GET /api/customer-portal/resale-requests - Get my resale requests
-    - POST /api/customer-portal/logout - Logout
+- [x] **Unified Customer Login (First Principles)** (Completed Jan 19, 2026)
+  - Single login page for all users (staff, admin, customers)
+  - Phone + OTP login now works for BOTH registered users AND property buyers (customers)
+  - `/api/auth/send-otp` checks both `users` and `customers` collections
+  - `/api/auth/verify-otp` returns `account_type: "customer"` for property buyers
+  - Customers automatically redirected to `/customer-dashboard`
+  - PrivateRoute updated to allow customer portal sessions
+  - AuthContext updated to handle customer sessions without breaking regular auth
+  - Customer Dashboard shows: Portfolio value, pending payments, bookings, properties, payment schedules, resale requests
 
 - [x] **Project Pricing Configuration** (Completed Jan 17, 2026)
   - Project-level pricing settings for Indian real estate
