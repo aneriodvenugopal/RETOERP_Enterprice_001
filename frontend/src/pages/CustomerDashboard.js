@@ -427,11 +427,20 @@ const CustomerDashboard = () => {
             </div>
             <div className="flex items-center gap-4">
               <div className="text-right hidden md:block">
-                <p className="text-sm font-medium text-gray-900">{user?.name}</p>
-                <p className="text-xs text-ocean-primary capitalize">{typeof user?.role === 'string' ? user.role.replace('_', ' ') : 'Customer'}</p>
+                <p className="text-sm font-medium text-gray-900">{currentUser?.name}</p>
+                <p className="text-xs text-ocean-primary capitalize">{isCustomerPortal ? 'Customer' : (typeof currentUser?.role === 'string' ? currentUser.role.replace('_', ' ') : 'Customer')}</p>
               </div>
               <Button 
-                onClick={logout}
+                onClick={() => {
+                  if (isCustomerPortal) {
+                    // Logout from customer portal
+                    fetch(`${API_URL}/api/customer-portal/logout`, { method: 'POST', headers: portalHeaders });
+                    localStorage.removeItem('customerPortalSession');
+                    navigate('/login');
+                  } else {
+                    logout();
+                  }
+                }}
                 className="bg-gradient-to-r from-ocean-primary to-ocean-secondary hover:from-ocean-primary-light hover:to-ocean-secondary-light text-white"
               >
                 <LogOut className="w-4 h-4 mr-2" />
@@ -445,7 +454,7 @@ const CustomerDashboard = () => {
       <div className="container mx-auto p-6 relative z-10">
       <div className="mb-6">
         <h1 className="text-3xl font-bold bg-gradient-to-r from-ocean-primary to-ocean-secondary bg-clip-text text-transparent">
-          Welcome, {user?.name}!
+          Welcome, {currentUser?.name}!
         </h1>
         <p className="text-gray-600 mt-1">Manage your properties, bookings and payments</p>
       </div>
