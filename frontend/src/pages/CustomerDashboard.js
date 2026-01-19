@@ -238,26 +238,6 @@ const CustomerDashboard = () => {
       });
     }
   };
-      toast.error(errorMsg);
-      // Set empty data structure
-      setDashboardData({
-        overview: {
-          total_bookings: 0,
-          active_bookings: 0,
-          total_invested: 0,
-          total_paid: 0,
-          total_pending: 0,
-          overdue_amount: 0,
-          overdue_count: 0
-        },
-        properties: [],
-        upcoming_payments: [],
-        recent_payments: []
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const loadBookings = async () => {
     try {
