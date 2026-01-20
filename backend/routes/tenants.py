@@ -99,6 +99,75 @@ async def delete_tenant(tenant_id: str, request: Request):
     return {"message": "Tenant deleted successfully"}
 
 # Package routes
+@router.get("/my-tenant")
+async def get_my_tenant(request: Request, current_user: dict = Depends(get_current_user)):
+    """Get current user's tenant with settings"""
+    db = get_db(request)
+    
+    tenant_id = current_user.get('tenant_id')
+    if not tenant_id:
+        raise HTTPException(status_code=400, detail="No tenant associated with this user")
+    
+    tenant = await db.tenants.find_one({'id': tenant_id}, {"_id": 0})
+    if not tenant:
+        raise HTTPException(status_code=404, detail="Tenant not found")
+    
+    deserialize_doc(tenant)
+    return tenant
+
+
+@router.put("/my-tenant/settings")
+async def update_my_tenant_settings(request: Request, current_user: dict = Depends(get_current_user)):
+    """Update current user's tenant settings"""
+    db = get_db(request)
+    
+    tenant_id = current_user.get('tenant_id')
+    if not tenant_id:
+        raise HTTPException(status_code=400, detail="No tenant associated with this user")
+    
+    body = await request.json()
+    
+    # Separate company info from settings
+    company_fields = ['company_name', 'company_email', 'company_phone', 'company_address', 
+                      'company_logo', 'company_website', 'gstin', 'pan']
+    
+    update_data = {
+        'updated_at': datetime.now(timezone.utc).isoformat()
+    }
+    
+    # Update company info at root level
+    for field in company_fields:
+        if field in body:
+            # Map to actual field names
+            field_map = {
+                'company_name': 'company_name',
+                'company_email': 'email',
+                'company_phone': 'phone',
+                'company_address': 'address',
+                'company_logo': 'logo_url',
+                'company_website': 'website',
+                'gstin': 'gstin',
+                'pan': 'pan'
+            }
+            actual_field = field_map.get(field, field)
+            update_data[actual_field] = body[field]
+    
+    # Store other settings in a 'settings' subdocument
+    settings_fields = {k: v for k, v in body.items() if k not in company_fields}
+    if settings_fields:
+        update_data['settings'] = settings_fields
+    
+    result = await db.tenants.update_one(
+        {'id': tenant_id},
+        {'$set': update_data}
+    )
+    
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="Tenant not found or no changes made")
+    
+    return {"success": True, "message": "Settings updated successfully"}
+
+
 @router.post("/packages/", response_model=Package)
 async def create_package(package_create: PackageCreate, request: Request):
     """Create a new package"""
