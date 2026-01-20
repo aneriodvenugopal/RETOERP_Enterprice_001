@@ -63,14 +63,28 @@ class SMSLoginService:
                 print(f"Status Code: {response.status_code}")
                 print(f"{'='*60}\n")
                 
-                # Parse response - SMS Login typically returns message ID or error
-                # Success response usually contains a numeric message ID
-                is_success = response.status_code == 200 and response_text.isdigit()
+                # Parse response - SMS Login returns JSON with campid on success
+                # Success response: {"campid":"xxxxx"} or just numeric message ID
+                is_success = response.status_code == 200
+                message_id = None
+                
+                if is_success:
+                    # Try to parse JSON response
+                    try:
+                        import json
+                        resp_json = json.loads(response_text.replace("'", '"'))
+                        message_id = resp_json.get("campid")
+                    except:
+                        # If not JSON, check if numeric
+                        if response_text.isdigit():
+                            message_id = response_text
+                        elif "campid" in response_text:
+                            is_success = True
                 
                 result = {
                     "success": is_success,
                     "phone": phone,
-                    "message_id": response_text if is_success else None,
+                    "message_id": message_id,
                     "provider": "smslogin",
                     "response": response_text,
                     "status_code": response.status_code,
