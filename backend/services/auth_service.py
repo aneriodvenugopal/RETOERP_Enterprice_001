@@ -53,11 +53,11 @@ class AuthService:
     
     @staticmethod
     async def send_otp_sms(phone: str, otp: str) -> bool:
-        """Send OTP via SMS using notification service"""
-        from services.notification_service import NotificationService
+        """Send OTP via SMS using SMS Login API (Real SMS)"""
+        from services.sms_login_service import SMSLoginService
         
-        notification_service = NotificationService()
-        response = await notification_service.send_otp_sms(phone, otp)
+        # Use real SMS Login API
+        response = await SMSLoginService.send_otp(phone, otp, validity_minutes=10)
         
         return response.get('success', False)
     
