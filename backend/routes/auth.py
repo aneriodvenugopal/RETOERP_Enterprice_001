@@ -246,8 +246,8 @@ async def login_with_password(data: dict, request: Request):
     if not user_doc:
         raise HTTPException(status_code=404, detail="User not found")
     
-    # Check if user has password (support both 'password' and 'password_hash' fields)
-    stored_password = user_doc.get('password') or user_doc.get('password_hash')
+    # Check if user has password (prioritize password_hash over legacy password field)
+    stored_password = user_doc.get('password_hash') or user_doc.get('password')
     if not stored_password:
         raise HTTPException(status_code=400, detail="No password set. Please use OTP login or reset password")
     
