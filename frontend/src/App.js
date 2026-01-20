@@ -177,6 +177,9 @@ import ProjectPricingSettings from "./pages/ProjectPricingSettings";
 // Voters List
 import VotersList from "./pages/VotersList";
 
+// Settings Page
+import SettingsPage from "./pages/SettingsPage";
+
 // PWA Components
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
 import AvatarAssistant from "./components/AvatarAssistant";
