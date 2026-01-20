@@ -1,7 +1,15 @@
-from pydantic import BaseModel, Field, ConfigDict
-from typing import Optional
+from pydantic import BaseModel, Field, ConfigDict, field_validator
+from typing import Optional, Any
 from datetime import datetime, timezone
 import uuid
+
+
+def empty_to_none(v: Any) -> Any:
+    """Convert empty strings to None for optional fields"""
+    if v == "" or v == "null" or v == "undefined":
+        return None
+    return v
+
 
 class Project(BaseModel):
     model_config = ConfigDict(extra="ignore")
@@ -59,6 +67,7 @@ class Project(BaseModel):
     updated_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())  # Match database format
     deleted_at: Optional[str] = None  # Match database format
 
+
 class ProjectCreate(BaseModel):
     tenant_id: str
     name: str
@@ -79,6 +88,22 @@ class ProjectCreate(BaseModel):
     images: list[str] = []
     amenities: list[str] = []
     features: list[str] = []
+    
+    # Validator to convert empty strings to None for numeric fields
+    @field_validator('latitude', 'longitude', 'total_area', 'price_per_unit', mode='before')
+    @classmethod
+    def empty_str_to_none(cls, v):
+        if v == "" or v == "null" or v == "undefined" or v is None:
+            return None
+        return v
+    
+    # Validator to convert empty strings to None for optional string fields
+    @field_validator('currency_id', 'pincode', 'address', 'description', mode='before')
+    @classmethod
+    def empty_str_to_none_str(cls, v):
+        if v == "" or v == "null" or v == "undefined":
+            return None
+        return v
 
 class ProjectUpdate(BaseModel):
     name: Optional[str] = None
