@@ -63,17 +63,17 @@ class ProjectCreate(BaseModel):
     tenant_id: str
     name: str
     description: Optional[str] = None
-    project_type: str
-    location: str
+    project_type: Optional[str] = None
+    location: Optional[str] = ""
     address: Optional[str] = None
-    city: str
-    state: str
+    city: Optional[str] = ""
+    state: Optional[str] = ""
     country: str = "India"
     pincode: Optional[str] = None
     latitude: Optional[float] = None
     longitude: Optional[float] = None
     total_area: Optional[float] = None
-    currency_id: str
+    currency_id: Optional[str] = None
     price_per_unit: Optional[float] = None
     launch_date: Optional[datetime] = None
     images: list[str] = []
