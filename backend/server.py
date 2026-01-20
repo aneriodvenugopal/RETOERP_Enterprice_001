@@ -1,4 +1,6 @@
 from fastapi import FastAPI, APIRouter, Request
+from fastapi.responses import JSONResponse
+from fastapi.exceptions import RequestValidationError
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -19,8 +21,70 @@ mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
+# User-friendly error message mappings
+ERROR_MESSAGES = {
+    "value_error": "Please check the value entered",
+    "missing": "This field is required",
+    "string_type": "Please enter text only",
+    "int_parsing": "Please enter a valid whole number",
+    "float_parsing": "Please enter a valid number",
+    "number_parsing": "Please enter a valid number",
+    "date_parsing": "Please enter a valid date",
+    "email_validator": "Please enter a valid email address",
+    "phone": "Please enter a valid phone number",
+    "url": "Please enter a valid URL",
+    "too_short": "This value is too short",
+    "too_long": "This value is too long",
+}
+
+def get_friendly_error_message(error_type: str, field: str, msg: str) -> str:
+    """Convert technical error to user-friendly message"""
+    # Check for specific patterns in error message
+    if "unable to parse string as" in msg.lower():
+        if "number" in msg.lower() or "float" in msg.lower() or "int" in msg.lower():
+            return f"'{field}' should be a number. Please remove any text or special characters."
+    
+    # Map error types to friendly messages
+    for key, friendly_msg in ERROR_MESSAGES.items():
+        if key in error_type.lower():
+            return f"'{field}': {friendly_msg}"
+    
+    # Field-specific messages
+    field_lower = field.lower()
+    if "price" in field_lower or "amount" in field_lower or "area" in field_lower:
+        if "parse" in msg.lower() or "number" in msg.lower():
+            return f"'{field}' should be a number (e.g., 1000 or 1500.50)"
+    
+    return f"'{field}': {msg}"
+
 # Create the main app without a prefix
 app = FastAPI(title="ExlainERP API", version="1.0.0")
+
+
+# Global exception handler for validation errors
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    """Convert Pydantic validation errors to user-friendly messages"""
+    errors = []
+    for error in exc.errors():
+        field = " > ".join(str(loc) for loc in error.get("loc", ["unknown"]) if loc != "body")
+        error_type = error.get("type", "")
+        msg = error.get("msg", "Invalid value")
+        
+        friendly_msg = get_friendly_error_message(error_type, field, msg)
+        errors.append(friendly_msg)
+    
+    # Join multiple errors with newline
+    error_message = "; ".join(errors) if len(errors) > 1 else errors[0] if errors else "Please check your input"
+    
+    return JSONResponse(
+        status_code=422,
+        content={
+            "detail": error_message,
+            "errors": errors
+        }
+    )
+
 
 # Store db in app state for access in routes
 app.state.db = db
