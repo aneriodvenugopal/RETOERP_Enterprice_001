@@ -246,15 +246,16 @@ async def login_with_password(data: dict, request: Request):
     if not user_doc:
         raise HTTPException(status_code=404, detail="User not found")
     
-    # Check if user has password
-    if not user_doc.get('password'):
+    # Check if user has password (support both 'password' and 'password_hash' fields)
+    stored_password = user_doc.get('password') or user_doc.get('password_hash')
+    if not stored_password:
         raise HTTPException(status_code=400, detail="No password set. Please use OTP login or reset password")
     
     # Verify password
     from passlib.context import CryptContext
     pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
     
-    if not pwd_context.verify(password, user_doc['password']):
+    if not pwd_context.verify(password, stored_password):
         raise HTTPException(status_code=401, detail="Invalid password")
     
     # Get user's role
