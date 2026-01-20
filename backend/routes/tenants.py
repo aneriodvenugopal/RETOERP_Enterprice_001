@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request, Depends
 from models.tenant import Tenant, TenantCreate, Package, PackageCreate
 from utils.helpers import serialize_doc, deserialize_doc
 from middleware.auth import get_current_user
