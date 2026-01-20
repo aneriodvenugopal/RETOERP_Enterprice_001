@@ -113,6 +113,7 @@ api_router.include_router(files.router)
 api_router.include_router(customer_portal.router)
 api_router.include_router(project_pricing.router)
 api_router.include_router(voters.router)
+api_router.include_router(payu.router)
 
 # PWA Install tracking
 @api_router.post("/analytics/pwa-install")
