@@ -251,11 +251,16 @@ async def login_with_password(data: dict, request: Request):
     if not stored_password:
         raise HTTPException(status_code=400, detail="No password set. Please use OTP login or reset password")
     
-    # Verify password
-    from passlib.context import CryptContext
-    pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+    # Verify password using bcrypt directly (passlib has version issues)
+    import bcrypt
     
-    if not pwd_context.verify(password, stored_password):
+    try:
+        is_valid = bcrypt.checkpw(password.encode('utf-8'), stored_password.encode('utf-8'))
+    except Exception as e:
+        print(f"Password verification error: {e}")
+        is_valid = False
+    
+    if not is_valid:
         raise HTTPException(status_code=401, detail="Invalid password")
     
     # Get user's role
