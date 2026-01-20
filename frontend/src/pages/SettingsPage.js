@@ -122,6 +122,11 @@ const SettingsPage = () => {
     try {
       setSaving(true);
       
+      if (!token) {
+        toast.error('Not authenticated. Please login again.');
+        return;
+      }
+      
       const response = await fetch(`${API_URL}/api/tenants/my-tenant/settings`, {
         method: 'PUT',
         headers: {
@@ -131,13 +136,17 @@ const SettingsPage = () => {
         body: JSON.stringify(settings)
       });
       
-      if (response.ok) {
+      const data = await response.json();
+      
+      if (response.ok && data.success) {
         toast.success('Settings saved successfully!');
       } else {
-        toast.error('Failed to save settings');
+        toast.error(data.detail || data.message || 'Failed to save settings');
+        console.error('Save settings error:', data);
       }
     } catch (error) {
-      toast.error('Error saving settings');
+      console.error('Save settings error:', error);
+      toast.error('Error saving settings: ' + error.message);
     } finally {
       setSaving(false);
     }
