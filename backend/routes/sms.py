@@ -343,3 +343,87 @@ async def get_default_templates(
         "success": True,
         "templates": templates
     }
+
+
+
+# ============= SMS LOGIN API (Real SMS Provider) =============
+
+@router.get("/balance")
+async def get_sms_balance(
+    request: Request,
+    current_user: dict = Depends(get_current_user)
+):
+    """Get SMS credit balance from SMS Login API"""
+    from services.sms_login_service import SMSLoginService
+    
+    result = await SMSLoginService.get_credit_balance()
+    return result
+
+
+@router.post("/check-delivery/{message_id}")
+async def check_delivery_status(
+    message_id: str,
+    request: Request,
+    current_user: dict = Depends(get_current_user)
+):
+    """Check delivery status of a sent SMS"""
+    from services.sms_login_service import SMSLoginService
+    
+    result = await SMSLoginService.check_delivery_status(message_id)
+    return result
+
+
+@router.post("/send-bulk")
+async def send_bulk_sms(
+    request: Request,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Send bulk SMS to multiple numbers (up to 500)
+    
+    Body: {
+        "phone_numbers": ["9876543210", "9123456789"],
+        "message": "Your message here",
+        "template_id": "your_dlt_template_id"
+    }
+    """
+    from services.sms_login_service import SMSLoginService
+    
+    body = await request.json()
+    phone_numbers = body.get("phone_numbers", [])
+    message = body.get("message", "")
+    template_id = body.get("template_id", "")
+    
+    if not phone_numbers or not message or not template_id:
+        raise HTTPException(status_code=400, detail="phone_numbers, message, and template_id are required")
+    
+    if len(phone_numbers) > 500:
+        raise HTTPException(status_code=400, detail="Maximum 500 numbers allowed per request")
+    
+    result = await SMSLoginService.send_bulk_sms(phone_numbers, message, template_id)
+    return result
+
+
+@router.post("/test-otp")
+async def test_otp_sms(
+    request: Request,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Test OTP SMS sending (Admin only)
+    
+    Body: {
+        "phone": "9876543210"
+    }
+    """
+    from services.sms_login_service import SMSLoginService
+    
+    body = await request.json()
+    phone = body.get("phone", "")
+    
+    if not phone:
+        raise HTTPException(status_code=400, detail="Phone number is required")
+    
+    # Generate and send OTP
+    result = await SMSLoginService.generate_and_send_otp(phone)
+    return result
