@@ -842,6 +842,16 @@ function App() {
                 }
               />
               
+              {/* Main Settings Page */}
+              <Route
+                path="/settings"
+                element={
+                  <PrivateRoute>
+                    <SettingsPage />
+                  </PrivateRoute>
+                }
+              />
+              
               {/* Settings Routes */}
               <Route
                 path="/settings/role-assignments"
