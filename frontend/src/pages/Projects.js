@@ -113,7 +113,23 @@ const Projects = () => {
         price_per_unit: '',
       });
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Failed to create project');
+      // Handle Pydantic validation errors which return an array
+      const detail = error.response?.data?.detail;
+      let errorMessage = 'Failed to create project';
+      
+      if (detail) {
+        if (Array.isArray(detail)) {
+          // Pydantic validation error - extract messages
+          errorMessage = detail.map(err => err.msg || err.message || JSON.stringify(err)).join(', ');
+        } else if (typeof detail === 'string') {
+          errorMessage = detail;
+        } else if (typeof detail === 'object') {
+          errorMessage = detail.msg || detail.message || JSON.stringify(detail);
+        }
+      }
+      
+      toast.error(errorMessage);
+      console.error('Create project error:', error.response?.data);
     } finally {
       setLoading(false);
     }
