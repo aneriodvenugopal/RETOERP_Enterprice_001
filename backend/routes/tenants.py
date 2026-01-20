@@ -109,8 +109,9 @@ async def update_my_tenant_settings(request: Request, current_user: dict = Depen
         {'$set': update_data}
     )
     
-    if result.modified_count == 0:
-        raise HTTPException(status_code=404, detail="Tenant not found or no changes made")
+    # Check if tenant exists (matched_count) - modified_count can be 0 if no actual changes
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Tenant not found")
     
     return {"success": True, "message": "Settings updated successfully"}
 
