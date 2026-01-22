@@ -5,9 +5,10 @@ import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { FileText, Lock, Phone, KeyRound, ArrowRightLeft, Zap, Loader2 } from 'lucide-react';
+import { Lock, Phone, KeyRound, ArrowRightLeft, Zap, Loader2 } from 'lucide-react';
+import RealApexLogo from '../components/RealApexLogo';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
