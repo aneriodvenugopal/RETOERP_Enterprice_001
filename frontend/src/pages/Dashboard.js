@@ -3,9 +3,10 @@ import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { LogOut, Building2, Users, BarChart3, FileText, UserCog, Home, Layers, MessageSquare, MapPin, Wallet, Shield, Tags, FolderTree, Settings, Bot, DollarSign, CreditCard, TrendingUp, Banknote, Mail, Receipt } from 'lucide-react';
+import { LogOut, Building2, Users, BarChart3, UserCog, Home, Layers, MessageSquare, MapPin, Wallet, Shield, Tags, FolderTree, Settings, Bot, DollarSign, CreditCard, TrendingUp, Banknote, Mail, Receipt } from 'lucide-react';
 import NotificationCenter from '../components/notifications/NotificationCenter';
 import PageInfoModal from '../components/PageInfoModal';
+import RealApexLogo from '../components/RealApexLogo';
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
