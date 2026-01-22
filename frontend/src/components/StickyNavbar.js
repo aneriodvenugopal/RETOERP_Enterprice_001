@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, ChevronDown } from 'lucide-react';
+import RealApexLogo from './RealApexLogo';
 
 const StickyNavbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -36,18 +37,15 @@ const StickyNavbar = () => {
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled
-          ? 'bg-white shadow-lg py-3'
-          : 'bg-white/95 backdrop-blur-sm py-4'
+          ? 'bg-white shadow-lg py-2'
+          : 'bg-white/95 backdrop-blur-sm py-3'
       }`}
     >
       <div className="container mx-auto px-6">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-3 flex-shrink-0">
-            <img src="/realapex-logo.png" alt="RealApex" className="h-10 w-auto" />
-            <div className="hidden md:flex flex-col">
-              <span className="text-[10px] text-gray-500 tracking-wide">Infrastructure for Real Estate Operations</span>
-            </div>
+          <Link to="/" className="flex-shrink-0">
+            <RealApexLogo size="sm" showCaption={true} showBrand={true} />
           </Link>
 
           {/* Desktop Menu */}
