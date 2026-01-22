@@ -33,12 +33,12 @@ const RealApexLogo = ({
   const getLogoPath = () => {
     switch (variant) {
       case 'icon':
-        return '/exlainerp-logo.png';
+        return '/realapex-logo.png';
       case 'white':
-        return '/exlainerp-logo.png'; // Same logo, can be styled with CSS filter
+        return '/realapex-logo.png'; // Same logo, can be styled with CSS filter
       case 'full':
       default:
-        return '/exlainerp-logo.png';
+        return '/realapex-logo.png';
     }
   };
 
