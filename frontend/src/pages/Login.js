@@ -269,16 +269,9 @@ const Login = () => {
       </div>
 
       <Card className="w-full max-w-md shadow-2xl border-blue-200 relative z-10 bg-white/95 backdrop-blur">
-        <CardHeader className="space-y-4 text-center">
-          <div className="flex flex-col items-center">
-            <img 
-              src="/realapex-logo.png" 
-              alt="RealApex" 
-              className="h-20 w-auto object-contain"
-            />
-            <p className="text-sm text-gray-500 mt-2 tracking-wide">
-              Infrastructure for Real Estate Operations
-            </p>
+        <CardHeader className="space-y-4">
+          <div className="flex justify-center">
+            <RealApexLogo size="xl" showCaption={true} showBrand={true} />
           </div>
         </CardHeader>
 
