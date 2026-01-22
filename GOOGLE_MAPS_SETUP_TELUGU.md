@@ -184,7 +184,7 @@
 
    **మొదటి referrer:**
    ```
-   https://property-manage-12.preview.emergentagent.com/*
+   https://propmanage-63.preview.emergentagent.com/*
    ```
    - Paste చేసి Enter నొక్కండి
 
