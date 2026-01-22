@@ -276,10 +276,10 @@ const Login = () => {
           </div>
           <div>
             <CardTitle className="text-3xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
-              ExlainERP
+              RealApex
             </CardTitle>
-            <CardDescription className="text-base mt-2 text-gray-600">
-              Real Estate Automation Software
+            <CardDescription className="text-sm mt-1 text-gray-500 tracking-wide">
+              Infrastructure for Real Estate Operations
             </CardDescription>
           </div>
         </CardHeader>

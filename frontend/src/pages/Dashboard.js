@@ -50,7 +50,8 @@ const Dashboard = () => {
                 <FileText className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">ExlainERP</h1>
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">RealApex</h1>
+                <p className="text-[10px] text-gray-400 tracking-wide">Infrastructure for Real Estate Operations</p>
                 <p className="text-xs text-gray-500">Welcome, {user?.name}</p>
               </div>
             </div>
@@ -670,7 +671,7 @@ const DefaultDashboard = () => {
       <h2 className="text-3xl font-bold text-gray-900">Dashboard</h2>
       <Card className="glass-card">
         <CardHeader>
-          <CardTitle className="text-ocean-primary">Welcome to ExlainERP</CardTitle>
+          <CardTitle className="text-ocean-primary">Welcome to RealApex</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-gray-500">Your dashboard is being set up...</p>
