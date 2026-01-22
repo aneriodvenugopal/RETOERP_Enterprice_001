@@ -20,11 +20,11 @@ const ROICalculator = () => {
     const currentRevenue = currentConversions * avgCommission;
     const annualCurrentRevenue = currentRevenue * 12;
 
-    // With ExlainERP (0% leakage, better conversion)
+    // With RealApex (0% leakage, better conversion)
     const exlainerpLeads = leads; // No leakage
     const exlainerpConversions = (exlainerpLeads * conversionRate) / 100;
     const exlainerpRevenue = exlainerpConversions * avgCommission;
-    const annualExlainERPRevenue = exlainerpRevenue * 12;
+    const annualRealApexRevenue = exlainerpRevenue * 12;
 
     // Savings and gains
     const additionalLeads = leadsLost;
@@ -36,7 +36,7 @@ const ROICalculator = () => {
 
     setResults({
       currentRevenue: annualCurrentRevenue,
-      exlainerpRevenue: annualExlainERPRevenue,
+      exlainerpRevenue: annualRealApexRevenue,
       additionalLeads: additionalLeads * 12, // Annual
       additionalConversions: additionalConversions * 12,
       annualGain,
@@ -65,7 +65,7 @@ const ROICalculator = () => {
         <div className="text-center mb-12">
           <Calculator className="w-16 h-16 mx-auto mb-4 text-yellow-400" />
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
-            Calculate Your ROI with ExlainERP
+            Calculate Your ROI with RealApex
           </h2>
           <p className="text-xl text-white/80 max-w-3xl mx-auto">
             See exactly how much revenue you're losing and how much you can gain
@@ -136,7 +136,7 @@ const ROICalculator = () => {
                   </div>
                 </div>
 
-                {/* Conversion Rate with ExlainERP */}
+                {/* Conversion Rate with RealApex */}
                 <div>
                   <label className="block mb-2 font-semibold">Expected Conversion Rate with Automation</label>
                   <input
@@ -173,10 +173,10 @@ const ROICalculator = () => {
                 </p>
               </div>
 
-              {/* With ExlainERP */}
+              {/* With RealApex */}
               <div className="bg-green-500/20 backdrop-blur-lg rounded-2xl p-6 border-2 border-green-400">
                 <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-xl font-bold">✅ With ExlainERP - Annual Gain</h3>
+                  <h3 className="text-xl font-bold">✅ With RealApex - Annual Gain</h3>
                   <TrendingUp className="w-6 h-6 text-green-400" />
                 </div>
                 <div className="text-4xl font-bold text-green-400 mb-2">
@@ -213,14 +213,14 @@ const ROICalculator = () => {
                   </div>
                   <div className="text-xl font-semibold">Return on Investment</div>
                   <p className="text-sm text-white/80 mt-2">
-                    ExlainERP pays for itself in less than 1 month!
+                    RealApex pays for itself in less than 1 month!
                   </p>
                 </div>
               </div>
 
               {/* CTA */}
               <a
-                href="https://wa.me/919948303060?text=I calculated my ROI and want to start with ExlainERP!"
+                href="https://wa.me/919948303060?text=I calculated my ROI and want to start with RealApex!"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="block w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-4 rounded-xl text-center transition-all transform hover:scale-105 shadow-xl"

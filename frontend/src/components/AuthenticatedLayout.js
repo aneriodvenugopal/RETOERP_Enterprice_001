@@ -89,7 +89,7 @@ const AuthenticatedLayout = ({ children }) => {
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-green-500 to-blue-600 flex items-center justify-center shadow-md">
                 <FileText className="w-4 h-4 text-white" />
               </div>
-              <span className="text-lg font-bold text-gray-900 hidden sm:block">ExlainERP</span>
+              <span className="text-lg font-bold text-gray-900 hidden sm:block">RealApex</span>
             </button>
 
             {/* Right side - User Info & Actions */}

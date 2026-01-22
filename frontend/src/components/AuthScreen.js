@@ -187,7 +187,7 @@ const AuthScreen = ({ onAuthSuccess }) => {
         <div className="app-logo">
           <div className="logo-icon">🏡</div>
           <h1>IncomeLands</h1>
-          <p>Partner by ExlainERP</p>
+          <p>Partner by RealApex</p>
         </div>
         
         <div className="language-selector">

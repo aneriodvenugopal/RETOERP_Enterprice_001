@@ -44,9 +44,9 @@ const StickyNavbar = () => {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 flex-shrink-0">
-            <img src="/exlainerp-logo.png" alt="ExlainERP" className="h-9 w-auto" />
+            <img src="/exlainerp-logo.png" alt="RealApex" className="h-9 w-auto" />
             <div className="flex flex-col">
-              <span className="text-xl font-bold text-blue-600 leading-tight tracking-tight">ExlainERP</span>
+              <span className="text-xl font-bold text-blue-600 leading-tight tracking-tight">RealApex</span>
               <span className="text-[10px] font-medium text-gray-500 tracking-wide">Real Estate Automation Software</span>
             </div>
           </Link>

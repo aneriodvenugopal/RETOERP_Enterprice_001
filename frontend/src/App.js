@@ -203,7 +203,7 @@ function ConditionalAssistant() {
     location.pathname.startsWith('/public/tenant/') || 
     location.pathname.startsWith('/public/project/');
   
-  // Show Property Chatbot on tenant/project pages, ExlainERP Assistant on ALL other pages (including homepage)
+  // Show Property Chatbot on tenant/project pages, RealApex Assistant on ALL other pages (including homepage)
   if (isTenantOrProjectPage) {
     return <PropertyChatbot />;
   } else {

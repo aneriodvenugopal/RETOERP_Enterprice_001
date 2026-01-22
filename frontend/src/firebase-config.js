@@ -2,7 +2,7 @@
 import { initializeApp } from 'firebase/app';
 import { getMessaging, getToken, onMessage } from 'firebase/messaging';
 
-// Firebase config for ExlainERP
+// Firebase config for RealApex
 const firebaseConfig = {
   apiKey: "AIzaSyBLdLj5EGwRxHbsCqEbngRWbEFn4RUHQdI",
   authDomain: "exlainerp-5ff78.firebaseapp.com",

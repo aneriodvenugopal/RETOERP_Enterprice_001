@@ -461,7 +461,7 @@ function ArticleEditor({ article, categories, onSave, onClose }) {
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  ExlainERP Solution *
+                  RealApex Solution *
                 </label>
                 <textarea
                   required
@@ -469,7 +469,7 @@ function ArticleEditor({ article, categories, onSave, onClose }) {
                   onChange={(e) => setFormData({...formData, solution_description: e.target.value})}
                   rows={2}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  placeholder="How ExlainERP solves this problem..."
+                  placeholder="How RealApex solves this problem..."
                 />
               </div>
               

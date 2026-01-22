@@ -1,15 +1,15 @@
 import React from 'react';
 
 /**
- * ExlainERP Logo Component
+ * RealApex Logo Component
  * 
  * Usage:
- * <ExlainERPLogo variant="full" size="md" />
- * <ExlainERPLogo variant="icon" size="sm" />
- * <ExlainERPLogo variant="white" size="lg" />
+ * <RealApexLogo variant="full" size="md" />
+ * <RealApexLogo variant="icon" size="sm" />
+ * <RealApexLogo variant="white" size="lg" />
  */
 
-const ExlainERPLogo = ({ 
+const RealApexLogo = ({ 
   variant = 'full', // 'full', 'icon', 'white'
   size = 'md', // 'sm', 'md', 'lg', 'xl'
   className = '' 
@@ -56,7 +56,7 @@ const ExlainERPLogo = ({
   return (
     <img
       src={logoPath}
-      alt="ExlainERP - Real Estate Automation SaaS"
+      alt="RealApex - Real Estate Automation SaaS"
       width={dimensions.width}
       height={dimensions.height}
       className={className}
@@ -65,9 +65,9 @@ const ExlainERPLogo = ({
   );
 };
 
-export default ExlainERPLogo;
+export default RealApexLogo;
 
 // Export individual logo components for convenience
-export const ExlainERPIconLogo = (props) => <ExlainERPLogo variant="icon" {...props} />;
-export const ExlainERPFullLogo = (props) => <ExlainERPLogo variant="full" {...props} />;
-export const ExlainERPWhiteLogo = (props) => <ExlainERPLogo variant="white" {...props} />;
+export const RealApexIconLogo = (props) => <RealApexLogo variant="icon" {...props} />;
+export const RealApexFullLogo = (props) => <RealApexLogo variant="full" {...props} />;
+export const RealApexWhiteLogo = (props) => <RealApexLogo variant="white" {...props} />;

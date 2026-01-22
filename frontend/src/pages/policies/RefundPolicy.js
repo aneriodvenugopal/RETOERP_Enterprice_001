@@ -17,7 +17,7 @@ const RefundPolicy = () => {
           <section>
             <h2 className="text-2xl font-bold text-gray-900 mb-4">1. Cancellation Policy</h2>
             <p className="text-gray-700 leading-relaxed">
-              You may cancel your ExlainERP subscription at any time:
+              You may cancel your RealApex subscription at any time:
             </p>
             <ul className="list-disc ml-6 mt-2 text-gray-700 space-y-2">
               <li>Cancel anytime from your account settings</li>

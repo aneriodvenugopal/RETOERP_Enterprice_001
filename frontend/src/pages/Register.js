@@ -165,7 +165,7 @@ const Register = () => {
               Create Account
             </CardTitle>
             <CardDescription className="text-base mt-2">
-              Join ExlainERP today
+              Join RealApex today
             </CardDescription>
           </div>
         </CardHeader>

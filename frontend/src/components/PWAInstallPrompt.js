@@ -128,10 +128,10 @@ function PWAInstallPrompt() {
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <div className="bg-white p-2 rounded-lg">
-                  <img src="/exlainerp-logo.png" alt="ExlainERP" className="w-12 h-12 object-contain" />
+                  <img src="/exlainerp-logo.png" alt="RealApex" className="w-12 h-12 object-contain" />
                 </div>
                 <div className="text-white">
-                  <h3 className="font-bold text-lg">Install ExlainERP App</h3>
+                  <h3 className="font-bold text-lg">Install RealApex App</h3>
                   <p className="text-sm opacity-90">
                     ⚡ Instant access • 📱 Works offline • 🔔 Get notifications
                   </p>
@@ -200,7 +200,7 @@ function PWAInstallPrompt() {
                 Install on iPhone/iPad
               </h2>
               <p className="text-gray-600">
-                Follow these simple steps to install ExlainERP app
+                Follow these simple steps to install RealApex app
               </p>
             </div>
             
@@ -241,7 +241,7 @@ function PWAInstallPrompt() {
                 </div>
                 <div>
                   <p className="font-semibold text-gray-900">Done!</p>
-                  <p className="text-sm text-gray-600">ExlainERP app icon will appear on your home screen</p>
+                  <p className="text-sm text-gray-600">RealApex app icon will appear on your home screen</p>
                 </div>
               </div>
             </div>
