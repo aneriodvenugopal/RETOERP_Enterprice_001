@@ -1,7 +1,7 @@
 {
-  "name": "RETOERP - Real Estate Management",
-  "short_name": "RETOERP",
-  "description": "Complete Real Estate ERP Solution for Indian Market",
+  "name": "RealApex - Infrastructure for Real Estate Operations",
+  "short_name": "RealApex",
+  "description": "Infrastructure for Real Estate Operations",
   "start_url": "/pwa/login",
   "scope": "/",
   "display": "standalone",
