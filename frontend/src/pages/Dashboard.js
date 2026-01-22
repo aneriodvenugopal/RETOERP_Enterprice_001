@@ -49,9 +49,10 @@ const Dashboard = () => {
               <img 
                 src="/realapex-logo.png" 
                 alt="RealApex" 
-                className="h-12 w-auto object-contain"
+                className="h-10 w-auto object-contain"
               />
-              <div>
+              <div className="hidden sm:block">
+                <p className="text-[10px] text-gray-400 tracking-wide">Infrastructure for Real Estate Operations</p>
                 <p className="text-xs text-gray-500">Welcome, {user?.name}</p>
               </div>
             </div>
