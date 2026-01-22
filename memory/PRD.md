@@ -217,6 +217,7 @@ Build a comprehensive Real Estate ERP (RealApex) SaaS platform for the Indian re
 - [x] UI Enhancement: Clickable phone/email links (Completed Jan 12, 2026)
 - [x] UI Enhancement: Better hover effects on list rows (Completed Jan 12, 2026)
 - [x] Brand Name Change: RETOERP → ExlainERP → RealApex (Completed Jan 22, 2026)
+- [x] Custom Logo: RealApex logo with building/pyramid icon integrated (Completed Jan 22, 2026)
 - [x] Logo Icon Fixed: Building2 icon for real estate (Completed Jan 12, 2026)
 - [x] SaaS Marketing Landing Page at /saas (Completed Jan 12, 2026)
 - [x] Demo Request Backend API: POST /api/public/demo-request (Completed Jan 12, 2026)
