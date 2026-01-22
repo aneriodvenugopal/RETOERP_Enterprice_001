@@ -44,16 +44,11 @@ const Dashboard = () => {
 
       {/* Header */}
       <header className="glass-header sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <img 
-                src="/realapex-logo.png" 
-                alt="RealApex" 
-                className="h-10 w-auto object-contain"
-              />
-              <div className="hidden sm:block">
-                <p className="text-[10px] text-gray-400 tracking-wide">Infrastructure for Real Estate Operations</p>
+            <div className="flex items-center gap-4">
+              <RealApexLogo size="sm" showCaption={true} showBrand={true} />
+              <div className="hidden sm:block border-l pl-4 border-gray-200">
                 <p className="text-xs text-gray-500">Welcome, {user?.name}</p>
               </div>
             </div>
