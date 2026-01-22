@@ -44,7 +44,7 @@ const StickyNavbar = () => {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 flex-shrink-0">
-            <img src="/realapex-logo.png" alt="RealApex" className="h-10 w-auto" />
+            <img src="/realapex-logo.png" alt="RealApex" className="h-12 w-auto" />
           </Link>
 
           {/* Desktop Menu */}
