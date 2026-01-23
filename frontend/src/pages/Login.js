@@ -78,18 +78,22 @@ const Login = () => {
     try {
       const response = await authService.verifyOTP(mobile, otp);
       
-      if (response.access_token) {
+      // Check if it's a customer login (session-based)
+      if (response.account_type === 'customer') {
+        localStorage.setItem('customerPortalSession', JSON.stringify({
+          token: response.session_id || response.access_token,
+          customer: response.user,
+          phone: mobile
+        }));
+        localStorage.setItem('token', response.session_id || response.access_token);
+        localStorage.setItem('user', JSON.stringify(response.user));
+        toast.success(`Welcome, ${response.user.name}!`);
+        navigate('/customer-dashboard');
+      } else if (response.access_token) {
+        // Regular user login (JWT-based)
         await loginWithPassword(response.access_token, response.user, true);
         toast.success(`Welcome, ${response.user.name}!`);
         redirectBasedOnRole(response.user.role);
-      } else if (response.account_type === 'customer') {
-        localStorage.setItem('customerPortalSession', JSON.stringify({
-          token: response.session_token,
-          customer: response.customer,
-          phone: mobile
-        }));
-        toast.success(`Welcome, ${response.customer.name}!`);
-        navigate('/customer-dashboard');
       }
     } catch (error) {
       toast.error(error.response?.data?.detail || 'Invalid OTP');
