@@ -320,20 +320,27 @@ const Login = () => {
                   )}
 
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-700">Enter OTP</label>
+                    <label className="text-sm font-medium text-gray-700" id="otp-label">Enter OTP</label>
                     <div className="relative">
                       <Input
                         type="text"
+                        inputMode="numeric"
+                        pattern="[0-9]{6}"
+                        autoComplete="one-time-code"
                         placeholder="Enter 6-digit OTP"
                         value={otp}
                         onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
                         className="h-14 text-center text-2xl tracking-[0.5em] font-semibold"
                         maxLength={6}
                         autoFocus
+                        required
+                        aria-labelledby="otp-label"
+                        aria-describedby="otp-hint"
                         data-testid="otp-input"
                       />
-                      <KeyRound className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                      <KeyRound className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" aria-hidden="true" />
                     </div>
+                    <p id="otp-hint" className="sr-only">Enter the 6-digit verification code sent to your mobile</p>
                   </div>
 
                   <Button
