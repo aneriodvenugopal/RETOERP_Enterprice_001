@@ -81,8 +81,11 @@ const Contact = () => {
                   value={formData.name}
                   onChange={handleChange}
                   required
+                  autoComplete="name"
+                  autoFocus
                   className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:border-cyan-500"
                   placeholder="Your name"
+                  aria-label="Full name"
                 />
               </div>
 
@@ -94,8 +97,10 @@ const Contact = () => {
                   value={formData.email}
                   onChange={handleChange}
                   required
+                  autoComplete="email"
                   className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:border-cyan-500"
                   placeholder="your@email.com"
+                  aria-label="Email address"
                 />
               </div>
 
@@ -103,11 +108,15 @@ const Contact = () => {
                 <label className="block text-white mb-2">Phone</label>
                 <input
                   type="tel"
+                  inputMode="numeric"
+                  pattern="[0-9]{10}"
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
+                  autoComplete="tel"
                   className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:border-cyan-500"
                   placeholder="+91 XXXXXXXXXX"
+                  aria-label="Phone number"
                 />
               </div>
 
@@ -118,8 +127,10 @@ const Contact = () => {
                   name="company"
                   value={formData.company}
                   onChange={handleChange}
+                  autoComplete="organization"
                   className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:border-cyan-500"
                   placeholder="Your company name"
+                  aria-label="Company name"
                 />
               </div>
 
