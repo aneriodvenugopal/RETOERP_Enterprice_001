@@ -290,32 +290,45 @@ const Leads = () => {
             <form onSubmit={handleCreateLead} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Name *</label>
+                  <label className="text-sm font-medium" htmlFor="lead-name">Name *</label>
                   <Input
+                    id="lead-name"
                     value={formData.name}
                     onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                     placeholder="John Doe"
                     required
+                    autoComplete="name"
+                    autoFocus
+                    aria-label="Lead name"
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Phone *</label>
+                  <label className="text-sm font-medium" htmlFor="lead-phone">Phone *</label>
                   <Input
+                    id="lead-phone"
+                    type="tel"
+                    inputMode="numeric"
+                    pattern="[0-9]{10}"
                     value={formData.phone}
                     onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
                     placeholder="9876543210"
                     required
+                    autoComplete="tel"
+                    aria-label="Phone number"
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium">Email</label>
+                <label className="text-sm font-medium" htmlFor="lead-email">Email</label>
                 <Input
+                  id="lead-email"
                   type="email"
                   value={formData.email}
                   onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
                   placeholder="john@example.com"
+                  autoComplete="email"
+                  aria-label="Email address"
                 />
               </div>
 
@@ -326,7 +339,7 @@ const Leads = () => {
                     value={formData.source_id}
                     onValueChange={(value) => setFormData(prev => ({ ...prev, source_id: value }))}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger aria-label="Select lead source">
                       <SelectValue placeholder="Select source" />
                     </SelectTrigger>
                     <SelectContent>
@@ -344,7 +357,7 @@ const Leads = () => {
                     value={formData.project_id}
                     onValueChange={(value) => setFormData(prev => ({ ...prev, project_id: value }))}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger aria-label="Select project">
                       <SelectValue placeholder="Select project" />
                     </SelectTrigger>
                     <SelectContent>
@@ -357,6 +370,7 @@ const Leads = () => {
                   </Select>
                 </div>
               </div>
+
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
