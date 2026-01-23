@@ -143,7 +143,7 @@ const Login = () => {
   // Redirect based on user role
   const redirectBasedOnRole = (role) => {
     if (role === 'super_admin') {
-      navigate('/admin/dashboard');
+      navigate('/dashboard');  // Super admin uses same dashboard with role-based content
     } else if (role === 'customer') {
       navigate('/customer-dashboard');
     } else {
