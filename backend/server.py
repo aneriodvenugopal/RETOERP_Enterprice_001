@@ -107,6 +107,12 @@ async def health_check():
     """Health check endpoint for Kubernetes"""
     return {"status": "healthy", "service": "realapex-api"}
 
+# API health check (alternative route)
+@api_router.get("/health")
+async def api_health_check():
+    """Health check endpoint via API prefix"""
+    return {"status": "healthy", "service": "realapex-api"}
+
 # Include all route modules
 api_router.include_router(auth.router)
 api_router.include_router(tenants.router)
