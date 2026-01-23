@@ -136,20 +136,13 @@ async def get_project_stats(project_id: str, request: Request):
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
     
-    # Get property counts by status
+    # Get property counts by status - use direct status field
     pipeline = [
-        {'$match': {'project_id': project_id, 'deleted_at': None}},
-        {'$lookup': {
-            'from': 'master_categories',
-            'localField': 'status_id',
-            'foreignField': 'id',
-            'as': 'status_info'
-        }},
-        {'$unwind': '$status_info'},
+        {'$match': {'project_id': project_id}},
         {'$group': {
-            '_id': '$status_info.slug',
+            '_id': {'$toLower': {'$ifNull': ['$status', 'available']}},
             'count': {'$sum': 1},
-            'total_value': {'$sum': '$price'}
+            'total_value': {'$sum': {'$ifNull': ['$price', 0]}}
         }}
     ]
     
@@ -157,18 +150,23 @@ async def get_project_stats(project_id: str, request: Request):
     
     # Total properties
     total_properties = await db.properties.count_documents({
-        'project_id': project_id,
-        'deleted_at': None
+        'project_id': project_id
     })
+    
+    # Calculate counts
+    available = sum(s['count'] for s in status_stats if s['_id'] in ['available', ''])
+    blocked = sum(s['count'] for s in status_stats if s['_id'] == 'blocked')
+    booked = sum(s['count'] for s in status_stats if s['_id'] == 'booked')
+    sold = sum(s['count'] for s in status_stats if s['_id'] == 'sold')
     
     return {
         'project_id': project_id,
         'total_properties': total_properties,
         'status_breakdown': status_stats,
-        'available': next((s['count'] for s in status_stats if s['_id'] == 'available'), 0),
-        'blocked': next((s['count'] for s in status_stats if s['_id'] == 'blocked'), 0),
-        'booked': next((s['count'] for s in status_stats if s['_id'] == 'booked'), 0),
-        'sold': next((s['count'] for s in status_stats if s['_id'] == 'sold'), 0),
+        'available': available,
+        'blocked': blocked,
+        'booked': booked,
+        'sold': sold,
     }
 
 @router.put("/{project_id}", response_model=Project)
