@@ -190,12 +190,17 @@ const PWALogin = () => {
                   </span>
                   <input
                     type="tel"
+                    inputMode="numeric"
+                    pattern="[0-9]{10}"
+                    autoComplete="tel"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
                     placeholder="9876543210"
                     className="w-full pl-14 pr-4 py-4 border-2 border-gray-200 rounded-2xl focus:border-ocean-primary focus:outline-none text-lg"
                     maxLength="10"
                     autoFocus
+                    required
+                    aria-label="Mobile number"
                   />
                 </div>
               </div>
@@ -204,10 +209,11 @@ const PWALogin = () => {
                 type="submit"
                 disabled={loading || phone.length !== 10}
                 className="w-full bg-gradient-to-r from-ocean-primary to-ocean-secondary text-white py-4 rounded-2xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                aria-label="Send OTP"
               >
                 {loading ? (
                   <span className="flex items-center justify-center">
-                    <svg className="animate-spin h-5 w-5 mr-3" viewBox="0 0 24 24">
+                    <svg className="animate-spin h-5 w-5 mr-3" viewBox="0 0 24 24" aria-hidden="true">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
@@ -224,6 +230,7 @@ const PWALogin = () => {
                 type="button"
                 onClick={() => setStep(1)}
                 className="text-ocean-primary font-semibold mb-4 flex items-center"
+                aria-label="Go back and change phone number"
               >
                 ← Change Number
               </button>
@@ -235,7 +242,7 @@ const PWALogin = () => {
               
               {/* Show OTP in Development */}
               {devOTP && (
-                <div className="mb-4 p-4 bg-green-100 border-2 border-green-500 rounded-xl">
+                <div className="mb-4 p-4 bg-green-100 border-2 border-green-500 rounded-xl" role="alert">
                   <p className="text-sm text-green-800 font-semibold mb-1">
                     🔓 Development Mode - OTP:
                   </p>
@@ -248,12 +255,17 @@ const PWALogin = () => {
               <div className="mb-6">
                 <input
                   type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]{6}"
+                  autoComplete="one-time-code"
                   value={otp}
                   onChange={(e) => setOTP(e.target.value.replace(/\D/g, '').slice(0, 6))}
                   placeholder="000000"
                   className="w-full px-4 py-4 border-2 border-gray-200 rounded-2xl focus:border-ocean-primary focus:outline-none text-center text-2xl font-bold tracking-widest"
                   maxLength="6"
                   autoFocus
+                  required
+                  aria-label="Enter 6-digit OTP"
                 />
               </div>
 
@@ -261,10 +273,11 @@ const PWALogin = () => {
                 type="submit"
                 disabled={loading || otp.length !== 6}
                 className="w-full bg-gradient-to-r from-ocean-primary to-ocean-secondary text-white py-4 rounded-2xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed mb-4"
+                aria-label="Verify OTP and login"
               >
                 {loading ? (
                   <span className="flex items-center justify-center">
-                    <svg className="animate-spin h-5 w-5 mr-3" viewBox="0 0 24 24">
+                    <svg className="animate-spin h-5 w-5 mr-3" viewBox="0 0 24 24" aria-hidden="true">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
