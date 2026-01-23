@@ -31,28 +31,28 @@ async def create_test_users():
     test_users = [
         {
             'phone': '9999999999',
-            'email': 'superadmin@retoerp.com',
+            'email': 'superadmin@realapex.in',
             'name': 'Super Admin',
             'role_id': super_admin_role['id'],
             'tenant_id': None
         },
         {
             'phone': '8888888888',
-            'email': 'admin@retoerp.com',
+            'email': 'admin@realapex.in',
             'name': 'Tenant Admin',
             'role_id': tenant_admin_role['id'],
             'tenant_id': 'test-tenant-1'  # We'll create this tenant too
         },
         {
             'phone': '7777777777',
-            'email': 'staff@retoerp.com',
+            'email': 'staff@realapex.in',
             'name': 'Staff Member',
             'role_id': staff_role['id'],
             'tenant_id': 'test-tenant-1'
         },
         {
             'phone': '6666666666',
-            'email': 'customer@retoerp.com',
+            'email': 'customer@realapex.in',
             'name': 'Customer User',
             'role_id': customer_role['id'],
             'tenant_id': 'test-tenant-1'

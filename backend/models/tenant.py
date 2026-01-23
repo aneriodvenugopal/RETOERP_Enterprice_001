@@ -42,7 +42,7 @@ class Tenant(BaseModel):
     
     # Landing Page / Custom Domain fields
     custom_domain: Optional[str] = Field(None, description="Custom domain for tenant (e.g., abc.com)")
-    subdomain: Optional[str] = Field(None, description="Subdomain slug (e.g., 'abc' for abc.retoerp.com)")
+    subdomain: Optional[str] = Field(None, description="Subdomain slug (e.g., 'abc' for abc.realapex.in)")
     logo_url: Optional[str] = Field(None, description="Company logo URL")
     banner_url: Optional[str] = Field(None, description="Banner image URL for landing page")
     tagline: Optional[str] = Field(None, description="Company tagline/slogan")

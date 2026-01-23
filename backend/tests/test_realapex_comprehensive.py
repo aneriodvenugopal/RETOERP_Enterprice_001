@@ -9,8 +9,8 @@ import os
 BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://propmanage-63.preview.emergentagent.com')
 
 # Test credentials
-TENANT_ADMIN_CREDS = {"email": "rajam@retoerp.com", "password": "12345678"}
-SUPER_ADMIN_CREDS = {"email": "superadmin@retoerp.com", "password": "admin123"}
+TENANT_ADMIN_CREDS = {"email": "rajam@realapex.in", "password": "12345678"}
+SUPER_ADMIN_CREDS = {"email": "superadmin@realapex.in", "password": "admin123"}
 
 
 class TestHealthCheck:
