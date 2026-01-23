@@ -46,7 +46,8 @@ const PAGES_WITH_OWN_HEADER = [
   '/admin/incomelands',
   '/admin/chats',
   '/marketing-agent-dashboard',
-  '/project-manager-dashboard'
+  '/project-manager-dashboard',
+  '/projects/', // Project detail and layout editor pages have their own headers
 ];
 
 const AuthenticatedLayout = ({ children }) => {
