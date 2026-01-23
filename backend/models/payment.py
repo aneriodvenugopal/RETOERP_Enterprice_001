@@ -31,7 +31,7 @@ class Booking(BaseModel):
     is_active: Optional[bool] = True
     
     # Payment plan
-    payment_plan_type: str  # full_payment, emi, custom
+    payment_plan_type: Optional[str] = "full_payment"  # full_payment, emi, custom - Made optional for backward compatibility
     emi_months: Optional[int] = None  # If EMI
     down_payment: Optional[float] = None
     
