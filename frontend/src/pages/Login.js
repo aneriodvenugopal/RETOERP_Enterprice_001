@@ -247,15 +247,20 @@ const Login = () => {
                       </div>
                       <Input
                         type="tel"
+                        inputMode="numeric"
+                        pattern="[0-9]{10}"
+                        autoComplete="tel"
                         placeholder="Enter 10-digit mobile"
                         value={mobile}
                         onChange={(e) => setMobile(e.target.value.replace(/\D/g, '').slice(0, 10))}
                         className="pl-16 h-12 text-lg tracking-wide"
                         maxLength={10}
                         autoFocus
+                        required
+                        aria-label="Mobile number"
                         data-testid="mobile-input"
                       />
-                      <Phone className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                      <Phone className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" aria-hidden="true" />
                     </div>
                   </div>
 
