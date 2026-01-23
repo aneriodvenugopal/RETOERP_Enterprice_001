@@ -13,8 +13,8 @@ const PWALogin = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check if already logged in
-    const token = localStorage.getItem('auth_token');
+    // Check if already logged in - check both token keys for compatibility
+    const token = localStorage.getItem('token') || localStorage.getItem('auth_token');
     if (token) {
       navigate('/pwa/dashboard');
     }
@@ -83,9 +83,11 @@ const PWALogin = () => {
     try {
       const response = await authService.verifyOTP(phone, otp);
       
-      // Store auth data
+      // Store auth data - use both keys for compatibility with main app and PWA
+      localStorage.setItem('token', response.access_token);
       localStorage.setItem('auth_token', response.access_token);
       localStorage.setItem('user', JSON.stringify(response.user));
+      localStorage.setItem('user_id', response.user.id);
       localStorage.setItem('login_timestamp', new Date().toISOString());
       
       // Register for push notifications
