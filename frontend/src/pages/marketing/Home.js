@@ -1342,8 +1342,8 @@ const Home = () => {
                         +91 9948303060
                       </a>{' '}
                       or{' '}
-                      <a href="mailto:admin@exlainerp.com" className="text-blue-600 hover:text-blue-700 font-semibold">
-                        admin@exlainerp.com
+                      <a href="mailto:admin@realapex.in" className="text-blue-600 hover:text-blue-700 font-semibold">
+                        admin@realapex.in
                       </a>
                       . We're committed to transparency and customer satisfaction.
                     </p>

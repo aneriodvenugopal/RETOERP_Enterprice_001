@@ -12,7 +12,7 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
 
-const BASE_URL = process.env.REACT_APP_BACKEND_URL || 'https://exlainerp.com';
+const BASE_URL = process.env.REACT_APP_BACKEND_URL || 'https://realapex.in';
 
 /**
  * SEO Head Component

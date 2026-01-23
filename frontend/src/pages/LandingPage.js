@@ -556,7 +556,7 @@ const LandingPage = () => {
                   </div>
                   <div>
                     <div className="text-sm text-blue-200">Email</div>
-                    <div className="font-semibold">hello@exlainerp.com</div>
+                    <div className="font-semibold">hello@realapex.in</div>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
