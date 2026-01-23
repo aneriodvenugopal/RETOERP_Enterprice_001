@@ -47,7 +47,7 @@ async def create_project(
     
     return project
 
-@router.get("/", response_model=List[Project])
+@router.get("/", response_model=None)
 async def get_projects(
     request: Request,
     tenant_id: Optional[str] = None,
@@ -55,7 +55,7 @@ async def get_projects(
     skip: int = 0,
     limit: int = 100
 ):
-    """Get all projects with filters"""
+    """Get all projects with filters and property counts"""
     db = get_db(request)
     user = await get_current_user(request)
     
@@ -72,11 +72,46 @@ async def get_projects(
     
     projects = await db.projects.find(query, {"_id": 0}).skip(skip).limit(limit).to_list(limit)
     
-    # Skip deserialization since Pydantic model expects string datetime fields
-    # for project in projects:
-    #     deserialize_doc(project)
+    # Add property counts to each project
+    for project in projects:
+        project_id = project.get('id')
+        
+        # Get property counts by status
+        property_counts = await db.properties.aggregate([
+            {'$match': {'project_id': project_id}},
+            {'$group': {
+                '_id': '$status',
+                'count': {'$sum': 1}
+            }}
+        ]).to_list(100)
+        
+        # Initialize counts
+        total = 0
+        available = 0
+        sold = 0
+        blocked = 0
+        booked = 0
+        
+        for pc in property_counts:
+            status_val = pc['_id']
+            count = pc['count']
+            total += count
+            if status_val in ['available', 'Available']:
+                available += count
+            elif status_val in ['sold', 'Sold']:
+                sold += count
+            elif status_val in ['blocked', 'Blocked']:
+                blocked += count
+            elif status_val in ['booked', 'Booked']:
+                booked += count
+        
+        project['property_count'] = total
+        project['available_count'] = available
+        project['sold_count'] = sold
+        project['blocked_count'] = blocked
+        project['booked_count'] = booked
     
-    return [Project(**p) for p in projects]
+    return projects
 
 @router.get("/{project_id}", response_model=Project)
 async def get_project(project_id: str, request: Request):
