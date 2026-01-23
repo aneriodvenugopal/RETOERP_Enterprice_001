@@ -58,7 +58,7 @@ def get_friendly_error_message(error_type: str, field: str, msg: str) -> str:
     return f"'{field}': {msg}"
 
 # Create the main app without a prefix
-app = FastAPI(title="ExlainERP API", version="1.0.0")
+app = FastAPI(title="RealApex API", version="1.0.0")
 
 
 # Global exception handler for validation errors
@@ -96,7 +96,7 @@ api_router = APIRouter(prefix="/api")
 @api_router.get("/")
 async def root():
     return {
-        "message": "ExlainERP API is running",
+        "message": "RealApex API is running",
         "version": "1.0.0",
         "status": "healthy"
     }
