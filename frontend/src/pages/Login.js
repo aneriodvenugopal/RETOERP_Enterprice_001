@@ -397,37 +397,46 @@ const Login = () => {
 
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">Phone Number or Email</label>
+                  <label className="text-sm font-medium text-gray-700" htmlFor="identifier-input">Phone Number or Email</label>
                   <div className="relative">
                     <Input
-                      type="text"
+                      id="identifier-input"
+                      type={isEmail(identifier) ? 'email' : 'tel'}
+                      inputMode={isEmail(identifier) ? 'email' : 'tel'}
+                      autoComplete={isEmail(identifier) ? 'email' : 'tel'}
                       placeholder="Enter phone or email"
                       value={identifier}
                       onChange={(e) => setIdentifier(e.target.value)}
                       className="h-12 pl-10"
                       autoFocus
+                      required
+                      aria-label="Phone number or email address"
                       data-testid="identifier-input"
                     />
                     {isEmail(identifier) ? (
-                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" aria-hidden="true" />
                     ) : (
-                      <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                      <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" aria-hidden="true" />
                     )}
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">Password</label>
+                  <label className="text-sm font-medium text-gray-700" htmlFor="password-input">Password</label>
                   <div className="relative">
                     <Input
+                      id="password-input"
                       type="password"
+                      autoComplete="current-password"
                       placeholder="Enter your password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       className="h-12 pl-10"
+                      required
+                      aria-label="Password"
                       data-testid="password-input"
                     />
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" aria-hidden="true" />
                   </div>
                 </div>
               </div>
