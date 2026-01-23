@@ -150,15 +150,21 @@ const LoginForm = ({ onLoginSuccess }) => {
               <div className="space-y-2">
                 <Label htmlFor="phone">Phone Number</Label>
                 <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" aria-hidden="true" />
                   <Input
                     id="phone"
                     type="tel"
+                    inputMode="numeric"
+                    pattern="[0-9]{10}"
+                    autoComplete="tel"
                     placeholder="Enter registered phone"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     className="pl-11 h-12 text-lg"
                     maxLength={10}
+                    autoFocus
+                    required
+                    aria-label="Phone number"
                     data-testid="phone-input"
                   />
                 </div>
@@ -167,16 +173,17 @@ const LoginForm = ({ onLoginSuccess }) => {
                 type="submit"
                 className="w-full h-12 text-base bg-gradient-to-r from-emerald-600 to-teal-600"
                 disabled={loading}
+                aria-label="Send OTP"
                 data-testid="send-otp-btn"
               >
-                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <>Send OTP <ArrowRight className="w-5 h-5 ml-2" /></>}
+                {loading ? <Loader2 className="w-5 h-5 animate-spin" aria-hidden="true" /> : <>Send OTP <ArrowRight className="w-5 h-5 ml-2" aria-hidden="true" /></>}
               </Button>
             </form>
           ) : (
             <form onSubmit={handleVerifyOTP} className="space-y-6">
               <div className="text-center mb-4">
                 <p className="text-sm text-slate-600">OTP sent to <span className="font-medium">******{phone.slice(-4)}</span></p>
-                <button type="button" onClick={() => { setStep('phone'); setOtp(''); setMockOtp(null); }} className="text-emerald-600 text-sm hover:underline mt-1">Change number</button>
+                <button type="button" onClick={() => { setStep('phone'); setOtp(''); setMockOtp(null); }} className="text-emerald-600 text-sm hover:underline mt-1" aria-label="Change phone number">Change number</button>
               </div>
               {mockOtp && (
                 <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-center">
