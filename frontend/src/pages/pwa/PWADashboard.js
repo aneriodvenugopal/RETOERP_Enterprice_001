@@ -37,8 +37,8 @@ const PWADashboard = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check authentication
-    const token = localStorage.getItem('auth_token');
+    // Check authentication - check both token keys for compatibility
+    const token = localStorage.getItem('token') || localStorage.getItem('auth_token');
     const userData = localStorage.getItem('user');
     
     if (!token || !userData) {
