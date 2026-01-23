@@ -122,7 +122,10 @@ const Login = () => {
         loginIdentifier = loginIdentifier; // Keep as is
       }
       
-      const response = await authService.loginWithPassword(loginIdentifier, password);
+      const response = await authService.loginWithPassword({ 
+        email: loginIdentifier, 
+        password: password 
+      });
       
       if (response.access_token) {
         await loginWithPassword(response.access_token, response.user, true);
