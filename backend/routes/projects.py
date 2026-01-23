@@ -106,6 +106,7 @@ async def get_projects(
                 booked += count
         
         project['property_count'] = total
+        project['total_properties'] = total  # Alias for frontend compatibility
         project['available_count'] = available
         project['sold_count'] = sold
         project['blocked_count'] = blocked
