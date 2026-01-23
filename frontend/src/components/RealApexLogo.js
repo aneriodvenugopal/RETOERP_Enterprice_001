@@ -3,11 +3,11 @@ import React from 'react';
 // Creative R Logo Component - Represents a building/skyscraper forming the letter R
 const RealApexLogo = ({ size = 'md', showCaption = true, showBrand = true, className = '' }) => {
   const sizes = {
-    xs: { icon: 'h-6 w-6', text: 'text-sm', caption: 'text-[8px]' },
-    sm: { icon: 'h-8 w-8', text: 'text-lg', caption: 'text-[9px]' },
-    md: { icon: 'h-10 w-10', text: 'text-xl', caption: 'text-[10px]' },
-    lg: { icon: 'h-14 w-14', text: 'text-2xl', caption: 'text-xs' },
-    xl: { icon: 'h-20 w-20', text: 'text-3xl', caption: 'text-sm' },
+    xs: { icon: 'h-6 w-6', text: 'text-sm', caption: 'text-[9px] font-semibold' },
+    sm: { icon: 'h-8 w-8', text: 'text-lg', caption: 'text-[10px] font-semibold' },
+    md: { icon: 'h-10 w-10', text: 'text-xl', caption: 'text-xs font-bold' },
+    lg: { icon: 'h-14 w-14', text: 'text-2xl', caption: 'text-sm font-bold' },
+    xl: { icon: 'h-20 w-20', text: 'text-3xl', caption: 'text-base font-bold' },
   };
 
   const s = sizes[size] || sizes.md;
@@ -74,7 +74,7 @@ const RealApexLogo = ({ size = 'md', showCaption = true, showBrand = true, class
             </span>
           )}
           {showCaption && (
-            <span className={`${s.caption} text-gray-500 tracking-wide`}>
+            <span className={`${s.caption} text-gray-600 tracking-wide`}>
               Infrastructure for Real Estate Operations
             </span>
           )}
