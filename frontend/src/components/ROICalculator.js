@@ -21,22 +21,22 @@ const ROICalculator = () => {
     const annualCurrentRevenue = currentRevenue * 12;
 
     // With RealApex (0% leakage, better conversion)
-    const exlainerpLeads = leads; // No leakage
-    const exlainerpConversions = (exlainerpLeads * conversionRate) / 100;
-    const exlainerpRevenue = exlainerpConversions * avgCommission;
-    const annualRealApexRevenue = exlainerpRevenue * 12;
+    const realapexLeads = leads; // No leakage
+    const realapexConversions = (realapexLeads * conversionRate) / 100;
+    const realapexRevenue = realapexConversions * avgCommission;
+    const annualRealApexRevenue = realapexRevenue * 12;
 
     // Savings and gains
     const additionalLeads = leadsLost;
-    const additionalConversions = exlainerpConversions - currentConversions;
-    const monthlyGain = exlainerpRevenue - currentRevenue;
+    const additionalConversions = realapexConversions - currentConversions;
+    const monthlyGain = realapexRevenue - currentRevenue;
     const annualGain = monthlyGain * 12;
     const timeSaved = 20; // hours per week
     const costSaved = timeSaved * 4 * 500; // 500 per hour * 4 weeks
 
     setResults({
       currentRevenue: annualCurrentRevenue,
-      exlainerpRevenue: annualRealApexRevenue,
+      realapexRevenue: annualRealApexRevenue,
       additionalLeads: additionalLeads * 12, // Annual
       additionalConversions: additionalConversions * 12,
       annualGain,
