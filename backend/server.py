@@ -101,6 +101,12 @@ async def root():
         "status": "healthy"
     }
 
+# Root health check for Kubernetes (required for deployment)
+@app.get("/health")
+async def health_check():
+    """Health check endpoint for Kubernetes"""
+    return {"status": "healthy", "service": "realapex-api"}
+
 # Include all route modules
 api_router.include_router(auth.router)
 api_router.include_router(tenants.router)

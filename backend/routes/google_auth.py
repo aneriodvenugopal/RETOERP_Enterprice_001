@@ -11,12 +11,13 @@ from services.auth_service import AuthService
 router = APIRouter(prefix="/auth/google", tags=["Google OAuth"])
 
 # Database connection
-MONGO_URL = os.getenv("MONGO_URL", "mongodb://localhost:27017")
+MONGO_URL = os.getenv("MONGO_URL")
 DB_NAME = os.getenv("DB_NAME", "test_database")
 client = AsyncIOMotorClient(MONGO_URL)
 db = client[DB_NAME]
 
-FRONTEND_URL = os.getenv("REACT_APP_BACKEND_URL", "https://propmanage-63.preview.emergentagent.com")
+# Frontend URL for redirects - no hardcoded fallback for production safety
+FRONTEND_URL = os.getenv("FRONTEND_URL")
 
 @router.get("/login")
 async def google_login():
