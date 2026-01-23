@@ -155,8 +155,8 @@ api_router.include_router(public_pages.router)
 api_router.include_router(marketplace.router)
 api_router.include_router(incomelands.router)
 api_router.include_router(incomelands_auth.router)
-api_router.include_router(google_auth.router)
-api_router.include_router(calendar_integration.router)
+# api_router.include_router(google_auth.router)  # Disabled - using OTP login only
+# api_router.include_router(calendar_integration.router)  # Disabled - Google Calendar disabled
 api_router.include_router(workforce.router)
 api_router.include_router(project_dashboard.router)
 api_router.include_router(marketing_dashboard.router)
