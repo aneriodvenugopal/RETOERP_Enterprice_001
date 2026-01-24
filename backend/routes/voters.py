@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Request, HTTPException, Query, UploadFile, File, Form
 from typing import Optional, List
 from datetime import datetime
+from collections import defaultdict
 import re
 import pdfplumber
 import io
