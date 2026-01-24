@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { 
   Upload, FileUp, MapPin, Hash, Trash2, RefreshCw, 
   CheckCircle, XCircle, AlertTriangle, Users, Database,
-  ArrowLeft, FileText, Loader2, Eye, Link
+  ArrowLeft, FileText, Loader2, Eye, Link, Settings, Shield
 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -29,6 +29,7 @@ const VotersListImport = () => {
   const [stats, setStats] = useState(null);
   const [uploadResult, setUploadResult] = useState(null);
   const [loadingStats, setLoadingStats] = useState(false);
+  const [incompleteStats, setIncompleteStats] = useState(null);
 
   // Fetch stats
   const fetchStats = useCallback(async () => {
@@ -39,12 +40,19 @@ const VotersListImport = () => {
       if (data.success) {
         setStats(data.stats);
       }
+      
+      // Also fetch incomplete stats
+      const incompleteRes = await fetch(`${API_URL}/api/voters/incomplete-stats?village=${encodeURIComponent(village)}`);
+      const incompleteData = await incompleteRes.json();
+      if (incompleteData.success) {
+        setIncompleteStats(incompleteData.stats);
+      }
     } catch (error) {
       console.error('Failed to fetch stats:', error);
     } finally {
       setLoadingStats(false);
     }
-  }, []);
+  }, [village]);
 
   // Fetch wards
   const fetchWards = useCallback(async () => {
@@ -212,21 +220,33 @@ const VotersListImport = () => {
                 <p className="text-slate-400 text-sm">Import voter data by ward</p>
               </div>
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              className="border-slate-600 text-slate-300 hover:bg-slate-700"
-              onClick={() => navigate('/voters-import')}
-            >
-              Advanced Import
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="border-slate-600 text-slate-300 hover:bg-slate-700"
+                onClick={() => navigate('/voters-bulk-update')}
+              >
+                <AlertTriangle className="w-4 h-4 mr-2 text-amber-400" />
+                Fix Missing Data
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="border-slate-600 text-slate-300 hover:bg-slate-700"
+                onClick={() => navigate('/voters-admin')}
+              >
+                <Shield className="w-4 h-4 mr-2 text-amber-400" />
+                Admin Settings
+              </Button>
+            </div>
           </div>
         </div>
       </header>
 
       <div className="max-w-6xl mx-auto px-4 py-6 space-y-6">
         {/* Stats Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
           <Card className="bg-slate-800/50 border-slate-700">
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
@@ -283,6 +303,24 @@ const VotersListImport = () => {
                   <p className="text-slate-400 text-xs">Female</p>
                   <p className="text-2xl font-bold text-white">
                     {stats?.female?.toLocaleString() || 0}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          {/* Incomplete Records Card */}
+          <Card className="bg-slate-800/50 border-slate-700 cursor-pointer hover:bg-slate-700/50 transition-colors"
+                onClick={() => navigate('/voters-bulk-update')}>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-amber-500/20 rounded-lg flex items-center justify-center">
+                  <AlertTriangle className="w-5 h-5 text-amber-400" />
+                </div>
+                <div>
+                  <p className="text-slate-400 text-xs">Incomplete</p>
+                  <p className="text-2xl font-bold text-amber-400">
+                    {incompleteStats?.incomplete || 0}
                   </p>
                 </div>
               </div>
@@ -444,15 +482,31 @@ const VotersListImport = () => {
                     ) : (
                       <XCircle className="w-5 h-5 text-red-400 flex-shrink-0" />
                     )}
-                    <div>
+                    <div className="flex-1">
                       <p className={`font-medium ${uploadResult.success ? 'text-green-400' : 'text-red-400'}`}>
                         {uploadResult.message}
                       </p>
                       {uploadResult.extracted_count !== undefined && (
-                        <p className="text-sm text-slate-400 mt-1">
-                          Extracted: {uploadResult.extracted_count} voters
-                          {uploadResult.skipped_count > 0 && ` (${uploadResult.skipped_count} skipped)`}
-                        </p>
+                        <div className="text-sm text-slate-400 mt-2 space-y-1">
+                          <p>Extracted: <span className="text-white">{uploadResult.extracted_count}</span> voters</p>
+                          {uploadResult.skipped_count > 0 && (
+                            <p>Skipped: <span className="text-amber-400">{uploadResult.skipped_count}</span> duplicates</p>
+                          )}
+                          {uploadResult.metadata?.total_pages && (
+                            <p>Pages processed: <span className="text-white">{uploadResult.metadata.total_pages}</span></p>
+                          )}
+                        </div>
+                      )}
+                      {uploadResult.success && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="mt-3 border-green-500/30 text-green-400 hover:bg-green-500/20"
+                          onClick={() => navigate(`/voters-bulk-update?ward=${wardNo}`)}
+                        >
+                          <AlertTriangle className="w-4 h-4 mr-2" />
+                          Check Incomplete Records
+                        </Button>
                       )}
                     </div>
                   </div>
@@ -503,6 +557,15 @@ const VotersListImport = () => {
                         <Button
                           variant="ghost"
                           size="sm"
+                          className="text-amber-400 hover:text-amber-300 hover:bg-amber-500/20"
+                          onClick={() => navigate(`/voters-bulk-update?ward=${ward.ward_no}`)}
+                          title="Check incomplete records"
+                        >
+                          <AlertTriangle className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
                           className="text-slate-400 hover:text-white hover:bg-slate-600"
                           onClick={() => navigate(`/voterslist/${village.toLowerCase()}/ward/${ward.ward_no}`)}
                         >
@@ -542,7 +605,8 @@ const VotersListImport = () => {
                   <li>Enter ward number and upload the PDF for that ward</li>
                   <li>For large files (&gt;20MB), use "From URL" option</li>
                   <li>Check "Replace existing" to overwrite previous data</li>
-                  <li>Click "View" to see imported voters list</li>
+                  <li>After import, click <span className="text-amber-400">Check Incomplete Records</span> to view missing data</li>
+                  <li>Use <span className="text-amber-400">Admin Settings</span> to enable/disable ward visibility and export</li>
                 </ul>
               </div>
             </div>
