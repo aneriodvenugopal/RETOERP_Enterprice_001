@@ -322,7 +322,7 @@ const VotersImport = () => {
                       <div>
                         <FileUp className="w-12 h-12 mx-auto text-gray-400 mb-2" />
                         <p className="text-gray-600">Click to browse or drag PDF here</p>
-                        <p className="text-xs text-gray-400 mt-1">Maximum 50MB</p>
+                        <p className="text-xs text-gray-400 mt-1">Maximum 100MB</p>
                       </div>
                     )}
                   </label>
