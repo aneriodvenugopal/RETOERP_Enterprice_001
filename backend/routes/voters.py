@@ -301,29 +301,12 @@ def extract_voters_by_columns(pdf_bytes: bytes) -> tuple[list, dict]:
                         # Find EPIC words
                         epic_words = [w for w in col_words if re.match(r'YAV\d+|GNH\d+', w['text'])]
                         
+                        # Find AC-PS-SLNO words (for associating SL No with voters)
+                        acps_words = [w for w in col_words if re.search(r'\d+\s*-\s*\d+\s*-\s*\d+', w['text'])]
+                        
                         for epic_word in epic_words:
                             epic = epic_word['text']
                             epic_y = epic_word['top']
-                            
-                            # Get words above EPIC within voter block (~100px)
-                            block_words = [
-                                w for w in col_words 
-                                if epic_y - 100 < w['top'] <= epic_y + 5
-                            ]
-                            block_words.sort(key=lambda w: (w['top'], w['x0']))
-                            
-                            # Group by Y position (same line)
-                            y_groups = defaultdict(list)
-                            for w in block_words:
-                                y_key = round(w['top'] / 8) * 8
-                                y_groups[y_key].append(w)
-                            
-                            # Build lines
-                            lines = []
-                            for y_key in sorted(y_groups.keys()):
-                                line_words = sorted(y_groups[y_key], key=lambda w: w['x0'])
-                                line_text = ' '.join([w['text'] for w in line_words])
-                                lines.append(line_text)
                             
                             voter = {
                                 'epic_no': epic,
@@ -337,18 +320,42 @@ def extract_voters_by_columns(pdf_bytes: bytes) -> tuple[list, dict]:
                                 'mobile_number': ''
                             }
                             
-                            # First, try to find AC-PS-SLNO in entire block text
-                            block_text = ' '.join(lines)
-                            acps_match = re.search(r'(\d+)\s*-\s*(\d+)\s*-\s*(\d+)', block_text)
-                            if acps_match:
-                                voter['ac_ps_slno'] = f"{acps_match.group(1)}-{acps_match.group(2)}-{acps_match.group(3)}"
-                                try:
-                                    voter['sl_no'] = int(acps_match.group(3))
-                                except:
-                                    pass
+                            # Find closest AC-PS-SLNO above this EPIC
+                            closest_acps = None
+                            closest_dist = float('inf')
+                            for acps_w in acps_words:
+                                if acps_w['top'] < epic_y and epic_y - acps_w['top'] < 100:
+                                    dist = epic_y - acps_w['top']
+                                    if dist < closest_dist:
+                                        closest_dist = dist
+                                        closest_acps = acps_w['text']
                             
-                            # Parse each line for other fields
-                            for line in lines:
+                            if closest_acps:
+                                acps_match = re.search(r'(\d+)\s*-\s*(\d+)\s*-\s*(\d+)', closest_acps)
+                                if acps_match:
+                                    voter['ac_ps_slno'] = f"{acps_match.group(1)}-{acps_match.group(2)}-{acps_match.group(3)}"
+                                    try:
+                                        voter['sl_no'] = int(acps_match.group(3))
+                                    except:
+                                        pass
+                            
+                            # Get words above EPIC within voter block (~90px)
+                            block_words = [
+                                w for w in col_words 
+                                if epic_y - 90 < w['top'] <= epic_y + 5
+                            ]
+                            block_words.sort(key=lambda w: (w['top'], w['x0']))
+                            
+                            # Group by Y position (same line)
+                            y_groups = defaultdict(list)
+                            for w in block_words:
+                                y_key = round(w['top'] / 8) * 8
+                                y_groups[y_key].append(w)
+                            
+                            # Build lines and parse
+                            for y_key in sorted(y_groups.keys()):
+                                line_words = sorted(y_groups[y_key], key=lambda w: w['x0'])
+                                line = ' '.join([w['text'] for w in line_words])
                                 # Name
                                 if line.startswith('Name') or ':' in line:
                                     name_match = re.search(r'Name\s*:([^:]+?)$', line)
