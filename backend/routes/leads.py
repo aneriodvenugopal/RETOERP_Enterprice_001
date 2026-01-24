@@ -59,12 +59,19 @@ async def create_lead(
     
     # Create notification for tenant admins about new lead
     import uuid as uuid_lib
+    
+    # Fetch role IDs first to avoid N+1 query
+    tenant_admin_role = await db.roles.find_one({'slug': 'tenant_admin'}, {'_id': 0, 'id': 1})
+    super_admin_role = await db.roles.find_one({'slug': 'super_admin'}, {'_id': 0, 'id': 1})
+    role_ids = []
+    if tenant_admin_role:
+        role_ids.append(tenant_admin_role['id'])
+    if super_admin_role:
+        role_ids.append(super_admin_role['id'])
+    
     tenant_admins = await db.users.find({
         'tenant_id': lead.tenant_id,
-        'role_id': {'$in': [
-            (await db.roles.find_one({'slug': 'tenant_admin'}, {'_id': 0}))['id'],
-            (await db.roles.find_one({'slug': 'super_admin'}, {'_id': 0}))['id']
-        ]},
+        'role_id': {'$in': role_ids},
         'is_active': True,
         'deleted_at': None
     }, {'_id': 0}).to_list(length=100)
