@@ -1008,6 +1008,12 @@ async def export_voters_excel(
     try:
         db = request.app.state.db
         
+        # Check if export is enabled for this ward
+        if ward and ward != 'all':
+            settings = await db.voter_settings.find_one({"ward_no": int(ward)})
+            if settings and not settings.get("export_enabled", True):
+                raise HTTPException(status_code=403, detail="Export is disabled for this ward")
+        
         # Build query based on export type
         query = {}
         
@@ -1109,6 +1115,333 @@ async def export_voters_excel(
             headers={"Content-Disposition": f"attachment; filename={filename}"}
         )
         
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ==================== ADMIN SETTINGS ENDPOINTS ====================
+
+@router.get("/admin/settings")
+async def get_admin_settings(request: Request):
+    """Get all ward settings for admin panel"""
+    try:
+        db = request.app.state.db
+        
+        cursor = db.voter_settings.find({}, {"_id": 0})
+        settings_list = await cursor.to_list(length=100)
+        
+        # Convert to dict by ward_no
+        settings = {str(s["ward_no"]): s for s in settings_list}
+        
+        return {
+            "success": True,
+            "settings": settings
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/admin/ward-settings")
+async def update_ward_settings(request: Request):
+    """Update visibility and export settings for a ward"""
+    try:
+        db = request.app.state.db
+        body = await request.json()
+        
+        ward_no = body.get("ward_no")
+        visible = body.get("visible", True)
+        export_enabled = body.get("export_enabled", True)
+        
+        if ward_no is None:
+            raise HTTPException(status_code=400, detail="Ward number is required")
+        
+        # Upsert ward settings
+        await db.voter_settings.update_one(
+            {"ward_no": int(ward_no)},
+            {"$set": {
+                "ward_no": int(ward_no),
+                "visible": visible,
+                "export_enabled": export_enabled,
+                "updated_at": datetime.now()
+            }},
+            upsert=True
+        )
+        
+        return {
+            "success": True,
+            "message": f"Ward {ward_no} settings updated"
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/visible-wards")
+async def get_visible_wards(
+    request: Request,
+    village: Optional[str] = Query(None)
+):
+    """Get list of wards that are visible (for regular users)"""
+    try:
+        db = request.app.state.db
+        
+        # Get all wards
+        match_query = {}
+        if village:
+            match_query["village"] = {"$regex": f"^{village}$", "$options": "i"}
+        
+        pipeline = [
+            {"$match": match_query} if match_query else {"$match": {}},
+            {"$group": {
+                "_id": "$ward_no",
+                "count": {"$sum": 1}
+            }},
+            {"$sort": {"_id": 1}}
+        ]
+        
+        result = await db.voters.aggregate(pipeline).to_list(100)
+        
+        # Get settings for visibility
+        settings_cursor = db.voter_settings.find({}, {"_id": 0})
+        settings_list = await settings_cursor.to_list(100)
+        settings_map = {s["ward_no"]: s for s in settings_list}
+        
+        # Filter visible wards
+        visible_wards = []
+        for r in result:
+            if r["_id"] is not None:
+                ward_setting = settings_map.get(r["_id"], {"visible": True})
+                if ward_setting.get("visible", True):
+                    visible_wards.append({
+                        "ward_no": r["_id"],
+                        "voter_count": r["count"],
+                        "export_enabled": ward_setting.get("export_enabled", True)
+                    })
+        
+        return {
+            "success": True,
+            "wards": visible_wards
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ==================== INCOMPLETE RECORDS ENDPOINTS ====================
+
+@router.get("/incomplete-stats")
+async def get_incomplete_stats(
+    request: Request,
+    village: Optional[str] = Query(None),
+    ward: Optional[str] = Query(None)
+):
+    """Get statistics about incomplete voter records"""
+    try:
+        db = request.app.state.db
+        
+        match_query = {}
+        if village:
+            match_query["village"] = {"$regex": f"^{village}$", "$options": "i"}
+        if ward and ward != 'all':
+            try:
+                match_query["ward_no"] = int(ward)
+            except (ValueError, TypeError):
+                match_query["ward_no"] = ward
+        
+        # Total count
+        total = await db.voters.count_documents(match_query)
+        
+        # Complete records (has name, age, gender)
+        complete_query = {
+            **match_query,
+            "name": {"$exists": True, "$ne": "", "$ne": None},
+            "age": {"$exists": True, "$ne": None, "$gt": 0},
+            "gender": {"$exists": True, "$ne": "", "$ne": None}
+        }
+        complete = await db.voters.count_documents(complete_query)
+        
+        # Missing name
+        missing_name_query = {
+            **match_query,
+            "$or": [
+                {"name": {"$exists": False}},
+                {"name": ""},
+                {"name": None}
+            ]
+        }
+        missing_name = await db.voters.count_documents(missing_name_query)
+        
+        # Missing age
+        missing_age_query = {
+            **match_query,
+            "$or": [
+                {"age": {"$exists": False}},
+                {"age": None},
+                {"age": 0}
+            ]
+        }
+        missing_age = await db.voters.count_documents(missing_age_query)
+        
+        # Partial (has name but missing other fields)
+        partial_query = {
+            **match_query,
+            "name": {"$exists": True, "$ne": "", "$ne": None},
+            "$or": [
+                {"age": {"$exists": False}},
+                {"age": None},
+                {"age": 0},
+                {"gender": {"$exists": False}},
+                {"gender": ""},
+                {"gender": None}
+            ]
+        }
+        partial = await db.voters.count_documents(partial_query)
+        
+        # Incomplete (missing critical fields)
+        incomplete = total - complete
+        
+        return {
+            "success": True,
+            "stats": {
+                "total": total,
+                "complete": complete,
+                "incomplete": incomplete,
+                "partial": partial,
+                "missing_name": missing_name,
+                "missing_age": missing_age
+            }
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/list-with-status")
+async def get_voters_with_status(
+    request: Request,
+    village: Optional[str] = Query(None),
+    ward: Optional[str] = Query(None),
+    filter_type: str = Query("all", description="all, incomplete, complete, missing_name, missing_age"),
+    page: int = Query(1, ge=1),
+    limit: int = Query(50, ge=1, le=200)
+):
+    """Get voters list with completeness status"""
+    try:
+        db = request.app.state.db
+        
+        query = {}
+        
+        if village:
+            query["village"] = {"$regex": f"^{village}$", "$options": "i"}
+        
+        if ward and ward != 'all':
+            try:
+                query["ward_no"] = int(ward)
+            except (ValueError, TypeError):
+                query["ward_no"] = ward
+        
+        # Apply filter type
+        if filter_type == "incomplete":
+            query["$or"] = [
+                {"name": {"$exists": False}},
+                {"name": ""},
+                {"name": None},
+                {"age": {"$exists": False}},
+                {"age": None},
+                {"age": 0},
+                {"gender": {"$exists": False}},
+                {"gender": ""},
+                {"gender": None}
+            ]
+        elif filter_type == "complete":
+            query["name"] = {"$exists": True, "$ne": "", "$ne": None}
+            query["age"] = {"$exists": True, "$ne": None, "$gt": 0}
+            query["gender"] = {"$exists": True, "$ne": "", "$ne": None}
+        elif filter_type == "missing_name":
+            query["$or"] = [
+                {"name": {"$exists": False}},
+                {"name": ""},
+                {"name": None}
+            ]
+        elif filter_type == "missing_age":
+            query["$or"] = [
+                {"age": {"$exists": False}},
+                {"age": None},
+                {"age": 0}
+            ]
+        
+        total = await db.voters.count_documents(query)
+        skip = (page - 1) * limit
+        
+        cursor = db.voters.find(query, {"_id": 0}).sort([("ward_no", 1), ("sl_no", 1)]).skip(skip).limit(limit)
+        voters = await cursor.to_list(length=limit)
+        
+        return {
+            "success": True,
+            "data": voters,
+            "pagination": {
+                "total": total,
+                "page": page,
+                "limit": limit,
+                "total_pages": (total + limit - 1) // limit
+            },
+            "summary": {
+                "showing": len(voters),
+                "filter": filter_type
+            }
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.put("/update-full/{epic_no}")
+async def update_voter_full(
+    request: Request,
+    epic_no: str
+):
+    """Update all voter fields by EPIC number"""
+    try:
+        db = request.app.state.db
+        body = await request.json()
+        
+        # Fields that can be updated
+        allowed_fields = {
+            "name", "father_husband_name", "age", "gender", 
+            "house_number", "sl_no", "mobile_number", "ac_ps_slno"
+        }
+        
+        update_data = {}
+        for key, value in body.items():
+            if key in allowed_fields:
+                if key == "age" and value:
+                    update_data[key] = int(value) if value else None
+                elif key == "sl_no" and value:
+                    update_data[key] = int(value) if value else 0
+                elif key == "gender" and value:
+                    update_data[key] = value.upper()[:1]
+                else:
+                    update_data[key] = value
+        
+        if not update_data:
+            raise HTTPException(status_code=400, detail="No valid fields to update")
+        
+        result = await db.voters.update_one(
+            {"epic_no": epic_no},
+            {"$set": update_data}
+        )
+        
+        if result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="Voter not found")
+        
+        # Get updated voter
+        voter = await db.voters.find_one({"epic_no": epic_no}, {"_id": 0})
+        
+        return {
+            "success": True,
+            "message": "Voter updated successfully",
+            "voter": voter
+        }
     except HTTPException:
         raise
     except Exception as e:
