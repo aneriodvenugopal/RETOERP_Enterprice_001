@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Search, Filter, Users, User, ChevronLeft, ChevronRight, Lock, Eye, EyeOff, Download, RefreshCw } from 'lucide-react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Search, Filter, Users, User, ChevronLeft, ChevronRight, Lock, Eye, EyeOff, Download, RefreshCw, MapPin } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
@@ -9,6 +10,14 @@ import { toast } from 'sonner';
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
 const VotersList = () => {
+  // Get URL params
+  const { village, wardNo } = useParams();
+  const navigate = useNavigate();
+  
+  // Derived values from URL
+  const urlVillage = village || 'aliyabad';
+  const urlWard = wardNo || null;
+
   // Auth state
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
@@ -19,9 +28,10 @@ const VotersList = () => {
   const [voters, setVoters] = useState([]);
   const [loading, setLoading] = useState(false);
   const [stats, setStats] = useState(null);
+  const [availableWards, setAvailableWards] = useState([]);
 
-  // Filter state
-  const [selectedWard, setSelectedWard] = useState('all');
+  // Filter state - use URL ward if provided
+  const [selectedWard, setSelectedWard] = useState(urlWard || 'all');
   const [selectedGender, setSelectedGender] = useState('all');
   const [ageMin, setAgeMin] = useState('');
   const [ageMax, setAgeMax] = useState('');
@@ -32,6 +42,13 @@ const VotersList = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [totalVoters, setTotalVoters] = useState(0);
   const limit = 50;
+
+  // Update selected ward when URL changes
+  useEffect(() => {
+    if (urlWard) {
+      setSelectedWard(urlWard);
+    }
+  }, [urlWard]);
 
   // Check if already authenticated
   useEffect(() => {
@@ -69,11 +86,25 @@ const VotersList = () => {
     }
   };
 
+  // Fetch available wards
+  const fetchAvailableWards = useCallback(async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/voters/wards?village=${urlVillage}`);
+      const data = await response.json();
+      if (data.success) {
+        setAvailableWards(data.wards || []);
+      }
+    } catch (error) {
+      console.error('Failed to fetch wards');
+    }
+  }, [urlVillage]);
+
   // Fetch voters list
   const fetchVoters = useCallback(async () => {
     setLoading(true);
     try {
       const params = new URLSearchParams();
+      params.append('village', urlVillage);
       if (selectedWard !== 'all') params.append('ward', selectedWard);
       if (selectedGender !== 'all') params.append('gender', selectedGender);
       if (ageMin) params.append('age_min', ageMin);
@@ -95,12 +126,13 @@ const VotersList = () => {
     } finally {
       setLoading(false);
     }
-  }, [selectedWard, selectedGender, ageMin, ageMax, searchQuery, currentPage]);
+  }, [urlVillage, selectedWard, selectedGender, ageMin, ageMax, searchQuery, currentPage]);
 
   // Fetch stats
   const fetchStats = useCallback(async () => {
     try {
       const params = new URLSearchParams();
+      params.append('village', urlVillage);
       if (selectedWard !== 'all') params.append('ward', selectedWard);
 
       const response = await fetch(`${API_URL}/api/voters/stats?${params}`);
@@ -112,7 +144,7 @@ const VotersList = () => {
     } catch (error) {
       console.error('Failed to fetch stats');
     }
-  }, [selectedWard]);
+  }, [urlVillage, selectedWard]);
 
   // Load data when authenticated
   useEffect(() => {
