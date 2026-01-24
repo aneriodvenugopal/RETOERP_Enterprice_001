@@ -705,9 +705,9 @@ const VotersBulkUpdate = () => {
                 <p className="font-medium text-slate-300 mb-2">How to use Bulk Update</p>
                 <ul className="space-y-1 list-disc list-inside">
                   <li>Select ward to filter records for that ward</li>
-                  <li>Use "Show" filter to find incomplete records</li>
+                  <li>Use &quot;Show&quot; filter to find incomplete records</li>
                   <li>Click Edit icon to update missing fields</li>
-                  <li>Click "Add Voter" to manually add missing voters</li>
+                  <li>Click &quot;Add Voter&quot; to manually add missing voters</li>
                   <li>Required fields: Village, Ward, EPIC No.</li>
                 </ul>
               </div>
