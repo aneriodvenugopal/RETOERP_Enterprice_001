@@ -203,9 +203,6 @@ const VotersImport = () => {
       } else {
         toast.error('Failed to upload: ' + error.message);
       }
-      } else {
-        toast.error('Failed to upload: ' + error.message);
-      }
       setUploadResult({
         success: false,
         message: error.message
