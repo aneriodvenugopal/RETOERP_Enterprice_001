@@ -409,6 +409,24 @@ Build a comprehensive Real Estate ERP (RealApex) SaaS platform for the Indian re
     - POST /api/project-pricing/project/{id}/apply-to-properties - Bulk apply
   - Frontend: /projects/:projectId/pricing
 
+- [x] **Voters Data Import Tool** (Completed Jan 24, 2026)
+  - PDF file upload with browse option
+  - Village and Ward mapping interface  
+  - Column-based PDF extraction for Ward Photo Voter List format
+  - Automatic data extraction: EPIC No, Name, Father/Husband Name, Age, Gender, House Number, Ward
+  - Multi-ward support with dynamic URLs: `/voterslist/{village}/ward/{ward_no}`
+  - Stats dashboard showing total voters, gender distribution
+  - View and manage imported data by ward
+  - Delete/replace functionality per village/ward
+  - APIs:
+    - POST /api/voters/upload-pdf - Upload and process PDF
+    - GET /api/voters/villages - List available villages
+    - GET /api/voters/wards - List wards for village
+    - GET /api/voters/stats - Get voter statistics
+    - DELETE /api/voters/clear - Clear voter data
+  - Frontend: /voters-import (Import tool), /voterslist/{village}/ward/{wardNo} (View list)
+  - Extracted 960 voters from Ward 1 PDF (out of 974), 889 voters from Ward 13 PDF (up from 314)
+
 ### P4 - Future/Backlog
 - [x] Festival Greetings Automation - Backend cron job for Jan 26 & Aug 15 (Completed Jan 12, 2026)
 - [x] SaaS marketing pages - /saas landing page (Completed Jan 12, 2026)
