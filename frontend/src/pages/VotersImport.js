@@ -109,13 +109,19 @@ const VotersImport = () => {
       }
       setSelectedFile(file);
       setUploadResult(null);
+      setUseUrlImport(false);
     }
   };
 
-  // Handle upload
+  // Handle upload (file or URL)
   const handleUpload = async () => {
-    if (!selectedFile) {
+    // Validate inputs
+    if (!useUrlImport && !selectedFile) {
       toast.error('Please select a PDF file');
+      return;
+    }
+    if (useUrlImport && !pdfUrl.trim()) {
+      toast.error('Please enter a PDF URL');
       return;
     }
     if (!village.trim()) {
@@ -131,13 +137,29 @@ const VotersImport = () => {
     setUploadResult(null);
 
     try {
-      const formData = new FormData();
-      formData.append('file', selectedFile);
-      formData.append('village', village.trim());
-      formData.append('ward_no', wardNo.trim());
-      formData.append('replace_existing', replaceExisting);
+      let response;
+      
+      if (useUrlImport) {
+        // URL-based import (for large files)
+        response = await fetch(`${API_URL}/api/voters/import-from-url`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            url: pdfUrl.trim(),
+            village: village.trim(),
+            ward_no: parseInt(wardNo.trim()),
+            replace_existing: replaceExisting
+          })
+        });
+      } else {
+        // Direct file upload
+        const formData = new FormData();
+        formData.append('file', selectedFile);
+        formData.append('village', village.trim());
+        formData.append('ward_no', wardNo.trim());
+        formData.append('replace_existing', replaceExisting);
 
-      // Create AbortController for timeout (5 minutes for large files)
+        // Create AbortController for timeout (5 minutes for large files)
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 300000); // 5 min timeout
 
