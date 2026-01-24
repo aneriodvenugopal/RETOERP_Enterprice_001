@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-  Settings, Shield, Eye, EyeOff, Download, DownloadOff, 
+  Settings, Shield, Eye, EyeOff, Download, XCircle, 
   Users, MapPin, Hash, RefreshCw, ArrowLeft, Save,
   AlertTriangle, CheckCircle, Lock, Unlock, Trash2
 } from 'lucide-react';
