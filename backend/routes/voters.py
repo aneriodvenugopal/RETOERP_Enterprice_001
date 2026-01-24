@@ -233,7 +233,7 @@ async def upload_voters_data(request: Request):
                 if len(parts) >= 3:
                     try:
                         voter["sl_no"] = int(parts[2])
-                    except:
+                    except (ValueError, TypeError):
                         voter["sl_no"] = 0
         
         await db.voters.delete_many({"ward_no": ward_no})
