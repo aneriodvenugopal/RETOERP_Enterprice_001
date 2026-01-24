@@ -1355,9 +1355,9 @@ async def get_voters_with_status(
                 {"gender": None}
             ]
         elif filter_type == "complete":
-            query["name"] = {"$exists": True, "$ne": "", "$ne": None}
+            query["name"] = {"$exists": True, "$nin": ["", None]}
             query["age"] = {"$exists": True, "$ne": None, "$gt": 0}
-            query["gender"] = {"$exists": True, "$ne": "", "$ne": None}
+            query["gender"] = {"$exists": True, "$nin": ["", None]}
         elif filter_type == "missing_name":
             query["$or"] = [
                 {"name": {"$exists": False}},
