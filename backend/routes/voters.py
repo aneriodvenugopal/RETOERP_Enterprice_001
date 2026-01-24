@@ -351,7 +351,7 @@ def extract_voters_by_columns(pdf_bytes: bytes) -> tuple[list, dict]:
                                     voter['ac_ps_slno'] = f"{acps_match.group(1)}-{acps_match.group(2)}-{acps_match.group(3)}"
                                     try:
                                         voter['sl_no'] = int(acps_match.group(3))
-                                    except:
+                                    except (ValueError, TypeError):
                                         pass
                             
                             # Get words above EPIC within voter block (~90px)
