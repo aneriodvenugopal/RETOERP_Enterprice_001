@@ -603,10 +603,19 @@ const VotersList = () => {
   // Main Voters List Screen
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Add Voter Modal */}
+      <AddVoterModal
+        isOpen={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        village={urlVillage}
+        wardNo={selectedWard !== 'all' ? selectedWard : urlWard || '1'}
+        onVoterAdded={handleVoterAdded}
+      />
+      
       {/* Header */}
       <header className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-6 px-4 shadow-lg">
         <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between flex-wrap gap-4">
             <div>
               <h1 className="text-2xl font-bold flex items-center gap-2">
                 <Users className="w-7 h-7" />
@@ -614,18 +623,65 @@ const VotersList = () => {
               </h1>
               <p className="text-blue-100 text-sm mt-1">Ward-wise Electoral Roll</p>
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              className="bg-white/10 border-white/30 text-white hover:bg-white/20"
-              onClick={() => {
-                sessionStorage.removeItem('voters_token');
-                setIsAuthenticated(false);
-              }}
-              data-testid="logout-button"
-            >
-              Logout
-            </Button>
+            <div className="flex items-center gap-2 flex-wrap">
+              {/* Add Voter Button */}
+              <Button
+                size="sm"
+                className="bg-green-500 hover:bg-green-600 text-white"
+                onClick={() => setShowAddModal(true)}
+                data-testid="add-voter-button"
+              >
+                <Plus className="w-4 h-4 mr-1" />
+                Add Voter
+              </Button>
+              
+              {/* Export Dropdown */}
+              <div className="relative group">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="bg-white/10 border-white/30 text-white hover:bg-white/20"
+                  disabled={exporting}
+                  data-testid="export-button"
+                >
+                  {exporting ? (
+                    <RefreshCw className="w-4 h-4 mr-1 animate-spin" />
+                  ) : (
+                    <FileSpreadsheet className="w-4 h-4 mr-1" />
+                  )}
+                  Export Excel
+                </Button>
+                <div className="absolute right-0 mt-1 w-48 bg-white rounded-lg shadow-lg border opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+                  <button
+                    onClick={() => handleExport('filtered')}
+                    className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 rounded-t-lg flex items-center gap-2"
+                  >
+                    <Filter className="w-4 h-4" />
+                    Export Filtered ({totalVoters})
+                  </button>
+                  <button
+                    onClick={() => handleExport('all')}
+                    className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 rounded-b-lg flex items-center gap-2"
+                  >
+                    <Download className="w-4 h-4" />
+                    Export All Data
+                  </button>
+                </div>
+              </div>
+              
+              <Button
+                variant="outline"
+                size="sm"
+                className="bg-white/10 border-white/30 text-white hover:bg-white/20"
+                onClick={() => {
+                  sessionStorage.removeItem('voters_token');
+                  setIsAuthenticated(false);
+                }}
+                data-testid="logout-button"
+              >
+                Logout
+              </Button>
+            </div>
           </div>
         </div>
       </header>
