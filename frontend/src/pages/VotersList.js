@@ -51,7 +51,7 @@ const VoterRow = ({ voter, index, onUpdate }) => {
   };
 
   return (
-    <tr className="hover:bg-gray-50">
+    <tr className="hover:bg-gray-50 group">
       <td className="px-3 py-2 text-sm text-gray-600">{voter.sl_no || ((index + 1))}</td>
       <td className="px-3 py-2 text-sm font-mono text-blue-600">{voter.epic_no}</td>
       <td className="px-3 py-2 text-sm font-medium text-gray-900">{voter.name || '-'}</td>
