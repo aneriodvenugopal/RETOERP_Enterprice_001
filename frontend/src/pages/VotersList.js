@@ -441,6 +441,50 @@ const VotersList = () => {
     }
   }, [urlVillage, selectedWard, selectedGender, ageMin, ageMax, searchQuery, currentPage]);
 
+  // Export to Excel
+  const handleExport = async (exportType) => {
+    setExporting(true);
+    try {
+      const params = new URLSearchParams();
+      params.append('export_type', exportType);
+      params.append('village', urlVillage);
+      if (selectedWard !== 'all') params.append('ward', selectedWard);
+      if (selectedGender !== 'all') params.append('gender', selectedGender);
+      if (searchQuery) params.append('search', searchQuery);
+
+      const response = await fetch(`${API_URL}/api/voters/export/excel?${params}`);
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.detail || 'Export failed');
+      }
+
+      // Download file
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = response.headers.get('content-disposition')?.split('filename=')[1] || 'voters.xlsx';
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      a.remove();
+      
+      toast.success(`Exported ${exportType === 'all' ? 'all' : 'filtered'} voters successfully`);
+    } catch (error) {
+      toast.error(error.message || 'Failed to export');
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  // Handle new voter added
+  const handleVoterAdded = (newVoter) => {
+    setVoters(prev => [newVoter, ...prev]);
+    setTotalVoters(prev => prev + 1);
+    fetchStats();
+  };
+
   // Fetch stats
   const fetchStats = useCallback(async () => {
     try {
