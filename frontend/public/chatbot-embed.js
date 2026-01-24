@@ -47,7 +47,7 @@
         tenantId: tenantId,
         position: position,
         primaryColor: primaryColor,
-        backendUrl: 'https://estate-platform-6.preview.emergentagent.com/api'
+        backendUrl: 'https://voterlist.preview.emergentagent.com/api'
       };
       
       // Load chat widget bundle

@@ -184,7 +184,7 @@
 
    **మొదటి referrer:**
    ```
-   https://estate-platform-6.preview.emergentagent.com/*
+   https://voterlist.preview.emergentagent.com/*
    ```
    - Paste చేసి Enter నొక్కండి
 
