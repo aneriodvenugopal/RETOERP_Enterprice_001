@@ -263,7 +263,9 @@ function App() {
                 {/* Voters List - Public with password */}
                 <Route path="/voters-list" element={<VotersList />} />
                 <Route path="/voterslist" element={<VotersList />} />
+                <Route path="/voterslist/:village" element={<VotersList />} />
                 <Route path="/voterslist/:village/ward/:wardNo" element={<VotersList />} />
+                <Route path="/voters-import" element={<VotersImport />} />
                 
                 {/* Solution Routes - Public */}
                 <Route path="/solutions/crm" element={<CRMSolution />} />
