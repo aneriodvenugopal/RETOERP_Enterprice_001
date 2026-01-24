@@ -89,11 +89,20 @@ async def get_voters_list(
         total = await db.voters.count_documents(query)
         
         skip = (page - 1) * limit
-        # Sort by sl_no ascending, but put 0s at the end using a compound sort
-        cursor = db.voters.find(query, {"_id": 0}).skip(skip).limit(limit).sort([
-            ("sl_no", 1),  # Sort by serial number ascending
-            ("epic_no", 1)  # Then by EPIC number for consistency
-        ])
+        
+        # Use aggregation to sort with sl_no > 0 first, then by sl_no ascending
+        pipeline = [
+            {"$match": query},
+            {"$addFields": {
+                "has_sl_no": {"$cond": [{"$gt": ["$sl_no", 0]}, 0, 1]}
+            }},
+            {"$sort": {"has_sl_no": 1, "sl_no": 1, "epic_no": 1}},
+            {"$skip": skip},
+            {"$limit": limit},
+            {"$project": {"_id": 0, "has_sl_no": 0}}
+        ]
+        
+        cursor = db.voters.aggregate(pipeline)
         voters = await cursor.to_list(length=limit)
         
         return {
