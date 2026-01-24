@@ -142,21 +142,30 @@ async def get_available_wards(
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/stats")
-async def get_voters_stats(request: Request, ward: Optional[int] = Query(None)):
+async def get_voters_stats(
+    request: Request, 
+    village: Optional[str] = Query(None),
+    ward: Optional[str] = Query(None)
+):
     """Get voters statistics"""
     try:
         db = request.app.state.db
         
         match_query = {}
-        if ward is not None:
-            match_query["ward_no"] = ward
+        if village:
+            match_query["village"] = {"$regex": f"^{village}$", "$options": "i"}
+        if ward is not None and ward != 'all':
+            try:
+                match_query["ward_no"] = int(ward)
+            except (ValueError, TypeError):
+                match_query["ward_no"] = ward
         
         # Get total count
         total = await db.voters.count_documents(match_query)
         
         # Get gender-wise count
         pipeline = [
-            {"$match": match_query},
+            {"$match": match_query} if match_query else {"$match": {}},
             {"$group": {"_id": "$gender", "count": {"$sum": 1}}}
         ]
         gender_stats = await db.voters.aggregate(pipeline).to_list(length=10)
@@ -175,7 +184,7 @@ async def get_voters_stats(request: Request, ward: Optional[int] = Query(None)):
             {"$group": {"_id": "$ward_no", "count": {"$sum": 1}}},
             {"$sort": {"_id": 1}}
         ]
-        ward_stats = await db.voters.aggregate(ward_pipeline).to_list(length=20)
+        ward_stats = await db.voters.aggregate(ward_pipeline).to_list(length=50)
         
         # Get available wards
         wards = [w["_id"] for w in ward_stats if w["_id"] is not None]
