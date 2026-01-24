@@ -480,7 +480,7 @@ def extract_voters_simple(pdf_bytes: bytes) -> tuple[list, dict]:
                     voter['ac_ps_slno'] = f"{acps.group(1)}-{acps.group(2)}-{acps.group(3)}"
                     try:
                         voter['sl_no'] = int(acps.group(3))
-                    except:
+                    except (ValueError, TypeError):
                         pass
                 
                 name_match = re.search(r'Name\s*:?\s*([A-Za-z][A-Za-z\s]+)', context)
