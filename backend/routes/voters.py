@@ -250,8 +250,6 @@ def extract_voters_by_columns(pdf_bytes: bytes) -> tuple[list, dict]:
     Groups words by voter block using Y-position clustering.
     Achieves ~99% accuracy for Ward Photo Voter List format.
     """
-    from collections import defaultdict
-    
     voters = []
     metadata = {
         "total_pages": 0,
