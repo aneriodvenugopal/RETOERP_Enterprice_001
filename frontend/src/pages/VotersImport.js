@@ -133,16 +133,29 @@ const VotersImport = () => {
       formData.append('ward_no', wardNo.trim());
       formData.append('replace_existing', replaceExisting);
 
+      // Create AbortController for timeout (5 minutes for large files)
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 300000); // 5 min timeout
+
       const response = await fetch(`${API_URL}/api/voters/upload-pdf`, {
         method: 'POST',
-        body: formData
+        body: formData,
+        signal: controller.signal
       });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || `HTTP ${response.status}`);
+      }
 
       const data = await response.json();
       setUploadResult(data);
 
       if (data.success) {
-        toast.success(`Imported ${data.extracted_count} voters successfully!`);
+        toast.success(`Imported ${data.extracted_count} voters successfully!` + 
+          (data.skipped_count > 0 ? ` (${data.skipped_count} duplicates skipped)` : ''));
         setSelectedFile(null);
         // Reset file input
         const fileInput = document.getElementById('pdf-file-input');
@@ -155,7 +168,13 @@ const VotersImport = () => {
         toast.error(data.message || 'Import failed');
       }
     } catch (error) {
-      toast.error('Failed to upload file: ' + error.message);
+      if (error.name === 'AbortError') {
+        toast.error('Upload timed out. The file may be too large. Try again or contact support.');
+      } else if (error.message === 'Failed to fetch') {
+        toast.error('Network error. Please check your connection and try again. Large files may take longer.');
+      } else {
+        toast.error('Failed to upload: ' + error.message);
+      }
       setUploadResult({
         success: false,
         message: error.message
