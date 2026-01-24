@@ -487,8 +487,8 @@ async def upload_voters_pdf(
         
         pdf_bytes = await file.read()
         
-        if len(pdf_bytes) > 50 * 1024 * 1024:
-            raise HTTPException(status_code=400, detail="File too large. Maximum 50MB allowed.")
+        if len(pdf_bytes) > 100 * 1024 * 1024:
+            raise HTTPException(status_code=400, detail="File too large. Maximum 100MB allowed.")
         
         try:
             ward_int = int(ward_no)
