@@ -1256,9 +1256,9 @@ async def get_incomplete_stats(
         # Complete records (has name, age, gender)
         complete_query = {
             **match_query,
-            "name": {"$exists": True, "$ne": "", "$ne": None},
+            "name": {"$exists": True, "$nin": ["", None]},
             "age": {"$exists": True, "$ne": None, "$gt": 0},
-            "gender": {"$exists": True, "$ne": "", "$ne": None}
+            "gender": {"$exists": True, "$nin": ["", None]}
         }
         complete = await db.voters.count_documents(complete_query)
         
@@ -1287,7 +1287,7 @@ async def get_incomplete_stats(
         # Partial (has name but missing other fields)
         partial_query = {
             **match_query,
-            "name": {"$exists": True, "$ne": "", "$ne": None},
+            "name": {"$exists": True, "$nin": ["", None]},
             "$or": [
                 {"age": {"$exists": False}},
                 {"age": None},
