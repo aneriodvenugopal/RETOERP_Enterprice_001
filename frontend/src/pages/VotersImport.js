@@ -20,7 +20,7 @@ const VotersImport = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [village, setVillage] = useState('');
   const [wardNo, setWardNo] = useState('');
-  const [replaceExisting, setReplaceExisting] = useState(true);
+  const [replaceExisting, setReplaceExisting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   
   // Data state
