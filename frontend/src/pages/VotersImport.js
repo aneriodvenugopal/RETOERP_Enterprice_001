@@ -160,16 +160,17 @@ const VotersImport = () => {
         formData.append('replace_existing', replaceExisting);
 
         // Create AbortController for timeout (5 minutes for large files)
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 300000); // 5 min timeout
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 300000); // 5 min timeout
 
-      const response = await fetch(`${API_URL}/api/voters/upload-pdf`, {
-        method: 'POST',
-        body: formData,
-        signal: controller.signal
-      });
+        response = await fetch(`${API_URL}/api/voters/upload-pdf`, {
+          method: 'POST',
+          body: formData,
+          signal: controller.signal
+        });
 
-      clearTimeout(timeoutId);
+        clearTimeout(timeoutId);
+      }
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -183,6 +184,7 @@ const VotersImport = () => {
         toast.success(`Imported ${data.extracted_count} voters successfully!` + 
           (data.skipped_count > 0 ? ` (${data.skipped_count} duplicates skipped)` : ''));
         setSelectedFile(null);
+        setPdfUrl('');
         // Reset file input
         const fileInput = document.getElementById('pdf-file-input');
         if (fileInput) fileInput.value = '';
@@ -195,9 +197,12 @@ const VotersImport = () => {
       }
     } catch (error) {
       if (error.name === 'AbortError') {
-        toast.error('Upload timed out. The file may be too large. Try again or contact support.');
+        toast.error('Upload timed out. Try using "Import from URL" option for large files.');
       } else if (error.message === 'Failed to fetch') {
-        toast.error('Network error. Please check your connection and try again. Large files may take longer.');
+        toast.error('Network error. For large files (>20MB), try using "Import from URL" option.');
+      } else {
+        toast.error('Failed to upload: ' + error.message);
+      }
       } else {
         toast.error('Failed to upload: ' + error.message);
       }
