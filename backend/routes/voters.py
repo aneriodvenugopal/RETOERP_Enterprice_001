@@ -772,7 +772,13 @@ async def clear_voters_data(
         
         query = {}
         if village:
-            query["village"] = {"$regex": f"^{village}$", "$options": "i"}
+            # Match both records with this village AND records without village field
+            query["$or"] = [
+                {"village": {"$regex": f"^{village}$", "$options": "i"}},
+                {"village": {"$exists": False}},
+                {"village": None},
+                {"village": ""}
+            ]
         if ward_no is not None:
             query["ward_no"] = ward_no
         
