@@ -29,6 +29,10 @@ const VotersImport = () => {
   const [stats, setStats] = useState(null);
   const [uploadResult, setUploadResult] = useState(null);
   
+  // URL import state
+  const [pdfUrl, setPdfUrl] = useState('');
+  const [useUrlImport, setUseUrlImport] = useState(false);
+  
   // Loading states
   const [loadingStats, setLoadingStats] = useState(false);
 
