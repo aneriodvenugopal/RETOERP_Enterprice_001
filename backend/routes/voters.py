@@ -1,7 +1,11 @@
-from fastapi import APIRouter, Request, HTTPException, Query
+from fastapi import APIRouter, Request, HTTPException, Query, UploadFile, File, Form
 from typing import Optional, List
 from datetime import datetime
 import re
+import pdfplumber
+import io
+import tempfile
+import os
 
 router = APIRouter(prefix="/voters", tags=["Voters"])
 
