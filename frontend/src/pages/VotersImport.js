@@ -99,8 +99,8 @@ const VotersImport = () => {
         toast.error('Please select a PDF file');
         return;
       }
-      if (file.size > 50 * 1024 * 1024) {
-        toast.error('File too large. Maximum 50MB allowed.');
+      if (file.size > 100 * 1024 * 1024) {
+        toast.error('File too large. Maximum 100MB allowed.');
         return;
       }
       setSelectedFile(file);
