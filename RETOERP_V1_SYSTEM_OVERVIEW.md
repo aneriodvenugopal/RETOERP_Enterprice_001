@@ -186,7 +186,7 @@ Property Display Name → A-101 (3BHK Sea View)
    - Get primary online account
    - Get shareable bank details (for customers)
 
-**Testing URL:** `https://propmanage-63.preview.emergentagent.com/api/bank-accounts`
+**Testing URL:** `https://estate-platform-6.preview.emergentagent.com/api/bank-accounts`
 
 ---
 
@@ -208,7 +208,7 @@ Property Display Name → A-101 (3BHK Sea View)
    - Track balance amount
    - Payment history
 
-**Testing URL:** `https://propmanage-63.preview.emergentagent.com/api/payment-transfer`
+**Testing URL:** `https://estate-platform-6.preview.emergentagent.com/api/payment-transfer`
 
 ---
 
@@ -234,7 +234,7 @@ Property Display Name → A-101 (3BHK Sea View)
    - Updates account balance
    - Transaction tracking
 
-**Testing URL:** `https://propmanage-63.preview.emergentagent.com/api/razorpay/*` and `/api/manual`
+**Testing URL:** `https://estate-platform-6.preview.emergentagent.com/api/razorpay/*` and `/api/manual`
 
 ---
 
@@ -254,7 +254,7 @@ Property Display Name → A-101 (3BHK Sea View)
    - Bank transfer details
    - TDS tracking
 
-**Testing URL:** `https://propmanage-63.preview.emergentagent.com/api/commissions/payouts`
+**Testing URL:** `https://estate-platform-6.preview.emergentagent.com/api/commissions/payouts`
 
 ---
 
@@ -303,7 +303,7 @@ Property Display Name → A-101 (3BHK Sea View)
 
 ### **Backend Base URL:**
 ```
-https://propmanage-63.preview.emergentagent.com
+https://estate-platform-6.preview.emergentagent.com
 ```
 
 ### **A. Bank Accounts APIs:**
@@ -620,7 +620,7 @@ This will make RETOERP a complete ERP with full financial management capabilitie
 
 Login to your application:
 ```
-URL: https://propmanage-63.preview.emergentagent.com
+URL: https://estate-platform-6.preview.emergentagent.com
 ```
 
 Test the banking system with your tenant credentials and let me know which features you want me to implement next for V2!

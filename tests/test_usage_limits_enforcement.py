@@ -20,7 +20,7 @@ import uuid
 from datetime import datetime
 
 # Base URL from environment
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://propmanage-63.preview.emergentagent.com')
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://estate-platform-6.preview.emergentagent.com')
 
 # Test credentials
 TEST_PHONE = "9908290239"
