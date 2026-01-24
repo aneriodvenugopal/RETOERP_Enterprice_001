@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Search, Filter, Users, User, ChevronLeft, ChevronRight, Lock, Eye, EyeOff, Download, RefreshCw, MapPin } from 'lucide-react';
+import { Search, Filter, Users, User, ChevronLeft, ChevronRight, Lock, Eye, EyeOff, Download, RefreshCw, MapPin, Phone, Check, X, Edit2 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
