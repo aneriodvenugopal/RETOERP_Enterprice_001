@@ -483,19 +483,19 @@ const VotersImport = () => {
               {/* Upload Button */}
               <Button
                 onClick={handleUpload}
-                disabled={isUploading || !selectedFile || !village || !wardNo}
+                disabled={isUploading || (!useUrlImport && !selectedFile) || (useUrlImport && !pdfUrl) || !village || !wardNo}
                 className="w-full bg-indigo-600 hover:bg-indigo-700"
                 data-testid="upload-button"
               >
                 {isUploading ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Processing PDF...
+                    {useUrlImport ? 'Importing from URL...' : 'Processing PDF...'}
                   </>
                 ) : (
                   <>
                     <Upload className="w-4 h-4 mr-2" />
-                    Import Voters
+                    {useUrlImport ? 'Import from URL' : 'Import Voters'}
                   </>
                 )}
               </Button>
