@@ -340,44 +340,88 @@ const VotersImport = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              {/* File Upload */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Select PDF File *
-                </label>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-indigo-400 transition-colors">
-                  <input
-                    id="pdf-file-input"
-                    type="file"
-                    accept=".pdf"
-                    onChange={handleFileChange}
-                    className="hidden"
-                    data-testid="pdf-file-input"
-                  />
-                  <label
-                    htmlFor="pdf-file-input"
-                    className="cursor-pointer"
-                  >
-                    {selectedFile ? (
-                      <div className="flex items-center justify-center gap-3">
-                        <FileUp className="w-8 h-8 text-indigo-600" />
-                        <div className="text-left">
-                          <p className="font-medium text-gray-800">{selectedFile.name}</p>
-                          <p className="text-sm text-gray-500">
-                            {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
-                          </p>
-                        </div>
-                      </div>
-                    ) : (
-                      <div>
-                        <FileUp className="w-12 h-12 mx-auto text-gray-400 mb-2" />
-                        <p className="text-gray-600">Click to browse or drag PDF here</p>
-                        <p className="text-xs text-gray-400 mt-1">Maximum 100MB</p>
-                      </div>
-                    )}
-                  </label>
-                </div>
+              {/* Import Method Toggle */}
+              <div className="flex gap-2 p-1 bg-gray-100 rounded-lg">
+                <button
+                  type="button"
+                  onClick={() => setUseUrlImport(false)}
+                  className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors ${
+                    !useUrlImport 
+                      ? 'bg-white text-indigo-600 shadow' 
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  📁 Upload File
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setUseUrlImport(true)}
+                  className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors ${
+                    useUrlImport 
+                      ? 'bg-white text-indigo-600 shadow' 
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  🔗 Import from URL
+                </button>
               </div>
+
+              {/* File Upload or URL Input */}
+              {!useUrlImport ? (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Select PDF File *
+                  </label>
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-indigo-400 transition-colors">
+                    <input
+                      id="pdf-file-input"
+                      type="file"
+                      accept=".pdf"
+                      onChange={handleFileChange}
+                      className="hidden"
+                      data-testid="pdf-file-input"
+                    />
+                    <label
+                      htmlFor="pdf-file-input"
+                      className="cursor-pointer"
+                    >
+                      {selectedFile ? (
+                        <div className="flex items-center justify-center gap-3">
+                          <FileUp className="w-8 h-8 text-indigo-600" />
+                          <div className="text-left">
+                            <p className="font-medium text-gray-800">{selectedFile.name}</p>
+                            <p className="text-sm text-gray-500">
+                              {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+                            </p>
+                          </div>
+                        </div>
+                      ) : (
+                        <div>
+                          <FileUp className="w-12 h-12 mx-auto text-gray-400 mb-2" />
+                          <p className="text-gray-600">Click to browse or drag PDF here</p>
+                          <p className="text-xs text-gray-400 mt-1">For large files (>20MB), use "Import from URL"</p>
+                        </div>
+                      )}
+                    </label>
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    PDF URL * <span className="text-xs text-gray-500">(for large files)</span>
+                  </label>
+                  <Input
+                    placeholder="https://example.com/voters.pdf"
+                    value={pdfUrl}
+                    onChange={(e) => setPdfUrl(e.target.value)}
+                    className="font-mono text-sm"
+                    data-testid="pdf-url-input"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Paste a direct link to the PDF file. Works better for large files.
+                  </p>
+                </div>
+              )}
 
               {/* Village Input */}
               <div>
