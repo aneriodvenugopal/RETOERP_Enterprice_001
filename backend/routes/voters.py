@@ -349,16 +349,6 @@ def extract_voters_by_columns(pdf_bytes: bytes) -> tuple[list, dict]:
                             
                             # Parse each line for other fields
                             for line in lines:
-                                # AC-PS-SLNO
-                                if 'SLNo' in line or re.search(r'\d+-\d+-\d+', line):
-                                    acps = re.search(r'(\d+)\s*-\s*(\d+)\s*-\s*(\d+)', line)
-                                    if acps:
-                                        voter['ac_ps_slno'] = f"{acps.group(1)}-{acps.group(2)}-{acps.group(3)}"
-                                        try:
-                                            voter['sl_no'] = int(acps.group(3))
-                                        except:
-                                            pass
-                                
                                 # Name
                                 if line.startswith('Name') or ':' in line:
                                     name_match = re.search(r'Name\s*:([^:]+?)$', line)
