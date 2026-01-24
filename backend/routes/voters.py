@@ -565,19 +565,41 @@ async def upload_voters_pdf(
         db = request.app.state.db
         
         deleted_count = 0
+        skipped_count = 0
+        
         if replace_existing:
+            # Replace mode: Delete all existing, then insert all
             delete_result = await db.voters.delete_many({
                 "village": {"$regex": f"^{village}$", "$options": "i"},
                 "ward_no": ward_int
             })
             deleted_count = delete_result.deleted_count
-        
-        if voters:
-            await db.voters.insert_many(voters)
             
-            await db.voters.create_index("village")
-            await db.voters.create_index("ward_no")
-            await db.voters.create_index("ward")
+            if voters:
+                await db.voters.insert_many(voters)
+        else:
+            # Append mode: Only insert voters that don't exist (by EPIC)
+            existing_epics = set()
+            cursor = db.voters.find(
+                {"village": {"$regex": f"^{village}$", "$options": "i"}, "ward_no": ward_int},
+                {"epic_no": 1}
+            )
+            async for doc in cursor:
+                existing_epics.add(doc.get("epic_no"))
+            
+            # Filter out existing voters
+            new_voters = [v for v in voters if v.get("epic_no") not in existing_epics]
+            skipped_count = len(voters) - len(new_voters)
+            
+            if new_voters:
+                await db.voters.insert_many(new_voters)
+            
+            voters = new_voters  # Update for count reporting
+        
+        # Create indexes
+        await db.voters.create_index("village")
+        await db.voters.create_index("ward_no")
+        await db.voters.create_index("ward")
             await db.voters.create_index("epic_no")
             await db.voters.create_index("name")
             await db.voters.create_index("gender")
