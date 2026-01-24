@@ -713,3 +713,135 @@ async def get_voter_by_epic(request: Request, epic_no: str):
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/add")
+async def add_voter_manually(request: Request):
+    """Manually add a single voter (for missing records)"""
+    try:
+        db = request.app.state.db
+        body = await request.json()
+        
+        # Required fields
+        epic_no = body.get("epic_no", "").strip()
+        village = body.get("village", "").strip()
+        ward_no = body.get("ward_no")
+        
+        if not epic_no:
+            raise HTTPException(status_code=400, detail="EPIC number is required")
+        if not village:
+            raise HTTPException(status_code=400, detail="Village is required")
+        if ward_no is None:
+            raise HTTPException(status_code=400, detail="Ward number is required")
+        
+        # Check if voter already exists
+        existing = await db.voters.find_one({"epic_no": epic_no})
+        if existing:
+            raise HTTPException(status_code=400, detail=f"Voter with EPIC {epic_no} already exists")
+        
+        # Build voter document
+        voter = {
+            "epic_no": epic_no,
+            "name": body.get("name", "").strip(),
+            "father_husband_name": body.get("father_husband_name", "").strip(),
+            "age": int(body.get("age", 0)) if body.get("age") else None,
+            "gender": body.get("gender", "").upper()[:1] if body.get("gender") else "",
+            "house_number": body.get("house_number", "").strip(),
+            "ac_ps_slno": body.get("ac_ps_slno", "").strip(),
+            "sl_no": int(body.get("sl_no", 0)) if body.get("sl_no") else 0,
+            "mobile_number": body.get("mobile_number", "").strip(),
+            "village": village,
+            "ward_no": int(ward_no),
+            "ward": str(ward_no)
+        }
+        
+        await db.voters.insert_one(voter)
+        
+        # Return without _id
+        voter.pop("_id", None)
+        
+        return {
+            "success": True,
+            "message": f"Voter {epic_no} added successfully",
+            "voter": voter
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/add-bulk")
+async def add_voters_bulk(request: Request):
+    """
+    Add multiple voters at once (for missing records).
+    Skips duplicates automatically.
+    """
+    try:
+        db = request.app.state.db
+        body = await request.json()
+        
+        voters_data = body.get("voters", [])
+        village = body.get("village", "").strip()
+        ward_no = body.get("ward_no")
+        
+        if not voters_data:
+            raise HTTPException(status_code=400, detail="No voters data provided")
+        if not village:
+            raise HTTPException(status_code=400, detail="Village is required")
+        if ward_no is None:
+            raise HTTPException(status_code=400, detail="Ward number is required")
+        
+        # Get existing EPICs to avoid duplicates
+        existing_epics = set()
+        cursor = db.voters.find(
+            {"village": {"$regex": f"^{village}$", "$options": "i"}, "ward_no": int(ward_no)},
+            {"epic_no": 1}
+        )
+        async for doc in cursor:
+            existing_epics.add(doc.get("epic_no"))
+        
+        # Process voters
+        new_voters = []
+        skipped = 0
+        
+        for v in voters_data:
+            epic_no = v.get("epic_no", "").strip()
+            if not epic_no:
+                continue
+            
+            if epic_no in existing_epics:
+                skipped += 1
+                continue
+            
+            voter = {
+                "epic_no": epic_no,
+                "name": v.get("name", "").strip(),
+                "father_husband_name": v.get("father_husband_name", "").strip(),
+                "age": int(v.get("age", 0)) if v.get("age") else None,
+                "gender": v.get("gender", "").upper()[:1] if v.get("gender") else "",
+                "house_number": v.get("house_number", "").strip(),
+                "ac_ps_slno": v.get("ac_ps_slno", "").strip(),
+                "sl_no": int(v.get("sl_no", 0)) if v.get("sl_no") else 0,
+                "mobile_number": v.get("mobile_number", "").strip(),
+                "village": village,
+                "ward_no": int(ward_no),
+                "ward": str(ward_no)
+            }
+            new_voters.append(voter)
+            existing_epics.add(epic_no)  # Prevent duplicates within same batch
+        
+        # Insert new voters
+        if new_voters:
+            await db.voters.insert_many(new_voters)
+        
+        return {
+            "success": True,
+            "message": f"Added {len(new_voters)} voters, skipped {skipped} duplicates",
+            "added_count": len(new_voters),
+            "skipped_count": skipped
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
