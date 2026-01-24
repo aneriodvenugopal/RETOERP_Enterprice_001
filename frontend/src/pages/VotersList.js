@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Search, Filter, Users, User, ChevronLeft, ChevronRight, Lock, Eye, EyeOff, Download, RefreshCw, MapPin, Phone, Check, X, Edit2 } from 'lucide-react';
+import { Search, Filter, Users, User, ChevronLeft, ChevronRight, Lock, Eye, EyeOff, Download, RefreshCw, MapPin, Phone, Check, X, Edit2, Plus, FileSpreadsheet } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
@@ -8,6 +8,200 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { toast } from 'sonner';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
+
+// Manual Voter Entry Modal
+const AddVoterModal = ({ isOpen, onClose, village, wardNo, onVoterAdded }) => {
+  const [formData, setFormData] = useState({
+    epic_no: '',
+    name: '',
+    father_husband_name: '',
+    age: '',
+    gender: '',
+    house_number: '',
+    sl_no: '',
+    mobile_number: ''
+  });
+  const [saving, setSaving] = useState(false);
+
+  const handleChange = (field, value) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!formData.epic_no.trim()) {
+      toast.error('EPIC Number is required');
+      return;
+    }
+    if (!formData.name.trim()) {
+      toast.error('Name is required');
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const response = await fetch(`${API_URL}/api/voters/add`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...formData,
+          village: village,
+          ward_no: wardNo
+        })
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        toast.success(`Voter ${formData.epic_no} added successfully`);
+        onVoterAdded(data.voter);
+        setFormData({
+          epic_no: '',
+          name: '',
+          father_husband_name: '',
+          age: '',
+          gender: '',
+          house_number: '',
+          sl_no: '',
+          mobile_number: ''
+        });
+        onClose();
+      } else {
+        toast.error(data.detail || 'Failed to add voter');
+      }
+    } catch (error) {
+      toast.error('Failed to add voter');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+        <div className="p-6 border-b bg-gradient-to-r from-indigo-600 to-purple-600 rounded-t-xl">
+          <h2 className="text-xl font-bold text-white flex items-center gap-2">
+            <Plus className="w-5 h-5" />
+            Add New Voter
+          </h2>
+          <p className="text-indigo-100 text-sm mt-1">
+            {village} - Ward {wardNo}
+          </p>
+        </div>
+        
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-1">EPIC Number *</label>
+              <Input
+                value={formData.epic_no}
+                onChange={(e) => handleChange('epic_no', e.target.value.toUpperCase())}
+                placeholder="e.g., YAV1234567"
+                className="font-mono"
+                autoFocus
+              />
+            </div>
+            
+            <div className="col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Name *</label>
+              <Input
+                value={formData.name}
+                onChange={(e) => handleChange('name', e.target.value)}
+                placeholder="Full name"
+              />
+            </div>
+            
+            <div className="col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Father/Husband Name</label>
+              <Input
+                value={formData.father_husband_name}
+                onChange={(e) => handleChange('father_husband_name', e.target.value)}
+                placeholder="Father or Husband name"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Age</label>
+              <Input
+                type="number"
+                value={formData.age}
+                onChange={(e) => handleChange('age', e.target.value)}
+                placeholder="Age"
+                min="18"
+                max="120"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Gender</label>
+              <Select value={formData.gender} onValueChange={(v) => handleChange('gender', v)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="M">Male</SelectItem>
+                  <SelectItem value="F">Female</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">House No</label>
+              <Input
+                value={formData.house_number}
+                onChange={(e) => handleChange('house_number', e.target.value)}
+                placeholder="e.g., 1-123"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">SL No</label>
+              <Input
+                type="number"
+                value={formData.sl_no}
+                onChange={(e) => handleChange('sl_no', e.target.value)}
+                placeholder="Serial No"
+              />
+            </div>
+            
+            <div className="col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Mobile Number</label>
+              <Input
+                type="tel"
+                inputMode="numeric"
+                value={formData.mobile_number}
+                onChange={(e) => handleChange('mobile_number', e.target.value.replace(/\D/g, '').slice(0, 10))}
+                placeholder="10-digit mobile"
+                maxLength={10}
+              />
+            </div>
+          </div>
+          
+          <div className="flex gap-3 pt-4 border-t">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onClose}
+              className="flex-1"
+              disabled={saving}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              className="flex-1 bg-indigo-600 hover:bg-indigo-700"
+              disabled={saving}
+            >
+              {saving ? 'Adding...' : 'Add Voter'}
+            </Button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
 
 // Inline editable row component
 const VoterRow = ({ voter, index, onUpdate }) => {
