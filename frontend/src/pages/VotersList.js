@@ -151,22 +151,38 @@ const VotersList = () => {
     if (isAuthenticated) {
       fetchVoters();
       fetchStats();
+      fetchAvailableWards();
     }
-  }, [isAuthenticated, fetchVoters, fetchStats]);
+  }, [isAuthenticated, fetchVoters, fetchStats, fetchAvailableWards]);
 
   // Reset page when filters change
   useEffect(() => {
     setCurrentPage(1);
   }, [selectedWard, selectedGender, ageMin, ageMax, searchQuery]);
 
+  // Handle ward change - update URL
+  const handleWardChange = (ward) => {
+    setSelectedWard(ward);
+    if (ward !== 'all') {
+      navigate(`/voterslist/${urlVillage}/ward/${ward}`);
+    } else {
+      navigate(`/voterslist/${urlVillage}`);
+    }
+  };
+
   // Clear filters
   const clearFilters = () => {
-    setSelectedWard('all');
+    setSelectedWard(urlWard || 'all');
     setSelectedGender('all');
     setAgeMin('');
     setAgeMax('');
     setSearchQuery('');
     setCurrentPage(1);
+  };
+
+  // Format village name for display
+  const formatVillageName = (name) => {
+    return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
   };
 
   // Login Screen
@@ -179,14 +195,22 @@ const VotersList = () => {
               <Users className="w-8 h-8 text-white" />
             </div>
             <CardTitle className="text-2xl font-bold text-white">Voters List</CardTitle>
-            <p className="text-gray-300 text-sm mt-2">Aliyabad Municipality</p>
+            <div className="flex items-center justify-center gap-2 mt-2">
+              <MapPin className="w-4 h-4 text-gray-300" />
+              <p className="text-gray-300 text-sm">
+                {formatVillageName(urlVillage)} Municipality
+                {urlWard && <span className="text-blue-300 font-semibold"> - Ward {urlWard}</span>}
+              </p>
+            </div>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleLogin} className="space-y-4">
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" aria-hidden="true" />
                 <Input
                   type={showPassword ? 'text' : 'password'}
+                  inputMode="numeric"
+                  pattern="[0-9]{6}"
                   placeholder="Enter password (DDMMYY)"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
