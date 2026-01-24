@@ -354,7 +354,7 @@ const VotersAdmin = () => {
                           }`}
                           title={setting.export_enabled ? 'Click to disable export' : 'Click to enable export'}
                         >
-                          {setting.export_enabled ? <Download className="w-5 h-5" /> : <DownloadOff className="w-5 h-5" />}
+                          {setting.export_enabled ? <Download className="w-5 h-5" /> : <XCircle className="w-5 h-5" />}
                         </button>
                       </div>
                       
