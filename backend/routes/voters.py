@@ -870,3 +870,127 @@ async def add_voters_bulk(request: Request):
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/export/excel")
+async def export_voters_excel(
+    request: Request,
+    village: Optional[str] = Query(None),
+    ward: Optional[str] = Query(None),
+    gender: Optional[str] = Query(None),
+    search: Optional[str] = Query(None),
+    export_type: str = Query("filtered", description="'all' or 'filtered'")
+):
+    """
+    Export voters to Excel file.
+    - export_type='all': Export all voters (ignores filters)
+    - export_type='filtered': Export based on applied filters
+    """
+    try:
+        db = request.app.state.db
+        
+        # Build query based on export type
+        query = {}
+        
+        if export_type != "all":
+            if village:
+                query["village"] = {"$regex": f"^{village}$", "$options": "i"}
+            if ward and ward != 'all':
+                try:
+                    query["ward_no"] = int(ward)
+                except (ValueError, TypeError):
+                    query["ward_no"] = ward
+            if gender and gender != 'all':
+                query["gender"] = gender.upper()
+            if search:
+                search_regex = {"$regex": search, "$options": "i"}
+                query["$or"] = [
+                    {"name": search_regex},
+                    {"epic_no": search_regex},
+                    {"house_number": search_regex},
+                    {"father_husband_name": search_regex},
+                    {"mobile_number": search_regex}
+                ]
+        
+        # Fetch voters
+        cursor = db.voters.find(query, {"_id": 0}).sort([("ward_no", 1), ("sl_no", 1)])
+        voters = await cursor.to_list(length=50000)  # Max 50k records
+        
+        if not voters:
+            raise HTTPException(status_code=404, detail="No voters found to export")
+        
+        # Create Excel file in memory
+        output = io.BytesIO()
+        workbook = xlsxwriter.Workbook(output, {'in_memory': True})
+        worksheet = workbook.add_worksheet('Voters List')
+        
+        # Define formats
+        header_format = workbook.add_format({
+            'bold': True,
+            'bg_color': '#4F46E5',
+            'font_color': 'white',
+            'border': 1,
+            'align': 'center',
+            'valign': 'vcenter'
+        })
+        cell_format = workbook.add_format({
+            'border': 1,
+            'align': 'left',
+            'valign': 'vcenter'
+        })
+        number_format = workbook.add_format({
+            'border': 1,
+            'align': 'center',
+            'valign': 'vcenter'
+        })
+        
+        # Headers
+        headers = ['SL No', 'EPIC No', 'Name', 'Father/Husband Name', 'Age', 'Gender', 'House No', 'Mobile', 'Ward', 'Village']
+        col_widths = [8, 15, 30, 30, 8, 10, 15, 15, 8, 15]
+        
+        for col, (header, width) in enumerate(zip(headers, col_widths)):
+            worksheet.write(0, col, header, header_format)
+            worksheet.set_column(col, col, width)
+        
+        # Data rows
+        for row, voter in enumerate(voters, start=1):
+            worksheet.write(row, 0, voter.get('sl_no', row), number_format)
+            worksheet.write(row, 1, voter.get('epic_no', ''), cell_format)
+            worksheet.write(row, 2, voter.get('name', ''), cell_format)
+            worksheet.write(row, 3, voter.get('father_husband_name', ''), cell_format)
+            worksheet.write(row, 4, voter.get('age', ''), number_format)
+            worksheet.write(row, 5, 'Male' if voter.get('gender') == 'M' else ('Female' if voter.get('gender') == 'F' else ''), number_format)
+            worksheet.write(row, 6, voter.get('house_number', ''), cell_format)
+            worksheet.write(row, 7, voter.get('mobile_number', ''), cell_format)
+            worksheet.write(row, 8, voter.get('ward_no', ''), number_format)
+            worksheet.write(row, 9, voter.get('village', ''), cell_format)
+        
+        # Add summary row
+        summary_row = len(voters) + 2
+        worksheet.write(summary_row, 0, f"Total: {len(voters)} voters", workbook.add_format({'bold': True}))
+        
+        # Freeze header row
+        worksheet.freeze_panes(1, 0)
+        
+        workbook.close()
+        output.seek(0)
+        
+        # Generate filename
+        filename_parts = ["voters"]
+        if village:
+            filename_parts.append(village.lower())
+        if ward and ward != 'all':
+            filename_parts.append(f"ward{ward}")
+        filename_parts.append(datetime.now().strftime("%Y%m%d"))
+        filename = "_".join(filename_parts) + ".xlsx"
+        
+        return StreamingResponse(
+            output,
+            media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            headers={"Content-Disposition": f"attachment; filename={filename}"}
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
