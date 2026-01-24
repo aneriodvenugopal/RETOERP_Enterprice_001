@@ -36,7 +36,8 @@ async def voters_login(request: Request):
 @router.get("/list")
 async def get_voters_list(
     request: Request,
-    ward: Optional[int] = Query(None, description="Filter by ward number"),
+    village: Optional[str] = Query(None, description="Filter by village name"),
+    ward: Optional[str] = Query(None, description="Filter by ward number"),
     gender: Optional[str] = Query(None, description="Filter by gender (M/F)"),
     age_min: Optional[int] = Query(None, description="Minimum age"),
     age_max: Optional[int] = Query(None, description="Maximum age"),
@@ -51,10 +52,18 @@ async def get_voters_list(
         # Build query
         query = {}
         
-        if ward is not None:
-            query["ward_no"] = ward
+        # Village filter (case-insensitive)
+        if village:
+            query["village"] = {"$regex": f"^{village}$", "$options": "i"}
         
-        if gender:
+        if ward is not None and ward != 'all':
+            # Handle ward as string or int
+            try:
+                query["ward_no"] = int(ward)
+            except (ValueError, TypeError):
+                query["ward_no"] = ward
+        
+        if gender and gender != 'all':
             query["gender"] = gender.upper()
         
         if age_min is not None or age_max is not None:
@@ -81,7 +90,7 @@ async def get_voters_list(
         
         # Get paginated results
         skip = (page - 1) * limit
-        cursor = db.voters.find(query, {"_id": 0}).skip(skip).limit(limit).sort("sl_no", 1)
+        cursor = db.voters.find(query, {"_id": 0}).skip(skip).limit(limit).sort([("ward_no", 1), ("sl_no", 1)])
         voters = await cursor.to_list(length=limit)
         
         return {
@@ -93,6 +102,41 @@ async def get_voters_list(
                 "limit": limit,
                 "total_pages": (total + limit - 1) // limit
             }
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/wards")
+async def get_available_wards(
+    request: Request,
+    village: Optional[str] = Query(None, description="Filter by village name")
+):
+    """Get list of available wards for a village"""
+    try:
+        db = request.app.state.db
+        
+        # Build match query
+        match_query = {}
+        if village:
+            match_query["village"] = {"$regex": f"^{village}$", "$options": "i"}
+        
+        # Get distinct wards
+        pipeline = [
+            {"$match": match_query} if match_query else {"$match": {}},
+            {"$group": {
+                "_id": "$ward_no",
+                "count": {"$sum": 1}
+            }},
+            {"$sort": {"_id": 1}}
+        ]
+        
+        result = await db.voters.aggregate(pipeline).to_list(100)
+        
+        wards = [{"ward_no": r["_id"], "voter_count": r["count"]} for r in result if r["_id"] is not None]
+        
+        return {
+            "success": True,
+            "wards": wards
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
