@@ -423,7 +423,7 @@ const VotersAdmin = () => {
                   <li><strong>Show List:</strong> Toggle to show/hide ward from regular users</li>
                   <li><strong>Enable Export:</strong> Toggle to allow/block Excel export for the ward</li>
                   <li>Hidden wards are only visible to admins</li>
-                  <li>Users assigned to a ward can only see their ward's data</li>
+                  <li>Users assigned to a ward can only see their ward&apos;s data</li>
                 </ul>
               </div>
             </div>
