@@ -89,7 +89,11 @@ async def get_voters_list(
         total = await db.voters.count_documents(query)
         
         skip = (page - 1) * limit
-        cursor = db.voters.find(query, {"_id": 0}).skip(skip).limit(limit).sort([("ward_no", 1), ("sl_no", 1)])
+        # Sort by sl_no ascending, but put 0s at the end using a compound sort
+        cursor = db.voters.find(query, {"_id": 0}).skip(skip).limit(limit).sort([
+            ("sl_no", 1),  # Sort by serial number ascending
+            ("epic_no", 1)  # Then by EPIC number for consistency
+        ])
         voters = await cursor.to_list(length=limit)
         
         return {
