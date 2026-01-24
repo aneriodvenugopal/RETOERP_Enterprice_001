@@ -627,3 +627,69 @@ async def clear_voters_data(
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.patch("/update/{epic_no}")
+async def update_voter(
+    request: Request,
+    epic_no: str
+):
+    """Update voter details (like mobile number) by EPIC number"""
+    try:
+        db = request.app.state.db
+        body = await request.json()
+        
+        # Only allow updating certain fields
+        allowed_fields = {"mobile_number", "notes"}
+        update_data = {k: v for k, v in body.items() if k in allowed_fields}
+        
+        if not update_data:
+            raise HTTPException(status_code=400, detail="No valid fields to update")
+        
+        # Validate mobile number if provided
+        if "mobile_number" in update_data:
+            mobile = update_data["mobile_number"]
+            if mobile and not re.match(r'^[0-9]{10}$', mobile):
+                raise HTTPException(status_code=400, detail="Mobile number must be 10 digits")
+        
+        result = await db.voters.update_one(
+            {"epic_no": epic_no},
+            {"$set": update_data}
+        )
+        
+        if result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="Voter not found")
+        
+        # Get updated voter
+        voter = await db.voters.find_one({"epic_no": epic_no}, {"_id": 0})
+        
+        return {
+            "success": True,
+            "message": "Voter updated successfully",
+            "voter": voter
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/voter/{epic_no}")
+async def get_voter_by_epic(request: Request, epic_no: str):
+    """Get a single voter by EPIC number"""
+    try:
+        db = request.app.state.db
+        
+        voter = await db.voters.find_one({"epic_no": epic_no}, {"_id": 0})
+        
+        if not voter:
+            raise HTTPException(status_code=404, detail="Voter not found")
+        
+        return {
+            "success": True,
+            "voter": voter
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
