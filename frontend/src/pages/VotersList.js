@@ -348,6 +348,10 @@ const VotersList = () => {
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
+  
+  // Modal state
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [exporting, setExporting] = useState(false);
   const [totalPages, setTotalPages] = useState(1);
   const [totalVoters, setTotalVoters] = useState(0);
   const limit = 50;
