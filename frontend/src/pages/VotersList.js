@@ -9,6 +9,121 @@ import { toast } from 'sonner';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
+// Inline editable row component
+const VoterRow = ({ voter, index, onUpdate }) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [mobileValue, setMobileValue] = useState(voter.mobile_number || '');
+  const [saving, setSaving] = useState(false);
+
+  const handleSave = async () => {
+    // Validate mobile number (10 digits or empty)
+    if (mobileValue && !/^[0-9]{10}$/.test(mobileValue)) {
+      toast.error('Mobile number must be 10 digits');
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const response = await fetch(`${API_URL}/api/voters/update/${voter.epic_no}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mobile_number: mobileValue })
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        onUpdate(data.voter);
+        setIsEditing(false);
+        toast.success('Mobile number updated');
+      } else {
+        toast.error(data.detail || 'Failed to update');
+      }
+    } catch (error) {
+      toast.error('Failed to update mobile number');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleCancel = () => {
+    setMobileValue(voter.mobile_number || '');
+    setIsEditing(false);
+  };
+
+  return (
+    <tr className="hover:bg-gray-50">
+      <td className="px-3 py-2 text-sm text-gray-600">{voter.sl_no || ((index + 1))}</td>
+      <td className="px-3 py-2 text-sm font-mono text-blue-600">{voter.epic_no}</td>
+      <td className="px-3 py-2 text-sm font-medium text-gray-900">{voter.name || '-'}</td>
+      <td className="px-3 py-2 text-sm text-gray-600">{voter.father_husband_name || '-'}</td>
+      <td className="px-3 py-2 text-sm text-gray-600">{voter.age || '-'}</td>
+      <td className="px-3 py-2 text-sm">
+        <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+          voter.gender === 'M' 
+            ? 'bg-blue-100 text-blue-800' 
+            : 'bg-pink-100 text-pink-800'
+        }`}>
+          {voter.gender === 'M' ? 'Male' : voter.gender === 'F' ? 'Female' : '-'}
+        </span>
+      </td>
+      <td className="px-3 py-2 text-sm text-gray-600">{voter.house_number || '-'}</td>
+      <td className="px-3 py-2 text-sm">
+        {isEditing ? (
+          <div className="flex items-center gap-1">
+            <Input
+              type="tel"
+              inputMode="numeric"
+              pattern="[0-9]{10}"
+              maxLength={10}
+              value={mobileValue}
+              onChange={(e) => setMobileValue(e.target.value.replace(/\D/g, ''))}
+              className="w-28 h-7 text-sm px-2"
+              placeholder="10 digits"
+              autoFocus
+              disabled={saving}
+            />
+            <button
+              onClick={handleSave}
+              disabled={saving}
+              className="p-1 text-green-600 hover:bg-green-50 rounded"
+              title="Save"
+            >
+              <Check className="w-4 h-4" />
+            </button>
+            <button
+              onClick={handleCancel}
+              disabled={saving}
+              className="p-1 text-red-600 hover:bg-red-50 rounded"
+              title="Cancel"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        ) : (
+          <div className="flex items-center gap-2">
+            {voter.mobile_number ? (
+              <a href={`tel:${voter.mobile_number}`} className="text-blue-600 hover:underline flex items-center gap-1">
+                <Phone className="w-3 h-3" />
+                {voter.mobile_number}
+              </a>
+            ) : (
+              <span className="text-gray-400">-</span>
+            )}
+            <button
+              onClick={() => setIsEditing(true)}
+              className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded opacity-0 group-hover:opacity-100 transition-opacity"
+              title="Edit mobile"
+            >
+              <Edit2 className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        )}
+      </td>
+      <td className="px-3 py-2 text-sm text-gray-600">{voter.ward_no}</td>
+    </tr>
+  );
+};
+
 const VotersList = () => {
   // Get URL params
   const { village, wardNo } = useParams();
