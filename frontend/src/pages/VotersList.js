@@ -393,51 +393,44 @@ const VotersList = () => {
             <table className="w-full" data-testid="voters-table">
               <thead className="bg-gray-100">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">SL No</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">EPIC No</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Name</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Father/Husband</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Age</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Gender</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">House No</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Ward</th>
+                  <th className="px-3 py-3 text-left text-xs font-semibold text-gray-600 uppercase">SL No</th>
+                  <th className="px-3 py-3 text-left text-xs font-semibold text-gray-600 uppercase">EPIC No</th>
+                  <th className="px-3 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Name</th>
+                  <th className="px-3 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Father/Husband</th>
+                  <th className="px-3 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Age</th>
+                  <th className="px-3 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Gender</th>
+                  <th className="px-3 py-3 text-left text-xs font-semibold text-gray-600 uppercase">House No</th>
+                  <th className="px-3 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Mobile</th>
+                  <th className="px-3 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Ward</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {loading ? (
                   <tr>
-                    <td colSpan="8" className="px-4 py-8 text-center text-gray-500">
+                    <td colSpan="9" className="px-4 py-8 text-center text-gray-500">
                       <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2" />
                       Loading voters...
                     </td>
                   </tr>
                 ) : voters.length === 0 ? (
                   <tr>
-                    <td colSpan="8" className="px-4 py-8 text-center text-gray-500">
+                    <td colSpan="9" className="px-4 py-8 text-center text-gray-500">
                       <Users className="w-12 h-12 mx-auto mb-2 text-gray-300" />
                       No voters found
                     </td>
                   </tr>
                 ) : (
                   voters.map((voter, index) => (
-                    <tr key={voter.epic_no || index} className="hover:bg-gray-50">
-                      <td className="px-4 py-3 text-sm text-gray-600">{voter.sl_no || '-'}</td>
-                      <td className="px-4 py-3 text-sm font-mono text-blue-600">{voter.epic_no}</td>
-                      <td className="px-4 py-3 text-sm font-medium text-gray-900">{voter.name}</td>
-                      <td className="px-4 py-3 text-sm text-gray-600">{voter.father_husband_name}</td>
-                      <td className="px-4 py-3 text-sm text-gray-600">{voter.age}</td>
-                      <td className="px-4 py-3 text-sm">
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
-                          voter.gender === 'M' 
-                            ? 'bg-blue-100 text-blue-800' 
-                            : 'bg-pink-100 text-pink-800'
-                        }`}>
-                          {voter.gender === 'M' ? 'Male' : 'Female'}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-sm text-gray-600">{voter.house_number}</td>
-                      <td className="px-4 py-3 text-sm text-gray-600">{voter.ward_no}</td>
-                    </tr>
+                    <VoterRow 
+                      key={voter.epic_no || index} 
+                      voter={voter} 
+                      index={index}
+                      onUpdate={(updatedVoter) => {
+                        setVoters(prev => prev.map(v => 
+                          v.epic_no === updatedVoter.epic_no ? updatedVoter : v
+                        ));
+                      }}
+                    />
                   ))
                 )}
               </tbody>
