@@ -523,7 +523,7 @@ async def upload_voters_pdf(
     file: UploadFile = File(...),
     village: str = Form(...),
     ward_no: str = Form(...),
-    replace_existing: bool = Form(True)
+    replace_existing: bool = Form(False)
 ):
     """Upload and process a voter list PDF file."""
     try:
