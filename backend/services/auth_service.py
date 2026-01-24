@@ -5,7 +5,7 @@ from typing import Optional
 import jwt
 import os
 
-JWT_SECRET = os.environ.get('JWT_SECRET', 'your-secret-key-change-in-production')
+JWT_SECRET = os.environ.get('JWT_SECRET')
 JWT_ALGORITHM = 'HS256'
 JWT_EXPIRATION_HOURS = 24
 JWT_REMEMBER_ME_DAYS = 30

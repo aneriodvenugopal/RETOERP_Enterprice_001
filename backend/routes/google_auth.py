@@ -12,7 +12,7 @@ router = APIRouter(prefix="/auth/google", tags=["Google OAuth"])
 
 # Database connection
 MONGO_URL = os.getenv("MONGO_URL")
-DB_NAME = os.getenv("DB_NAME", "test_database")
+DB_NAME = os.environ.get("DB_NAME")
 client = AsyncIOMotorClient(MONGO_URL)
 db = client[DB_NAME]
 
