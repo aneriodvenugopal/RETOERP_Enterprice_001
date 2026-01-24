@@ -427,6 +427,40 @@ Build a comprehensive Real Estate ERP (RealApex) SaaS platform for the Indian re
   - Frontend: /voters-import (Import tool), /voterslist/{village}/ward/{wardNo} (View list)
   - Extracted 960 voters from Ward 1 PDF (out of 974), 889 voters from Ward 13 PDF (up from 314)
 
+- [x] **Voters List Enhanced Features** (Completed Jan 24, 2026)
+  - **Missing Records Detection**: After PDF import, shows incomplete records count
+  - **Bulk Update Screen** (`/voters-bulk-update`):
+    - Filter by ward and status (all, incomplete, complete, missing_name, missing_age)
+    - Shows records with missing fields highlighted
+    - Shows which fields are missing per record
+    - Status badges: Complete (green), Partial (yellow), Incomplete (red)
+    - Edit modal to update all voter fields
+    - Add new voter manually
+  - **Admin Settings Page** (`/voters-admin`):
+    - Ward-wise visibility toggle (Show/Hide from users)
+    - Ward-wise export enable/disable
+    - View ward voter counts
+    - Delete ward data
+    - Status indicators (Active/Hidden)
+  - **Ward Access Control**:
+    - One User = One Ward model support
+    - Admin can toggle ward visibility for regular users
+    - Hidden wards only visible to admins
+  - **Ward-wise Export Control**:
+    - Enable/disable Excel export per ward
+    - Export blocked returns 403 error
+  - New APIs:
+    - GET /api/voters/admin/settings - Get all ward settings
+    - POST /api/voters/admin/ward-settings - Update ward visibility/export
+    - GET /api/voters/visible-wards - Get visible wards for users
+    - GET /api/voters/incomplete-stats - Stats for incomplete records
+    - GET /api/voters/list-with-status - List voters with completeness status
+    - PUT /api/voters/update-full/{epic_no} - Update all voter fields
+  - Frontend pages:
+    - `/voterslist-import` - Ward-wise import (shows incomplete count)
+    - `/voters-bulk-update` - View and update incomplete records
+    - `/voters-admin` - Super admin ward settings
+
 ### P4 - Future/Backlog
 - [x] Festival Greetings Automation - Backend cron job for Jan 26 & Aug 15 (Completed Jan 12, 2026)
 - [x] SaaS marketing pages - /saas landing page (Completed Jan 12, 2026)
