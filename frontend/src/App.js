@@ -177,6 +177,9 @@ import ProjectPricingSettings from "./pages/ProjectPricingSettings";
 // Voters List
 import VotersList from "./pages/VotersList";
 import VotersImport from "./pages/VotersImport";
+import VotersListImport from "./pages/VotersListImport";
+import VotersAdmin from "./pages/VotersAdmin";
+import VotersBulkUpdate from "./pages/VotersBulkUpdate";
 
 // Settings Page
 import SettingsPage from "./pages/SettingsPage";
