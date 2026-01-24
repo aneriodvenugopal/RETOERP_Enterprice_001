@@ -630,6 +630,119 @@ async def upload_voters_pdf(
         raise HTTPException(status_code=500, detail=f"Error processing PDF: {str(e)}")
 
 
+@router.post("/import-from-url")
+async def import_voters_from_url(request: Request):
+    """
+    Import voters from a PDF URL (for large files that timeout on direct upload).
+    Body: { "url": "https://...", "village": "...", "ward_no": 1, "replace_existing": false }
+    """
+    import httpx
+    
+    try:
+        body = await request.json()
+        
+        pdf_url = body.get("url", "").strip()
+        village = body.get("village", "").strip()
+        ward_no = body.get("ward_no")
+        replace_existing = body.get("replace_existing", False)
+        
+        if not pdf_url:
+            raise HTTPException(status_code=400, detail="PDF URL is required")
+        if not village:
+            raise HTTPException(status_code=400, detail="Village is required")
+        if ward_no is None:
+            raise HTTPException(status_code=400, detail="Ward number is required")
+        
+        try:
+            ward_int = int(ward_no)
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Ward number must be a valid integer")
+        
+        # Download PDF from URL
+        async with httpx.AsyncClient(timeout=120.0) as client:
+            response = await client.get(pdf_url)
+            if response.status_code != 200:
+                raise HTTPException(status_code=400, detail=f"Failed to download PDF: HTTP {response.status_code}")
+            pdf_bytes = response.content
+        
+        if len(pdf_bytes) > 100 * 1024 * 1024:
+            raise HTTPException(status_code=400, detail="File too large. Maximum 100MB allowed.")
+        
+        # Extract voters
+        voters, metadata = extract_voters_by_columns(pdf_bytes)
+        
+        if len(voters) < 10:
+            voters_simple, metadata_simple = extract_voters_simple(pdf_bytes)
+            if len(voters_simple) > len(voters):
+                voters = voters_simple
+                metadata = metadata_simple
+        
+        if not voters:
+            return {
+                "success": False,
+                "message": "Could not extract any voter data from the PDF.",
+                "metadata": metadata,
+                "extracted_count": 0
+            }
+        
+        # Add village and ward
+        for voter in voters:
+            voter["village"] = village
+            voter["ward_no"] = ward_int
+            voter["ward"] = str(ward_int)
+        
+        db = request.app.state.db
+        
+        deleted_count = 0
+        skipped_count = 0
+        
+        if replace_existing:
+            delete_result = await db.voters.delete_many({
+                "village": {"$regex": f"^{village}$", "$options": "i"},
+                "ward_no": ward_int
+            })
+            deleted_count = delete_result.deleted_count
+            
+            if voters:
+                await db.voters.insert_many(voters)
+        else:
+            existing_epics = set()
+            cursor = db.voters.find(
+                {"village": {"$regex": f"^{village}$", "$options": "i"}, "ward_no": ward_int},
+                {"epic_no": 1}
+            )
+            async for doc in cursor:
+                existing_epics.add(doc.get("epic_no"))
+            
+            new_voters = [v for v in voters if v.get("epic_no") not in existing_epics]
+            skipped_count = len(voters) - len(new_voters)
+            
+            if new_voters:
+                await db.voters.insert_many(new_voters)
+            
+            voters = new_voters
+        
+        return {
+            "success": True,
+            "message": f"Successfully imported {len(voters)} voters for {village} - Ward {ward_no}" + (f" (skipped {skipped_count} duplicates)" if skipped_count > 0 else ""),
+            "extracted_count": len(voters),
+            "replaced_count": deleted_count,
+            "skipped_count": skipped_count,
+            "metadata": {
+                "total_pages": metadata.get("total_pages", 0),
+                "extraction_method": metadata.get("extraction_method", "unknown"),
+                "detected_ward": metadata.get("ward_no"),
+                "detected_municipality": metadata.get("municipality"),
+                "errors": metadata.get("extraction_errors", [])[:5]
+            }
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
+
+
 @router.get("/villages")
 async def get_available_villages(request: Request):
     """Get list of all unique villages"""
