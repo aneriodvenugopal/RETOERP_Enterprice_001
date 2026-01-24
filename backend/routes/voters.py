@@ -257,9 +257,10 @@ async def upload_voters_data(request: Request):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-def extract_voters_from_pdf(pdf_bytes: bytes) -> tuple[list, dict]:
+def extract_voters_by_columns(pdf_bytes: bytes) -> tuple[list, dict]:
     """
-    Extract voter data from PDF using pdfplumber.
+    Extract voter data from PDF by analyzing 3-column layout.
+    Works with Ward Photo Voter List format.
     Returns tuple of (voters_list, metadata)
     """
     voters = []
@@ -267,6 +268,7 @@ def extract_voters_from_pdf(pdf_bytes: bytes) -> tuple[list, dict]:
         "total_pages": 0,
         "municipality": "",
         "ward_no": None,
+        "extraction_method": "column_based",
         "extraction_errors": []
     }
     
@@ -277,77 +279,185 @@ def extract_voters_from_pdf(pdf_bytes: bytes) -> tuple[list, dict]:
             for page_num, page in enumerate(pdf.pages):
                 try:
                     text = page.extract_text() or ""
-                    lines = text.split('\n')
                     
-                    # Try to extract municipality and ward from first page
+                    # Extract metadata from first page
                     if page_num == 0:
-                        for line in lines[:15]:
-                            line_lower = line.lower()
-                            if 'municipality' in line_lower or 'corporation' in line_lower:
-                                # Try to extract municipality name
-                                if 'aliyabad' in line_lower:
-                                    metadata["municipality"] = "Aliyabad"
-                            if 'ward no' in line_lower or 'ward:' in line_lower:
-                                ward_match = re.search(r'ward\s*(?:no\.?\s*)?:?\s*(\d+)', line, re.IGNORECASE)
-                                if ward_match:
-                                    metadata["ward_no"] = int(ward_match.group(1))
-                    
-                    # Skip first page if it's a title page (check for voter entries)
-                    if page_num == 0:
-                        has_voter_data = any(re.search(r'YAV\d+', line) for line in lines)
-                        if not has_voter_data:
+                        if 'aliyabad' in text.lower():
+                            metadata["municipality"] = "Aliyabad"
+                        ward_match = re.search(r'ward\s*(?:no\.?\s*)?:?\s*(\d+)', text, re.IGNORECASE)
+                        if ward_match:
+                            metadata["ward_no"] = int(ward_match.group(1))
+                        
+                        # Skip if title page (no voter data)
+                        if not re.search(r'YAV\d+|GNH\d+', text):
                             continue
                     
-                    # Extract voter data using patterns
-                    # Look for EPIC numbers (YAV followed by digits)
-                    epic_pattern = r'(YAV\d+)'
+                    # Get words with positions for column-based extraction
+                    words = page.extract_words(keep_blank_chars=True)
                     
-                    # Process text to find voter entries
-                    current_voter = {}
+                    if not words:
+                        continue
                     
-                    for i, line in enumerate(lines):
-                        line = line.strip()
-                        if not line:
+                    # Divide page into 3 columns
+                    page_width = page.width
+                    col_width = page_width / 3
+                    
+                    columns = [[], [], []]
+                    for word in words:
+                        x_center = (word['x0'] + word['x1']) / 2
+                        if x_center < col_width:
+                            columns[0].append(word)
+                        elif x_center < 2 * col_width:
+                            columns[1].append(word)
+                        else:
+                            columns[2].append(word)
+                    
+                    # Process each column
+                    for col_words in columns:
+                        if not col_words:
                             continue
                         
-                        # Check for EPIC number
-                        epic_match = re.search(epic_pattern, line)
-                        if epic_match:
-                            # If we have a previous voter, save it
-                            if current_voter.get('epic_no'):
-                                if all(k in current_voter for k in ['name', 'epic_no']):
-                                    voters.append(current_voter.copy())
+                        # Sort by position
+                        col_words.sort(key=lambda w: (w['top'], w['x0']))
+                        col_text = ' '.join([w['text'] for w in col_words])
+                        
+                        # Find EPIC numbers
+                        epic_matches = list(re.finditer(r'(YAV\d+|GNH\d+)', col_text))
+                        
+                        for epic_match in epic_matches:
+                            epic = epic_match.group(1)
                             
-                            current_voter = {
-                                'epic_no': epic_match.group(1),
+                            # Get context before EPIC
+                            context_start = max(0, epic_match.start() - 400)
+                            context = col_text[context_start:epic_match.end()]
+                            
+                            voter = {
+                                'epic_no': epic,
                                 'name': '',
                                 'father_husband_name': '',
                                 'age': None,
                                 'gender': '',
-                                'house_number': ''
+                                'house_number': '',
+                                'ac_ps_slno': '',
+                                'sl_no': 0
                             }
                             
-                            # Try to extract other data from the same line or nearby
-                            remaining = line.replace(epic_match.group(1), '').strip()
+                            # Extract AC-PS-SLNO
+                            acps_match = re.search(r'(\d+)\s*-\s*(\d+)\s*-\s*(\d+)', context)
+                            if acps_match:
+                                voter['ac_ps_slno'] = f"{acps_match.group(1)}-{acps_match.group(2)}-{acps_match.group(3)}"
+                                try:
+                                    voter['sl_no'] = int(acps_match.group(3))
+                                except:
+                                    pass
                             
-                            # Extract age (2-3 digit number)
-                            age_match = re.search(r'\b(\d{2,3})\b', remaining)
+                            # Extract Name
+                            name_match = re.search(r'Name\s*:?\s*([A-Za-z][A-Za-z\s]+?)(?:\s+(?:Father|Husband|Age|Door|$))', context)
+                            if name_match:
+                                voter['name'] = name_match.group(1).strip()[:100]
+                            
+                            # Extract Father/Husband Name
+                            rel_match = re.search(r'(?:Father|Husband)(?:\s+Name)?\s*:?\s*([A-Za-z][A-Za-z\s]+?)(?:\s+(?:Age|Door|Name|$))', context)
+                            if rel_match:
+                                voter['father_husband_name'] = rel_match.group(1).strip()[:100]
+                            
+                            # Extract Age
+                            age_match = re.search(r'Age\s*:?\s*(\d+)', context)
                             if age_match:
                                 age = int(age_match.group(1))
                                 if 18 <= age <= 120:
-                                    current_voter['age'] = age
+                                    voter['age'] = age
                             
-                            # Extract gender
-                            if ' M ' in f' {remaining} ' or remaining.endswith(' M'):
-                                current_voter['gender'] = 'M'
-                            elif ' F ' in f' {remaining} ' or remaining.endswith(' F'):
-                                current_voter['gender'] = 'F'
-                        
-                        # Check for AC-PS-SLNO pattern
-                        acps_match = re.search(r'(\d+-\d+-\d+)', line)
-                        if acps_match and current_voter.get('epic_no'):
-                            current_voter['ac_ps_slno'] = acps_match.group(1)
-                            parts = acps_match.group(1).split('-')
+                            # Extract Gender
+                            gender_match = re.search(r'Sex\s*:?\s*:?\s*([MF])', context)
+                            if gender_match:
+                                voter['gender'] = gender_match.group(1)
+                            
+                            # Extract Door No
+                            door_match = re.search(r'Door\s*No\.?\s*:?\s*([^\s]+)', context)
+                            if door_match:
+                                voter['house_number'] = door_match.group(1).strip()[:20]
+                            
+                            voters.append(voter)
+                            
+                except Exception as page_error:
+                    metadata["extraction_errors"].append(f"Page {page_num + 1}: {str(page_error)}")
+                    
+    except Exception as e:
+        metadata["extraction_errors"].append(f"PDF Error: {str(e)}")
+    
+    # Remove duplicates
+    seen = set()
+    unique_voters = []
+    for v in voters:
+        if v['epic_no'] and v['epic_no'] not in seen:
+            seen.add(v['epic_no'])
+            unique_voters.append(v)
+    
+    return unique_voters, metadata
+
+
+def extract_voters_simple(pdf_bytes: bytes) -> tuple[list, dict]:
+    """
+    Simple extraction fallback - just find all EPICs and associated data.
+    """
+    voters = []
+    metadata = {
+        "total_pages": 0,
+        "municipality": "",
+        "ward_no": None,
+        "extraction_method": "simple",
+        "extraction_errors": []
+    }
+    
+    try:
+        with pdfplumber.open(io.BytesIO(pdf_bytes)) as pdf:
+            metadata["total_pages"] = len(pdf.pages)
+            
+            all_text = ""
+            for page_num, page in enumerate(pdf.pages):
+                text = page.extract_text() or ""
+                
+                # Get metadata from first page
+                if page_num == 0:
+                    if 'aliyabad' in text.lower():
+                        metadata["municipality"] = "Aliyabad"
+                    ward_match = re.search(r'ward\s*(?:no\.?\s*)?:?\s*(\d+)', text, re.IGNORECASE)
+                    if ward_match:
+                        metadata["ward_no"] = int(ward_match.group(1))
+                
+                all_text += text + "\n"
+            
+            # Find all EPIC numbers
+            epic_matches = list(re.finditer(r'(YAV\d+|GNH\d+)', all_text))
+            
+            for match in epic_matches:
+                epic = match.group(1)
+                
+                # Get surrounding context
+                start = max(0, match.start() - 300)
+                end = min(len(all_text), match.end() + 50)
+                context = all_text[start:end]
+                
+                voter = {
+                    'epic_no': epic,
+                    'name': '',
+                    'father_husband_name': '',
+                    'age': None,
+                    'gender': '',
+                    'house_number': '',
+                    'ac_ps_slno': '',
+                    'sl_no': 0
+                }
+                
+                # Basic extraction
+                acps = re.search(r'(\d+)-(\d+)-(\d+)', context)
+                if acps:
+                    voter['ac_ps_slno'] = f"{acps.group(1)}-{acps.group(2)}-{acps.group(3)}"
+                    try:
+                        voter['sl_no'] = int(acps.group(3))
+                    except:
+                        pass
                             if len(parts) >= 3:
                                 try:
                                     current_voter['sl_no'] = int(parts[2])
