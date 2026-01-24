@@ -600,18 +600,19 @@ async def upload_voters_pdf(
         await db.voters.create_index("village")
         await db.voters.create_index("ward_no")
         await db.voters.create_index("ward")
-            await db.voters.create_index("epic_no")
-            await db.voters.create_index("name")
-            await db.voters.create_index("gender")
-            await db.voters.create_index("age")
-            await db.voters.create_index("sl_no")
-            await db.voters.create_index([("village", 1), ("ward_no", 1)])
+        await db.voters.create_index("epic_no")
+        await db.voters.create_index("name")
+        await db.voters.create_index("gender")
+        await db.voters.create_index("age")
+        await db.voters.create_index("sl_no")
+        await db.voters.create_index([("village", 1), ("ward_no", 1)])
         
         return {
             "success": True,
-            "message": f"Successfully imported {len(voters)} voters for {village} - Ward {ward_no}",
+            "message": f"Successfully imported {len(voters)} voters for {village} - Ward {ward_no}" + (f" (skipped {skipped_count} duplicates)" if skipped_count > 0 else ""),
             "extracted_count": len(voters),
             "replaced_count": deleted_count,
+            "skipped_count": skipped_count,
             "metadata": {
                 "total_pages": metadata.get("total_pages", 0),
                 "extraction_method": metadata.get("extraction_method", "unknown"),
