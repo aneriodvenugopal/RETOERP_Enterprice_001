@@ -107,6 +107,15 @@ const VotersImport = () => {
         toast.error('File too large. Maximum 100MB allowed.');
         return;
       }
+      
+      // Check file size - warn if > 15MB
+      const fileSizeMB = file.size / 1024 / 1024;
+      if (fileSizeMB > 15) {
+        toast.warning(`Large file (${fileSizeMB.toFixed(1)} MB) - Use "From URL" for better reliability`, {
+          duration: 8000
+        });
+      }
+      
       setSelectedFile(file);
       setUploadResult(null);
       setUseUrlImport(false);
@@ -127,6 +136,16 @@ const VotersImport = () => {
     if (!village.trim()) {
       toast.error('Please enter village name');
       return;
+    }
+    
+    // Block direct upload for files > 25MB
+    if (!useUrlImport && selectedFile) {
+      const fileSizeMB = selectedFile.size / 1024 / 1024;
+      if (fileSizeMB > 25) {
+        toast.error(`File too large (${fileSizeMB.toFixed(1)} MB). Please use "From URL" option for files over 25MB.`);
+        setUseUrlImport(true);
+        return;
+      }
     }
     if (!wardNo.trim()) {
       toast.error('Please enter ward number');
