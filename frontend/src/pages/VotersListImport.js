@@ -80,6 +80,15 @@ const VotersListImport = () => {
         toast.error('Please select a PDF file');
         return;
       }
+      
+      // Check file size - warn if > 15MB
+      const fileSizeMB = file.size / 1024 / 1024;
+      if (fileSizeMB > 15) {
+        toast.warning(`Large file (${fileSizeMB.toFixed(1)} MB) - Use "From URL" for better reliability`, {
+          duration: 8000
+        });
+      }
+      
       setSelectedFile(file);
       setUploadResult(null);
     }
@@ -102,6 +111,16 @@ const VotersListImport = () => {
     if (useUrlImport && !pdfUrl.trim()) {
       toast.error('Please enter PDF URL');
       return;
+    }
+    
+    // Block direct upload for files > 25MB
+    if (!useUrlImport && selectedFile) {
+      const fileSizeMB = selectedFile.size / 1024 / 1024;
+      if (fileSizeMB > 25) {
+        toast.error(`File too large (${fileSizeMB.toFixed(1)} MB). Please use "From URL" option for files over 25MB.`);
+        setUseUrlImport(true);
+        return;
+      }
     }
 
     setIsUploading(true);
