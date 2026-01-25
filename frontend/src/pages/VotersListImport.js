@@ -429,20 +429,29 @@ const VotersListImport = () => {
                       className="hidden"
                     />
                     {selectedFile ? (
-                      <div className="flex items-center justify-center gap-3">
-                        <FileText className="w-8 h-8 text-indigo-400" />
-                        <div className="text-left">
-                          <p className="font-medium text-white">{selectedFile.name}</p>
-                          <p className="text-sm text-slate-400">
-                            {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
-                          </p>
+                      <div className="flex flex-col items-center gap-2">
+                        <div className="flex items-center gap-3">
+                          <FileText className="w-8 h-8 text-indigo-400" />
+                          <div className="text-left">
+                            <p className="font-medium text-white">{selectedFile.name}</p>
+                            <p className={`text-sm ${selectedFile.size / 1024 / 1024 > 15 ? 'text-amber-400' : 'text-slate-400'}`}>
+                              {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+                              {selectedFile.size / 1024 / 1024 > 15 && ' (Large file)'}
+                            </p>
+                          </div>
                         </div>
+                        {selectedFile.size / 1024 / 1024 > 15 && (
+                          <div className="flex items-center gap-2 text-amber-400 text-xs bg-amber-500/10 px-3 py-1.5 rounded-lg mt-2">
+                            <AlertTriangle className="w-4 h-4" />
+                            <span>Large file may timeout. Use &quot;From URL&quot; for reliability.</span>
+                          </div>
+                        )}
                       </div>
                     ) : (
                       <div>
                         <FileUp className="w-10 h-10 mx-auto text-slate-500 mb-2" />
                         <p className="text-slate-400">Click to select PDF</p>
-                        <p className="text-xs text-slate-500 mt-1">For large files, use URL import</p>
+                        <p className="text-xs text-slate-500 mt-1">Max 25MB direct upload. Use URL for larger files.</p>
                       </div>
                     )}
                   </div>
