@@ -4,8 +4,14 @@ from datetime import datetime, timedelta, timezone
 from typing import Optional
 import jwt
 import os
+from pathlib import Path
+from dotenv import load_dotenv
 
-JWT_SECRET = os.environ.get('JWT_SECRET')
+# Load environment variables
+ROOT_DIR = Path(__file__).parent.parent
+load_dotenv(ROOT_DIR / '.env')
+
+JWT_SECRET = os.environ.get('JWT_SECRET', 'fallback_secret_for_dev')
 JWT_ALGORITHM = 'HS256'
 JWT_EXPIRATION_HOURS = 24
 JWT_REMEMBER_ME_DAYS = 30
