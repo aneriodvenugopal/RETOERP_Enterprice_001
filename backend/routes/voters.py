@@ -476,6 +476,8 @@ def extract_voters_simple(pdf_bytes: bytes) -> tuple[list, dict]:
                 voter = {
                     'epic_no': epic,
                     'name': '',
+                    'relation_type': '',
+                    'relation_name': '',
                     'father_husband_name': '',
                     'age': None,
                     'gender': '',
@@ -495,6 +497,19 @@ def extract_voters_simple(pdf_bytes: bytes) -> tuple[list, dict]:
                 name_match = re.search(r'Name\s*:?\s*([A-Za-z][A-Za-z\s]+)', context)
                 if name_match:
                     voter['name'] = name_match.group(1).strip()[:100]
+                
+                # Extract Father/Husband with relationship type
+                father_match = re.search(r"Father(?:'s)?\s*(?:Name)?\s*:?\s*([A-Za-z][A-Za-z\s]+)", context)
+                husband_match = re.search(r"Husband(?:'s)?\s*(?:Name)?\s*:?\s*([A-Za-z][A-Za-z\s]+)", context)
+                
+                if father_match:
+                    voter['relation_type'] = 'Father'
+                    voter['relation_name'] = father_match.group(1).strip()[:100]
+                    voter['father_husband_name'] = voter['relation_name']
+                elif husband_match:
+                    voter['relation_type'] = 'Husband'
+                    voter['relation_name'] = husband_match.group(1).strip()[:100]
+                    voter['father_husband_name'] = voter['relation_name']
                 
                 age_match = re.search(r'Age\s*:?\s*(\d+)', context)
                 if age_match:
