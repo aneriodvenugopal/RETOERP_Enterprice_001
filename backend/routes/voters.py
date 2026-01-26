@@ -1265,11 +1265,11 @@ async def get_missing_sl_numbers(
     expected_total: Optional[int] = Query(None, description="Expected total voters in ward (from PDF header)")
 ):
     """
-    Get list of missing serial numbers for a ward.
+    Get missing voter information for a ward.
     
     When expected_total is provided (e.g., 943 from PDF header):
     - Missing count = expected_total - total records found
-    - Returns only serial numbers from 1 to expected_total that are missing
+    - Note: Serial numbers in PDFs may not be sequential (can have gaps/duplicates)
     """
     try:
         db = request.app.state.db
@@ -1295,66 +1295,45 @@ async def get_missing_sl_numbers(
         sl_numbers = [v.get("sl_no") for v in voters if v.get("sl_no") and isinstance(v.get("sl_no"), int) and v.get("sl_no") > 0]
         existing_sl = set(sl_numbers)
         
-        if not sl_numbers and not expected_total:
-            return {
-                "success": True, 
-                "missing_numbers": [], 
-                "message": "No serial numbers found. Enter expected total to calculate.",
-                "total_found": total_found
-            }
-        
-        # CRITICAL: When expected_total is provided, use it as the upper limit
+        # Calculate actual missing count based on expected total
         if expected_total and expected_total > 0:
-            # Only look for missing numbers from 1 to expected_total
-            all_expected = set(range(1, expected_total + 1))
-            missing = sorted(all_expected - existing_sl)
+            actual_missing_count = max(0, expected_total - total_found)
+            
+            # For display: show the SL number range that might need attention
+            # We'll show numbers that are NOT in our database within reasonable range
+            # Since PDFs may have SL numbers beyond expected_total, we use the actual max
+            max_sl = max(sl_numbers) if sl_numbers else expected_total
+            
+            # Find gaps in the sequence (but limit to reasonable range)
+            # Note: These are potential missing records, not guaranteed
+            display_range = min(max_sl, expected_total + 100)  # Don't go too far
+            potential_missing = []
+            
+            for i in range(1, display_range + 1):
+                if i not in existing_sl:
+                    potential_missing.append(i)
+                    if len(potential_missing) >= actual_missing_count * 2:  # Stop if we have enough candidates
+                        break
             
             return {
                 "success": True,
-                "missing_numbers": missing,
+                "missing_numbers": potential_missing[:actual_missing_count + 20],  # Show a bit more for context
                 "total_expected": expected_total,
                 "total_found": total_found,
-                "total_missing": len(missing),
-                "actual_missing_count": expected_total - total_found,
+                "total_missing": actual_missing_count,
+                "sl_number_range": f"1 to {max_sl}" if sl_numbers else "N/A",
+                "note": f"PDF has {expected_total} voters, {total_found} imported, {actual_missing_count} not imported. Serial numbers shown are potential gaps.",
                 "detection_method": "expected_total"
             }
         
-        # Fallback: When no expected_total, use smart gap detection
-        # Only find small gaps (not huge ranges)
-        if sl_numbers:
-            sorted_sls = sorted(sl_numbers)
-            missing = []
-            
-            # Check for numbers before the first SL
-            first_sl = sorted_sls[0]
-            if first_sl > 1 and first_sl <= 20:  # Only if gap is reasonable
-                missing.extend(range(1, first_sl))
-            
-            # Find gaps between consecutive numbers (max gap of 20)
-            for i in range(len(sorted_sls) - 1):
-                gap_start = sorted_sls[i] + 1
-                gap_end = sorted_sls[i + 1]
-                gap_size = gap_end - gap_start
-                
-                # Only include small gaps (up to 20 consecutive missing)
-                if gap_size > 0 and gap_size <= 20:
-                    missing.extend(range(gap_start, gap_end))
-            
-            return {
-                "success": True,
-                "missing_numbers": missing,
-                "total_expected": max(sorted_sls) if sorted_sls else 0,
-                "total_found": total_found,
-                "total_missing": len(missing),
-                "detection_method": "gap_analysis",
-                "note": "Enter expected total for accurate count"
-            }
-        
+        # Fallback: When no expected_total, just return basic info
         return {
             "success": True,
             "missing_numbers": [],
             "total_found": total_found,
-            "message": "Enter expected total to calculate missing numbers"
+            "sl_number_range": f"{min(sl_numbers)} to {max(sl_numbers)}" if sl_numbers else "N/A",
+            "message": "Enter expected total (from PDF header) to calculate missing count",
+            "note": "Serial numbers in voter PDFs often have gaps and are not sequential 1-N"
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
