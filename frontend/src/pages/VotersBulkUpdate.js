@@ -935,21 +935,22 @@ const VotersBulkUpdate = () => {
               <div className="flex items-start gap-3">
                 <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
                 <div className="flex-1">
-                  <div className="flex items-center gap-4 mb-2">
-                    <p className="font-medium text-amber-800">Missing Voters in Ward {selectedWard}</p>
+                  <div className="flex flex-wrap items-center gap-4 mb-3">
+                    <p className="font-medium text-amber-800">Ward {selectedWard} - Missing Voters Calculator</p>
                     <div className="flex items-center gap-2">
-                      <span className="text-sm text-amber-700">Expected Total:</span>
+                      <span className="text-sm text-amber-700">Total in PDF:</span>
                       <Input
                         type="number"
                         value={expectedTotal}
                         onChange={(e) => setExpectedTotal(e.target.value)}
                         placeholder="e.g., 943"
                         className="w-24 h-8 text-sm bg-white border-amber-300"
+                        onKeyDown={(e) => e.key === 'Enter' && fetchMissingSlNumbers()}
                       />
                       <Button
                         variant="outline"
                         size="sm"
-                        className="border-amber-300 text-amber-700"
+                        className="border-amber-300 text-amber-700 hover:bg-amber-100"
                         onClick={fetchMissingSlNumbers}
                       >
                         Calculate
@@ -957,11 +958,36 @@ const VotersBulkUpdate = () => {
                     </div>
                   </div>
                   
+                  {/* Results */}
+                  <div className="bg-white rounded-lg p-3 border border-amber-200 mb-3">
+                    <div className="flex items-center gap-6 text-sm">
+                      <div>
+                        <span className="text-gray-500">Imported:</span>
+                        <span className="ml-2 font-bold text-green-600">{incompleteStats?.total || 0}</span>
+                      </div>
+                      {expectedTotal && (
+                        <>
+                          <div>
+                            <span className="text-gray-500">Expected:</span>
+                            <span className="ml-2 font-bold text-gray-900">{expectedTotal}</span>
+                          </div>
+                          <div>
+                            <span className="text-gray-500">Not Imported:</span>
+                            <span className="ml-2 font-bold text-red-600">
+                              {Math.max(0, parseInt(expectedTotal) - (incompleteStats?.total || 0))}
+                            </span>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  
                   {missingSlNumbers.length > 0 && (
                     <>
                       <p className="text-sm text-amber-700 mb-2">
-                        Missing serial numbers: <span className="font-mono font-semibold">{missingSlNumbers.slice(0, 15).join(', ')}</span>
-                        {missingSlNumbers.length > 15 && (
+                        <span className="font-semibold">{missingSlNumbers.length}</span> missing serial numbers: 
+                        <span className="font-mono ml-2">{missingSlNumbers.slice(0, 10).join(', ')}</span>
+                        {missingSlNumbers.length > 10 && (
                           <button
                             onClick={() => setMissingModalOpen(true)}
                             className="ml-2 text-indigo-600 hover:text-indigo-700 underline font-medium"
@@ -969,6 +995,28 @@ const VotersBulkUpdate = () => {
                             View all {missingSlNumbers.length} &amp; Add
                           </button>
                         )}
+                      </p>
+                      <Button
+                        size="sm"
+                        className="bg-amber-600 hover:bg-amber-700 text-white"
+                        onClick={() => setMissingModalOpen(true)}
+                      >
+                        <ListPlus className="w-4 h-4 mr-2" />
+                        Add {missingSlNumbers.length} Missing Voters
+                      </Button>
+                    </>
+                  )}
+                  
+                  {!expectedTotal && (
+                    <p className="text-xs text-amber-600 italic">
+                      Enter the total voters count from your PDF header (e.g., 943) to calculate missing records accurately.
+                    </p>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
                       </p>
                       <div className="flex items-center gap-2">
                         <p className="text-xs text-amber-600">
