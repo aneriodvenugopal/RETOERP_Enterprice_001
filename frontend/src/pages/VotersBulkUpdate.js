@@ -2,23 +2,23 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { 
   Users, AlertTriangle, Check, X, Edit2, ArrowLeft, 
-  RefreshCw, Hash, MapPin, Plus, Save, FileSpreadsheet,
-  Download, Copy
+  RefreshCw, Hash, MapPin, Plus, FileSpreadsheet, Copy, ListPlus
 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { toast } from 'sonner';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
 // Add/Edit Voter Modal
-const VoterModal = ({ isOpen, onClose, voter, village, wardNo, onSave }) => {
+const VoterModal = ({ isOpen, onClose, voter, village, wardNo, onSave, initialSlNo }) => {
   const [formData, setFormData] = useState({
     epic_no: '',
     name: '',
-    father_husband_name: '',
+    relation_type: 'Father',
+    relation_name: '',
     age: '',
     gender: '',
     house_number: '',
@@ -33,7 +33,8 @@ const VoterModal = ({ isOpen, onClose, voter, village, wardNo, onSave }) => {
       setFormData({
         epic_no: voter.epic_no || '',
         name: voter.name || '',
-        father_husband_name: voter.father_husband_name || '',
+        relation_type: voter.relation_type || 'Father',
+        relation_name: voter.relation_name || voter.father_husband_name || '',
         age: voter.age || '',
         gender: voter.gender || '',
         house_number: voter.house_number || '',
@@ -44,15 +45,16 @@ const VoterModal = ({ isOpen, onClose, voter, village, wardNo, onSave }) => {
       setFormData({
         epic_no: '',
         name: '',
-        father_husband_name: '',
+        relation_type: 'Father',
+        relation_name: '',
         age: '',
         gender: '',
         house_number: '',
-        sl_no: '',
+        sl_no: initialSlNo || '',
         mobile_number: ''
       });
     }
-  }, [voter]);
+  }, [voter, initialSlNo]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -67,23 +69,23 @@ const VoterModal = ({ isOpen, onClose, voter, village, wardNo, onSave }) => {
       let response;
       
       if (isEdit) {
-        // Update existing voter
         response = await fetch(`${API_URL}/api/voters/update-full/${formData.epic_no}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             ...formData,
+            father_husband_name: formData.relation_name,
             village,
             ward_no: wardNo
           })
         });
       } else {
-        // Add new voter
         response = await fetch(`${API_URL}/api/voters/add`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             ...formData,
+            father_husband_name: formData.relation_name,
             village,
             ward_no: wardNo
           })
@@ -156,12 +158,27 @@ const VoterModal = ({ isOpen, onClose, voter, village, wardNo, onSave }) => {
               />
             </div>
             
-            <div className="col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Father/Husband Name</label>
+            {/* Relationship Type */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Relationship</label>
+              <Select value={formData.relation_type} onValueChange={(v) => setFormData(prev => ({ ...prev, relation_type: v }))}>
+                <SelectTrigger className="bg-white border-gray-300 text-gray-900">
+                  <SelectValue placeholder="Select" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Father">Father</SelectItem>
+                  <SelectItem value="Husband">Husband</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            {/* Relationship Name */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{formData.relation_type || 'Father'}&apos;s Name</label>
               <Input
-                value={formData.father_husband_name}
-                onChange={(e) => setFormData(prev => ({ ...prev, father_husband_name: e.target.value }))}
-                placeholder="Father or Husband name"
+                value={formData.relation_name}
+                onChange={(e) => setFormData(prev => ({ ...prev, relation_name: e.target.value }))}
+                placeholder={`${formData.relation_type || 'Father'}'s name`}
                 className="bg-white border-gray-300 text-gray-900"
               />
             </div>
@@ -239,6 +256,146 @@ const VoterModal = ({ isOpen, onClose, voter, village, wardNo, onSave }) => {
   );
 };
 
+// Missing Voters Modal - Add all missing serial numbers
+const MissingVotersModal = ({ isOpen, onClose, missingNumbers, village, wardNo, onSave }) => {
+  const [saving, setSaving] = useState(false);
+  const [selectedNumbers, setSelectedNumbers] = useState([]);
+  
+  useEffect(() => {
+    setSelectedNumbers([]);
+  }, [isOpen]);
+
+  const toggleNumber = (num) => {
+    setSelectedNumbers(prev => 
+      prev.includes(num) ? prev.filter(n => n !== num) : [...prev, num]
+    );
+  };
+
+  const selectAll = () => {
+    setSelectedNumbers([...missingNumbers]);
+  };
+
+  const selectNone = () => {
+    setSelectedNumbers([]);
+  };
+
+  const handleAddSelected = async () => {
+    if (selectedNumbers.length === 0) {
+      toast.error('Please select at least one serial number');
+      return;
+    }
+
+    setSaving(true);
+    try {
+      // Create placeholder voters for selected serial numbers
+      const voters = selectedNumbers.map(sl_no => ({
+        sl_no,
+        epic_no: `TEMP_${wardNo}_${sl_no}`, // Temporary EPIC, user will update
+        name: '',
+        relation_type: '',
+        relation_name: '',
+        age: null,
+        gender: '',
+        house_number: ''
+      }));
+
+      const response = await fetch(`${API_URL}/api/voters/add-bulk`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          voters,
+          village,
+          ward_no: wardNo
+        })
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        toast.success(`Added ${data.added_count} placeholder records. Please update EPIC numbers.`);
+        onSave();
+        onClose();
+      } else {
+        toast.error(data.detail || 'Failed to add');
+      }
+    } catch (error) {
+      toast.error('Failed to add voters');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+        <div className="p-4 border-b border-gray-200 bg-gray-50">
+          <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+            <ListPlus className="w-5 h-5 text-amber-600" />
+            Missing Serial Numbers - Ward {wardNo}
+          </h2>
+          <p className="text-gray-500 text-sm">{missingNumbers.length} serial numbers missing</p>
+        </div>
+        
+        <div className="p-4 border-b border-gray-200 flex items-center gap-4">
+          <Button variant="outline" size="sm" onClick={selectAll} className="border-gray-300">
+            Select All
+          </Button>
+          <Button variant="outline" size="sm" onClick={selectNone} className="border-gray-300">
+            Select None
+          </Button>
+          <span className="text-sm text-gray-500 ml-auto">
+            {selectedNumbers.length} selected
+          </span>
+        </div>
+
+        <div className="flex-1 overflow-auto p-4">
+          <div className="flex flex-wrap gap-2">
+            {missingNumbers.map((num) => (
+              <button
+                key={num}
+                onClick={() => toggleNumber(num)}
+                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                  selectedNumbers.includes(num)
+                    ? 'bg-indigo-600 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                {num}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="p-4 border-t border-gray-200 bg-gray-50 flex gap-3">
+          <Button
+            variant="outline"
+            onClick={onClose}
+            className="flex-1 border-gray-300"
+            disabled={saving}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleAddSelected}
+            className="flex-1 bg-amber-600 hover:bg-amber-700 text-white"
+            disabled={saving || selectedNumbers.length === 0}
+          >
+            {saving ? 'Adding...' : `Add ${selectedNumbers.length} Placeholder Records`}
+          </Button>
+        </div>
+        
+        <div className="px-4 pb-4 bg-gray-50">
+          <p className="text-xs text-gray-500">
+            Note: This will create placeholder records with temporary EPIC numbers. 
+            You will need to update them with actual EPIC numbers later.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // Bulk Update Modal
 const BulkUpdateModal = ({ isOpen, onClose, voters, village, wardNo, onSave }) => {
   const [bulkData, setBulkData] = useState([]);
@@ -250,7 +407,8 @@ const BulkUpdateModal = ({ isOpen, onClose, voters, village, wardNo, onSave }) =
         epic_no: v.epic_no,
         sl_no: v.sl_no || '',
         name: v.name || '',
-        father_husband_name: v.father_husband_name || '',
+        relation_type: v.relation_type || 'Father',
+        relation_name: v.relation_name || v.father_husband_name || '',
         age: v.age || '',
         gender: v.gender || '',
         house_number: v.house_number || ''
@@ -278,6 +436,7 @@ const BulkUpdateModal = ({ isOpen, onClose, voters, village, wardNo, onSave }) =
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             ...voter,
+            father_husband_name: voter.relation_name,
             village,
             ward_no: wardNo
           })
@@ -339,7 +498,8 @@ const BulkUpdateModal = ({ isOpen, onClose, voters, village, wardNo, onSave }) =
                 <th className="px-3 py-2 text-left text-xs font-semibold text-gray-600">SL No</th>
                 <th className="px-3 py-2 text-left text-xs font-semibold text-gray-600">EPIC No</th>
                 <th className="px-3 py-2 text-left text-xs font-semibold text-gray-600">Name</th>
-                <th className="px-3 py-2 text-left text-xs font-semibold text-gray-600">Father/Husband</th>
+                <th className="px-3 py-2 text-left text-xs font-semibold text-gray-600">Relation</th>
+                <th className="px-3 py-2 text-left text-xs font-semibold text-gray-600">Relation Name</th>
                 <th className="px-3 py-2 text-left text-xs font-semibold text-gray-600">Age</th>
                 <th className="px-3 py-2 text-left text-xs font-semibold text-gray-600">Gender</th>
                 <th className="px-3 py-2 text-left text-xs font-semibold text-gray-600">House No</th>
@@ -366,11 +526,21 @@ const BulkUpdateModal = ({ isOpen, onClose, voters, village, wardNo, onSave }) =
                     />
                   </td>
                   <td className="px-3 py-2">
+                    <select
+                      value={voter.relation_type}
+                      onChange={(e) => handleChange(index, 'relation_type', e.target.value)}
+                      className="h-8 text-xs border border-gray-200 rounded px-2 bg-white"
+                    >
+                      <option value="Father">Father</option>
+                      <option value="Husband">Husband</option>
+                    </select>
+                  </td>
+                  <td className="px-3 py-2">
                     <Input
-                      value={voter.father_husband_name}
-                      onChange={(e) => handleChange(index, 'father_husband_name', e.target.value)}
+                      value={voter.relation_name}
+                      onChange={(e) => handleChange(index, 'relation_name', e.target.value)}
                       className="h-8 text-xs bg-white border-gray-200"
-                      placeholder="Father/Husband"
+                      placeholder={`${voter.relation_type}'s name`}
                     />
                   </td>
                   <td className="px-3 py-2">
@@ -421,9 +591,10 @@ const VotersBulkUpdate = () => {
   const [wards, setWards] = useState([]);
   const [incompleteStats, setIncompleteStats] = useState(null);
   const [missingSlNumbers, setMissingSlNumbers] = useState([]);
+  const [expectedTotal, setExpectedTotal] = useState('');
   
   // Filters
-  const [village, setVillage] = useState(searchParams.get('village') || 'aliyabad');
+  const [village] = useState(searchParams.get('village') || 'aliyabad');
   const [selectedWard, setSelectedWard] = useState(searchParams.get('ward') || 'all');
   const [filterType, setFilterType] = useState(searchParams.get('filter') || 'incomplete');
   
@@ -432,6 +603,8 @@ const VotersBulkUpdate = () => {
   const [editingVoter, setEditingVoter] = useState(null);
   const [bulkModalOpen, setBulkModalOpen] = useState(false);
   const [selectedVoters, setSelectedVoters] = useState([]);
+  const [missingModalOpen, setMissingModalOpen] = useState(false);
+  const [addSlNo, setAddSlNo] = useState('');
   
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -472,7 +645,8 @@ const VotersBulkUpdate = () => {
       return;
     }
     try {
-      const response = await fetch(`${API_URL}/api/voters/missing-sl-numbers?village=${encodeURIComponent(village)}&ward=${selectedWard}`);
+      const url = `${API_URL}/api/voters/missing-sl-numbers?village=${encodeURIComponent(village)}&ward=${selectedWard}${expectedTotal ? `&expected_total=${expectedTotal}` : ''}`;
+      const response = await fetch(url);
       const data = await response.json();
       if (data.success) {
         setMissingSlNumbers(data.missing_numbers || []);
@@ -480,7 +654,7 @@ const VotersBulkUpdate = () => {
     } catch (error) {
       console.error('Failed to fetch missing SL numbers:', error);
     }
-  }, [village, selectedWard]);
+  }, [village, selectedWard, expectedTotal]);
 
   // Fetch voters
   const fetchVoters = useCallback(async () => {
@@ -530,12 +704,14 @@ const VotersBulkUpdate = () => {
   // Handle edit
   const handleEdit = (voter) => {
     setEditingVoter(voter);
+    setAddSlNo('');
     setModalOpen(true);
   };
 
   // Handle add new
-  const handleAddNew = () => {
+  const handleAddNew = (slNo = '') => {
     setEditingVoter(null);
+    setAddSlNo(slNo);
     setModalOpen(true);
   };
 
@@ -553,7 +729,7 @@ const VotersBulkUpdate = () => {
   // Handle bulk update
   const handleBulkUpdate = () => {
     const incompleteVoters = voters.filter(v => {
-      const fields = ['name', 'father_husband_name', 'age', 'gender', 'house_number'];
+      const fields = ['name', 'relation_name', 'age', 'gender', 'house_number'];
       return fields.some(f => !v[f] || v[f] === '');
     });
     setSelectedVoters(incompleteVoters);
@@ -562,12 +738,12 @@ const VotersBulkUpdate = () => {
 
   // Get completeness indicator
   const getCompleteness = (voter) => {
-    const fields = ['name', 'father_husband_name', 'age', 'gender', 'house_number'];
+    const fields = ['name', 'age', 'gender', 'house_number'];
     const filled = fields.filter(f => voter[f] && voter[f] !== '').length;
     const percentage = Math.round((filled / fields.length) * 100);
     
     if (percentage === 100) return { status: 'complete', color: 'green', text: 'Complete' };
-    if (percentage >= 60) return { status: 'partial', color: 'yellow', text: 'Partial' };
+    if (percentage >= 50) return { status: 'partial', color: 'yellow', text: 'Partial' };
     return { status: 'incomplete', color: 'red', text: 'Incomplete' };
   };
 
@@ -575,7 +751,7 @@ const VotersBulkUpdate = () => {
   const getMissingFields = (voter) => {
     const fieldLabels = {
       name: 'Name',
-      father_husband_name: 'Father/Husband',
+      relation_name: 'Relation',
       age: 'Age',
       gender: 'Gender',
       house_number: 'House No'
@@ -586,15 +762,19 @@ const VotersBulkUpdate = () => {
       .map(([, label]) => label);
   };
 
-  // Check if voter is duplicate (appears more than once by epic_no)
+  // Check if voter is duplicate
   const epicCounts = voters.reduce((acc, v) => {
     acc[v.epic_no] = (acc[v.epic_no] || 0) + 1;
     return acc;
   }, {});
 
+  // Calculate actual missing count
+  const wardData = wards.find(w => String(w.ward_no) === String(selectedWard));
+  const actualMissing = expectedTotal ? Math.max(0, parseInt(expectedTotal) - (incompleteStats?.total || 0)) : missingSlNumbers.length;
+
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Modal */}
+      {/* Modals */}
       <VoterModal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
@@ -602,9 +782,9 @@ const VotersBulkUpdate = () => {
         village={village}
         wardNo={selectedWard !== 'all' ? selectedWard : '1'}
         onSave={handleSaveVoter}
+        initialSlNo={addSlNo}
       />
 
-      {/* Bulk Update Modal */}
       <BulkUpdateModal
         isOpen={bulkModalOpen}
         onClose={() => setBulkModalOpen(false)}
@@ -612,6 +792,15 @@ const VotersBulkUpdate = () => {
         village={village}
         wardNo={selectedWard !== 'all' ? selectedWard : '1'}
         onSave={() => { fetchVoters(); fetchIncompleteStats(); }}
+      />
+
+      <MissingVotersModal
+        isOpen={missingModalOpen}
+        onClose={() => setMissingModalOpen(false)}
+        missingNumbers={missingSlNumbers}
+        village={village}
+        wardNo={selectedWard !== 'all' ? selectedWard : '1'}
+        onSave={() => { fetchVoters(); fetchIncompleteStats(); fetchMissingSlNumbers(); }}
       />
 
       {/* Header */}
@@ -638,7 +827,7 @@ const VotersBulkUpdate = () => {
             <div className="flex items-center gap-2">
               <Button
                 className="bg-green-600 hover:bg-green-700 text-white"
-                onClick={handleAddNew}
+                onClick={() => handleAddNew()}
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Add Voter
@@ -658,7 +847,7 @@ const VotersBulkUpdate = () => {
                 onClick={() => navigate('/voters-admin')}
               >
                 <MapPin className="w-4 h-4 mr-2" />
-                Admin Settings
+                Admin
               </Button>
             </div>
           </div>
@@ -675,7 +864,7 @@ const VotersBulkUpdate = () => {
                   <Users className="w-5 h-5 text-indigo-600" />
                 </div>
                 <div>
-                  <p className="text-gray-500 text-xs">Total</p>
+                  <p className="text-gray-500 text-xs">Imported</p>
                   <p className="text-xl font-bold text-gray-900">{incompleteStats?.total || 0}</p>
                 </div>
               </div>
@@ -727,32 +916,75 @@ const VotersBulkUpdate = () => {
           <Card className="bg-white border-gray-200 shadow-sm">
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <Hash className="w-5 h-5 text-blue-600" />
+                <div className="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
+                  <Hash className="w-5 h-5 text-amber-600" />
                 </div>
                 <div>
-                  <p className="text-gray-500 text-xs">Missing SL#</p>
-                  <p className="text-xl font-bold text-gray-900">{missingSlNumbers.length}</p>
+                  <p className="text-gray-500 text-xs">Not Imported</p>
+                  <p className="text-xl font-bold text-amber-600">{actualMissing}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Missing Serial Numbers Alert */}
-        {missingSlNumbers.length > 0 && (
+        {/* Expected Total Input and Missing Alert */}
+        {selectedWard !== 'all' && (
           <Card className="bg-amber-50 border-amber-200">
             <CardContent className="p-4">
               <div className="flex items-start gap-3">
                 <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
                 <div className="flex-1">
-                  <p className="font-medium text-amber-800">Missing Serial Numbers in Ward {selectedWard}</p>
-                  <p className="text-sm text-amber-700 mt-1">
-                    The following serial numbers are missing: <span className="font-mono font-semibold">{missingSlNumbers.slice(0, 30).join(', ')}{missingSlNumbers.length > 30 ? '...' : ''}</span>
-                  </p>
-                  <p className="text-xs text-amber-600 mt-2">
-                    Total missing: {missingSlNumbers.length} | Use &quot;Add Voter&quot; to add these manually
-                  </p>
+                  <div className="flex items-center gap-4 mb-2">
+                    <p className="font-medium text-amber-800">Missing Voters in Ward {selectedWard}</p>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-amber-700">Expected Total:</span>
+                      <Input
+                        type="number"
+                        value={expectedTotal}
+                        onChange={(e) => setExpectedTotal(e.target.value)}
+                        placeholder="e.g., 943"
+                        className="w-24 h-8 text-sm bg-white border-amber-300"
+                      />
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="border-amber-300 text-amber-700"
+                        onClick={fetchMissingSlNumbers}
+                      >
+                        Calculate
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  {missingSlNumbers.length > 0 && (
+                    <>
+                      <p className="text-sm text-amber-700 mb-2">
+                        Missing serial numbers: <span className="font-mono font-semibold">{missingSlNumbers.slice(0, 15).join(', ')}</span>
+                        {missingSlNumbers.length > 15 && (
+                          <button
+                            onClick={() => setMissingModalOpen(true)}
+                            className="ml-2 text-indigo-600 hover:text-indigo-700 underline font-medium"
+                          >
+                            View all {missingSlNumbers.length} &amp; Add
+                          </button>
+                        )}
+                      </p>
+                      <div className="flex items-center gap-2">
+                        <p className="text-xs text-amber-600">
+                          Imported: {incompleteStats?.total || 0} | Missing: {actualMissing}
+                        </p>
+                        <Button
+                          size="sm"
+                          className="bg-amber-600 hover:bg-amber-700 text-white text-xs"
+                          onClick={() => setMissingModalOpen(true)}
+                        >
+                          <ListPlus className="w-3 h-3 mr-1" />
+                          Add Missing Voters
+                        </Button>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
             </CardContent>
@@ -763,7 +995,6 @@ const VotersBulkUpdate = () => {
         <Card className="bg-white border-gray-200 shadow-sm">
           <CardContent className="p-4">
             <div className="flex flex-wrap items-center gap-4">
-              {/* Ward Filter */}
               <div className="flex items-center gap-2">
                 <span className="text-sm text-gray-500">Ward:</span>
                 <Select value={selectedWard} onValueChange={setSelectedWard}>
@@ -779,7 +1010,6 @@ const VotersBulkUpdate = () => {
                 </Select>
               </div>
 
-              {/* Filter Type */}
               <div className="flex items-center gap-2">
                 <span className="text-sm text-gray-500">Show:</span>
                 <Select value={filterType} onValueChange={setFilterType}>
@@ -823,12 +1053,12 @@ const VotersBulkUpdate = () => {
                   <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">SL No</th>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">EPIC No</th>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Name</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Father/Husband</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Relation</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Name</th>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Age</th>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Gender</th>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">House No</th>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Ward</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Missing</th>
                   <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">Action</th>
                 </tr>
               </thead>
@@ -872,7 +1102,6 @@ const VotersBulkUpdate = () => {
                           {isDuplicate && (
                             <span className="ml-1 inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-700">
                               <Copy className="w-3 h-3" />
-                              Dup
                             </span>
                           )}
                         </td>
@@ -883,8 +1112,19 @@ const VotersBulkUpdate = () => {
                         <td className="px-4 py-3 text-sm text-gray-900 font-medium">
                           {voter.name || <span className="text-red-500 italic">Missing</span>}
                         </td>
+                        <td className="px-4 py-3 text-xs">
+                          {voter.relation_type ? (
+                            <span className={`px-2 py-0.5 rounded ${
+                              voter.relation_type === 'Father' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'
+                            }`}>
+                              {voter.relation_type}
+                            </span>
+                          ) : (
+                            <span className="text-gray-300">-</span>
+                          )}
+                        </td>
                         <td className="px-4 py-3 text-sm text-gray-700">
-                          {voter.father_husband_name || <span className="text-gray-300">-</span>}
+                          {voter.relation_name || voter.father_husband_name || <span className="text-gray-300">-</span>}
                         </td>
                         <td className="px-4 py-3 text-sm text-gray-700">
                           {voter.age || <span className="text-gray-300">-</span>}
@@ -904,9 +1144,6 @@ const VotersBulkUpdate = () => {
                           {voter.house_number || <span className="text-gray-300">-</span>}
                         </td>
                         <td className="px-4 py-3 text-sm text-gray-700">{voter.ward_no}</td>
-                        <td className="px-4 py-3 text-xs text-red-600">
-                          {missingFields.length > 0 ? missingFields.join(', ') : '-'}
-                        </td>
                         <td className="px-4 py-3 text-center">
                           <Button
                             variant="ghost"
@@ -964,11 +1201,10 @@ const VotersBulkUpdate = () => {
                 <p className="font-medium text-gray-900 mb-2">How to use Bulk Update</p>
                 <ul className="space-y-1 list-disc list-inside">
                   <li>Select ward to filter records for that ward</li>
-                  <li>Use &quot;Show&quot; filter to find incomplete records</li>
+                  <li>Enter <strong>Expected Total</strong> (from PDF header) to calculate correct missing count</li>
+                  <li>Click <strong>&quot;View all &amp; Add&quot;</strong> to see and add all missing serial numbers</li>
                   <li>Click Edit icon to update individual records</li>
                   <li>Click &quot;Bulk Edit&quot; to update multiple records at once</li>
-                  <li>Click &quot;Add Voter&quot; to manually add missing voters (use missing SL numbers)</li>
-                  <li>Required fields: Village, Ward, EPIC No.</li>
                   <li><span className="bg-orange-100 px-1 rounded">Orange rows</span> indicate duplicate EPIC numbers</li>
                 </ul>
               </div>
