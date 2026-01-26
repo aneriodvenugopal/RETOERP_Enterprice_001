@@ -911,7 +911,9 @@ async def add_voter_manually(request: Request):
         voter = {
             "epic_no": epic_no,
             "name": body.get("name", "").strip(),
-            "father_husband_name": body.get("father_husband_name", "").strip(),
+            "relation_type": body.get("relation_type", "").strip(),  # 'Father' or 'Husband'
+            "relation_name": body.get("relation_name", "").strip(),
+            "father_husband_name": body.get("father_husband_name", "") or body.get("relation_name", ""),
             "age": int(body.get("age", 0)) if body.get("age") else None,
             "gender": body.get("gender", "").upper()[:1] if body.get("gender") else "",
             "house_number": body.get("house_number", "").strip(),
