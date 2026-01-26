@@ -1231,6 +1231,53 @@ async def get_visible_wards(
 
 # ==================== INCOMPLETE RECORDS ENDPOINTS ====================
 
+@router.get("/missing-sl-numbers")
+async def get_missing_sl_numbers(
+    request: Request,
+    village: Optional[str] = Query(None),
+    ward: Optional[str] = Query(None)
+):
+    """Get list of missing serial numbers for a ward"""
+    try:
+        db = request.app.state.db
+        
+        if not ward or ward == 'all':
+            return {"success": True, "missing_numbers": [], "message": "Select a specific ward"}
+        
+        query = {}
+        if village:
+            query["village"] = {"$regex": f"^{village}$", "$options": "i"}
+        try:
+            query["ward_no"] = int(ward)
+        except (ValueError, TypeError):
+            query["ward_no"] = ward
+        
+        # Get all sl_no values for this ward
+        cursor = db.voters.find(query, {"sl_no": 1, "_id": 0})
+        voters = await cursor.to_list(length=10000)
+        
+        sl_numbers = [v.get("sl_no") for v in voters if v.get("sl_no") and isinstance(v.get("sl_no"), int)]
+        
+        if not sl_numbers:
+            return {"success": True, "missing_numbers": [], "message": "No serial numbers found"}
+        
+        # Find gaps in sequence
+        max_sl = max(sl_numbers)
+        all_expected = set(range(1, max_sl + 1))
+        existing = set(sl_numbers)
+        missing = sorted(all_expected - existing)
+        
+        return {
+            "success": True,
+            "missing_numbers": missing,
+            "total_expected": max_sl,
+            "total_found": len(existing),
+            "total_missing": len(missing)
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @router.get("/incomplete-stats")
 async def get_incomplete_stats(
     request: Request,
