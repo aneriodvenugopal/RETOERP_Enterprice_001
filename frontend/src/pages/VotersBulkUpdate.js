@@ -1017,27 +1017,6 @@ const VotersBulkUpdate = () => {
             </CardContent>
           </Card>
         )}
-                      </p>
-                      <div className="flex items-center gap-2">
-                        <p className="text-xs text-amber-600">
-                          Imported: {incompleteStats?.total || 0} | Missing: {actualMissing}
-                        </p>
-                        <Button
-                          size="sm"
-                          className="bg-amber-600 hover:bg-amber-700 text-white text-xs"
-                          onClick={() => setMissingModalOpen(true)}
-                        >
-                          <ListPlus className="w-3 h-3 mr-1" />
-                          Add Missing Voters
-                        </Button>
-                      </div>
-                    </>
-                  )}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
 
         {/* Filters */}
         <Card className="bg-white border-gray-200 shadow-sm">
