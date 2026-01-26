@@ -1235,9 +1235,10 @@ async def get_visible_wards(
 async def get_missing_sl_numbers(
     request: Request,
     village: Optional[str] = Query(None),
-    ward: Optional[str] = Query(None)
+    ward: Optional[str] = Query(None),
+    expected_total: Optional[int] = Query(None, description="Expected total voters in ward")
 ):
-    """Get list of missing serial numbers for a ward"""
+    """Get list of missing serial numbers for a ward based on actual gaps in sequence"""
     try:
         db = request.app.state.db
         
@@ -1256,23 +1257,58 @@ async def get_missing_sl_numbers(
         cursor = db.voters.find(query, {"sl_no": 1, "_id": 0})
         voters = await cursor.to_list(length=10000)
         
-        sl_numbers = [v.get("sl_no") for v in voters if v.get("sl_no") and isinstance(v.get("sl_no"), int)]
+        sl_numbers = [v.get("sl_no") for v in voters if v.get("sl_no") and isinstance(v.get("sl_no"), int) and v.get("sl_no") > 0]
+        total_found = len(voters)
         
         if not sl_numbers:
-            return {"success": True, "missing_numbers": [], "message": "No serial numbers found"}
+            return {"success": True, "missing_numbers": [], "message": "No serial numbers found", "total_found": total_found}
         
-        # Find gaps in sequence
-        max_sl = max(sl_numbers)
-        all_expected = set(range(1, max_sl + 1))
         existing = set(sl_numbers)
+        
+        # If expected_total is provided, use it; otherwise use max sl_no
+        if expected_total and expected_total > 0:
+            # Use expected total from user input
+            max_sl = expected_total
+        else:
+            # Smart detection: Find the actual range of serial numbers
+            # Look for the highest consecutive sequence or use max if gap is small
+            max_sl = max(sl_numbers)
+            min_sl = min(sl_numbers)
+            
+            # If the range is too large compared to found count, limit to found + reasonable gap
+            # This handles cases where SL numbers have large gaps
+            if max_sl - total_found > total_found:
+                # Too many gaps - likely wrong SL number extraction
+                # Just find gaps in the actual sequence
+                sorted_sls = sorted(sl_numbers)
+                missing = []
+                for i in range(len(sorted_sls) - 1):
+                    gap_start = sorted_sls[i] + 1
+                    gap_end = sorted_sls[i + 1]
+                    # Only include small gaps (up to 10 consecutive missing)
+                    if gap_end - gap_start <= 10:
+                        missing.extend(range(gap_start, gap_end))
+                
+                return {
+                    "success": True,
+                    "missing_numbers": missing,
+                    "total_expected": total_found + len(missing),
+                    "total_found": total_found,
+                    "total_missing": len(missing),
+                    "detection_method": "gap_analysis"
+                }
+        
+        # Standard approach: find all missing from 1 to max
+        all_expected = set(range(1, max_sl + 1))
         missing = sorted(all_expected - existing)
         
         return {
             "success": True,
             "missing_numbers": missing,
             "total_expected": max_sl,
-            "total_found": len(existing),
-            "total_missing": len(missing)
+            "total_found": total_found,
+            "total_missing": len(missing),
+            "detection_method": "sequential"
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
