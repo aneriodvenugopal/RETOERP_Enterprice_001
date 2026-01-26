@@ -326,7 +326,9 @@ def extract_voters_by_columns(pdf_bytes: bytes) -> tuple[list, dict]:
                             voter = {
                                 'epic_no': epic,
                                 'name': '',
-                                'father_husband_name': '',
+                                'relation_type': '',  # 'Father' or 'Husband'
+                                'relation_name': '',
+                                'father_husband_name': '',  # Keep for backward compatibility
                                 'age': None,
                                 'gender': '',
                                 'house_number': '',
