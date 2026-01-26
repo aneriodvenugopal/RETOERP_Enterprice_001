@@ -1262,9 +1262,15 @@ async def get_missing_sl_numbers(
     request: Request,
     village: Optional[str] = Query(None),
     ward: Optional[str] = Query(None),
-    expected_total: Optional[int] = Query(None, description="Expected total voters in ward")
+    expected_total: Optional[int] = Query(None, description="Expected total voters in ward (from PDF header)")
 ):
-    """Get list of missing serial numbers for a ward based on actual gaps in sequence"""
+    """
+    Get list of missing serial numbers for a ward.
+    
+    When expected_total is provided (e.g., 943 from PDF header):
+    - Missing count = expected_total - total records found
+    - Returns only serial numbers from 1 to expected_total that are missing
+    """
     try:
         db = request.app.state.db
         
@@ -1279,62 +1285,76 @@ async def get_missing_sl_numbers(
         except (ValueError, TypeError):
             query["ward_no"] = ward
         
+        # Get total count of records
+        total_found = await db.voters.count_documents(query)
+        
         # Get all sl_no values for this ward
         cursor = db.voters.find(query, {"sl_no": 1, "_id": 0})
         voters = await cursor.to_list(length=10000)
         
         sl_numbers = [v.get("sl_no") for v in voters if v.get("sl_no") and isinstance(v.get("sl_no"), int) and v.get("sl_no") > 0]
-        total_found = len(voters)
+        existing_sl = set(sl_numbers)
         
-        if not sl_numbers:
-            return {"success": True, "missing_numbers": [], "message": "No serial numbers found", "total_found": total_found}
+        if not sl_numbers and not expected_total:
+            return {
+                "success": True, 
+                "missing_numbers": [], 
+                "message": "No serial numbers found. Enter expected total to calculate.",
+                "total_found": total_found
+            }
         
-        existing = set(sl_numbers)
-        
-        # If expected_total is provided, use it; otherwise use max sl_no
+        # CRITICAL: When expected_total is provided, use it as the upper limit
         if expected_total and expected_total > 0:
-            # Use expected total from user input
-            max_sl = expected_total
-        else:
-            # Smart detection: Find the actual range of serial numbers
-            # Look for the highest consecutive sequence or use max if gap is small
-            max_sl = max(sl_numbers)
-            min_sl = min(sl_numbers)
+            # Only look for missing numbers from 1 to expected_total
+            all_expected = set(range(1, expected_total + 1))
+            missing = sorted(all_expected - existing_sl)
             
-            # If the range is too large compared to found count, limit to found + reasonable gap
-            # This handles cases where SL numbers have large gaps
-            if max_sl - total_found > total_found:
-                # Too many gaps - likely wrong SL number extraction
-                # Just find gaps in the actual sequence
-                sorted_sls = sorted(sl_numbers)
-                missing = []
-                for i in range(len(sorted_sls) - 1):
-                    gap_start = sorted_sls[i] + 1
-                    gap_end = sorted_sls[i + 1]
-                    # Only include small gaps (up to 10 consecutive missing)
-                    if gap_end - gap_start <= 10:
-                        missing.extend(range(gap_start, gap_end))
-                
-                return {
-                    "success": True,
-                    "missing_numbers": missing,
-                    "total_expected": total_found + len(missing),
-                    "total_found": total_found,
-                    "total_missing": len(missing),
-                    "detection_method": "gap_analysis"
-                }
+            return {
+                "success": True,
+                "missing_numbers": missing,
+                "total_expected": expected_total,
+                "total_found": total_found,
+                "total_missing": len(missing),
+                "actual_missing_count": expected_total - total_found,
+                "detection_method": "expected_total"
+            }
         
-        # Standard approach: find all missing from 1 to max
-        all_expected = set(range(1, max_sl + 1))
-        missing = sorted(all_expected - existing)
+        # Fallback: When no expected_total, use smart gap detection
+        # Only find small gaps (not huge ranges)
+        if sl_numbers:
+            sorted_sls = sorted(sl_numbers)
+            missing = []
+            
+            # Check for numbers before the first SL
+            first_sl = sorted_sls[0]
+            if first_sl > 1 and first_sl <= 20:  # Only if gap is reasonable
+                missing.extend(range(1, first_sl))
+            
+            # Find gaps between consecutive numbers (max gap of 20)
+            for i in range(len(sorted_sls) - 1):
+                gap_start = sorted_sls[i] + 1
+                gap_end = sorted_sls[i + 1]
+                gap_size = gap_end - gap_start
+                
+                # Only include small gaps (up to 20 consecutive missing)
+                if gap_size > 0 and gap_size <= 20:
+                    missing.extend(range(gap_start, gap_end))
+            
+            return {
+                "success": True,
+                "missing_numbers": missing,
+                "total_expected": max(sorted_sls) if sorted_sls else 0,
+                "total_found": total_found,
+                "total_missing": len(missing),
+                "detection_method": "gap_analysis",
+                "note": "Enter expected total for accurate count"
+            }
         
         return {
             "success": True,
-            "missing_numbers": missing,
-            "total_expected": max_sl,
+            "missing_numbers": [],
             "total_found": total_found,
-            "total_missing": len(missing),
-            "detection_method": "sequential"
+            "message": "Enter expected total to calculate missing numbers"
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
