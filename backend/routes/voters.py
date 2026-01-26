@@ -382,14 +382,21 @@ def extract_voters_by_columns(pdf_bytes: bytes) -> tuple[list, dict]:
                                         if name and len(name) > 1 and not any(x in name.lower() for x in ['father', 'husband']):
                                             voter['name'] = name[:100]
                                 
-                                # Father/Husband
+                                # Father/Husband - Extract relationship type
                                 if 'Father' in line or 'Husband' in line:
+                                    # Determine relation type
+                                    if 'Father' in line:
+                                        voter['relation_type'] = 'Father'
+                                    elif 'Husband' in line:
+                                        voter['relation_type'] = 'Husband'
+                                    
                                     rel_match = re.search(r'(?:Father|Husband)\s*(?:Name)?\s*:([^:]+?)$', line)
-                                    if rel_match and not voter['father_husband_name']:
+                                    if rel_match and not voter['relation_name']:
                                         rel = rel_match.group(1).strip()
                                         rel = re.sub(r'\s+', ' ', rel)
                                         if rel and len(rel) > 1:
-                                            voter['father_husband_name'] = rel[:100]
+                                            voter['relation_name'] = rel[:100]
+                                            voter['father_husband_name'] = rel[:100]  # Keep for backward compatibility
                                 
                                 # Age/Sex
                                 if 'Age' in line:
