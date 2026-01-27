@@ -34,8 +34,42 @@ async def create_booking(booking_create: BookingCreate, request: Request):
     if current_status and current_status['slug'] not in ['available', 'blocked']:
         raise HTTPException(status_code=400, detail=f"Property is already {current_status['name']}")
     
-    # Create booking
-    booking = Booking(**booking_create.model_dump())
+    # Auto-create or find customer if customer_id not provided
+    customer_id = booking_create.customer_id
+    if not customer_id:
+        # Check if customer exists by phone
+        existing_customer = await db.customers.find_one({
+            'phone': booking_create.customer_phone,
+            'tenant_id': booking_create.tenant_id,
+            'deleted_at': None
+        }, {"_id": 0})
+        
+        if existing_customer:
+            customer_id = existing_customer['id']
+        else:
+            # Create new customer
+            customer_id = str(uuid.uuid4())
+            new_customer = {
+                'id': customer_id,
+                'tenant_id': booking_create.tenant_id,
+                'name': booking_create.customer_name,
+                'phone': booking_create.customer_phone,
+                'email': booking_create.customer_email,
+                'status': 'active',
+                'source': 'booking',
+                'created_at': datetime.now(timezone.utc).isoformat(),
+                'updated_at': datetime.now(timezone.utc).isoformat(),
+                'deleted_at': None
+            }
+            await db.customers.insert_one(new_customer)
+    
+    # Create booking with customer_id
+    booking_data = booking_create.model_dump()
+    booking_data['customer_id'] = customer_id
+    if not booking_data.get('currency_id'):
+        booking_data['currency_id'] = 'INR'
+    
+    booking = Booking(**booking_data)
     booking_doc = serialize_doc(booking.model_dump())
     
     await db.bookings.insert_one(booking_doc)
@@ -45,7 +79,7 @@ async def create_booking(booking_create: BookingCreate, request: Request):
         {'id': booking_create.property_id},
         {'$set': {
             'status_id': booked_status['id'],
-            'booked_by': booking_create.customer_id,
+            'booked_by': customer_id,
             'booked_at': datetime.now(timezone.utc).isoformat(),
             'updated_at': datetime.now(timezone.utc).isoformat()
         }}
