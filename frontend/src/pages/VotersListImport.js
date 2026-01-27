@@ -20,7 +20,8 @@ const VotersListImport = () => {
   const [wardNo, setWardNo] = useState('');
   const [selectedFile, setSelectedFile] = useState(null);
   const [pdfUrl, setPdfUrl] = useState('');
-  const [useUrlImport, setUseUrlImport] = useState(false);
+  const [importMethod, setImportMethod] = useState('excel'); // 'excel', 'pdf', 'url', 'text'
+  const [textData, setTextData] = useState('');
   const [replaceExisting, setReplaceExisting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   
