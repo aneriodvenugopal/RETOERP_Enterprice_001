@@ -956,6 +956,196 @@ async def import_voters_from_text(request: Request):
         raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
 
 
+@router.post("/upload-excel")
+async def upload_excel_voters(
+    request: Request,
+    file: UploadFile = File(...),
+    village: str = Form(...),
+    ward_no: str = Form(...),
+    replace_existing: str = Form("false")
+):
+    """
+    Upload Excel file (.xlsx, .xls) containing voter data.
+    Expected columns: S.No, AC No, PS No, SL No, Name, Relation Name, Relation Type, Age, Sex, Door No, EPIC No
+    """
+    try:
+        # Validate file type
+        if not file.filename.lower().endswith(('.xlsx', '.xls')):
+            raise HTTPException(status_code=400, detail="Please upload an Excel file (.xlsx or .xls)")
+        
+        # Validate inputs
+        if not village.strip():
+            raise HTTPException(status_code=400, detail="Village is required")
+        
+        try:
+            ward_int = int(ward_no)
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Invalid ward number")
+        
+        replace = replace_existing.lower() in ('true', '1', 'yes')
+        
+        # Read Excel file
+        contents = await file.read()
+        workbook = openpyxl.load_workbook(io.BytesIO(contents), data_only=True)
+        sheet = workbook.active
+        
+        # Get header row to map columns
+        headers = []
+        for cell in sheet[1]:
+            headers.append(str(cell.value).strip().lower() if cell.value else '')
+        
+        # Column mapping (flexible to handle variations)
+        col_map = {}
+        for idx, header in enumerate(headers):
+            h = header.lower().replace('.', '').replace(' ', '_')
+            if 'sl' in h and 'no' in h:
+                col_map['sl_no'] = idx
+            elif 's' == h or 'sno' in h or 's_no' in h:
+                col_map['s_no'] = idx
+            elif 'epic' in h:
+                col_map['epic_no'] = idx
+            elif header == 'name' or h == 'name':
+                col_map['name'] = idx
+            elif 'relation_name' in h or 'father' in h or 'husband' in h:
+                if 'type' not in h:
+                    col_map['relation_name'] = idx
+            elif 'relation_type' in h:
+                col_map['relation_type'] = idx
+            elif 'age' in h:
+                col_map['age'] = idx
+            elif 'sex' in h or 'gender' in h:
+                col_map['gender'] = idx
+            elif 'door' in h or 'house' in h:
+                col_map['house_number'] = idx
+        
+        # Parse rows
+        voters = []
+        for row_idx, row in enumerate(sheet.iter_rows(min_row=2, values_only=True), start=2):
+            if not row or all(cell is None for cell in row):
+                continue
+            
+            # Get EPIC number
+            epic_idx = col_map.get('epic_no')
+            epic_no = str(row[epic_idx]).strip() if epic_idx is not None and row[epic_idx] else None
+            
+            if not epic_no:
+                continue
+            
+            # Get serial number (prefer SL No, fallback to S.No)
+            sl_no = None
+            if 'sl_no' in col_map and row[col_map['sl_no']]:
+                try:
+                    sl_no = int(row[col_map['sl_no']])
+                except:
+                    pass
+            if sl_no is None and 's_no' in col_map and row[col_map['s_no']]:
+                try:
+                    sl_no = int(row[col_map['s_no']])
+                except:
+                    pass
+            if sl_no is None:
+                sl_no = len(voters) + 1
+            
+            # Get other fields
+            name = str(row[col_map['name']]).strip() if 'name' in col_map and row[col_map['name']] else ''
+            relation_name = str(row[col_map['relation_name']]).strip() if 'relation_name' in col_map and row[col_map['relation_name']] else ''
+            relation_type = str(row[col_map['relation_type']]).strip() if 'relation_type' in col_map and row[col_map['relation_type']] else ''
+            
+            age = None
+            if 'age' in col_map and row[col_map['age']]:
+                try:
+                    age = int(row[col_map['age']])
+                except:
+                    pass
+            
+            gender = ''
+            if 'gender' in col_map and row[col_map['gender']]:
+                g = str(row[col_map['gender']]).strip().upper()
+                gender = g[0] if g in ('M', 'F', 'MALE', 'FEMALE') else ''
+            
+            house_number = str(row[col_map['house_number']]).strip() if 'house_number' in col_map and row[col_map['house_number']] else ''
+            
+            voter = {
+                'epic_no': epic_no,
+                'sl_no': sl_no,
+                'name': name[:100] if name else '',
+                'relation_type': relation_type,
+                'relation_name': relation_name[:100] if relation_name else '',
+                'father_husband_name': relation_name[:100] if relation_name else '',
+                'age': age,
+                'gender': gender,
+                'house_number': house_number[:20] if house_number else '',
+                'village': village.strip(),
+                'ward_no': ward_int,
+                'ward': str(ward_int)
+            }
+            voters.append(voter)
+        
+        if not voters:
+            return {
+                "success": False,
+                "message": "No valid voter data found in Excel file. Check column headers.",
+                "extracted_count": 0
+            }
+        
+        # Sort by sl_no
+        voters.sort(key=lambda x: x.get('sl_no', 0))
+        
+        db = request.app.state.db
+        deleted_count = 0
+        skipped_count = 0
+        
+        if replace:
+            delete_result = await db.voters.delete_many({
+                "village": {"$regex": f"^{village.strip()}$", "$options": "i"},
+                "ward_no": ward_int
+            })
+            deleted_count = delete_result.deleted_count
+            
+            if voters:
+                await db.voters.insert_many(voters)
+        else:
+            existing_epics = set()
+            cursor = db.voters.find(
+                {"village": {"$regex": f"^{village.strip()}$", "$options": "i"}, "ward_no": ward_int},
+                {"epic_no": 1}
+            )
+            async for doc in cursor:
+                existing_epics.add(doc.get("epic_no"))
+            
+            new_voters = [v for v in voters if v.get("epic_no") not in existing_epics]
+            skipped_count = len(voters) - len(new_voters)
+            
+            if new_voters:
+                await db.voters.insert_many(new_voters)
+            
+            voters = new_voters
+        
+        # Ensure indexes
+        await db.voters.create_index("epic_no")
+        await db.voters.create_index("village")
+        await db.voters.create_index("ward_no")
+        await db.voters.create_index("sl_no")
+        
+        return {
+            "success": True,
+            "message": f"Successfully imported {len(voters)} voters from Excel for {village} - Ward {ward_int}" + (f" (skipped {skipped_count} duplicates)" if skipped_count > 0 else ""),
+            "extracted_count": len(voters),
+            "replaced_count": deleted_count,
+            "skipped_count": skipped_count,
+            "metadata": {
+                "source": "excel_upload",
+                "filename": file.filename,
+                "extraction_method": "openpyxl"
+            }
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error processing Excel: {str(e)}")
+
+
 @router.get("/villages")
 async def get_available_villages(request: Request):
     """Get list of all unique villages"""
