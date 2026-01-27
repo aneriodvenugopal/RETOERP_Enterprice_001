@@ -209,8 +209,11 @@ const VotersListImport = () => {
         toast.success(`Imported ${data.extracted_count} voters for Ward ${wardNo}!`);
         setSelectedFile(null);
         setPdfUrl('');
+        setTextData('');
         const fileInput = document.getElementById('ward-pdf-input');
         if (fileInput) fileInput.value = '';
+        const excelInput = document.getElementById('ward-excel-input');
+        if (excelInput) excelInput.value = '';
         fetchStats();
         fetchWards();
       } else {
