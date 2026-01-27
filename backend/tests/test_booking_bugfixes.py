@@ -5,7 +5,6 @@ Test cases for RealApex Booking Bug Fixes:
 """
 import pytest
 import requests
-import os
 
 BASE_URL = "https://realestate-mgmt-9.preview.emergentagent.com"
 
@@ -14,25 +13,27 @@ TEST_EMAIL = "rajam@retoerp.com"
 TEST_PASSWORD = "12345678"
 
 
+@pytest.fixture(scope="module")
+def auth_token():
+    """Get authentication token"""
+    response = requests.post(
+        f"{BASE_URL}/api/auth/login",
+        json={"email": TEST_EMAIL, "password": TEST_PASSWORD}
+    )
+    assert response.status_code == 200, f"Login failed: {response.text}"
+    data = response.json()
+    assert "access_token" in data, f"No access_token in response: {data}"
+    return data["access_token"]
+
+
+@pytest.fixture(scope="module")
+def auth_headers(auth_token):
+    """Get auth headers"""
+    return {"Authorization": f"Bearer {auth_token}"}
+
+
 class TestAuth:
     """Authentication tests"""
-    
-    @pytest.fixture(scope="class")
-    def auth_token(self):
-        """Get authentication token"""
-        response = requests.post(
-            f"{BASE_URL}/api/auth/login",
-            json={"email": TEST_EMAIL, "password": TEST_PASSWORD}
-        )
-        assert response.status_code == 200, f"Login failed: {response.text}"
-        data = response.json()
-        assert "access_token" in data, "No access_token in response"
-        return data["access_token"]
-    
-    @pytest.fixture(scope="class")
-    def auth_headers(self, auth_token):
-        """Get auth headers"""
-        return {"Authorization": f"Bearer {auth_token}"}
     
     def test_login_success(self):
         """Test login with valid credentials"""
@@ -50,20 +51,6 @@ class TestAuth:
 class TestPropertyLoading:
     """Test Bug Fix #1: Property loading when selecting project"""
     
-    @pytest.fixture(scope="class")
-    def auth_token(self):
-        """Get authentication token"""
-        response = requests.post(
-            f"{BASE_URL}/api/auth/login",
-            json={"email": TEST_EMAIL, "password": TEST_PASSWORD}
-        )
-        assert response.status_code == 200
-        return response.json()["token"]
-    
-    @pytest.fixture(scope="class")
-    def auth_headers(self, auth_token):
-        return {"Authorization": f"Bearer {auth_token}"}
-    
     def test_get_projects(self, auth_headers):
         """Test getting list of projects"""
         response = requests.get(
@@ -75,7 +62,6 @@ class TestPropertyLoading:
         assert isinstance(projects, list)
         assert len(projects) > 0, "No projects found"
         print(f"✓ Found {len(projects)} projects")
-        return projects
     
     def test_get_property_statuses(self, auth_headers):
         """Test getting property statuses - needed for filtering available properties"""
@@ -92,7 +78,6 @@ class TestPropertyLoading:
         available_status = next((s for s in statuses if s.get('slug') == 'available'), None)
         assert available_status is not None, "No 'available' status found"
         print(f"✓ Found 'available' status with ID: {available_status['id']}")
-        return statuses
     
     def test_get_properties_for_project(self, auth_headers):
         """Test getting properties for a specific project - Bug Fix #1"""
@@ -128,30 +113,14 @@ class TestPropertyLoading:
                 assert 'id' in prop
                 assert 'property_number' in prop
                 assert 'price' in prop
-                # status_id may or may not be present
                 print(f"  - Sample property: {prop.get('property_number')} - ₹{prop.get('price', 0)}")
-                return properties
+                return
         
         print("⚠ No properties found in first 5 projects")
-        return []
 
 
 class TestBankAccounts:
     """Test Bug Fix #2: Bank account selection in Record Payment"""
-    
-    @pytest.fixture(scope="class")
-    def auth_token(self):
-        """Get authentication token"""
-        response = requests.post(
-            f"{BASE_URL}/api/auth/login",
-            json={"email": TEST_EMAIL, "password": TEST_PASSWORD}
-        )
-        assert response.status_code == 200
-        return response.json()["token"]
-    
-    @pytest.fixture(scope="class")
-    def auth_headers(self, auth_token):
-        return {"Authorization": f"Bearer {auth_token}"}
     
     def test_get_bank_accounts(self, auth_headers):
         """Test getting list of bank accounts"""
@@ -176,8 +145,6 @@ class TestBankAccounts:
             assert 'account_name' in account
             assert 'current_balance' in account
             print(f"  - Sample account: {account.get('account_name')} - Balance: ₹{account.get('current_balance', 0)}")
-        
-        return accounts
     
     def test_bank_accounts_have_required_fields(self, auth_headers):
         """Verify bank accounts have all required fields for payment recording"""
@@ -201,20 +168,6 @@ class TestBankAccounts:
 class TestBookingsAPI:
     """Test Bookings API endpoints"""
     
-    @pytest.fixture(scope="class")
-    def auth_token(self):
-        """Get authentication token"""
-        response = requests.post(
-            f"{BASE_URL}/api/auth/login",
-            json={"email": TEST_EMAIL, "password": TEST_PASSWORD}
-        )
-        assert response.status_code == 200
-        return response.json()["token"]
-    
-    @pytest.fixture(scope="class")
-    def auth_headers(self, auth_token):
-        return {"Authorization": f"Bearer {auth_token}"}
-    
     def test_get_bookings(self, auth_headers):
         """Test getting list of bookings"""
         response = requests.get(
@@ -225,7 +178,6 @@ class TestBookingsAPI:
         bookings = response.json()
         assert isinstance(bookings, list)
         print(f"✓ Found {len(bookings)} bookings")
-        return bookings
     
     def test_get_booking_details(self, auth_headers):
         """Test getting booking details with payment info"""
@@ -260,26 +212,10 @@ class TestBookingsAPI:
         print(f"  - Total: ₹{details['booking'].get('total_amount', 0)}")
         print(f"  - Paid: ₹{details.get('total_paid', 0)}")
         print(f"  - Pending: ₹{details.get('total_pending', 0)}")
-        
-        return details
 
 
 class TestPaymentModes:
     """Test payment modes for Record Payment form"""
-    
-    @pytest.fixture(scope="class")
-    def auth_token(self):
-        """Get authentication token"""
-        response = requests.post(
-            f"{BASE_URL}/api/auth/login",
-            json={"email": TEST_EMAIL, "password": TEST_PASSWORD}
-        )
-        assert response.status_code == 200
-        return response.json()["token"]
-    
-    @pytest.fixture(scope="class")
-    def auth_headers(self, auth_token):
-        return {"Authorization": f"Bearer {auth_token}"}
     
     def test_get_payment_modes(self, auth_headers):
         """Test getting payment modes for the Record Payment form"""
@@ -295,26 +231,10 @@ class TestPaymentModes:
         print(f"✓ Found {len(modes)} payment modes")
         for mode in modes[:5]:
             print(f"  - {mode.get('name')}")
-        
-        return modes
 
 
 class TestEndToEndPaymentFlow:
     """Test the complete payment recording flow"""
-    
-    @pytest.fixture(scope="class")
-    def auth_token(self):
-        """Get authentication token"""
-        response = requests.post(
-            f"{BASE_URL}/api/auth/login",
-            json={"email": TEST_EMAIL, "password": TEST_PASSWORD}
-        )
-        assert response.status_code == 200
-        return response.json()["token"]
-    
-    @pytest.fixture(scope="class")
-    def auth_headers(self, auth_token):
-        return {"Authorization": f"Bearer {auth_token}"}
     
     def test_payment_recording_prerequisites(self, auth_headers):
         """Verify all prerequisites for payment recording are available"""
