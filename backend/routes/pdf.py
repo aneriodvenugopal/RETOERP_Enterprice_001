@@ -284,40 +284,115 @@ async def generate_payment_schedule_pdf(
     if not property_doc:
         raise HTTPException(status_code=404, detail="Property not found")
     
-    # Get customer details
-    customer = await db.customers.find_one({"id": property_doc.get("customer_id")}, {"_id": 0})
-    if not customer:
-        customer = {"name": "N/A", "phone": "N/A"}
+    # Try to find booking for this property
+    booking = await db.bookings.find_one({"property_id": property_id}, {"_id": 0})
+    
+    # Get customer details - from booking first
+    customer_name = "N/A"
+    customer_phone = "N/A"
+    
+    if booking:
+        customer_name = booking.get("customer_name") or customer_name
+        customer_phone = booking.get("customer_phone") or customer_phone
+        
+        if booking.get("customer_id"):
+            customer = await db.customers.find_one({"id": booking.get("customer_id")}, {"_id": 0})
+            if customer:
+                customer_name = customer_name if customer_name != "N/A" else customer.get("name", "N/A")
+                customer_phone = customer_phone if customer_phone != "N/A" else customer.get("phone", "N/A")
+    elif property_doc.get("customer_id"):
+        customer = await db.customers.find_one({"id": property_doc.get("customer_id")}, {"_id": 0})
+        if customer:
+            customer_name = customer.get("name", "N/A")
+            customer_phone = customer.get("phone", "N/A")
     
     # Get project details
     project = await db.projects.find_one({"id": property_doc.get("project_id")}, {"_id": 0})
     project_name = project.get("name", "N/A") if project else "N/A"
     
-    # Get EMI schedule
-    emi_schedules = await db.emi_schedules.find(
-        {"property_id": property_id},
-        {"_id": 0}
-    ).sort("due_date", 1).to_list(100)
-    
-    # Get payments made
-    payments = await db.emi_payments.find(
-        {"property_id": property_id},
-        {"_id": 0}
-    ).to_list(100)
-    
-    payment_map = {p.get("emi_schedule_id"): p for p in payments}
-    
-    # Calculate totals
-    total_amount = property_doc.get("price", 0)
-    paid_amount = sum(p.get("amount", 0) for p in payments)
-    
-    # Build installments list
+    # Get payment schedules - try multiple collections
     installments = []
-    for emi in emi_schedules:
-        payment = payment_map.get(emi.get("id"))
-        installments.append({
-            "name": emi.get("installment_name", "EMI"),
-            "due_date": emi.get("due_date"),
+    total_amount = booking.get("total_amount") if booking else property_doc.get("price", 0)
+    paid_amount = 0
+    
+    # Try payment_schedules collection first (linked to booking)
+    if booking:
+        schedules = await db.payment_schedules.find(
+            {"booking_id": booking.get("id")},
+            {"_id": 0}
+        ).sort("due_date", 1).to_list(100)
+        
+        if schedules:
+            for emi in schedules:
+                paid = emi.get("paid_amount", 0)
+                paid_amount += paid
+                installments.append({
+                    "name": f"EMI #{emi.get('installment_number', 0)}",
+                    "due_date": emi.get("due_date"),
+                    "amount": emi.get("due_amount", 0),
+                    "paid": paid,
+                    "status": emi.get("status", "pending").capitalize()
+                })
+    
+    # If no payment_schedules found, try emi_schedules
+    if not installments:
+        emi_schedules = await db.emi_schedules.find(
+            {"property_id": property_id},
+            {"_id": 0}
+        ).sort("due_date", 1).to_list(100)
+        
+        # Get payments made
+        payments = await db.emi_payments.find(
+            {"property_id": property_id},
+            {"_id": 0}
+        ).to_list(100)
+        
+        payment_map = {p.get("emi_schedule_id"): p for p in payments}
+        
+        for emi in emi_schedules:
+            payment = payment_map.get(emi.get("id"))
+            paid = payment.get("amount", 0) if payment else 0
+            paid_amount += paid
+            installments.append({
+                "name": emi.get("installment_name", "EMI"),
+                "due_date": emi.get("due_date"),
+                "amount": emi.get("amount", 0),
+                "paid": paid,
+                "status": "Paid" if payment else ("Overdue" if emi.get("status") == "overdue" else "Pending")
+            })
+    
+    # Get tenant info for company details
+    tenant = await db.tenants.find_one({"id": property_doc.get("tenant_id")}, {"_id": 0})
+    company_info = {
+        "name": tenant.get("company", {}).get("name") or tenant.get("name", "RealApex") if tenant else "RealApex",
+        "address": tenant.get("company", {}).get("address", "") if tenant else "",
+        "phone": tenant.get("company", {}).get("phone", "") if tenant else "",
+        "email": tenant.get("company", {}).get("email", "") if tenant else "",
+        "logo": tenant.get("company", {}).get("logo", "") if tenant else ""
+    }
+    
+    schedule_data = {
+        "customer_name": customer_name,
+        "customer_phone": customer_phone,
+        "project_name": project_name,
+        "property_number": property_doc.get("property_number") or property_doc.get("name") or "N/A",
+        "total_amount": total_amount,
+        "paid_amount": paid_amount,
+        "pending_amount": total_amount - paid_amount,
+        "installments": installments
+    }
+    
+    # Generate PDF
+    pdf_generator = PDFGenerator(company_info)
+    pdf_buffer = pdf_generator.generate_payment_schedule(schedule_data)
+    
+    filename = f"Payment_Schedule_{schedule_data['property_number'][:20]}.pdf"
+    
+    return StreamingResponse(
+        pdf_buffer,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f"attachment; filename={filename}"}
+    )
             "amount": emi.get("amount", 0),
             "status": "Paid" if payment else ("Due" if emi.get("status") == "due" else "Upcoming"),
             "paid_date": payment.get("payment_date") if payment else None
