@@ -31,6 +31,8 @@ const Bookings = () => {
   const [properties, setProperties] = useState([]);
   const [paymentModes, setPaymentModes] = useState([]);
   const [currencies, setCurrencies] = useState([]);
+  const [propertyStatuses, setPropertyStatuses] = useState([]);
+  const [bankAccounts, setBankAccounts] = useState([]);
   
   const { user } = useAuth();
   const { formatCurrency } = useCurrency();
