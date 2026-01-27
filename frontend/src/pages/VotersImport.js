@@ -447,7 +447,7 @@ const VotersImport = () => {
                         <div>
                           <FileUp className="w-12 h-12 mx-auto text-gray-400 mb-2" />
                           <p className="text-gray-600">Click to browse or drag PDF here</p>
-                          <p className="text-xs text-gray-400 mt-1">For large files (>20MB), use "Import from URL"</p>
+                          <p className="text-xs text-gray-400 mt-1">For large files (&gt;20MB), use &quot;Import from URL&quot;</p>
                         </div>
                       )}
                     </label>
