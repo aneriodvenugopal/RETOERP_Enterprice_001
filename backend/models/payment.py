@@ -59,13 +59,13 @@ class BookingCreate(BaseModel):
     tenant_id: str
     project_id: str
     property_id: str
-    customer_id: str
+    customer_id: Optional[str] = None  # Auto-created if not provided
     customer_name: str
     customer_phone: str
     customer_email: Optional[str] = None
     booking_amount: float
     total_amount: float
-    currency_id: str
+    currency_id: Optional[str] = None
     payment_plan_type: str
     emi_months: Optional[int] = None
     down_payment: Optional[float] = None
