@@ -13,9 +13,8 @@ router = APIRouter(prefix="/voters", tags=["Voters"])
 
 
 def get_valid_password():
-    """Generate today's password in DMY format"""
-    now = datetime.now()
-    return f"{now.day:02d}{now.month:02d}{str(now.year)[2:]}"
+    """Password for voters list access"""
+    return "admin"
 
 
 @router.post("/login")
