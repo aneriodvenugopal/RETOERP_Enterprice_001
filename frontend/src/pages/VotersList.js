@@ -367,7 +367,7 @@ const VotersList = () => {
   const [exporting, setExporting] = useState(false);
   const [totalPages, setTotalPages] = useState(1);
   const [totalVoters, setTotalVoters] = useState(0);
-  const limit = 50;
+  const limit = 100; // Show 100 records per page (max 2000 supported)
 
   // Update selected ward when URL changes
   useEffect(() => {
