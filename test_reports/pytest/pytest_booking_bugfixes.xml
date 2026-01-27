@@ -1,6 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="9" failures="1" skipped="0" tests="10" time="1.753" timestamp="2026-01-27T06:38:35.363580+00:00" hostname="agent-env-2bfe7e04-ec8a-4235-8a39-1b95024c5077"><testcase classname="tests.test_booking_bugfixes.TestAuth" name="test_login_success" time="0.295"><failure message="AssertionError: assert 'token' in {'access_token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNmZlZTYyYTItMTljMC00M2JmLWI2MTctZjY3YmM4ZTQ4YTBjIiwidGVuYW50X2lkIjoiZjE4ZjdiZDYtM2ExZi00NzJkLWFjZjktYzJmYjE4MTc4N2U3Iiwicm9sZSI6InRlbmFudF9hZG1pbiIsInJlbWVtYmVyX21lIjpmYWxzZSwiZXhwIjoxNzY5NTgyMzE1fQ.-OdDMN6UiUZIwxEgbfBn0dCqvKXT_4BnK4M1jStG-U8', 'expires_in': 86400, 'remember_me': False, 'token_type': 'bearer', ...}">tests/test_booking_bugfixes.py:45: in test_login_success
-    assert "token" in data
-E   AssertionError: assert 'token' in {'access_token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNmZlZTYyYTItMTljMC00M2JmLWI2MTctZjY3YmM4ZTQ4YTBjIiwidGVuYW50X2lkIjoiZjE4ZjdiZDYtM2ExZi00NzJkLWFjZjktYzJmYjE4MTc4N2U3Iiwicm9sZSI6InRlbmFudF9hZG1pbiIsInJlbWVtYmVyX21lIjpmYWxzZSwiZXhwIjoxNzY5NTgyMzE1fQ.-OdDMN6UiUZIwxEgbfBn0dCqvKXT_4BnK4M1jStG-U8', 'expires_in': 86400, 'remember_me': False, 'token_type': 'bearer', ...}</failure></testcase><testcase classname="tests.test_booking_bugfixes.TestPropertyLoading" name="test_get_projects" time="0.268"><error message="failed on setup with &quot;KeyError: 'token'&quot;">tests/test_booking_bugfixes.py:61: in auth_token
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="9" failures="0" skipped="0" tests="10" time="1.733" timestamp="2026-01-27T06:38:59.754266+00:00" hostname="agent-env-2bfe7e04-ec8a-4235-8a39-1b95024c5077"><testcase classname="tests.test_booking_bugfixes.TestAuth" name="test_login_success" time="0.291" /><testcase classname="tests.test_booking_bugfixes.TestPropertyLoading" name="test_get_projects" time="0.263"><error message="failed on setup with &quot;KeyError: 'token'&quot;">tests/test_booking_bugfixes.py:61: in auth_token
     return response.json()["token"]
            ^^^^^^^^^^^^^^^^^^^^^^^^
 E   KeyError: 'token'</error></testcase><testcase classname="tests.test_booking_bugfixes.TestPropertyLoading" name="test_get_property_statuses" time="0.000"><error message="failed on setup with &quot;KeyError: 'token'&quot;">tests/test_booking_bugfixes.py:61: in auth_token
@@ -9,22 +7,22 @@ E   KeyError: 'token'</error></testcase><testcase classname="tests.test_booking_
 E   KeyError: 'token'</error></testcase><testcase classname="tests.test_booking_bugfixes.TestPropertyLoading" name="test_get_properties_for_project" time="0.000"><error message="failed on setup with &quot;KeyError: 'token'&quot;">tests/test_booking_bugfixes.py:61: in auth_token
     return response.json()["token"]
            ^^^^^^^^^^^^^^^^^^^^^^^^
-E   KeyError: 'token'</error></testcase><testcase classname="tests.test_booking_bugfixes.TestBankAccounts" name="test_get_bank_accounts" time="0.271"><error message="failed on setup with &quot;KeyError: 'token'&quot;">tests/test_booking_bugfixes.py:150: in auth_token
+E   KeyError: 'token'</error></testcase><testcase classname="tests.test_booking_bugfixes.TestBankAccounts" name="test_get_bank_accounts" time="0.267"><error message="failed on setup with &quot;KeyError: 'token'&quot;">tests/test_booking_bugfixes.py:150: in auth_token
     return response.json()["token"]
            ^^^^^^^^^^^^^^^^^^^^^^^^
 E   KeyError: 'token'</error></testcase><testcase classname="tests.test_booking_bugfixes.TestBankAccounts" name="test_bank_accounts_have_required_fields" time="0.000"><error message="failed on setup with &quot;KeyError: 'token'&quot;">tests/test_booking_bugfixes.py:150: in auth_token
     return response.json()["token"]
            ^^^^^^^^^^^^^^^^^^^^^^^^
-E   KeyError: 'token'</error></testcase><testcase classname="tests.test_booking_bugfixes.TestBookingsAPI" name="test_get_bookings" time="0.266"><error message="failed on setup with &quot;KeyError: 'token'&quot;">tests/test_booking_bugfixes.py:212: in auth_token
+E   KeyError: 'token'</error></testcase><testcase classname="tests.test_booking_bugfixes.TestBookingsAPI" name="test_get_bookings" time="0.267"><error message="failed on setup with &quot;KeyError: 'token'&quot;">tests/test_booking_bugfixes.py:212: in auth_token
     return response.json()["token"]
            ^^^^^^^^^^^^^^^^^^^^^^^^
 E   KeyError: 'token'</error></testcase><testcase classname="tests.test_booking_bugfixes.TestBookingsAPI" name="test_get_booking_details" time="0.000"><error message="failed on setup with &quot;KeyError: 'token'&quot;">tests/test_booking_bugfixes.py:212: in auth_token
     return response.json()["token"]
            ^^^^^^^^^^^^^^^^^^^^^^^^
-E   KeyError: 'token'</error></testcase><testcase classname="tests.test_booking_bugfixes.TestPaymentModes" name="test_get_payment_modes" time="0.262"><error message="failed on setup with &quot;KeyError: 'token'&quot;">tests/test_booking_bugfixes.py:278: in auth_token
+E   KeyError: 'token'</error></testcase><testcase classname="tests.test_booking_bugfixes.TestPaymentModes" name="test_get_payment_modes" time="0.265"><error message="failed on setup with &quot;KeyError: 'token'&quot;">tests/test_booking_bugfixes.py:278: in auth_token
     return response.json()["token"]
            ^^^^^^^^^^^^^^^^^^^^^^^^
-E   KeyError: 'token'</error></testcase><testcase classname="tests.test_booking_bugfixes.TestEndToEndPaymentFlow" name="test_payment_recording_prerequisites" time="0.265"><error message="failed on setup with &quot;KeyError: 'token'&quot;">tests/test_booking_bugfixes.py:313: in auth_token
+E   KeyError: 'token'</error></testcase><testcase classname="tests.test_booking_bugfixes.TestEndToEndPaymentFlow" name="test_payment_recording_prerequisites" time="0.261"><error message="failed on setup with &quot;KeyError: 'token'&quot;">tests/test_booking_bugfixes.py:313: in auth_token
     return response.json()["token"]
            ^^^^^^^^^^^^^^^^^^^^^^^^
 E   KeyError: 'token'</error></testcase></testsuite></testsuites>
