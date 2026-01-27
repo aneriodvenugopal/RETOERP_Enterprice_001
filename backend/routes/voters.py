@@ -1050,12 +1050,6 @@ async def upload_excel_voters(
             
             # Create AC-PS-SL combined field
             ac_ps_sl = f"{ac_no}-{ps_no}-{sl_no_val}" if ac_no and ps_no and sl_no_val else ''
-                try:
-                    sl_no = int(row[col_map['s_no']])
-                except:
-                    pass
-            if sl_no is None:
-                sl_no = len(voters) + 1
             
             # Get other fields
             name = str(row[col_map['name']]).strip() if 'name' in col_map and row[col_map['name']] else ''
@@ -1077,15 +1071,19 @@ async def upload_excel_voters(
             house_number = str(row[col_map['house_number']]).strip() if 'house_number' in col_map and row[col_map['house_number']] else ''
             
             voter = {
+                's_no': s_no,
+                'ac_ps_sl': ac_ps_sl,
+                'ac_no': ac_no,
+                'ps_no': ps_no,
+                'sl_no': sl_no_val,
                 'epic_no': epic_no,
-                'sl_no': sl_no,
                 'name': name[:100] if name else '',
                 'relation_type': relation_type,
                 'relation_name': relation_name[:100] if relation_name else '',
                 'father_husband_name': relation_name[:100] if relation_name else '',
                 'age': age,
                 'gender': gender,
-                'house_number': house_number[:20] if house_number else '',
+                'house_number': house_number[:50] if house_number else '',
                 'village': village.strip(),
                 'ward_no': ward_int,
                 'ward': str(ward_int)
