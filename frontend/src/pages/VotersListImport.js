@@ -554,16 +554,6 @@ const VotersListImport = () => {
 
               {/* URL Input */}
               {importMethod === 'url' && (
-                    ) : (
-                      <div>
-                        <FileUp className="w-10 h-10 mx-auto text-gray-400 mb-2" />
-                        <p className="text-gray-600">Click to select PDF</p>
-                        <p className="text-xs text-gray-400 mt-1">Max 25MB direct upload. Use URL for larger files.</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ) : (
                 <div>
                   <Input
                     placeholder="https://example.com/ward-voters.pdf"
@@ -571,7 +561,25 @@ const VotersListImport = () => {
                     onChange={(e) => setPdfUrl(e.target.value)}
                     className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 font-mono text-sm"
                   />
-                  <p className="text-xs text-gray-400 mt-1">Direct link to PDF file</p>
+                  <p className="text-xs text-gray-400 mt-1">Direct link to PDF file (for large files)</p>
+                </div>
+              )}
+
+              {/* Text Input */}
+              {importMethod === 'text' && (
+                <div>
+                  <textarea
+                    placeholder={`Paste voter list text here...\n\nSupported formats:\n- Serial EPIC Name Father Age Gender House\n- Data copied from voter PDF`}
+                    value={textData}
+                    onChange={(e) => setTextData(e.target.value)}
+                    className="w-full h-40 px-3 py-2 border border-gray-300 rounded-lg text-sm font-mono resize-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-purple-50"
+                  />
+                  <div className="flex justify-between items-center mt-1">
+                    <p className="text-xs text-gray-500">Copy text from PDF and paste here</p>
+                    <p className="text-xs text-purple-600 font-medium">
+                      {textData ? `~${textData.split('\n').filter(l => l.trim()).length} lines` : '0 lines'}
+                    </p>
+                  </div>
                 </div>
               )}
 
@@ -592,7 +600,10 @@ const VotersListImport = () => {
               {/* Upload Button */}
               <Button
                 onClick={handleUpload}
-                disabled={isUploading || !wardNo || (!useUrlImport && !selectedFile) || (useUrlImport && !pdfUrl)}
+                disabled={isUploading || !wardNo || 
+                  ((importMethod === 'excel' || importMethod === 'pdf') && !selectedFile) || 
+                  (importMethod === 'url' && !pdfUrl) ||
+                  (importMethod === 'text' && !textData)}
                 className="w-full bg-indigo-600 hover:bg-indigo-700 text-white"
               >
                 {isUploading ? (
