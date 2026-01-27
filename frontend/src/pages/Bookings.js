@@ -762,6 +762,42 @@ const Bookings = () => {
 
               <TabsContent value="add-payment">
                 <form onSubmit={handleAddPayment} className="space-y-4">
+                  {/* Bank Account Selection - Required */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium flex items-center gap-2">
+                      <Building2 className="w-4 h-4" />
+                      Receive Payment To *
+                    </label>
+                    <Select
+                      value={paymentData.bank_account_id}
+                      onValueChange={(value) => setPaymentData(prev => ({ ...prev, bank_account_id: value }))}
+                      required
+                    >
+                      <SelectTrigger className="border-blue-200 bg-blue-50">
+                        <SelectValue placeholder="Select bank/cash account to receive payment" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {bankAccounts.map((account) => (
+                          <SelectItem key={account.id} value={account.id}>
+                            <div className="flex items-center gap-2">
+                              {account.account_number === '1111111' ? (
+                                <span className="text-green-600">💵 {account.account_name}</span>
+                              ) : (
+                                <span>🏦 {account.account_name} - {account.bank_name}</span>
+                              )}
+                              <span className="text-gray-500 text-xs">
+                                (Bal: ₹{(account.current_balance || 0).toLocaleString()})
+                              </span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {bankAccounts.length === 0 && (
+                      <p className="text-xs text-red-500">No bank accounts found. Please add bank accounts in Banking section first.</p>
+                    )}
+                  </div>
+
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Amount *</label>
                     <Input
@@ -794,11 +830,11 @@ const Bookings = () => {
                       </Select>
                     </div>
                     <div className="space-y-2">
-                      <label className="text-sm font-medium">Transaction ID</label>
+                      <label className="text-sm font-medium">Transaction ID / Reference</label>
                       <Input
                         value={paymentData.transaction_id}
                         onChange={(e) => setPaymentData(prev => ({ ...prev, transaction_id: e.target.value }))}
-                        placeholder="TXN123456"
+                        placeholder="TXN123456 / Cheque No."
                       />
                     </div>
                   </div>
@@ -815,7 +851,16 @@ const Bookings = () => {
                     </div>
                   )}
 
-                  <Button type="submit" className="w-full">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Notes</label>
+                    <Input
+                      value={paymentData.notes}
+                      onChange={(e) => setPaymentData(prev => ({ ...prev, notes: e.target.value }))}
+                      placeholder="Additional notes about the payment"
+                    />
+                  </div>
+
+                  <Button type="submit" className="w-full" disabled={bankAccounts.length === 0}>
                     Record Payment
                   </Button>
                 </form>
