@@ -319,7 +319,6 @@ const StripePayments = () => {
           </CardContent>
         </Card>
       </div>
-    </AuthenticatedLayout>
   );
 };
 
