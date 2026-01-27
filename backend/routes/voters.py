@@ -96,12 +96,12 @@ async def get_voters_list(
         pipeline = [
             {"$match": query},
             {"$addFields": {
-                "has_sl_no": {"$cond": [{"$gt": ["$sl_no", 0]}, 0, 1]}
+                "has_s_no": {"$cond": [{"$gt": ["$s_no", 0]}, 0, 1]}
             }},
-            {"$sort": {"has_sl_no": 1, "sl_no": 1, "epic_no": 1}},
+            {"$sort": {"has_s_no": 1, "s_no": 1, "sl_no": 1, "epic_no": 1}},
             {"$skip": skip},
             {"$limit": limit},
-            {"$project": {"_id": 0, "has_sl_no": 0}}
+            {"$project": {"_id": 0, "has_s_no": 0}}
         ]
         
         cursor = db.voters.aggregate(pipeline)
