@@ -221,12 +221,23 @@ async def create_payment(booking_id: str, payment_create: PaymentCreate, request
     if not booking_doc:
         raise HTTPException(status_code=404, detail="Booking not found")
     
+    # Validate bank account if provided
+    bank_account = None
+    if payment_create.bank_account_id:
+        bank_account = await db.bank_accounts.find_one({
+            'id': payment_create.bank_account_id,
+            'deleted_at': None,
+            'is_active': True
+        }, {"_id": 0})
+        if not bank_account:
+            raise HTTPException(status_code=404, detail="Bank account not found or inactive")
+    
     # Create payment
     payment_data = payment_create.model_dump()
     payment_data['tenant_id'] = booking_doc['tenant_id']
     payment_data['project_id'] = booking_doc['project_id']
     payment_data['property_id'] = booking_doc['property_id']
-    payment_data['currency_id'] = booking_doc['currency_id']
+    payment_data['currency_id'] = booking_doc.get('currency_id')
     
     # Generate receipt number
     payment_data['receipt_number'] = f"REC-{datetime.now().strftime('%Y%m%d')}-{str(uuid.uuid4())[:8].upper()}"
@@ -235,6 +246,39 @@ async def create_payment(booking_id: str, payment_create: PaymentCreate, request
     payment_doc = serialize_doc(payment.model_dump())
     
     await db.payments.insert_one(payment_doc)
+    
+    # Update bank account balance if bank account is specified
+    if bank_account and payment_create.bank_account_id:
+        new_balance = bank_account.get('current_balance', 0) + payment.amount
+        new_available = bank_account.get('available_balance', 0) + payment.amount
+        await db.bank_accounts.update_one(
+            {'id': payment_create.bank_account_id},
+            {'$set': {
+                'current_balance': new_balance,
+                'available_balance': new_available,
+                'updated_at': datetime.now(timezone.utc).isoformat()
+            }}
+        )
+        
+        # Create a transaction record for audit trail
+        transaction_doc = {
+            'id': str(uuid.uuid4()),
+            'tenant_id': booking_doc['tenant_id'],
+            'project_id': booking_doc['project_id'],
+            'to_account_id': payment_create.bank_account_id,
+            'amount': payment.amount,
+            'transaction_type': 'credit',
+            'category': 'payment_received',
+            'description': f"Payment received for booking {booking_id}",
+            'reference_type': 'payment',
+            'reference_id': payment.id,
+            'booking_id': booking_id,
+            'transaction_date': datetime.now(timezone.utc).isoformat(),
+            'created_at': datetime.now(timezone.utc).isoformat(),
+            'created_by': user.get('user_id'),
+            'deleted_at': None
+        }
+        await db.transactions.insert_one(transaction_doc)
     
     # Update payment schedule if installment
     if payment.installment_number is not None:
