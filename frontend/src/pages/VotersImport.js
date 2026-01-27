@@ -224,6 +224,7 @@ const VotersImport = () => {
           (data.skipped_count > 0 ? ` (${data.skipped_count} duplicates skipped)` : ''));
         setSelectedFile(null);
         setPdfUrl('');
+        setTextData('');
         // Reset file input
         const fileInput = document.getElementById('pdf-file-input');
         if (fileInput) fileInput.value = '';
