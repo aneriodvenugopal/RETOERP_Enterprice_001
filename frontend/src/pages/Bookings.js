@@ -218,6 +218,12 @@ const Bookings = () => {
     e.preventDefault();
     if (!selectedBooking) return;
 
+    // Validate bank account selection
+    if (!paymentData.bank_account_id) {
+      toast.error('Please select a bank account to receive the payment');
+      return;
+    }
+
     try {
       await bookingService.createPayment(selectedBooking.id, {
         ...paymentData,
@@ -234,6 +240,7 @@ const Bookings = () => {
         payment_type: 'installment',
         installment_number: '',
         notes: '',
+        bank_account_id: '',
       });
       // Refresh booking details
       const details = await bookingService.getDetails(selectedBooking.id);
