@@ -184,7 +184,7 @@
 
    **మొదటి referrer:**
    ```
-   https://voterlist.preview.emergentagent.com/*
+   https://realestate-mgmt-9.preview.emergentagent.com/*
    ```
    - Paste చేసి Enter నొక్కండి
 

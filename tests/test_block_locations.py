@@ -7,7 +7,7 @@ import pytest
 import requests
 import os
 
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://voterlist.preview.emergentagent.com')
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://realestate-mgmt-9.preview.emergentagent.com')
 
 # Test credentials
 TEST_PHONE = "9908290239"
