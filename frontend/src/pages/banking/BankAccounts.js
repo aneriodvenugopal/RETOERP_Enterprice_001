@@ -365,7 +365,7 @@ const BankAccounts = () => {
                     <option value="">Select Project</option>
                     {projects.map((project) => (
                       <option key={project.id} value={project.id}>
-                        {project.project_name}
+                        {project.name}
                       </option>
                     ))}
                   </select>
