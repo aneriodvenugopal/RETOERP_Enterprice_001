@@ -1043,10 +1043,43 @@ async def upload_excel_voters(
             else:
                 s_no = len(voters) + 1
             
-            # Get AC No, PS No, SL No
-            ac_no = str(row[col_map['ac_no']]).strip() if 'ac_no' in col_map and row[col_map['ac_no']] else ''
-            ps_no = str(row[col_map['ps_no']]).strip() if 'ps_no' in col_map and row[col_map['ps_no']] else ''
-            sl_no_val = str(row[col_map['sl_no']]).strip() if 'sl_no' in col_map and row[col_map['sl_no']] else ''
+            # Helper to convert float to int string (43.0 -> "43")
+            def clean_number(val):
+                if val is None:
+                    return ''
+                try:
+                    # If it's a float like 43.0, convert to int
+                    num = float(val)
+                    if num == int(num):
+                        return str(int(num))
+                    return str(val).strip()
+                except:
+                    return str(val).strip()
+            
+            # Helper to handle door number (may be date or string)
+            def clean_door_no(val):
+                if val is None:
+                    return ''
+                # Check if it's a datetime object (Excel interprets "1/1" as date)
+                if hasattr(val, 'strftime'):
+                    # It's a date - extract day/month as door number
+                    return f"{val.day}/{val.month}"
+                # Check if it looks like a datetime string
+                val_str = str(val).strip()
+                if '00:00:00' in val_str:
+                    # Parse and extract day/month
+                    try:
+                        from datetime import datetime as dt
+                        parsed = dt.fromisoformat(val_str.replace(' ', 'T'))
+                        return f"{parsed.day}/{parsed.month}"
+                    except:
+                        pass
+                return val_str
+            
+            # Get AC No, PS No, SL No (clean float values)
+            ac_no = clean_number(row[col_map['ac_no']]) if 'ac_no' in col_map and row[col_map['ac_no']] else ''
+            ps_no = clean_number(row[col_map['ps_no']]) if 'ps_no' in col_map and row[col_map['ps_no']] else ''
+            sl_no_val = clean_number(row[col_map['sl_no']]) if 'sl_no' in col_map and row[col_map['sl_no']] else ''
             
             # Create AC-PS-SL combined field
             ac_ps_sl = f"{ac_no}-{ps_no}-{sl_no_val}" if ac_no and ps_no and sl_no_val else ''
@@ -1059,7 +1092,7 @@ async def upload_excel_voters(
             age = None
             if 'age' in col_map and row[col_map['age']]:
                 try:
-                    age = int(row[col_map['age']])
+                    age = int(float(row[col_map['age']]))
                 except:
                     pass
             
@@ -1068,7 +1101,8 @@ async def upload_excel_voters(
                 g = str(row[col_map['gender']]).strip().upper()
                 gender = g[0] if g in ('M', 'F', 'MALE', 'FEMALE') else ''
             
-            house_number = str(row[col_map['house_number']]).strip() if 'house_number' in col_map and row[col_map['house_number']] else ''
+            # Handle door number (may be interpreted as date by Excel)
+            house_number = clean_door_no(row[col_map['house_number']]) if 'house_number' in col_map and row[col_map['house_number']] else ''
             
             voter = {
                 's_no': s_no,
