@@ -767,6 +767,194 @@ async def import_voters_from_url(request: Request):
         raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
 
 
+@router.post("/import-from-text")
+async def import_voters_from_text(request: Request):
+    """
+    Import voters from pasted text (copied from PDF).
+    Body: { "text_data": "...", "village": "...", "ward_no": 1, "replace_existing": false }
+    
+    Supports multiple formats:
+    - Serial EPIC Name Father Age Gender House
+    - EPIC-based lines with Name, Father/Husband, Age, Gender, House
+    """
+    try:
+        body = await request.json()
+        
+        text_data = body.get("text_data", "").strip()
+        village = body.get("village", "").strip()
+        ward_no = body.get("ward_no")
+        replace_existing = body.get("replace_existing", False)
+        
+        if not text_data:
+            raise HTTPException(status_code=400, detail="Text data is required")
+        if not village:
+            raise HTTPException(status_code=400, detail="Village is required")
+        if ward_no is None:
+            raise HTTPException(status_code=400, detail="Ward number is required")
+        
+        try:
+            ward_int = int(ward_no)
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Ward number must be a valid integer")
+        
+        # Parse text data
+        voters = []
+        lines = text_data.split('\n')
+        
+        current_voter = {}
+        serial_no = 0
+        
+        for line in lines:
+            line = line.strip()
+            if not line:
+                continue
+            
+            # Try to extract EPIC number (YTL, YAV, GNH patterns)
+            epic_match = re.search(r'(Y[A-Z]{2}\d{7}|GNH\d{7})', line)
+            
+            if epic_match:
+                # Save previous voter if exists
+                if current_voter.get('epic_no'):
+                    voters.append(current_voter)
+                
+                serial_no += 1
+                epic_no = epic_match.group(1)
+                
+                current_voter = {
+                    'epic_no': epic_no,
+                    'sl_no': serial_no,
+                    'name': '',
+                    'relation_type': '',
+                    'relation_name': '',
+                    'father_husband_name': '',
+                    'age': None,
+                    'gender': '',
+                    'house_number': '',
+                    'village': village,
+                    'ward_no': ward_int,
+                    'ward': str(ward_int)
+                }
+                
+                # Try to extract other fields from this line and nearby context
+                # Check for serial number at start
+                serial_match = re.match(r'^(\d+)\s+', line)
+                if serial_match:
+                    try:
+                        current_voter['sl_no'] = int(serial_match.group(1))
+                        serial_no = current_voter['sl_no']
+                    except:
+                        pass
+            
+            # Process the line for field values
+            if current_voter.get('epic_no'):
+                # Extract Name
+                name_match = re.search(r'Name\s*:?\s*([A-Za-z][A-Za-z\s\.]+?)(?:\s+(?:Father|Husband|Age|Sex|House|Door|\d{2,})|\s*$)', line, re.IGNORECASE)
+                if name_match and not current_voter.get('name'):
+                    current_voter['name'] = name_match.group(1).strip()[:100]
+                
+                # Extract Father/Husband with relationship type
+                father_match = re.search(r"Father(?:'?s?)?\s*(?:Name)?\s*:?\s*([A-Za-z][A-Za-z\s\.]+?)(?:\s+(?:Age|Sex|House|Door|\d{2,})|\s*$)", line, re.IGNORECASE)
+                husband_match = re.search(r"Husband(?:'?s?)?\s*(?:Name)?\s*:?\s*([A-Za-z][A-Za-z\s\.]+?)(?:\s+(?:Age|Sex|House|Door|\d{2,})|\s*$)", line, re.IGNORECASE)
+                
+                if father_match and not current_voter.get('relation_name'):
+                    current_voter['relation_type'] = 'Father'
+                    current_voter['relation_name'] = father_match.group(1).strip()[:100]
+                    current_voter['father_husband_name'] = current_voter['relation_name']
+                elif husband_match and not current_voter.get('relation_name'):
+                    current_voter['relation_type'] = 'Husband'
+                    current_voter['relation_name'] = husband_match.group(1).strip()[:100]
+                    current_voter['father_husband_name'] = current_voter['relation_name']
+                
+                # Extract Age
+                age_match = re.search(r'Age\s*:?\s*(\d+)', line, re.IGNORECASE)
+                if age_match and not current_voter.get('age'):
+                    age = int(age_match.group(1))
+                    if 18 <= age <= 120:
+                        current_voter['age'] = age
+                
+                # Extract Gender/Sex
+                gender_match = re.search(r'(?:Sex|Gender)\s*:?\s*([MF])', line, re.IGNORECASE)
+                if gender_match and not current_voter.get('gender'):
+                    current_voter['gender'] = gender_match.group(1).upper()
+                
+                # Also look for standalone M or F after age
+                if not current_voter.get('gender'):
+                    gender_standalone = re.search(r'\b(\d{2,3})\s+([MF])\b', line, re.IGNORECASE)
+                    if gender_standalone:
+                        current_voter['gender'] = gender_standalone.group(2).upper()
+                
+                # Extract House/Door number
+                house_match = re.search(r'(?:House|Door)\s*(?:No\.?)?\s*:?\s*([^\s]+)', line, re.IGNORECASE)
+                if house_match and not current_voter.get('house_number'):
+                    current_voter['house_number'] = house_match.group(1).strip()[:20]
+        
+        # Don't forget the last voter
+        if current_voter.get('epic_no'):
+            voters.append(current_voter)
+        
+        if not voters:
+            return {
+                "success": False,
+                "message": "Could not extract any voter data from the text. Make sure it contains EPIC numbers.",
+                "extracted_count": 0
+            }
+        
+        db = request.app.state.db
+        
+        deleted_count = 0
+        skipped_count = 0
+        
+        if replace_existing:
+            delete_result = await db.voters.delete_many({
+                "village": {"$regex": f"^{village}$", "$options": "i"},
+                "ward_no": ward_int
+            })
+            deleted_count = delete_result.deleted_count
+            
+            if voters:
+                await db.voters.insert_many(voters)
+        else:
+            existing_epics = set()
+            cursor = db.voters.find(
+                {"village": {"$regex": f"^{village}$", "$options": "i"}, "ward_no": ward_int},
+                {"epic_no": 1}
+            )
+            async for doc in cursor:
+                existing_epics.add(doc.get("epic_no"))
+            
+            new_voters = [v for v in voters if v.get("epic_no") not in existing_epics]
+            skipped_count = len(voters) - len(new_voters)
+            
+            if new_voters:
+                await db.voters.insert_many(new_voters)
+            
+            voters = new_voters
+        
+        # Ensure indexes
+        await db.voters.create_index("epic_no")
+        await db.voters.create_index("village")
+        await db.voters.create_index("ward_no")
+        await db.voters.create_index("sl_no")
+        
+        return {
+            "success": True,
+            "message": f"Successfully imported {len(voters)} voters for {village} - Ward {ward_int}" + (f" (skipped {skipped_count} duplicates)" if skipped_count > 0 else ""),
+            "extracted_count": len(voters),
+            "replaced_count": deleted_count,
+            "skipped_count": skipped_count,
+            "metadata": {
+                "source": "text_paste",
+                "total_lines": len(lines),
+                "extraction_method": "regex_parse"
+            }
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
+
+
 @router.get("/villages")
 async def get_available_villages(request: Request):
     """Get list of all unique villages"""
