@@ -380,39 +380,73 @@ async def generate_allotment_letter_pdf(
     if not property_doc:
         raise HTTPException(status_code=404, detail="Property not found")
     
-    # Get customer details
-    customer = await db.customers.find_one({"id": property_doc.get("customer_id")}, {"_id": 0})
-    if not customer:
-        customer = {"name": "N/A", "phone": "N/A", "address": "N/A"}
+    # Try to find booking for this property to get customer details
+    booking = await db.bookings.find_one({"property_id": property_id}, {"_id": 0})
+    
+    # Get customer details - from booking first, then customers collection
+    customer_name = "N/A"
+    customer_phone = "N/A"
+    customer_address = "N/A"
+    
+    if booking:
+        customer_name = booking.get("customer_name") or customer_name
+        customer_phone = booking.get("customer_phone") or customer_phone
+        
+        if booking.get("customer_id"):
+            customer = await db.customers.find_one({"id": booking.get("customer_id")}, {"_id": 0})
+            if customer:
+                customer_name = customer_name if customer_name != "N/A" else customer.get("name", "N/A")
+                customer_phone = customer_phone if customer_phone != "N/A" else customer.get("phone", "N/A")
+                customer_address = customer.get("address", "N/A")
+    elif property_doc.get("customer_id"):
+        customer = await db.customers.find_one({"id": property_doc.get("customer_id")}, {"_id": 0})
+        if customer:
+            customer_name = customer.get("name", "N/A")
+            customer_phone = customer.get("phone", "N/A")
+            customer_address = customer.get("address", "N/A")
     
     # Get project details
     project = await db.projects.find_one({"id": property_doc.get("project_id")}, {"_id": 0})
     project_name = project.get("name", "N/A") if project else "N/A"
     
-    # Get company info
-    company_info = await get_company_info(db, property_doc.get("tenant_id"))
+    # Get tenant info for company details
+    tenant = await db.tenants.find_one({"id": property_doc.get("tenant_id")}, {"_id": 0})
+    company_info = {
+        "name": tenant.get("company", {}).get("name") or tenant.get("name", "RealApex") if tenant else "RealApex",
+        "address": tenant.get("company", {}).get("address", "") if tenant else "",
+        "phone": tenant.get("company", {}).get("phone", "") if tenant else "",
+        "email": tenant.get("company", {}).get("email", "") if tenant else "",
+        "logo": tenant.get("company", {}).get("logo", "") if tenant else ""
+    }
+    
+    # Calculate rate per sq.ft
+    area = property_doc.get("area") or property_doc.get("plot_area") or 0
+    total_price = booking.get("total_amount") if booking else property_doc.get("price", 0)
+    if not total_price:
+        total_price = property_doc.get("price", 0)
+    rate_per_sqft = total_price / area if area > 0 else 0
     
     allotment_data = {
         "allotment_number": f"ALT-{property_doc.get('id', '')[:8].upper()}",
-        "allotment_date": property_doc.get("booked_at") or property_doc.get("created_at"),
-        "customer_name": customer.get("name"),
-        "customer_phone": customer.get("phone"),
-        "customer_address": customer.get("address", "N/A"),
+        "allotment_date": property_doc.get("booked_at") or (booking.get("booking_date") if booking else None) or property_doc.get("created_at"),
+        "customer_name": customer_name,
+        "customer_phone": customer_phone,
+        "customer_address": customer_address,
         "project_name": project_name,
-        "property_number": property_doc.get("property_number"),
-        "block": property_doc.get("block", "-"),
-        "floor": property_doc.get("floor", "-"),
-        "area": property_doc.get("area", 0),
-        "facing": property_doc.get("facing", "-"),
-        "price_per_sqft": property_doc.get("price_per_sqft", 0),
-        "total_price": property_doc.get("price", 0)
+        "property_number": property_doc.get("property_number") or property_doc.get("name") or "N/A",
+        "block": property_doc.get("block") or property_doc.get("block_name") or "-",
+        "floor": property_doc.get("floor") or "-",
+        "area": area,
+        "facing": property_doc.get("facing") or "-",
+        "price_per_sqft": rate_per_sqft,
+        "total_price": total_price
     }
     
     # Generate PDF
     pdf_generator = PDFGenerator(company_info)
     pdf_buffer = pdf_generator.generate_allotment_letter(allotment_data)
     
-    filename = f"Allotment_Letter_{property_doc.get('property_number', property_id[:8])}.pdf"
+    filename = f"Allotment_Letter_{allotment_data['property_number'][:20]}.pdf"
     
     return StreamingResponse(
         pdf_buffer,
