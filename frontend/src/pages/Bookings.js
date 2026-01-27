@@ -109,6 +109,29 @@ const Bookings = () => {
     }
   };
 
+  const fetchPropertyStatuses = async () => {
+    try {
+      const statuses = await categoryService.getAll('property_status', user?.tenant_id);
+      setPropertyStatuses(statuses);
+    } catch (error) {
+      console.error('Failed to load property statuses:', error);
+    }
+  };
+
+  const fetchBankAccounts = async () => {
+    try {
+      const response = await axios.get(
+        `${API_URL}/api/bank-accounts`,
+        { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+      );
+      if (response.data.success) {
+        setBankAccounts(response.data.accounts || []);
+      }
+    } catch (error) {
+      console.error('Failed to load bank accounts:', error);
+    }
+  };
+
   const handleProjectChange = async (projectId) => {
     setFormData(prev => ({ ...prev, project_id: projectId, property_id: '' }));
     try {
