@@ -244,12 +244,25 @@ const VoterRow = ({ voter, index, onUpdate }) => {
     setIsEditing(false);
   };
 
+  // Get relation badge color
+  const getRelationBadge = (relationType) => {
+    if (!relationType) return null;
+    const type = relationType.toLowerCase();
+    if (type.includes('father')) {
+      return <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-700">Father</span>;
+    } else if (type.includes('husband')) {
+      return <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-700">Husband</span>;
+    }
+    return <span className="text-gray-500 text-xs">{relationType}</span>;
+  };
+
   return (
     <tr className="hover:bg-gray-50 group">
-      <td className="px-3 py-2 text-sm text-gray-600">{voter.sl_no || ((index + 1))}</td>
-      <td className="px-3 py-2 text-sm font-mono text-blue-600">{voter.epic_no}</td>
+      <td className="px-3 py-2 text-sm text-gray-900 font-medium">{voter.s_no || voter.sl_no || (index + 1)}</td>
+      <td className="px-3 py-2 text-sm font-mono text-indigo-600">{voter.ac_ps_sl || '-'}</td>
       <td className="px-3 py-2 text-sm font-medium text-gray-900">{voter.name || '-'}</td>
-      <td className="px-3 py-2 text-sm text-gray-600">{voter.father_husband_name || '-'}</td>
+      <td className="px-3 py-2 text-sm text-gray-600">{voter.relation_name || voter.father_husband_name || '-'}</td>
+      <td className="px-3 py-2 text-sm">{getRelationBadge(voter.relation_type)}</td>
       <td className="px-3 py-2 text-sm text-gray-600">{voter.age || '-'}</td>
       <td className="px-3 py-2 text-sm">
         <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
@@ -257,10 +270,11 @@ const VoterRow = ({ voter, index, onUpdate }) => {
             ? 'bg-blue-100 text-blue-800' 
             : 'bg-pink-100 text-pink-800'
         }`}>
-          {voter.gender === 'M' ? 'Male' : voter.gender === 'F' ? 'Female' : '-'}
+          {voter.gender === 'M' ? 'M' : voter.gender === 'F' ? 'F' : '-'}
         </span>
       </td>
       <td className="px-3 py-2 text-sm text-gray-600">{voter.house_number || '-'}</td>
+      <td className="px-3 py-2 text-sm font-mono text-blue-600">{voter.epic_no}</td>
       <td className="px-3 py-2 text-sm">
         {isEditing ? (
           <div className="flex items-center gap-1">
@@ -313,7 +327,6 @@ const VoterRow = ({ voter, index, onUpdate }) => {
           </div>
         )}
       </td>
-      <td className="px-3 py-2 text-sm text-gray-600">{voter.ward_no}</td>
     </tr>
   );
 };
