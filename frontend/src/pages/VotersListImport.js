@@ -397,7 +397,7 @@ const VotersListImport = () => {
                 Import Ward Data
               </CardTitle>
               <CardDescription className="text-gray-500">
-                Upload PDF or import from URL
+                Upload Excel, PDF, paste text or import from URL
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -429,38 +429,98 @@ const VotersListImport = () => {
                 />
               </div>
 
-              {/* Import Method Toggle */}
-              <div className="flex gap-2 p-1 bg-gray-100 rounded-lg">
+              {/* Import Method Toggle - 4 Options */}
+              <div className="grid grid-cols-4 gap-1 p-1 bg-gray-100 rounded-lg">
                 <button
                   type="button"
-                  onClick={() => setUseUrlImport(false)}
-                  className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors flex items-center justify-center gap-2 ${
-                    !useUrlImport 
-                      ? 'bg-indigo-600 text-white' 
-                      : 'text-gray-600 hover:text-gray-900'
+                  onClick={() => { setImportMethod('excel'); setSelectedFile(null); }}
+                  className={`py-2 px-2 rounded-md text-xs font-medium transition-colors flex flex-col items-center gap-1 ${
+                    importMethod === 'excel'
+                      ? 'bg-green-600 text-white' 
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-200'
+                  }`}
+                >
+                  <FileText className="w-4 h-4" />
+                  Excel
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setImportMethod('pdf'); setSelectedFile(null); }}
+                  className={`py-2 px-2 rounded-md text-xs font-medium transition-colors flex flex-col items-center gap-1 ${
+                    importMethod === 'pdf'
+                      ? 'bg-red-600 text-white' 
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-200'
                   }`}
                 >
                   <FileUp className="w-4 h-4" />
-                  Upload File
+                  PDF
                 </button>
                 <button
                   type="button"
-                  onClick={() => setUseUrlImport(true)}
-                  className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors flex items-center justify-center gap-2 ${
-                    useUrlImport 
-                      ? 'bg-indigo-600 text-white' 
-                      : 'text-gray-600 hover:text-gray-900'
+                  onClick={() => setImportMethod('url')}
+                  className={`py-2 px-2 rounded-md text-xs font-medium transition-colors flex flex-col items-center gap-1 ${
+                    importMethod === 'url'
+                      ? 'bg-blue-600 text-white' 
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-200'
                   }`}
                 >
                   <Link className="w-4 h-4" />
-                  From URL
+                  URL
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setImportMethod('text')}
+                  className={`py-2 px-2 rounded-md text-xs font-medium transition-colors flex flex-col items-center gap-1 ${
+                    importMethod === 'text'
+                      ? 'bg-purple-600 text-white' 
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-200'
+                  }`}
+                >
+                  <FileText className="w-4 h-4" />
+                  Text
                 </button>
               </div>
 
-              {/* File Upload or URL */}
-              {!useUrlImport ? (
+              {/* Excel Upload */}
+              {importMethod === 'excel' && (
                 <div>
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-indigo-500 transition-colors cursor-pointer bg-gray-50"
+                  <div className="border-2 border-dashed border-green-300 rounded-lg p-6 text-center hover:border-green-500 transition-colors cursor-pointer bg-green-50"
+                       onClick={() => document.getElementById('ward-excel-input').click()}>
+                    <input
+                      id="ward-excel-input"
+                      type="file"
+                      accept=".xlsx,.xls"
+                      onChange={handleFileChange}
+                      className="hidden"
+                    />
+                    {selectedFile ? (
+                      <div className="flex flex-col items-center gap-2">
+                        <div className="flex items-center gap-3">
+                          <FileText className="w-8 h-8 text-green-600" />
+                          <div className="text-left">
+                            <p className="font-medium text-gray-900">{selectedFile.name}</p>
+                            <p className="text-sm text-gray-500">
+                              {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <FileText className="w-10 h-10 mx-auto text-green-400 mb-2" />
+                        <p className="text-gray-700 font-medium">Click to upload Excel file</p>
+                        <p className="text-xs text-gray-500 mt-1">Supports .xlsx and .xls files</p>
+                        <p className="text-xs text-green-600 mt-2 font-medium">✓ Best option - All 943 records will import</p>
+                      </>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* PDF Upload */}
+              {importMethod === 'pdf' && (
+                <div>
+                  <div className="border-2 border-dashed border-red-300 rounded-lg p-6 text-center hover:border-red-500 transition-colors cursor-pointer bg-red-50"
                        onClick={() => document.getElementById('ward-pdf-input').click()}>
                     <input
                       id="ward-pdf-input"
@@ -472,22 +532,28 @@ const VotersListImport = () => {
                     {selectedFile ? (
                       <div className="flex flex-col items-center gap-2">
                         <div className="flex items-center gap-3">
-                          <FileText className="w-8 h-8 text-indigo-600" />
+                          <FileUp className="w-8 h-8 text-red-600" />
                           <div className="text-left">
                             <p className="font-medium text-gray-900">{selectedFile.name}</p>
                             <p className={`text-sm ${selectedFile.size / 1024 / 1024 > 15 ? 'text-amber-600' : 'text-gray-500'}`}>
                               {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
-                              {selectedFile.size / 1024 / 1024 > 15 && ' (Large file)'}
                             </p>
                           </div>
                         </div>
-                        {selectedFile.size / 1024 / 1024 > 15 && (
-                          <div className="flex items-center gap-2 text-amber-600 text-xs bg-amber-50 px-3 py-1.5 rounded-lg mt-2 border border-amber-200">
-                            <AlertTriangle className="w-4 h-4" />
-                            <span>Large file may timeout. Use &quot;From URL&quot; for reliability.</span>
-                          </div>
-                        )}
                       </div>
+                    ) : (
+                      <>
+                        <FileUp className="w-10 h-10 mx-auto text-red-400 mb-2" />
+                        <p className="text-gray-700 font-medium">Click to upload PDF file</p>
+                        <p className="text-xs text-gray-500 mt-1">For large files use URL option</p>
+                      </>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* URL Input */}
+              {importMethod === 'url' && (
                     ) : (
                       <div>
                         <FileUp className="w-10 h-10 mx-auto text-gray-400 mb-2" />
