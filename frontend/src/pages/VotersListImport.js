@@ -113,21 +113,27 @@ const VotersListImport = () => {
       toast.error('Please enter ward number');
       return;
     }
-    if (!useUrlImport && !selectedFile) {
-      toast.error('Please select a PDF file');
+    
+    // Validate based on import method
+    if ((importMethod === 'excel' || importMethod === 'pdf') && !selectedFile) {
+      toast.error(`Please select a ${importMethod === 'excel' ? 'Excel' : 'PDF'} file`);
       return;
     }
-    if (useUrlImport && !pdfUrl.trim()) {
+    if (importMethod === 'url' && !pdfUrl.trim()) {
       toast.error('Please enter PDF URL');
       return;
     }
+    if (importMethod === 'text' && !textData.trim()) {
+      toast.error('Please paste voter data');
+      return;
+    }
     
-    // Block direct upload for files > 25MB
-    if (!useUrlImport && selectedFile) {
+    // Block direct upload for PDF files > 25MB
+    if (importMethod === 'pdf' && selectedFile) {
       const fileSizeMB = selectedFile.size / 1024 / 1024;
       if (fileSizeMB > 25) {
         toast.error(`File too large (${fileSizeMB.toFixed(1)} MB). Please use "From URL" option for files over 25MB.`);
-        setUseUrlImport(true);
+        setImportMethod('url');
         return;
       }
     }
@@ -138,7 +144,7 @@ const VotersListImport = () => {
     try {
       let response;
 
-      if (useUrlImport) {
+      if (importMethod === 'url') {
         response = await fetch(`${API_URL}/api/voters/import-from-url`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -149,7 +155,30 @@ const VotersListImport = () => {
             replace_existing: replaceExisting
           })
         });
+      } else if (importMethod === 'text') {
+        response = await fetch(`${API_URL}/api/voters/import-from-text`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            text_data: textData.trim(),
+            village: village.trim(),
+            ward_no: parseInt(wardNo.trim()),
+            replace_existing: replaceExisting
+          })
+        });
+      } else if (importMethod === 'excel') {
+        const formData = new FormData();
+        formData.append('file', selectedFile);
+        formData.append('village', village.trim());
+        formData.append('ward_no', wardNo.trim());
+        formData.append('replace_existing', replaceExisting);
+
+        response = await fetch(`${API_URL}/api/voters/upload-excel`, {
+          method: 'POST',
+          body: formData
+        });
       } else {
+        // PDF upload
         const formData = new FormData();
         formData.append('file', selectedFile);
         formData.append('village', village.trim());
