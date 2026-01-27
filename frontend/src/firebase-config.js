@@ -2,26 +2,25 @@
 import { initializeApp } from 'firebase/app';
 import { getMessaging, getToken, onMessage } from 'firebase/messaging';
 
-// Firebase config for RealApex
+// Firebase config for RealApex - using environment variables
 const firebaseConfig = {
-  apiKey: "AIzaSyBLdLj5EGwRxHbsCqEbngRWbEFn4RUHQdI",
-  authDomain: "exlainerp-5ff78.firebaseapp.com",
-  projectId: "exlainerp-5ff78",
-  storageBucket: "exlainerp-5ff78.firebasestorage.app",
-  messagingSenderId: "999459364917",
-  appId: "1:999459364917:web:ab67804d48b20e288bd17c"
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY || "AIzaSyBLdLj5EGwRxHbsCqEbngRWbEFn4RUHQdI",
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN || "exlainerp-5ff78.firebaseapp.com",
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID || "exlainerp-5ff78",
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET || "exlainerp-5ff78.firebasestorage.app",
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID || "999459364917",
+  appId: process.env.REACT_APP_FIREBASE_APP_ID || "1:999459364917:web:ab67804d48b20e288bd17c"
 };
 
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
-
-// Initialize Firebase Cloud Messaging
+let app = null;
 let messaging = null;
 
 try {
+  app = initializeApp(firebaseConfig);
   messaging = getMessaging(app);
 } catch (error) {
-  console.log('Firebase messaging not supported:', error);
+  console.log('Firebase initialization skipped:', error.message);
 }
 
 // Request notification permission and get FCM token
@@ -41,12 +40,16 @@ export const requestNotificationPermission = async () => {
       
       // Get FCM token
       if (messaging) {
-        const token = await getToken(messaging, {
-          vapidKey: 'YOUR_VAPID_KEY_FROM_FIREBASE_CONSOLE'
-        });
+        const vapidKey = process.env.REACT_APP_FIREBASE_VAPID_KEY;
+        if (!vapidKey) {
+          console.log('VAPID key not configured, skipping FCM token');
+          return null;
+        }
+        
+        const token = await getToken(messaging, { vapidKey });
         
         if (token) {
-          console.log('FCM Token:', token);
+          console.log('FCM Token obtained');
           return token;
         } else {
           console.log('No registration token available');
