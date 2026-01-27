@@ -453,7 +453,10 @@ const VotersImport = () => {
                     </label>
                   </div>
                 </div>
-              ) : (
+              )}
+              
+              {/* URL Input */}
+              {importMethod === 'url' && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     PDF URL * <span className="text-xs text-gray-500">(for large files)</span>
@@ -468,6 +471,30 @@ const VotersImport = () => {
                   <p className="text-xs text-gray-500 mt-1">
                     Paste a direct link to the PDF file. Works better for large files.
                   </p>
+                </div>
+              )}
+
+              {/* Text Input */}
+              {importMethod === 'text' && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Paste Voter Data * <span className="text-xs text-gray-500">(copy from PDF)</span>
+                  </label>
+                  <textarea
+                    placeholder={`Paste voter list text here...\n\nExample format:\n1 YTL0123456 Name Father Name 45 M 1-23\n2 YTL0123457 Name Father Name 32 F 1-24`}
+                    value={textData}
+                    onChange={(e) => setTextData(e.target.value)}
+                    className="w-full h-48 px-3 py-2 border border-gray-300 rounded-lg text-sm font-mono resize-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    data-testid="text-data-input"
+                  />
+                  <div className="flex justify-between items-center mt-1">
+                    <p className="text-xs text-gray-500">
+                      Copy text from voter PDF and paste here
+                    </p>
+                    <p className="text-xs text-indigo-600 font-medium">
+                      {textData ? `~${textData.split('\n').filter(l => l.trim()).length} lines` : '0 lines'}
+                    </p>
+                  </div>
                 </div>
               )}
 
