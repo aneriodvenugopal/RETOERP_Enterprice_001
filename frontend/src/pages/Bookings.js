@@ -136,10 +136,22 @@ const Bookings = () => {
     setFormData(prev => ({ ...prev, project_id: projectId, property_id: '' }));
     try {
       const props = await propertyService.getAll(projectId);
-      // Filter available properties
-      setProperties(props.filter(p => p.status_id && p.status_id.includes('available')));
+      // Find the 'available' status ID
+      const availableStatus = propertyStatuses.find(s => s.slug === 'available');
+      const blockedStatus = propertyStatuses.find(s => s.slug === 'blocked');
+      
+      // Filter properties that are available or blocked (can still be booked)
+      const filteredProps = props.filter(p => {
+        if (!p.status_id) return true; // No status means available
+        if (availableStatus && p.status_id === availableStatus.id) return true;
+        if (blockedStatus && p.status_id === blockedStatus.id) return true;
+        return false;
+      });
+      
+      setProperties(filteredProps);
     } catch (error) {
       console.error('Failed to load properties:', error);
+      toast.error('Failed to load properties for this project');
     }
   };
 
