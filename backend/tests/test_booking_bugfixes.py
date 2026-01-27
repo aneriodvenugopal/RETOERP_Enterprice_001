@@ -42,7 +42,7 @@ class TestAuth:
         )
         assert response.status_code == 200
         data = response.json()
-        assert "token" in data
+        assert "access_token" in data
         assert "user" in data
         print(f"✓ Login successful for {TEST_EMAIL}")
 
