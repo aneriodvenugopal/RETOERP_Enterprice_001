@@ -378,33 +378,44 @@ const VotersImport = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               {/* Import Method Toggle */}
-              <div className="flex gap-2 p-1 bg-gray-100 rounded-lg">
+              <div className="flex gap-1 p-1 bg-gray-100 rounded-lg">
                 <button
                   type="button"
-                  onClick={() => setUseUrlImport(false)}
-                  className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors ${
-                    !useUrlImport 
+                  onClick={() => setImportMethod('file')}
+                  className={`flex-1 py-2 px-2 rounded-md text-xs font-medium transition-colors ${
+                    importMethod === 'file'
                       ? 'bg-white text-indigo-600 shadow' 
                       : 'text-gray-600 hover:text-gray-900'
                   }`}
                 >
-                  📁 Upload File
+                  📁 PDF File
                 </button>
                 <button
                   type="button"
-                  onClick={() => setUseUrlImport(true)}
-                  className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors ${
-                    useUrlImport 
+                  onClick={() => setImportMethod('url')}
+                  className={`flex-1 py-2 px-2 rounded-md text-xs font-medium transition-colors ${
+                    importMethod === 'url'
                       ? 'bg-white text-indigo-600 shadow' 
                       : 'text-gray-600 hover:text-gray-900'
                   }`}
                 >
-                  🔗 Import from URL
+                  🔗 From URL
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setImportMethod('text')}
+                  className={`flex-1 py-2 px-2 rounded-md text-xs font-medium transition-colors ${
+                    importMethod === 'text'
+                      ? 'bg-white text-indigo-600 shadow' 
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  📝 Paste Text
                 </button>
               </div>
 
-              {/* File Upload or URL Input */}
-              {!useUrlImport ? (
+              {/* File Upload */}
+              {importMethod === 'file' && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Select PDF File *
