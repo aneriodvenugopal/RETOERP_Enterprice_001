@@ -72,68 +72,96 @@ async def generate_booking_confirmation_pdf(
     # Get booking details
     booking = await db.bookings.find_one({"id": booking_id}, {"_id": 0})
     if not booking:
-        # Try to find in properties with booked status
-        property_doc = await db.properties.find_one({"id": booking_id}, {"_id": 0})
-        if not property_doc:
-            raise HTTPException(status_code=404, detail="Booking not found")
-        booking = {
-            "id": property_doc.get("id"),
-            "booking_date": property_doc.get("booked_at") or property_doc.get("created_at"),
-            "customer_id": property_doc.get("customer_id"),
-            "property_id": property_doc.get("id"),
-            "project_id": property_doc.get("project_id"),
-            "tenant_id": property_doc.get("tenant_id"),
-            "booking_amount": property_doc.get("booking_amount", 0),
-        }
+        raise HTTPException(status_code=404, detail="Booking not found")
     
-    # Get customer details
-    customer = await db.customers.find_one({"id": booking.get("customer_id")}, {"_id": 0})
-    if not customer:
-        customer = {"name": "N/A", "phone": "N/A", "email": "N/A", "address": "N/A"}
+    # Get customer details - first from booking, then try customers collection
+    customer_name = booking.get("customer_name")
+    customer_phone = booking.get("customer_phone")
+    customer_email = booking.get("customer_email")
+    customer_address = "N/A"
+    
+    # If customer_id exists, try to get more details from customers collection
+    if booking.get("customer_id"):
+        customer = await db.customers.find_one({"id": booking.get("customer_id")}, {"_id": 0})
+        if customer:
+            customer_name = customer_name or customer.get("name")
+            customer_phone = customer_phone or customer.get("phone")
+            customer_email = customer_email or customer.get("email")
+            customer_address = customer.get("address", "N/A")
     
     # Get property details
-    property_doc = await db.properties.find_one({"id": booking.get("property_id") or booking_id}, {"_id": 0})
+    property_doc = await db.properties.find_one({"id": booking.get("property_id")}, {"_id": 0})
     if not property_doc:
         raise HTTPException(status_code=404, detail="Property not found")
     
     # Get project details
-    project = await db.projects.find_one({"id": property_doc.get("project_id")}, {"_id": 0})
+    project = await db.projects.find_one({"id": booking.get("project_id") or property_doc.get("project_id")}, {"_id": 0})
     project_name = project.get("name", "N/A") if project else "N/A"
     
-    # Get payment schedule
-    payments = await db.emi_schedules.find(
-        {"property_id": property_doc.get("id")},
+    # Get payment schedule - try multiple collections
+    payment_schedule = []
+    
+    # Try payment_schedules collection first
+    schedules = await db.payment_schedules.find(
+        {"booking_id": booking_id},
         {"_id": 0}
     ).sort("due_date", 1).to_list(100)
     
-    payment_schedule = []
-    for p in payments:
-        payment_schedule.append({
-            "installment_name": p.get("installment_name", "EMI"),
-            "due_date": p.get("due_date"),
-            "amount": p.get("amount", 0),
-            "status": p.get("status", "Pending")
-        })
+    if schedules:
+        for p in schedules:
+            payment_schedule.append({
+                "installment_name": f"EMI #{p.get('installment_number', 0)}",
+                "due_date": p.get("due_date"),
+                "amount": p.get("due_amount", 0),
+                "status": p.get("status", "pending").capitalize()
+            })
+    else:
+        # Try emi_schedules collection
+        schedules = await db.emi_schedules.find(
+            {"booking_id": booking_id},
+            {"_id": 0}
+        ).sort("due_date", 1).to_list(100)
+        
+        for p in schedules:
+            payment_schedule.append({
+                "installment_name": p.get("installment_name", "EMI"),
+                "due_date": p.get("due_date"),
+                "amount": p.get("amount", 0),
+                "status": p.get("status", "Pending")
+            })
     
-    # Get company info
-    company_info = await get_company_info(db, booking.get("tenant_id") or property_doc.get("tenant_id"))
+    # Get tenant info for company details
+    tenant = await db.tenants.find_one({"id": booking.get("tenant_id")}, {"_id": 0})
+    company_info = {
+        "name": tenant.get("company", {}).get("name") or tenant.get("name", "RealApex") if tenant else "RealApex",
+        "address": tenant.get("company", {}).get("address", "") if tenant else "",
+        "phone": tenant.get("company", {}).get("phone", "") if tenant else "",
+        "email": tenant.get("company", {}).get("email", "") if tenant else "",
+        "logo": tenant.get("company", {}).get("logo", "") if tenant else ""
+    }
+    
+    # Calculate rate per sq.ft
+    area = property_doc.get("area") or property_doc.get("plot_area") or 0
+    total_price = booking.get("total_amount") or property_doc.get("price") or 0
+    rate_per_sqft = total_price / area if area > 0 else 0
     
     # Prepare booking data
     booking_data = {
         "booking_id": booking.get("id", booking_id),
-        "booking_date": booking.get("booking_date") or datetime.now(timezone.utc).isoformat(),
-        "customer_name": customer.get("name"),
-        "customer_phone": customer.get("phone"),
-        "customer_email": customer.get("email"),
-        "customer_address": customer.get("address", "N/A"),
+        "booking_date": booking.get("booking_date") or booking.get("created_at") or datetime.now(timezone.utc).isoformat(),
+        "customer_name": customer_name or "N/A",
+        "customer_phone": customer_phone or "N/A",
+        "customer_email": customer_email or "N/A",
+        "customer_address": customer_address,
         "project_name": project_name,
-        "property_number": property_doc.get("property_number"),
-        "block": property_doc.get("block", "-"),
-        "area": property_doc.get("area", 0),
-        "facing": property_doc.get("facing", "-"),
-        "total_price": property_doc.get("price", 0),
-        "booking_amount": booking.get("booking_amount", 0),
-        "balance_amount": property_doc.get("price", 0) - booking.get("booking_amount", 0),
+        "property_number": property_doc.get("property_number") or property_doc.get("name") or "N/A",
+        "block": property_doc.get("block") or property_doc.get("block_name") or "-",
+        "area": area,
+        "rate_per_sqft": rate_per_sqft,
+        "facing": property_doc.get("facing") or "-",
+        "total_price": total_price,
+        "booking_amount": booking.get("booking_amount") or booking.get("down_payment") or 0,
+        "balance_amount": booking.get("balance_amount") or (total_price - (booking.get("booking_amount") or 0)),
         "payment_schedule": payment_schedule
     }
     
@@ -141,7 +169,7 @@ async def generate_booking_confirmation_pdf(
     pdf_generator = PDFGenerator(company_info)
     pdf_buffer = pdf_generator.generate_booking_confirmation(booking_data)
     
-    filename = f"Booking_Confirmation_{property_doc.get('property_number', booking_id)[:8]}.pdf"
+    filename = f"Booking_Confirmation_{booking_data['property_number'][:20]}.pdf"
     
     return StreamingResponse(
         pdf_buffer,
