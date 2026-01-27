@@ -1,171 +1,30 @@
-<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="9" failures="1" skipped="0" tests="10" time="0.305" timestamp="2026-01-27T06:38:22.092360+00:00" hostname="agent-env-2bfe7e04-ec8a-4235-8a39-1b95024c5077"><testcase classname="tests.test_booking_bugfixes.TestAuth" name="test_login_success" time="0.001"><failure message="requests.exceptions.MissingSchema: Invalid URL '/api/auth/login': No scheme supplied. Perhaps you meant https:///api/auth/login?">tests/test_booking_bugfixes.py:39: in test_login_success
-    response = requests.post(
-/root/.venv/lib/python3.11/site-packages/requests/api.py:115: in post
-    return request("post", url, data=data, json=json, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-/root/.venv/lib/python3.11/site-packages/requests/api.py:59: in request
-    return session.request(method=method, url=url, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-/root/.venv/lib/python3.11/site-packages/requests/sessions.py:575: in request
-    prep = self.prepare_request(req)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^
-/root/.venv/lib/python3.11/site-packages/requests/sessions.py:484: in prepare_request
-    p.prepare(
-/root/.venv/lib/python3.11/site-packages/requests/models.py:367: in prepare
-    self.prepare_url(url, params)
-/root/.venv/lib/python3.11/site-packages/requests/models.py:438: in prepare_url
-    raise MissingSchema(
-E   requests.exceptions.MissingSchema: Invalid URL '/api/auth/login': No scheme supplied. Perhaps you meant https:///api/auth/login?</failure></testcase><testcase classname="tests.test_booking_bugfixes.TestPropertyLoading" name="test_get_projects" time="0.001"><error message="failed on setup with &quot;requests.exceptions.MissingSchema: Invalid URL '/api/auth/login': No scheme supplied. Perhaps you meant https:///api/auth/login?&quot;">tests/test_booking_bugfixes.py:56: in auth_token
-    response = requests.post(
-/root/.venv/lib/python3.11/site-packages/requests/api.py:115: in post
-    return request("post", url, data=data, json=json, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-/root/.venv/lib/python3.11/site-packages/requests/api.py:59: in request
-    return session.request(method=method, url=url, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-/root/.venv/lib/python3.11/site-packages/requests/sessions.py:575: in request
-    prep = self.prepare_request(req)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^
-/root/.venv/lib/python3.11/site-packages/requests/sessions.py:484: in prepare_request
-    p.prepare(
-/root/.venv/lib/python3.11/site-packages/requests/models.py:367: in prepare
-    self.prepare_url(url, params)
-/root/.venv/lib/python3.11/site-packages/requests/models.py:438: in prepare_url
-    raise MissingSchema(
-E   requests.exceptions.MissingSchema: Invalid URL '/api/auth/login': No scheme supplied. Perhaps you meant https:///api/auth/login?</error></testcase><testcase classname="tests.test_booking_bugfixes.TestPropertyLoading" name="test_get_property_statuses" time="0.000"><error message="failed on setup with &quot;requests.exceptions.MissingSchema: Invalid URL '/api/auth/login': No scheme supplied. Perhaps you meant https:///api/auth/login?&quot;">tests/test_booking_bugfixes.py:56: in auth_token
-    response = requests.post(
-/root/.venv/lib/python3.11/site-packages/requests/api.py:115: in post
-    return request("post", url, data=data, json=json, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-/root/.venv/lib/python3.11/site-packages/requests/api.py:59: in request
-    return session.request(method=method, url=url, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-/root/.venv/lib/python3.11/site-packages/requests/sessions.py:575: in request
-    prep = self.prepare_request(req)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^
-/root/.venv/lib/python3.11/site-packages/requests/sessions.py:484: in prepare_request
-    p.prepare(
-/root/.venv/lib/python3.11/site-packages/requests/models.py:367: in prepare
-    self.prepare_url(url, params)
-/root/.venv/lib/python3.11/site-packages/requests/models.py:438: in prepare_url
-    raise MissingSchema(
-E   requests.exceptions.MissingSchema: Invalid URL '/api/auth/login': No scheme supplied. Perhaps you meant https:///api/auth/login?</error></testcase><testcase classname="tests.test_booking_bugfixes.TestPropertyLoading" name="test_get_properties_for_project" time="0.000"><error message="failed on setup with &quot;requests.exceptions.MissingSchema: Invalid URL '/api/auth/login': No scheme supplied. Perhaps you meant https:///api/auth/login?&quot;">tests/test_booking_bugfixes.py:56: in auth_token
-    response = requests.post(
-/root/.venv/lib/python3.11/site-packages/requests/api.py:115: in post
-    return request("post", url, data=data, json=json, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-/root/.venv/lib/python3.11/site-packages/requests/api.py:59: in request
-    return session.request(method=method, url=url, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-/root/.venv/lib/python3.11/site-packages/requests/sessions.py:575: in request
-    prep = self.prepare_request(req)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^
-/root/.venv/lib/python3.11/site-packages/requests/sessions.py:484: in prepare_request
-    p.prepare(
-/root/.venv/lib/python3.11/site-packages/requests/models.py:367: in prepare
-    self.prepare_url(url, params)
-/root/.venv/lib/python3.11/site-packages/requests/models.py:438: in prepare_url
-    raise MissingSchema(
-E   requests.exceptions.MissingSchema: Invalid URL '/api/auth/login': No scheme supplied. Perhaps you meant https:///api/auth/login?</error></testcase><testcase classname="tests.test_booking_bugfixes.TestBankAccounts" name="test_get_bank_accounts" time="0.001"><error message="failed on setup with &quot;requests.exceptions.MissingSchema: Invalid URL '/api/auth/login': No scheme supplied. Perhaps you meant https:///api/auth/login?&quot;">tests/test_booking_bugfixes.py:145: in auth_token
-    response = requests.post(
-/root/.venv/lib/python3.11/site-packages/requests/api.py:115: in post
-    return request("post", url, data=data, json=json, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-/root/.venv/lib/python3.11/site-packages/requests/api.py:59: in request
-    return session.request(method=method, url=url, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-/root/.venv/lib/python3.11/site-packages/requests/sessions.py:575: in request
-    prep = self.prepare_request(req)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^
-/root/.venv/lib/python3.11/site-packages/requests/sessions.py:484: in prepare_request
-    p.prepare(
-/root/.venv/lib/python3.11/site-packages/requests/models.py:367: in prepare
-    self.prepare_url(url, params)
-/root/.venv/lib/python3.11/site-packages/requests/models.py:438: in prepare_url
-    raise MissingSchema(
-E   requests.exceptions.MissingSchema: Invalid URL '/api/auth/login': No scheme supplied. Perhaps you meant https:///api/auth/login?</error></testcase><testcase classname="tests.test_booking_bugfixes.TestBankAccounts" name="test_bank_accounts_have_required_fields" time="0.000"><error message="failed on setup with &quot;requests.exceptions.MissingSchema: Invalid URL '/api/auth/login': No scheme supplied. Perhaps you meant https:///api/auth/login?&quot;">tests/test_booking_bugfixes.py:145: in auth_token
-    response = requests.post(
-/root/.venv/lib/python3.11/site-packages/requests/api.py:115: in post
-    return request("post", url, data=data, json=json, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-/root/.venv/lib/python3.11/site-packages/requests/api.py:59: in request
-    return session.request(method=method, url=url, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-/root/.venv/lib/python3.11/site-packages/requests/sessions.py:575: in request
-    prep = self.prepare_request(req)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^
-/root/.venv/lib/python3.11/site-packages/requests/sessions.py:484: in prepare_request
-    p.prepare(
-/root/.venv/lib/python3.11/site-packages/requests/models.py:367: in prepare
-    self.prepare_url(url, params)
-/root/.venv/lib/python3.11/site-packages/requests/models.py:438: in prepare_url
-    raise MissingSchema(
-E   requests.exceptions.MissingSchema: Invalid URL '/api/auth/login': No scheme supplied. Perhaps you meant https:///api/auth/login?</error></testcase><testcase classname="tests.test_booking_bugfixes.TestBookingsAPI" name="test_get_bookings" time="0.001"><error message="failed on setup with &quot;requests.exceptions.MissingSchema: Invalid URL '/api/auth/login': No scheme supplied. Perhaps you meant https:///api/auth/login?&quot;">tests/test_booking_bugfixes.py:207: in auth_token
-    response = requests.post(
-/root/.venv/lib/python3.11/site-packages/requests/api.py:115: in post
-    return request("post", url, data=data, json=json, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-/root/.venv/lib/python3.11/site-packages/requests/api.py:59: in request
-    return session.request(method=method, url=url, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-/root/.venv/lib/python3.11/site-packages/requests/sessions.py:575: in request
-    prep = self.prepare_request(req)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^
-/root/.venv/lib/python3.11/site-packages/requests/sessions.py:484: in prepare_request
-    p.prepare(
-/root/.venv/lib/python3.11/site-packages/requests/models.py:367: in prepare
-    self.prepare_url(url, params)
-/root/.venv/lib/python3.11/site-packages/requests/models.py:438: in prepare_url
-    raise MissingSchema(
-E   requests.exceptions.MissingSchema: Invalid URL '/api/auth/login': No scheme supplied. Perhaps you meant https:///api/auth/login?</error></testcase><testcase classname="tests.test_booking_bugfixes.TestBookingsAPI" name="test_get_booking_details" time="0.000"><error message="failed on setup with &quot;requests.exceptions.MissingSchema: Invalid URL '/api/auth/login': No scheme supplied. Perhaps you meant https:///api/auth/login?&quot;">tests/test_booking_bugfixes.py:207: in auth_token
-    response = requests.post(
-/root/.venv/lib/python3.11/site-packages/requests/api.py:115: in post
-    return request("post", url, data=data, json=json, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-/root/.venv/lib/python3.11/site-packages/requests/api.py:59: in request
-    return session.request(method=method, url=url, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-/root/.venv/lib/python3.11/site-packages/requests/sessions.py:575: in request
-    prep = self.prepare_request(req)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^
-/root/.venv/lib/python3.11/site-packages/requests/sessions.py:484: in prepare_request
-    p.prepare(
-/root/.venv/lib/python3.11/site-packages/requests/models.py:367: in prepare
-    self.prepare_url(url, params)
-/root/.venv/lib/python3.11/site-packages/requests/models.py:438: in prepare_url
-    raise MissingSchema(
-E   requests.exceptions.MissingSchema: Invalid URL '/api/auth/login': No scheme supplied. Perhaps you meant https:///api/auth/login?</error></testcase><testcase classname="tests.test_booking_bugfixes.TestPaymentModes" name="test_get_payment_modes" time="0.001"><error message="failed on setup with &quot;requests.exceptions.MissingSchema: Invalid URL '/api/auth/login': No scheme supplied. Perhaps you meant https:///api/auth/login?&quot;">tests/test_booking_bugfixes.py:273: in auth_token
-    response = requests.post(
-/root/.venv/lib/python3.11/site-packages/requests/api.py:115: in post
-    return request("post", url, data=data, json=json, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-/root/.venv/lib/python3.11/site-packages/requests/api.py:59: in request
-    return session.request(method=method, url=url, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-/root/.venv/lib/python3.11/site-packages/requests/sessions.py:575: in request
-    prep = self.prepare_request(req)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^
-/root/.venv/lib/python3.11/site-packages/requests/sessions.py:484: in prepare_request
-    p.prepare(
-/root/.venv/lib/python3.11/site-packages/requests/models.py:367: in prepare
-    self.prepare_url(url, params)
-/root/.venv/lib/python3.11/site-packages/requests/models.py:438: in prepare_url
-    raise MissingSchema(
-E   requests.exceptions.MissingSchema: Invalid URL '/api/auth/login': No scheme supplied. Perhaps you meant https:///api/auth/login?</error></testcase><testcase classname="tests.test_booking_bugfixes.TestEndToEndPaymentFlow" name="test_payment_recording_prerequisites" time="0.000"><error message="failed on setup with &quot;requests.exceptions.MissingSchema: Invalid URL '/api/auth/login': No scheme supplied. Perhaps you meant https:///api/auth/login?&quot;">tests/test_booking_bugfixes.py:308: in auth_token
-    response = requests.post(
-/root/.venv/lib/python3.11/site-packages/requests/api.py:115: in post
-    return request("post", url, data=data, json=json, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-/root/.venv/lib/python3.11/site-packages/requests/api.py:59: in request
-    return session.request(method=method, url=url, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-/root/.venv/lib/python3.11/site-packages/requests/sessions.py:575: in request
-    prep = self.prepare_request(req)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^
-/root/.venv/lib/python3.11/site-packages/requests/sessions.py:484: in prepare_request
-    p.prepare(
-/root/.venv/lib/python3.11/site-packages/requests/models.py:367: in prepare
-    self.prepare_url(url, params)
-/root/.venv/lib/python3.11/site-packages/requests/models.py:438: in prepare_url
-    raise MissingSchema(
-E   requests.exceptions.MissingSchema: Invalid URL '/api/auth/login': No scheme supplied. Perhaps you meant https:///api/auth/login?</error></testcase></testsuite></testsuites>
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="9" failures="1" skipped="0" tests="10" time="1.753" timestamp="2026-01-27T06:38:35.363580+00:00" hostname="agent-env-2bfe7e04-ec8a-4235-8a39-1b95024c5077"><testcase classname="tests.test_booking_bugfixes.TestAuth" name="test_login_success" time="0.295"><failure message="AssertionError: assert 'token' in {'access_token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNmZlZTYyYTItMTljMC00M2JmLWI2MTctZjY3YmM4ZTQ4YTBjIiwidGVuYW50X2lkIjoiZjE4ZjdiZDYtM2ExZi00NzJkLWFjZjktYzJmYjE4MTc4N2U3Iiwicm9sZSI6InRlbmFudF9hZG1pbiIsInJlbWVtYmVyX21lIjpmYWxzZSwiZXhwIjoxNzY5NTgyMzE1fQ.-OdDMN6UiUZIwxEgbfBn0dCqvKXT_4BnK4M1jStG-U8', 'expires_in': 86400, 'remember_me': False, 'token_type': 'bearer', ...}">tests/test_booking_bugfixes.py:45: in test_login_success
+    assert "token" in data
+E   AssertionError: assert 'token' in {'access_token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNmZlZTYyYTItMTljMC00M2JmLWI2MTctZjY3YmM4ZTQ4YTBjIiwidGVuYW50X2lkIjoiZjE4ZjdiZDYtM2ExZi00NzJkLWFjZjktYzJmYjE4MTc4N2U3Iiwicm9sZSI6InRlbmFudF9hZG1pbiIsInJlbWVtYmVyX21lIjpmYWxzZSwiZXhwIjoxNzY5NTgyMzE1fQ.-OdDMN6UiUZIwxEgbfBn0dCqvKXT_4BnK4M1jStG-U8', 'expires_in': 86400, 'remember_me': False, 'token_type': 'bearer', ...}</failure></testcase><testcase classname="tests.test_booking_bugfixes.TestPropertyLoading" name="test_get_projects" time="0.268"><error message="failed on setup with &quot;KeyError: 'token'&quot;">tests/test_booking_bugfixes.py:61: in auth_token
+    return response.json()["token"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'token'</error></testcase><testcase classname="tests.test_booking_bugfixes.TestPropertyLoading" name="test_get_property_statuses" time="0.000"><error message="failed on setup with &quot;KeyError: 'token'&quot;">tests/test_booking_bugfixes.py:61: in auth_token
+    return response.json()["token"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'token'</error></testcase><testcase classname="tests.test_booking_bugfixes.TestPropertyLoading" name="test_get_properties_for_project" time="0.000"><error message="failed on setup with &quot;KeyError: 'token'&quot;">tests/test_booking_bugfixes.py:61: in auth_token
+    return response.json()["token"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'token'</error></testcase><testcase classname="tests.test_booking_bugfixes.TestBankAccounts" name="test_get_bank_accounts" time="0.271"><error message="failed on setup with &quot;KeyError: 'token'&quot;">tests/test_booking_bugfixes.py:150: in auth_token
+    return response.json()["token"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'token'</error></testcase><testcase classname="tests.test_booking_bugfixes.TestBankAccounts" name="test_bank_accounts_have_required_fields" time="0.000"><error message="failed on setup with &quot;KeyError: 'token'&quot;">tests/test_booking_bugfixes.py:150: in auth_token
+    return response.json()["token"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'token'</error></testcase><testcase classname="tests.test_booking_bugfixes.TestBookingsAPI" name="test_get_bookings" time="0.266"><error message="failed on setup with &quot;KeyError: 'token'&quot;">tests/test_booking_bugfixes.py:212: in auth_token
+    return response.json()["token"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'token'</error></testcase><testcase classname="tests.test_booking_bugfixes.TestBookingsAPI" name="test_get_booking_details" time="0.000"><error message="failed on setup with &quot;KeyError: 'token'&quot;">tests/test_booking_bugfixes.py:212: in auth_token
+    return response.json()["token"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'token'</error></testcase><testcase classname="tests.test_booking_bugfixes.TestPaymentModes" name="test_get_payment_modes" time="0.262"><error message="failed on setup with &quot;KeyError: 'token'&quot;">tests/test_booking_bugfixes.py:278: in auth_token
+    return response.json()["token"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'token'</error></testcase><testcase classname="tests.test_booking_bugfixes.TestEndToEndPaymentFlow" name="test_payment_recording_prerequisites" time="0.265"><error message="failed on setup with &quot;KeyError: 'token'&quot;">tests/test_booking_bugfixes.py:313: in auth_token
+    return response.json()["token"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'token'</error></testcase></testsuite></testsuites>
