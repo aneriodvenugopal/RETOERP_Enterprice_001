@@ -88,6 +88,9 @@ class Payment(BaseModel):
     payment_date: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     payment_mode_id: str  # Reference to MasterCategory (payment_mode)
     
+    # Bank account for receiving payment
+    bank_account_id: Optional[str] = None  # Reference to bank_accounts collection
+    
     # Transaction details
     transaction_id: Optional[str] = None
     reference_number: Optional[str] = None
@@ -116,6 +119,7 @@ class PaymentCreate(BaseModel):
     booking_id: str
     amount: float
     payment_mode_id: str
+    bank_account_id: Optional[str] = None  # Bank account to receive payment
     transaction_id: Optional[str] = None
     reference_number: Optional[str] = None
     payment_type: str
