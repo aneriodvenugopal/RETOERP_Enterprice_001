@@ -77,14 +77,22 @@ const VotersListImport = () => {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      if (!file.name.toLowerCase().endsWith('.pdf')) {
+      const fileName = file.name.toLowerCase();
+      const isExcel = fileName.endsWith('.xlsx') || fileName.endsWith('.xls');
+      const isPdf = fileName.endsWith('.pdf');
+      
+      if (importMethod === 'excel' && !isExcel) {
+        toast.error('Please select an Excel file (.xlsx or .xls)');
+        return;
+      }
+      if (importMethod === 'pdf' && !isPdf) {
         toast.error('Please select a PDF file');
         return;
       }
       
       // Check file size - warn if > 15MB
       const fileSizeMB = file.size / 1024 / 1024;
-      if (fileSizeMB > 15) {
+      if (fileSizeMB > 15 && isPdf) {
         toast.warning(`Large file (${fileSizeMB.toFixed(1)} MB) - Use "From URL" for better reliability`, {
           duration: 8000
         });
