@@ -60,12 +60,15 @@ const Bookings = () => {
     payment_type: 'installment',
     installment_number: '',
     notes: '',
+    bank_account_id: '',
   });
 
   useEffect(() => {
     fetchBookings();
     fetchProjects();
     fetchCategories();
+    fetchPropertyStatuses();
+    fetchBankAccounts();
   }, []);
 
   const fetchBookings = async () => {
