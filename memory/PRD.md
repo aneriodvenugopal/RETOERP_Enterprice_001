@@ -461,6 +461,18 @@ Build a comprehensive Real Estate ERP (RealApex) SaaS platform for the Indian re
     - `/voters-bulk-update` - View and update incomplete records
     - `/voters-admin` - Super admin ward settings
 
+- [x] **Booking System Bug Fixes** (Completed Jan 27, 2026)
+  - **Property Loading Fix**: Fixed property dropdown not loading when project is selected
+    - Root cause: Incorrect status filter using `status_id.includes('available')` instead of UUID matching
+    - Solution: Fetch property statuses and match by `slug === 'available'`
+    - Files updated: `frontend/src/pages/Bookings.js` (handleProjectChange function)
+  - **Bank Account Selection for Payments**: Added bank account selection to payment recording
+    - New "Receive Payment To" dropdown in Record Payment tab
+    - Bank account balance automatically updated when payment is recorded
+    - Transaction record created for audit trail
+    - Validation message when no bank accounts configured
+    - Files updated: `frontend/src/pages/Bookings.js`, `backend/routes/bookings.py`, `backend/models/payment.py`
+
 ### P4 - Future/Backlog
 - [x] Festival Greetings Automation - Backend cron job for Jan 26 & Aug 15 (Completed Jan 12, 2026)
 - [x] SaaS marketing pages - /saas landing page (Completed Jan 12, 2026)
