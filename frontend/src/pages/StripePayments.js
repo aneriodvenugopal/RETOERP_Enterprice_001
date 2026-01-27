@@ -133,22 +133,21 @@ const StripePayments = () => {
   });
 
   return (
-    <AuthenticatedLayout>
-      <div className="space-y-6" data-testid="stripe-payments-page">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-              <CreditCard className="w-7 h-7 text-blue-600" />
-              Stripe Payments
-            </h1>
-            <p className="text-gray-500 mt-1">Manage and track all payment transactions</p>
-          </div>
-          <Button onClick={fetchData} variant="outline" disabled={loading}>
-            <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-            Refresh
-          </Button>
+    <div className="space-y-6" data-testid="stripe-payments-page">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+            <CreditCard className="w-7 h-7 text-blue-600" />
+            Stripe Payments
+          </h1>
+          <p className="text-gray-500 mt-1">Manage and track all payment transactions</p>
         </div>
+        <Button onClick={fetchData} variant="outline" disabled={loading}>
+          <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+          Refresh
+        </Button>
+      </div>
 
         {/* Stats Cards */}
         {stats && (
