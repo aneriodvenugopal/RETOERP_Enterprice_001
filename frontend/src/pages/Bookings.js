@@ -514,7 +514,7 @@ const Bookings = () => {
       <Dialog open={showDetailsDialog} onOpenChange={setShowDetailsDialog}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{selectedBooking?.customer_name}'s Booking</DialogTitle>
+            <DialogTitle>{selectedBooking?.customer_name}&apos;s Booking</DialogTitle>
           </DialogHeader>
           {bookingDetails && (
             <Tabs defaultValue="details" className="w-full">
