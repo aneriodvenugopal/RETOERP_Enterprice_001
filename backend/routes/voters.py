@@ -997,17 +997,20 @@ async def upload_excel_voters(
         col_map = {}
         for idx, header in enumerate(headers):
             h = header.lower().replace('.', '').replace(' ', '_')
-            if 'sl' in h and 'no' in h:
-                col_map['sl_no'] = idx
-            elif 's' == h or 'sno' in h or 's_no' in h:
+            if h == 'sno' or h == 's_no' or header.lower() == 's.no':
                 col_map['s_no'] = idx
+            elif 'ac' in h and 'no' in h:
+                col_map['ac_no'] = idx
+            elif 'ps' in h and 'no' in h:
+                col_map['ps_no'] = idx
+            elif 'sl' in h and 'no' in h:
+                col_map['sl_no'] = idx
             elif 'epic' in h:
                 col_map['epic_no'] = idx
-            elif header == 'name' or h == 'name':
+            elif header.lower() == 'name' or h == 'name':
                 col_map['name'] = idx
-            elif 'relation_name' in h or 'father' in h or 'husband' in h:
-                if 'type' not in h:
-                    col_map['relation_name'] = idx
+            elif 'relation_name' in h or ('relation' in h and 'type' not in h):
+                col_map['relation_name'] = idx
             elif 'relation_type' in h:
                 col_map['relation_type'] = idx
             elif 'age' in h:
@@ -1030,14 +1033,23 @@ async def upload_excel_voters(
             if not epic_no:
                 continue
             
-            # Get serial number (prefer SL No, fallback to S.No)
-            sl_no = None
-            if 'sl_no' in col_map and row[col_map['sl_no']]:
+            # Get S.No (row number in Excel)
+            s_no = None
+            if 's_no' in col_map and row[col_map['s_no']]:
                 try:
-                    sl_no = int(row[col_map['sl_no']])
+                    s_no = int(row[col_map['s_no']])
                 except:
-                    pass
-            if sl_no is None and 's_no' in col_map and row[col_map['s_no']]:
+                    s_no = len(voters) + 1
+            else:
+                s_no = len(voters) + 1
+            
+            # Get AC No, PS No, SL No
+            ac_no = str(row[col_map['ac_no']]).strip() if 'ac_no' in col_map and row[col_map['ac_no']] else ''
+            ps_no = str(row[col_map['ps_no']]).strip() if 'ps_no' in col_map and row[col_map['ps_no']] else ''
+            sl_no_val = str(row[col_map['sl_no']]).strip() if 'sl_no' in col_map and row[col_map['sl_no']] else ''
+            
+            # Create AC-PS-SL combined field
+            ac_ps_sl = f"{ac_no}-{ps_no}-{sl_no_val}" if ac_no and ps_no and sl_no_val else ''
                 try:
                     sl_no = int(row[col_map['s_no']])
                 except:
