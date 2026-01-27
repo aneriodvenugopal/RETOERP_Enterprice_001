@@ -126,15 +126,19 @@ const VotersImport = () => {
     }
   };
 
-  // Handle upload (file or URL)
+  // Handle upload (file, URL, or text)
   const handleUpload = async () => {
     // Validate inputs
-    if (!useUrlImport && !selectedFile) {
+    if (importMethod === 'file' && !selectedFile) {
       toast.error('Please select a PDF file');
       return;
     }
-    if (useUrlImport && !pdfUrl.trim()) {
+    if (importMethod === 'url' && !pdfUrl.trim()) {
       toast.error('Please enter a PDF URL');
+      return;
+    }
+    if (importMethod === 'text' && !textData.trim()) {
+      toast.error('Please paste voter data text');
       return;
     }
     if (!village.trim()) {
@@ -143,11 +147,11 @@ const VotersImport = () => {
     }
     
     // Block direct upload for files > 25MB
-    if (!useUrlImport && selectedFile) {
+    if (importMethod === 'file' && selectedFile) {
       const fileSizeMB = selectedFile.size / 1024 / 1024;
       if (fileSizeMB > 25) {
         toast.error(`File too large (${fileSizeMB.toFixed(1)} MB). Please use "From URL" option for files over 25MB.`);
-        setUseUrlImport(true);
+        setImportMethod('url');
         return;
       }
     }
@@ -162,13 +166,25 @@ const VotersImport = () => {
     try {
       let response;
       
-      if (useUrlImport) {
+      if (importMethod === 'url') {
         // URL-based import (for large files)
         response = await fetch(`${API_URL}/api/voters/import-from-url`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             url: pdfUrl.trim(),
+            village: village.trim(),
+            ward_no: parseInt(wardNo.trim()),
+            replace_existing: replaceExisting
+          })
+        });
+      } else if (importMethod === 'text') {
+        // Text-based import
+        response = await fetch(`${API_URL}/api/voters/import-from-text`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            text_data: textData.trim(),
             village: village.trim(),
             ward_no: parseInt(wardNo.trim()),
             replace_existing: replaceExisting
