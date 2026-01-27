@@ -579,9 +579,7 @@ const VotersList = () => {
                 <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" aria-hidden="true" />
                 <Input
                   type={showPassword ? 'text' : 'password'}
-                  inputMode="numeric"
-                  pattern="[0-9]{6}"
-                  placeholder="Enter password (DDMMYY)"
+                  placeholder="Enter password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="pl-10 pr-10 bg-white/10 border-white/20 text-white placeholder:text-gray-400"
@@ -605,7 +603,7 @@ const VotersList = () => {
               </Button>
             </form>
             <p className="text-center text-gray-400 text-xs mt-4">
-              Password format: DDMMYY (Today's date)
+              Contact admin for password
             </p>
           </CardContent>
         </Card>
