@@ -1097,8 +1097,8 @@ async def upload_excel_voters(
                 "extracted_count": 0
             }
         
-        # Sort by sl_no
-        voters.sort(key=lambda x: x.get('sl_no', 0))
+        # Sort by s_no (Excel order)
+        voters.sort(key=lambda x: x.get('s_no', 0))
         
         db = request.app.state.db
         deleted_count = 0
