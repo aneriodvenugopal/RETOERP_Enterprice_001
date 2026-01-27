@@ -37,12 +37,15 @@ const BankAccounts = () => {
   const loadProjects = async () => {
     try {
       const response = await axios.get(
-        `${process.env.REACT_APP_BACKEND_URL}/api/projects?tenant_id=${user.tenant_id}`,
+        `${process.env.REACT_APP_BACKEND_URL}/api/projects`,
         { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
       );
       
-      if (response.data.success) {
-        setProjects(response.data.projects || []);
+      // API returns array directly
+      if (Array.isArray(response.data)) {
+        setProjects(response.data);
+      } else if (response.data.projects) {
+        setProjects(response.data.projects);
       }
     } catch (error) {
       console.error('Failed to load projects:', error);
