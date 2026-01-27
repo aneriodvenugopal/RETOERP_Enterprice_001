@@ -393,36 +393,6 @@ async def generate_payment_schedule_pdf(
         media_type="application/pdf",
         headers={"Content-Disposition": f"attachment; filename={filename}"}
     )
-            "amount": emi.get("amount", 0),
-            "status": "Paid" if payment else ("Due" if emi.get("status") == "due" else "Upcoming"),
-            "paid_date": payment.get("payment_date") if payment else None
-        })
-    
-    # Get company info
-    company_info = await get_company_info(db, property_doc.get("tenant_id"))
-    
-    schedule_data = {
-        "customer_name": customer.get("name"),
-        "customer_phone": customer.get("phone"),
-        "project_name": project_name,
-        "property_number": property_doc.get("property_number"),
-        "total_amount": total_amount,
-        "paid_amount": paid_amount,
-        "pending_amount": total_amount - paid_amount,
-        "installments": installments
-    }
-    
-    # Generate PDF
-    pdf_generator = PDFGenerator(company_info)
-    pdf_buffer = pdf_generator.generate_payment_schedule(schedule_data)
-    
-    filename = f"Payment_Schedule_{property_doc.get('property_number', property_id[:8])}.pdf"
-    
-    return StreamingResponse(
-        pdf_buffer,
-        media_type="application/pdf",
-        headers={"Content-Disposition": f"attachment; filename={filename}"}
-    )
 
 
 @router.get("/allotment-letter/{property_id}")
