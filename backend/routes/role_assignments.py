@@ -307,27 +307,86 @@ async def get_my_role_contexts(
 ):
     """
     Get all tenant/project contexts where the current user has any role.
-    Useful for showing available workspaces to the user.
+    Auto-migrates legacy user roles to role_assignments if not present.
     """
     user_id = current_user.get("user_id")
+    tenant_id = current_user.get("tenant_id")
+    db = get_db(request)
     
+    # First, check if user has any role assignments
+    existing_assignments = await db.role_assignments.find({
+        "user_id": user_id,
+        "status": "active",
+        "deleted_at": None
+    }).to_list(length=1)
+    
+    # If no assignments, auto-migrate from user record (legacy system)
+    if not existing_assignments:
+        user = await db.users.find_one({"id": user_id}, {"_id": 0})
+        if user and user.get("role"):
+            role_data = user.get("role", {})
+            role_id = role_data.get("id") if isinstance(role_data, dict) else role_data
+            role_name = role_data.get("name", "User") if isinstance(role_data, dict) else "User"
+            role_slug = role_data.get("slug", "user") if isinstance(role_data, dict) else "user"
+            
+            # Create role assignment from legacy data
+            assignment = {
+                "id": str(uuid.uuid4()),
+                "user_id": user_id,
+                "tenant_id": tenant_id,
+                "project_id": None,  # Tenant-level role
+                "role_id": role_id,
+                "role_name": role_slug,
+                "display_name": role_name,
+                "context_metadata": {
+                    "permissions": role_data.get("permissions", []) if isinstance(role_data, dict) else [],
+                    "migrated_from": "legacy_user_role"
+                },
+                "status": "active",
+                "assigned_by": "system_migration",
+                "assigned_at": datetime.now(timezone.utc).isoformat(),
+                "created_at": datetime.now(timezone.utc).isoformat(),
+                "updated_at": datetime.now(timezone.utc).isoformat(),
+                "deleted_at": None
+            }
+            
+            await db.role_assignments.insert_one(assignment)
+    
+    # Get all contexts
     contexts = await RoleContextService.get_all_contexts_for_user(user_id)
     
+    # If still empty, check role_assignments collection directly
+    if not contexts:
+        assignments = await db.role_assignments.find({
+            "user_id": user_id,
+            "status": "active",
+            "deleted_at": None
+        }, {"_id": 0}).to_list(length=None)
+        
+        for a in assignments:
+            contexts.append({
+                "tenant_id": a.get("tenant_id"),
+                "project_id": a.get("project_id"),
+                "role_id": a.get("role_id"),
+                "role_name": a.get("role_name"),
+                "display_name": a.get("display_name"),
+                "permissions": a.get("context_metadata", {}).get("permissions", [])
+            })
+    
     # Enrich with tenant and project names
-    db = get_db(request)
     for context in contexts:
         tenant = await db.tenants.find_one(
-            {"id": context["tenant_id"], "deleted_at": None},
-            {"_id": 0, "company_name": 1}
+            {"id": context.get("tenant_id"), "deleted_at": None},
+            {"_id": 0, "name": 1, "company_name": 1}
         )
-        context["tenant_name"] = tenant.get("company_name") if tenant else "Unknown"
+        context["tenant_name"] = tenant.get("name") or tenant.get("company_name", "Unknown") if tenant else "Unknown"
         
         if context.get("project_id"):
             project = await db.projects.find_one(
                 {"id": context["project_id"], "deleted_at": None},
-                {"_id": 0, "project_name": 1}
+                {"_id": 0, "name": 1, "project_name": 1}
             )
-            context["project_name"] = project.get("project_name") if project else "Unknown"
+            context["project_name"] = project.get("name") or project.get("project_name", "Unknown") if project else "Unknown"
     
     return {
         "success": True,
