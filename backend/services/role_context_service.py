@@ -206,18 +206,26 @@ class RoleContextService:
         """
         Get all tenant/project combinations where user has any role.
         Checks both role_assignments and project_staff collections.
+        Handles both old schema (is_active) and new schema (status).
         """
-        # Check role_assignments collection first
+        # Check role_assignments collection with flexible query
         role_assignments = await db.role_assignments.find({
             "user_id": user_id,
-            "status": "active",
+            "$or": [
+                {"status": "active"},
+                {"is_active": True},
+                {"status": {"$exists": False}, "is_active": {"$exists": False}}  # Legacy records
+            ],
             "deleted_at": None
         }, {"_id": 0}).to_list(length=None)
         
         # Also check project_staff for backward compatibility
         staff_assignments = await db.project_staff.find({
             "user_id": user_id,
-            "status": "active",
+            "$or": [
+                {"status": "active"},
+                {"is_active": True}
+            ],
             "deleted_at": None
         }, {"_id": 0}).to_list(length=None)
         
@@ -241,13 +249,13 @@ class RoleContextService:
                     "role_name": assignment.get("role_name"),
                     "display_name": assignment.get("display_name"),
                     "roles": [],
-                    "permissions": assignment.get("context_metadata", {}).get("permissions", [])
+                    "permissions": assignment.get("context_metadata", {}).get("permissions", []) or assignment.get("metadata", {}).get("permissions", [])
                 }
             
             contexts[key]["roles"].append({
                 "role_id": assignment.get("role_id"),
                 "role_name": assignment.get("role_name"),
-                "context_metadata": assignment.get("context_metadata", {})
+                "context_metadata": assignment.get("context_metadata", {}) or assignment.get("metadata", {})
             })
         
         return list(contexts.values())
