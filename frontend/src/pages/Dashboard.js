@@ -534,6 +534,20 @@ const TenantAdminDashboard = () => {
             gradient="from-green-500 to-emerald-500"
           />
           <ActionCard
+            icon={Users}
+            title="Vendors Management"
+            description="Manage vendors & payment transfers"
+            onClick={() => navigate('/vendors')}
+            gradient="from-orange-500 to-red-500"
+          />
+          <ActionCard
+            icon={TrendingUp}
+            title="Marketing Agents"
+            description="Agents, commissions & payouts"
+            onClick={() => navigate('/commissions')}
+            gradient="from-cyan-500 to-blue-500"
+          />
+          <ActionCard
             icon={Home}
             title="Customer Portal"
             description="View customer experience"
