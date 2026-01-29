@@ -316,41 +316,65 @@ async def get_my_role_contexts(
     # First, check if user has any role assignments
     existing_assignments = await db.role_assignments.find({
         "user_id": user_id,
-        "status": "active",
-        "deleted_at": None
+        "$or": [
+            {"status": "active"},
+            {"is_active": True}
+        ]
     }).to_list(length=1)
     
     # If no assignments, auto-migrate from user record (legacy system)
     if not existing_assignments:
         user = await db.users.find_one({"id": user_id}, {"_id": 0})
-        if user and user.get("role"):
+        if user:
+            # Get role_id (could be in 'role_id' field or nested in 'role' object)
+            role_id = user.get("role_id")
             role_data = user.get("role", {})
-            role_id = role_data.get("id") if isinstance(role_data, dict) else role_data
-            role_name = role_data.get("name", "User") if isinstance(role_data, dict) else "User"
-            role_slug = role_data.get("slug", "user") if isinstance(role_data, dict) else "user"
             
-            # Create role assignment from legacy data
-            assignment = {
-                "id": str(uuid.uuid4()),
-                "user_id": user_id,
-                "tenant_id": tenant_id,
-                "project_id": None,  # Tenant-level role
-                "role_id": role_id,
-                "role_name": role_slug,
-                "display_name": role_name,
-                "context_metadata": {
-                    "permissions": role_data.get("permissions", []) if isinstance(role_data, dict) else [],
-                    "migrated_from": "legacy_user_role"
-                },
-                "status": "active",
-                "assigned_by": "system_migration",
-                "assigned_at": datetime.now(timezone.utc).isoformat(),
-                "created_at": datetime.now(timezone.utc).isoformat(),
-                "updated_at": datetime.now(timezone.utc).isoformat(),
-                "deleted_at": None
-            }
+            if not role_id and isinstance(role_data, dict):
+                role_id = role_data.get("id")
             
-            await db.role_assignments.insert_one(assignment)
+            if role_id:
+                # Lookup the role details from master_roles collection
+                role_doc = await db.master_roles.find_one({"id": role_id}, {"_id": 0})
+                if not role_doc:
+                    role_doc = await db.roles.find_one({"id": role_id}, {"_id": 0})
+                
+                role_name = "user"
+                display_name = "User"
+                permissions = []
+                
+                if role_doc:
+                    role_name = role_doc.get("slug") or role_doc.get("name", "user").lower().replace(" ", "_")
+                    display_name = role_doc.get("name", "User")
+                    permissions = role_doc.get("permissions", [])
+                elif isinstance(role_data, dict):
+                    role_name = role_data.get("slug", "user")
+                    display_name = role_data.get("name", "User")
+                    permissions = role_data.get("permissions", [])
+                
+                # Create role assignment from legacy data
+                assignment = {
+                    "id": str(uuid.uuid4()),
+                    "user_id": user_id,
+                    "tenant_id": tenant_id,
+                    "project_id": None,  # Tenant-level role
+                    "role_id": role_id,
+                    "role_name": role_name,
+                    "display_name": display_name,
+                    "context_metadata": {
+                        "permissions": permissions,
+                        "migrated_from": "legacy_user_role"
+                    },
+                    "status": "active",
+                    "is_active": True,
+                    "assigned_by": "system_migration",
+                    "assigned_at": datetime.now(timezone.utc).isoformat(),
+                    "created_at": datetime.now(timezone.utc).isoformat(),
+                    "updated_at": datetime.now(timezone.utc).isoformat(),
+                    "deleted_at": None
+                }
+                
+                await db.role_assignments.insert_one(assignment)
     
     # Get all contexts
     contexts = await RoleContextService.get_all_contexts_for_user(user_id)
@@ -359,8 +383,10 @@ async def get_my_role_contexts(
     if not contexts:
         assignments = await db.role_assignments.find({
             "user_id": user_id,
-            "status": "active",
-            "deleted_at": None
+            "$or": [
+                {"status": "active"},
+                {"is_active": True}
+            ]
         }, {"_id": 0}).to_list(length=None)
         
         for a in assignments:
@@ -370,7 +396,7 @@ async def get_my_role_contexts(
                 "role_id": a.get("role_id"),
                 "role_name": a.get("role_name"),
                 "display_name": a.get("display_name"),
-                "permissions": a.get("context_metadata", {}).get("permissions", [])
+                "permissions": a.get("context_metadata", {}).get("permissions", []) or a.get("metadata", {}).get("permissions", [])
             })
     
     # Enrich with tenant and project names
