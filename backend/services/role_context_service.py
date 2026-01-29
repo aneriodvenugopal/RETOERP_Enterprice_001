@@ -205,21 +205,31 @@ class RoleContextService:
     async def get_all_contexts_for_user(user_id: str) -> List[Dict[str, Any]]:
         """
         Get all tenant/project combinations where user has any role.
-        Useful for multi-tenant users.
-        
-        Returns:
-            List of context dictionaries with tenant_id, project_id, roles
+        Checks both role_assignments and project_staff collections.
         """
-        role_assignments = await db.project_staff.find({
+        # Check role_assignments collection first
+        role_assignments = await db.role_assignments.find({
             "user_id": user_id,
             "status": "active",
             "deleted_at": None
         }, {"_id": 0}).to_list(length=None)
         
+        # Also check project_staff for backward compatibility
+        staff_assignments = await db.project_staff.find({
+            "user_id": user_id,
+            "status": "active",
+            "deleted_at": None
+        }, {"_id": 0}).to_list(length=None)
+        
+        # Combine both
+        all_assignments = role_assignments + staff_assignments
+        
         # Group by tenant and project
         contexts = {}
-        for assignment in role_assignments:
-            tenant_id = assignment["tenant_id"]
+        for assignment in all_assignments:
+            tenant_id = assignment.get("tenant_id")
+            if not tenant_id:
+                continue
             project_id = assignment.get("project_id", "tenant_level")
             key = f"{tenant_id}:{project_id}"
             
@@ -227,11 +237,15 @@ class RoleContextService:
                 contexts[key] = {
                     "tenant_id": tenant_id,
                     "project_id": project_id if project_id != "tenant_level" else None,
-                    "roles": []
+                    "role_id": assignment.get("role_id"),
+                    "role_name": assignment.get("role_name"),
+                    "display_name": assignment.get("display_name"),
+                    "roles": [],
+                    "permissions": assignment.get("context_metadata", {}).get("permissions", [])
                 }
             
             contexts[key]["roles"].append({
-                "role_id": assignment["role_id"],
+                "role_id": assignment.get("role_id"),
                 "role_name": assignment.get("role_name"),
                 "context_metadata": assignment.get("context_metadata", {})
             })
