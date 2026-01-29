@@ -536,7 +536,7 @@ const Bookings = () => {
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => window.open(`${API_URL}/api/pdf/booking-confirmation/${bookingDetails.property?.id || selectedBooking?.id}`, '_blank')}
+                    onClick={() => window.open(`${API_URL}/api/pdf/booking-confirmation/${bookingDetails.booking?.id || selectedBooking?.id}`, '_blank')}
                   >
                     <FileText className="w-4 h-4 mr-1" />
                     Booking Letter
@@ -544,7 +544,7 @@ const Bookings = () => {
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => window.open(`${API_URL}/api/pdf/allotment-letter/${bookingDetails.property?.id || selectedBooking?.id}`, '_blank')}
+                    onClick={() => window.open(`${API_URL}/api/pdf/allotment-letter/${bookingDetails.property?.id || selectedBooking?.property_id}`, '_blank')}
                   >
                     <Download className="w-4 h-4 mr-1" />
                     Allotment Letter
@@ -552,7 +552,7 @@ const Bookings = () => {
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => window.open(`${API_URL}/api/pdf/payment-schedule/${bookingDetails.property?.id || selectedBooking?.id}`, '_blank')}
+                    onClick={() => window.open(`${API_URL}/api/pdf/payment-schedule/${bookingDetails.property?.id || selectedBooking?.property_id}`, '_blank')}
                   >
                     <Calendar className="w-4 h-4 mr-1" />
                     Payment Schedule
