@@ -544,7 +544,7 @@ const TenantAdminDashboard = () => {
             icon={TrendingUp}
             title="Marketing Agents"
             description="Agents, commissions & payouts"
-            onClick={() => navigate('/commissions')}
+            onClick={() => navigate('/marketing-agents')}
             gradient="from-cyan-500 to-blue-500"
           />
           <ActionCard
