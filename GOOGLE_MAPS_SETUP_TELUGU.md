@@ -184,7 +184,7 @@
 
    **మొదటి referrer:**
    ```
-   https://realestate-mgmt-9.preview.emergentagent.com/*
+   https://prop-booking-1.preview.emergentagent.com/*
    ```
    - Paste చేసి Enter నొక్కండి
 

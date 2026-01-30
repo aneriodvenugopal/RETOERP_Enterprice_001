@@ -1,199 +1,213 @@
 <analysis>**original_problem_statement:**
-The user's primary goal is to build a comprehensive Real Estate ERP, RealApex. The recent focus has been on creating a robust Voters List feature with the following requirements:
-1.  **PDF Import Tool:** A UI to upload voter list PDFs, mapping them to a village and ward.
-2.  **Accurate Data Extraction:** Fix the PDF extraction logic to correctly capture all fields, especially the true **Serial Number** (the first number in each voter box), not the . This is critical for correct data ordering and identifying missing records.
-3.  **Data Integrity:**
-    *   Prevent duplicate records on re-upload.
-    *   Highlight already imported duplicates with a distinct background color.
-4.  **Missing Data Management:**
-    *   Identify and display a list of missing serial numbers after an import.
-    *   Provide a Bulk Add feature to add missing voters efficiently.
-    *   Provide a bulk update screen for records with partially missing fields.
-5.  **Relationship Field:** The Father/Husband Name field must be split into two:  (e.g., Father or Husband) and .
-6.  **UI/UX Enhancements:**
-    *   All voter-related screens must be in a **light mode** theme.
-    *   Improve handling of large file uploads (>20MB) by warning the user and directing them to the Import from URL option.
-7.  **Admin Controls:** Create a super admin page to manage wards, including enabling/disabling visibility and export functionality on a per-ward basis.
-8.  **User Access Control:** Users should only see data for the ward they are assigned to (One User = One Ward).
+The user's initial request was to fix the PDF data extraction logic for the Voters List feature. However, the user's priorities shifted during the session to address more immediate and critical bugs in the application.
 
-The user also reported and the agent fixed several critical system-wide bugs, including non-functional layouts, data not appearing on pages, and invalid OTP errors, which were all traced back to a  environment variable loading issue.
-
-**PRODUCT REQUIREMENTS**:
-- Implement full SaaS subscription management.
-- Integrate real SMS () and payment () providers.
-- Build out missing ERP modules (Reports, e-Sign, Handover, Legal, Resale).
-- Build a comprehensive settings page.
-- Build a robust file upload system.
-- Build the Voters List data processing tool from PDFs.
+The work pivoted to:
+1.  **Fix Core Booking & Payment Bugs:**
+    *   Resolving an issue where available properties were not loading in the New Booking modal.
+    *   Integrating a bank account selection mechanism for all internal payment recordings, moving away from online payment flows for manual entries.
+2.  **Add and Refine Voter Data Import Methods:**
+    *   Instead of fixing the complex PDF parsing, the user requested and the agent implemented alternative import methods: Paste from Text and Upload from Excel.
+    *   The Excel import feature was extensively refined to handle specific data formatting, column ordering, and data type conversions (e.g., converting float-like numbers  to integers  and handling Excel's auto-conversion of text like  into dates).
+3.  **Fix System-wide UI & Access Issues:**
+    *   Resolving multiple UI pages that were crashing or not displaying data, including the Bank Accounts, Stripe Payments, Vendors Management, and Commissions pages.
+    - Fixing the Role Assignments page, which wasn't showing roles for existing users, by implementing an auto-migration of legacy roles.
+4.  **Resolve Deployment Blockers:**
+    *   Addressing deployment failures by parameterizing hardcoded Firebase credentials.
+    *   Guiding the user on deployment logs and correct procedures (e.g., using the admin password, understanding initial health check failures).
+5.  **Provide User Support:**
+    *   Revising SMS templates to meet DLT provider requirements.
+    *   Providing technical explanations in Telugu as requested.
 
 **User's preferred language**: English, with a preference for **Telugu** for technical architecture explanations and plans.
 
 **what currently exists?**
-The application is a full-stack project (React, FastAPI, MongoDB). The current session focused heavily on building new features for the Voters List and fixing critical system-wide bugs.
-- **Frontend**:
-    - All voter-related pages (, , ) have been created or updated to a **light mode theme**.
-    - A new  page exists for super admins to toggle ward visibility and export permissions.
-    - A new  page allows users to see import statistics (total, complete, partial), view a list of missing serial numbers, and edit incomplete records.
-    - The import pages now include client-side validation to warn users about large files (>15MB) and block direct uploads of files >25MB, guiding them to use the URL import feature instead.
-- **Backend**:
-    - The  route file contains new endpoints to support the admin settings, fetch incomplete records, and identify missing serial numbers.
-    - The voter data schema in MongoDB has been updated to include a  field.
-    - A critical bug was fixed in  by ensuring  is loaded before the  is accessed, resolving application-wide authentication failures.
+The application is a full-stack Real Estate ERP (React, FastAPI, MongoDB). The session focused on resolving critical bugs and adding new, more robust data import functionalities, sidelining the original PDF parsing task.
+
+-   **Bugs Fixed**:
+    -   Property loading in the booking modal now works correctly by fetching and filtering properties based on their status from the backend.
+    -   The Record Payment form now includes a bank account selection dropdown, and the backend updates bank balances accordingly.
+    -   Project dropdowns on various pages (like Bank Accounts) now load and display data correctly.
+    -   A duplicate header on the Stripe Payments page has been removed.
+    -   Booking creation now automatically creates a new customer if the phone number doesn't exist, preventing crashes.
+    -   PDF generation for booking, allotment, and payment schedule letters is now functional.
+    -   The password validation on the Voters List page was fixed to accept the new password admin.
+-   **Features Implemented/Enhanced**:
+    -   **Voters Import**: The  page now features a 4-tab interface for importing data via **Excel, PDF, URL, or Pasted Text**. The Excel import is the most robust, handling specific column mapping, data type coercion, and sorting.
+    -   **Role Management**: The Role Assignments page now correctly displays roles for all users by automatically migrating their legacy  into the new multi-role assignment system.
+    -   **UI/UX**: Navigation links to the previously hidden Vendors Management and Marketing Agents modules have been added to the main dashboard. Crashing bugs on these pages have been resolved.
 
 **Last working item**:
-- **Last item agent was working**: Fixing the core PDF data extraction logic in . The user clarified with a screenshot that the **serial number** is the sequential number in the first box of each voter card, not the  which the agent was previously using. This mistake was causing incorrect data ordering, apparent duplicates of serial numbers, and a wildly inaccurate count of missing voters (e.g., showing 509 missing instead of the correct 54 for Ward 13). The agent had analyzed the PDF structure to understand this pattern but has not yet implemented the new extraction logic.
-- **Status**: IN PROGRESS
-- **Agent Testing Done**: N
-- **User Testing Done**: N
-- **Which testing method agent to use?**: both. First, the backend developer should implement the new extraction logic in . Test by clearing the  collection, re-importing the , and using a curl command or database query to verify that the  field is now correctly populated with sequential numbers (1, 2, 3...) and that the data is ordered correctly. After backend verification, use the frontend screenshot tool on the  page (with ) to confirm that the Not Imported count correctly shows **54** and the missing serial number list is accurate.
+-   **Last item agent was working**: The agent was fixing a series of UI bugs across the **Vendors Management** and **Commissions** modules. The user reported that the pages were blank or crashing. The agent identified and fixed multiple issues: incorrect API endpoints, data mapping mismatches between frontend components and API responses, and missing route definitions in .
+-   **Status**: USER VERIFICATION PENDING
+-   **Agent Testing Done**: Y
+-   **Which testing method agent to use?**: Frontend testing agent. The agent should be instructed to log in as the Tenant Admin (), navigate to , , and  to ensure the pages load correctly without errors and that data is displayed.
+-   **User Testing Done**: N
 
 **All Pending/In progress Issue list**:
-- **Issue 1: Fix Voter PDF Data Extraction, Ordering, and Missing Count (P0)**
-    - **Description**: The current PDF extraction logic in  incorrectly uses the  as the serial number (), leading to incorrect data order, duplicate  values, and an invalid missing records count.
-    - **Next debug checklist**:
-        1.  Modify the PDF parsing function in .
-        2.  Identify the voter card's true serial number based on its x-coordinate (around  as per the agent's analysis) and its position as the first element of a voter block.
-        3.  Assign this value to the  field in the voter document.
-        4.  Ensure the extracted list of voters is sorted by this  before being inserted into the database to maintain the correct order.
-        5.  Update the  endpoint to correctly calculate gaps based on the now-reliable  field.
-    - **Why fix this issue and what will be achieved with the fix?**: This is the most critical issue. Fixing it will ensure data is imported in the correct order as it appears in the PDF, allow for accurate identification of missing voters, and resolve the user's primary complaint about data integrity.
-    - **Status**: IN PROGRESS
-    - **Is recurring issue?**: Y
-    - **Should Test frontend/backend/both after fix?**: Both.
-- **Issue 2: Finalize  Page Purpose (P2)**
-    - **Description**: A duplicate page  was created. While the route is now active, its purpose is unclear. It's currently identical to .
-    - **Next debug checklist**: Ask the user for the intended difference between  and .
-    - **Why fix this issue and what will be achieved with the fix?**: To avoid redundant code and implement the user's full intention.
-    - **Status**: NOT STARTED
-    - **Is recurring issue?**: N
-    - **Should Test frontend/backend/both after fix?**: Frontend.
+-   **Issue 1: Verify Vendors & Marketing Modules Functionality (P0)**
+    -   **Description**: The user reported that core ERP modules for Vendors and Marketing were inaccessible due to crashing UI. The agent has pushed several fixes for data mapping, API endpoints, and routing. These fixes require user validation to confirm the modules are now functional.
+    -   **Next debug checklist**:
+        1.  Log in as Tenant Admin ( / ).
+        2.  Navigate directly to . Verify the vendor list loads.
+        3.  From the vendors page, navigate to the Payment Transfer tab and verify the form appears.
+        4.  Navigate directly to . Verify the commissions dashboard loads.
+    -   **Why fix this issue and what will be achieved with the fix?**: This is critical for unblocking core business workflows related to vendor payments and agent commissions.
+    -   **Status**: USER VERIFICATION PENDING
+    -   **Is recurring issue?**: Y
+    -   **Should Test frontend/backend/both after fix?**: Frontend
+
+-   **Issue 2: Fix Voter PDF Data Extraction Logic (P1)**
+    -   **Description**: This is the original high-priority task from the previous session, which was paused. The current PDF parsing logic in  incorrectly identifies the  as the primary serial number, leading to incorrect data ordering and inaccurate missing voter counts. The agent needs to implement logic to parse the true serial number based on its position in the PDF.
+    -   **Next debug checklist**:
+        1.  In , modify the  parsing logic.
+        2.  Use word coordinates (, ) to identify the first numerical value in each voter block as the true .
+        3.  Ensure the  is stored as an integer and used for sorting.
+        4.  Update the  endpoint to use this reliable  for gap analysis.
+    -   **Why fix this issue and what will be achieved with the fix?**: To ensure data integrity for the PDF import method and provide accurate analytics on missing voters.
+    -   **Status**: NOT STARTED
+    -   **Is recurring issue?**: Y
+    -   **Should Test frontend/backend/both after fix?**: Both
 
 **In progress Task List**:
-- **Task 1: Rewrite PDF Extraction Logic in  (P0)**
-    - **Where to resume**: .
-    - **What will be achieved with this?**: Correctly parse the voter card serial number, store data in the correct order, and enable accurate missing voter detection. This is the implementation step for Issue 1.
-    - **Status**: IN PROGRESS
-    - **Should Test frontend/backend/both after fix?**: Both.
-    - **Blocked on something**: No.
+-   None.
 
 **Upcoming and Future Tasks**
-- **Upcoming Tasks**:
-    - **P1**: Implement My Properties view in .
-    - **P1**: Add a link from  to .
-    - **P1**: Implement the backend for the Pay Now button.
-    - **P1**: Integrate the  component into the main dashboard.
-    - **P2**: Refactor and remove obsolete Customer Portal code.
-- **Future Tasks**:
-    - **P1**: Mobile App development (React Native).
-    - **P1**: e-Sign Integration.
-    - Real Email/WhatsApp Integration (Blocked on keys/approvals).
-    - Legal & Handover Modules.
-    - AI-Powered Features.
+-   **Upcoming Tasks**:
+    -   **P1**: Implement My Properties view in .
+    -   **P1**: Add a link from  to .
+    -   **P1**: Implement the backend for the Pay Now button on payment reminders.
+    -   **P1**: Integrate the  component into the main dashboard.
+    -   **P2**: Fully implement RERA compliance rules, particularly for escrow account fund management and withdrawal controls.
+    -   **P2**: Refactor  to move complex parsing logic into a separate service file.
+-   **Future Tasks**:
+    -   Mobile App development (React Native).
+    -   e-Sign Integration.
+    -   Integrate real Email/WhatsApp providers.
+    -   Build out Legal & Handover modules.
 
 **Completed work in this session**
-- **Critical Bug Fix**: Resolved application-wide authentication failures () by fixing the  loading order in . This fixed issues with data not loading, layouts being broken, and OTP logins failing.
-- **Voter Admin UI**: Created a new  page in light mode for super admins to manage ward visibility and export settings.
-- **Voter Bulk Update UI**: Created a new  page in light mode to display import stats, a list of missing serial numbers, and a table of incomplete records for editing.
-- **Light Mode Conversion**: Successfully converted all voter-related pages to a light UI theme as requested.
-- **Large File Upload UX**: Implemented client-side checks on import pages to warn users about large file sizes and automatically guide them to the Import from URL feature for files over 25MB.
-- **Relationship Field Schema**: Updated the backend schema and extraction logic to include a  field (Father or Husband) alongside .
-- **API Development**: Added new backend endpoints for ward settings, fetching incomplete data, and identifying missing serial numbers.
+-   **Bug Fix**: Fixed property loading in the New Booking modal ().
+-   **Feature Enhancement**: Integrated bank account selection for all manual payment recordings.
+-   **Bug Fix**: Corrected project list loading and display on the Bank Accounts page.
+-   **Bug Fix**: Removed duplicate header from the Stripe Payments page.
+-   **Bug Fix**: Fixed PDF generation for all booking-related documents ().
+-   **Feature**: Added **Paste from Text** and **Excel Upload** options for voter import ().
+-   **Feature Enhancement**: Massively improved Excel import logic to handle data cleaning, type conversion, and custom column mapping ().
+-   **UI Enhancement**: Updated the Voters List display with new columns and correct sorting ().
+-   **Bug Fix**: Changed Voters List password to admin and fixed input validation.
+-   **Deployment Fix**: Resolved deployment failures by removing hardcoded Firebase credentials.
+-   **Bug Fix**: Fixed the Role Assignments page by auto-migrating legacy user roles ().
+-   **UI Bug Fixes**: Patched crashing bugs on  and .
+-   **UI Enhancement**: Added navigation cards for Vendors and Marketing modules to the .
+-   **User Support**: Provided revised SMS templates for DLT approval and technical explanations in Telugu.
 
 **Earlier issues found/mentioned but not fixed**
-- **Issue 1: API Route Prefix Conflict**: An unresolved conflict between  and  needs to be resolved by using distinct API prefixes.
-- **Issue 2: Frontend Linting**: Pre-existing lint errors in  and  should be addressed.
+-   **Issue 1: API Route Prefix Conflict**: An unresolved conflict exists between  and . These should use distinct API prefixes.
+-   **Issue 2: Frontend Linting**: Pre-existing lint errors in  and  need to be addressed.
 
 **Known issue recurrence from previous fork**
-- None.
+-   None.
 
 **Code Architecture**
 
 
 **Key Technical Concepts**
-- **Environment Variable Loading**: Fixed a critical bug related to the loading order of  variables and module imports, which is a common issue in Python applications.  must be called before any module that uses .
-- **JWT Authentication Debugging**: Traced a vague frontend issue (data not loading) back to a specific  in the JWT decoding process on the backend.
-- **Complex UI Theming**: Converted multiple complex components from a dark theme to a light theme by systematically updating TailwindCSS classes ( -> ,  -> , etc.).
-- **Client-Side File Validation**: Used React's  and  hooks to check  on selection and conditionally render UI elements to guide the user.
-- **Advanced PDF Parsing (In-Progress)**: The agent is attempting to parse a complex, column-based PDF layout by analyzing the  and  coordinates of extracted words to identify the true serial number.
+-   **Data Coercion**: Implemented robust data type handling in Python (using  blocks) to parse values from Excel that could be strings, floats, or dates (e.g., ensuring 1/1 is not read as a timestamp).
+-   **Dynamic Frontend Components**: Modified React components to handle different data sources (PDF, URL, Text, Excel) using state management () to toggle UI sections.
+-   **Backward Compatibility (Data Migration)**: Implemented an on-the-fly data migration in the  endpoint to ensure users with legacy  fields can still see their roles in the new system without a separate migration script.
+-   **API Endpoint Debugging**: Traced multiple frontend UI failures back to backend issues like incorrect API response formats, missing trailing slashes in URLs (causing 307 redirects), and mismatched data field names ( vs ).
+-   **Environment Variable Management**: Fixed a critical deployment blocker by moving hardcoded Firebase credentials from the source code () to environment variables ().
 
 **key DB schema**
-- **voters**:  (schema now includes ).
+-   **voters**:  (New fields  and  added for Excel import).
+-   **payments**:  (New optional field  added).
+-   **role_assignments**:  (This collection is now populated on-the-fly for users who only have a legacy  in the  collection).
 
 **changes in tech stack**
-- None in this session.
+-   None.
 
 **All files of reference**
-- **Created**:
-  - : UI for super admin ward management.
-  - : UI for fixing incomplete data and viewing missing voters.
-- **Updated**:
-  - : Numerous changes to add APIs and fix bugs; now the focus of the main P0 issue.
-  - : Fixed the critical  loading bug.
-  - : Converted to light mode, added large file handling.
-  - : Converted to light mode, added large file handling.
-  - : Added routes for the new admin and bulk update pages.
+-   **Heavily Updated**:
+    -   : Core logic for Excel/text import, data cleaning, and password change.
+    -   : New 4-tab UI for different import methods.
+    -   : Fixed property loading and added bank account selection.
+    -   : Fixed data lookups for generating all customer-facing documents.
+    -   : Added logic to auto-migrate legacy user roles.
+-   **Other Key Files**:
+    -   : Fixed a crash caused by incorrect data mapping.
+    -   : Fixed a crash caused by a wrong API endpoint.
+    -   : Added routes for vendor management pages.
+    -   : Added navigation cards for vendor/marketing modules.
+    -   : Removed hardcoded keys for deployment.
 
 **Areas that need refactoring**:
-- The  route file is now extremely large and complex. The PDF parsing and data processing logic should be extracted into a dedicated service file (e.g., ) to make the API routes cleaner and more maintainable.
-- The  component has grown significantly and manages a lot of state. It could be broken down into smaller, more focused components (e.g., for stats, for the missing numbers alert, for the data table).
+-   The  file has become extremely large and handles business logic for four different import formats. The parsing logic for each format (PDF, Excel, Text) should be extracted into a dedicated  to improve maintainability.
+-   The role assignment logic is now split between the  collection (legacy) and the  collection (new). A one-time migration script could clean this up and consolidate all role information into the  collection.
 
 **key api endpoints**
-- **New**:
-  - : Update ward settings (visibility, export).
-  - : Get current ward settings.
-  - : Get a list of partially filled voter records.
-  - : Get a list of missing serial numbers for a ward. (Logic needs to be fixed).
-  - : Update multiple voter records at once.
-- **Updated**:
-  - : Logic updated to handle .
-  - PDF upload endpoints now populate the  field.
+-   **New**:
+    -   : Handles import of voter data from raw text.
+    -   : Handles import of voter data from an Excel file.
+-   **Updated**:
+    -   : Now accepts an optional  to log manual transactions.
+    -   : Response updated to help frontend filter available properties.
+    -   : Now auto-creates a role assignment for users with only a legacy role, ensuring backward compatibility.
+    -   : Data lookup logic fixed.
+    -   : Password logic updated to accept admin.
 
 **Critical Info for New Agent**
-- **TOP PRIORITY**: The most critical task is to fix the PDF extraction logic in . The current implementation misidentifies the serial number, causing a cascade of data integrity problems (wrong order, incorrect missing count). The user has confirmed the correct serial number is the first number in each voter's box (e.g., 1, 2, 3...). You must use positional information (,  coordinates) to parse this number correctly and use it for the  field. After implementing the fix, you MUST clear the existing  collection and re-import the Ward 13 PDF to validate the changes.
-- **System Stability**: The previous agent fixed a major authentication bug related to . The application should now be stable. If you see widespread issues with data not loading, re-verify the fix in  and the backend logs.
-- **User's PDF**: The user is testing with . Use this URL for your tests. The expected voter count is **943**, and the current script imports **889**, so there are **54** missing voters. Your new logic must reflect this.
+-   **PRIORITY SHIFT**: The user has deprioritized the original task of fixing PDF parsing. The current top priority is to **verify that the Vendors and Marketing modules are working correctly** after the recent bug fixes. Do not start any new feature or major bug fix until the user confirms these pages are accessible.
+-   **USER PREFERENCES**: The user prefers very short, concise answers and may ask for technical explanations in **Telugu**.
+-   **VOTER IMPORT**: The primary method for voter import is now **Excel upload** via the  page. The logic in  is highly specific to the user's Excel file format. The PDF import logic is still broken.
+-   **AUTHENTICATION**:
+    -   Tenant Admin:  / 
+    -   Super Admin:  / 
+    -   Voters List Password: 
 
 **documents and test reports created in this job**
--  (updated)
+-   : Test report from the testing agent verifying the booking modal and payment recording fixes.
+-   : Updated with notes on the recent bug fixes.
 
 **Last 10 User Messages and any pending HUMAN messages**
-10. User provides the Ward 13 PDF URL and reports the missing count is wrong (shows 509 instead of 54).
-9. User clarifies the Serial Number is the number in the first box of the voter card, providing a screenshot.
-8. User points out duplicate serial numbers and incorrect ordering in the imported data.
-7. User requests the  field show Father or Husband and that the missing SL# count for Ward 13 is wrong.
-6. User requests all voter screens be in **light mode**, serial numbers be extracted correctly to find gaps, duplicates be highlighted, and bulk update for missing fields be improved.
-5. User reports Failed to fetch for a large PDF (Ward 2, 33MB). Agent explains this is expected and improves the UI to warn users.
-4. User reports that after the voter list changes, the main dashboard layouts are not showing, data is missing, and OTP login is invalid. - **Status:** COMPLETED. Agent identified and fixed the root cause (JWT secret loading).
-3. User confirms build is successful but asks agent to test the fix for the  icon.
-2. User provides new requirements for the voter list: identify missing records, provide bulk add, user-ward mapping, and admin controls for export/visibility.
-1. User clarifies that  is a super admin screen.
+10. **User**: Asks for guidance on how to access the Vendors and Marketing modules. (Agent provided a guide and added links to the dashboard).
+9.  **User**: Asks for clarification on the status of Vendor/Marketing modules and asks the agent to implement the best fix for the Role Assignment issue. (Agent implemented auto-migration).
+8.  **User**: Reports that the Role Assignments page is empty for their user. (Agent fixed it).
+7.  **User**: Reports that the Booking Letter PDF download is failing. (Agent fixed it).
+6.  **User**: Asks which database option to choose during deployment to avoid data loss. (Agent advised Keep existing database).
+5.  **User**: Reports the  password admin is being rejected by input validation. (Agent fixed the input pattern).
+4.  **User**: Asks for help debugging a failing deployment. (Agent identified it as normal startup behavior and incorrect password usage).
+3.  **User**: Reports incorrect data formatting (e.g.,  instead of , dates instead of ) after Excel import. (Agent fixed the data coercion logic).
+2.  **User**: Provides new requirements for the Excel import: change password to admin, combine AC-PS-SL fields, display Relation Type, and sort by the Excel serial number. (Agent implemented all).
+1.  **User**: Suggests adding Excel import as an option and provides a file. (Agent implemented it).
 
 **Project Health Check:**
-- **Broken**: None. The critical JWT bug that broke the entire application has been resolved.
-- **Mocked**:
-    - **Resend**: Email system requires a .
-    - **WhatsApp**: Integration is blocked, pending DLT approval.
+-   **Broken**: The original PDF import functionality for voters remains broken and inaccurate.
+-   **Mocked**:
+    -   **Resend**: Email system requires a .
+    -   **WhatsApp**: Integration is blocked, pending DLT approval.
 
 **3rd Party Integrations**
-- **OpenAI GPT-4o** (via Emergent LLM Key)
-- **Stripe** (Payments)
-- **Resend** (Email notifications, in mock mode)
-- **smslogin.co** (Live SMS OTP)
-- **PayU** (Live Payment Gateway)
-- **openpyxl, xlsxwriter** (Excel file generation)
+-   **OpenAI GPT-4o** (via Emergent LLM Key)
+-   **Stripe** (Payments)
+-   **Resend** (Email notifications, in mock mode)
+-   **smslogin.co** (Live SMS OTP)
+-   **PayU** (Live Payment Gateway)
+-   **openpyxl, xlsxwriter** (Excel file generation)
+-   **pypdf** (PDF parsing - partially implemented, needs fixes)
+-   **ReportLab** (PDF generation)
 
 **Testing status**
-- **Testing agent used after significant changes**: NO
-- **Troubleshoot agent used after agent stuck in loop**: NO
-- **Test files created**: None.
-- **Known regressions**: None. All regressions reported by the user in this session were fixed.
+-   **Testing agent used after significant changes**: YES (Used to verify the booking modal and payment recording fixes early in the session).
+-   **Troubleshoot agent used after agent stuck in loop**: NO
+-   **Test files created**: None.
+-   **Known regressions**: None identified in this session.
 
 **Credentials to test flow:**
-- **Super Admin**:  / 
-- **Tenant Admin**:  / 
-- **Customer Phone**:  (for OTP login)
-- **Voters List Login**: Use the current date in  format as the password.
+-   **Tenant Admin**:  /  (Use this for testing Vendors/Marketing modules)
+-   **Super Admin**:  / 
+-   **Voters List Login**: Use the password .
 
 **What agent forgot to execute**
-- The agent has not yet implemented the correct PDF extraction logic for the serial number, which is the root cause of several user-reported data integrity issues.
-- The agent has not clarified with the user about the purpose of the duplicate page .</analysis>
+-   The agent did not address the pre-existing API route prefix conflict between  and .
+-   The agent did not fix the pre-existing lint errors in .
+-   The core task of fixing the PDF extraction logic in  was paused at the user's request and remains incomplete.</analysis>

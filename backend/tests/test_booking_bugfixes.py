@@ -6,7 +6,7 @@ Test cases for RealApex Booking Bug Fixes:
 import pytest
 import requests
 
-BASE_URL = "https://realestate-mgmt-9.preview.emergentagent.com"
+BASE_URL = "https://prop-booking-1.preview.emergentagent.com"
 
 # Test credentials
 TEST_EMAIL = "rajam@retoerp.com"
