@@ -404,3 +404,193 @@ async def get_payment_schedules(booking_id: str, request: Request):
         deserialize_doc(schedule)
     
     return [PaymentSchedule(**s) for s in schedules]
+
+
+# ==================== PAY NOW FEATURE ====================
+from pydantic import BaseModel
+
+class PayNowRequest(BaseModel):
+    """Request model for Pay Now feature"""
+    schedule_id: str
+    origin_url: str
+    payment_method: str = "stripe"  # stripe, payu, razorpay
+
+class PayNowResponse(BaseModel):
+    """Response model for Pay Now"""
+    success: bool
+    checkout_url: Optional[str] = None
+    session_id: Optional[str] = None
+    transaction_id: Optional[str] = None
+    message: str = ""
+
+@router.post("/pay-now", response_model=PayNowResponse)
+async def initiate_pay_now(pay_request: PayNowRequest, request: Request):
+    """
+    Initiate online payment for a payment schedule item.
+    Creates a Stripe checkout session for the customer to pay.
+    """
+    from emergentintegrations.payments.stripe.checkout import (
+        StripeCheckout, 
+        CheckoutSessionRequest
+    )
+    import os
+    
+    db = get_db(request)
+    
+    # Get the payment schedule
+    schedule = await db.payment_schedules.find_one({
+        'id': pay_request.schedule_id
+    }, {"_id": 0})
+    
+    if not schedule:
+        raise HTTPException(status_code=404, detail="Payment schedule not found")
+    
+    # Check if already paid
+    if schedule.get('status') == 'paid':
+        raise HTTPException(status_code=400, detail="This installment has already been paid")
+    
+    # Get booking details
+    booking = await db.bookings.find_one({
+        'id': schedule.get('booking_id')
+    }, {"_id": 0})
+    
+    if not booking:
+        raise HTTPException(status_code=404, detail="Booking not found")
+    
+    # Get customer details
+    customer = await db.customers.find_one({
+        'id': booking.get('customer_id')
+    }, {"_id": 0})
+    
+    if not customer:
+        raise HTTPException(status_code=404, detail="Customer not found")
+    
+    # Get property details
+    property_doc = await db.properties.find_one({
+        'id': booking.get('property_id')
+    }, {"_id": 0})
+    
+    property_number = property_doc.get('property_number', 'Property') if property_doc else 'Property'
+    
+    # Calculate amount to pay
+    remaining_amount = schedule.get('remaining_amount') or schedule.get('due_amount', 0)
+    
+    if remaining_amount <= 0:
+        raise HTTPException(status_code=400, detail="No amount pending for this installment")
+    
+    # Generate transaction ID
+    transaction_id = f"txn_{uuid.uuid4().hex[:16]}"
+    
+    # Build URLs
+    success_url = f"{pay_request.origin_url}/payment-success?session_id={{CHECKOUT_SESSION_ID}}&schedule_id={pay_request.schedule_id}"
+    cancel_url = f"{pay_request.origin_url}/payment-cancelled"
+    
+    # Get Stripe API key
+    api_key = os.environ.get('STRIPE_API_KEY')
+    
+    if not api_key:
+        raise HTTPException(status_code=500, detail="Payment gateway not configured")
+    
+    try:
+        # Initialize Stripe checkout
+        host_url = str(request.base_url)
+        webhook_url = f"{host_url}api/webhook/stripe"
+        stripe_checkout = StripeCheckout(api_key=api_key, webhook_url=webhook_url)
+        
+        # Prepare metadata
+        metadata = {
+            "transaction_id": transaction_id,
+            "schedule_id": pay_request.schedule_id,
+            "booking_id": schedule.get('booking_id'),
+            "property_id": booking.get('property_id'),
+            "customer_id": booking.get('customer_id'),
+            "installment_number": str(schedule.get('installment_number', 0)),
+            "payment_type": "emi_payment"
+        }
+        
+        # Create checkout session
+        checkout_request = CheckoutSessionRequest(
+            amount=remaining_amount,
+            currency="inr",
+            success_url=success_url,
+            cancel_url=cancel_url,
+            metadata=metadata
+        )
+        
+        session = await stripe_checkout.create_checkout_session(checkout_request)
+        
+        # Create pending payment transaction record
+        payment_record = {
+            "id": transaction_id,
+            "stripe_session_id": session.session_id,
+            "schedule_id": pay_request.schedule_id,
+            "booking_id": schedule.get('booking_id'),
+            "tenant_id": schedule.get('tenant_id'),
+            "project_id": schedule.get('project_id'),
+            "property_id": booking.get('property_id'),
+            "customer_id": booking.get('customer_id'),
+            "amount": remaining_amount,
+            "currency": "INR",
+            "status": "pending",
+            "payment_method": "stripe",
+            "installment_number": schedule.get('installment_number'),
+            "description": f"EMI Payment #{schedule.get('installment_number', 0)} for {property_number}",
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "deleted_at": None
+        }
+        
+        await db.payment_transactions.insert_one(payment_record)
+        
+        # Update schedule to mark as processing
+        await db.payment_schedules.update_one(
+            {'id': pay_request.schedule_id},
+            {'$set': {
+                'payment_initiated': True,
+                'pending_transaction_id': transaction_id,
+                'updated_at': datetime.now(timezone.utc).isoformat()
+            }}
+        )
+        
+        return PayNowResponse(
+            success=True,
+            checkout_url=session.checkout_url,
+            session_id=session.session_id,
+            transaction_id=transaction_id,
+            message="Payment session created successfully"
+        )
+        
+    except Exception as e:
+        print(f"Pay Now error: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to create payment session: {str(e)}")
+
+
+@router.get("/schedule/{schedule_id}/pay-status")
+async def get_pay_status(schedule_id: str, request: Request):
+    """
+    Get payment status for a specific schedule.
+    Useful to check if payment was successful after redirect.
+    """
+    db = get_db(request)
+    
+    schedule = await db.payment_schedules.find_one({
+        'id': schedule_id
+    }, {"_id": 0})
+    
+    if not schedule:
+        raise HTTPException(status_code=404, detail="Payment schedule not found")
+    
+    # Check for any pending transactions
+    pending_txn = await db.payment_transactions.find_one({
+        'schedule_id': schedule_id,
+        'status': {'$in': ['pending', 'processing']}
+    }, {"_id": 0})
+    
+    return {
+        "schedule_id": schedule_id,
+        "status": schedule.get('status', 'pending'),
+        "due_amount": schedule.get('due_amount', 0),
+        "paid_amount": schedule.get('paid_amount', 0),
+        "remaining_amount": schedule.get('remaining_amount', schedule.get('due_amount', 0)),
+        "has_pending_payment": pending_txn is not None,
+        "pending_transaction_id": pending_txn.get('id') if pending_txn else None
+    }
