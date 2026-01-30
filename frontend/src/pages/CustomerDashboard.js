@@ -808,89 +808,202 @@ const CustomerDashboard = () => {
           </Card>
         </TabsContent>
 
-        {/* Properties Tab */}
+        {/* Properties Tab - Enhanced "My Properties" View */}
         <TabsContent value="properties">
           <Card className="glass-card">
             <CardHeader>
-              <CardTitle className="text-ocean-primary">My Properties ({properties.length})</CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2 text-ocean-primary">
+                  <Building className="w-5 h-5" />
+                  My Properties ({properties.length})
+                </CardTitle>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={loadAllData}
+                  className="text-ocean-primary border-ocean-primary/30 hover:bg-ocean-primary/10"
+                >
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Refresh
+                </Button>
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {properties.map((property) => (
-                  <Card key={property.id} className="border">
-                    <CardContent className="pt-6">
-                      <div className="mb-4">
-                        <div className="bg-gray-200 h-32 rounded flex items-center justify-center">
-                          <Home className="h-12 w-12 text-gray-400" />
-                        </div>
-                      </div>
-                      <h3 className="font-semibold text-lg">{property.property_number}</h3>
-                      <p className="text-sm text-gray-600">{property.project?.name || 'N/A'}</p>
-                      <div className="mt-3 space-y-1">
-                        <p className="text-sm"><span className="text-gray-600">Area:</span> {property.area} {property.unit}</p>
-                        <p className="text-sm"><span className="text-gray-600">Price:</span> ₹{formatCurrency(property.price)}</p>
-                        <p className="text-sm"><span className="text-gray-600">Payment:</span> {property.payment_status}</p>
-                      </div>
-                      
-                      {/* PDF Download Buttons */}
-                      <div className="flex gap-2 mt-4">
-                        <Button 
-                          size="sm"
-                          variant="outline"
-                          className="flex-1 text-xs"
-                          onClick={() => window.open(`${API_URL}/api/pdf/allotment-letter/${property.id}`, '_blank')}
-                        >
-                          <FileText className="w-3 h-3 mr-1" />
-                          Allotment
-                        </Button>
-                        <Button 
-                          size="sm"
-                          variant="outline"
-                          className="flex-1 text-xs"
-                          onClick={() => window.open(`${API_URL}/api/pdf/payment-schedule/${property.id}`, '_blank')}
-                        >
-                          <Calendar className="w-3 h-3 mr-1" />
-                          Schedule
-                        </Button>
-                      </div>
-                      
-                      {!property.booking_id ? (
-                        <Button 
-                          className="w-full mt-2 bg-gray-100 text-gray-500 border-gray-300" 
-                          variant="outline"
-                          disabled
-                        >
-                          No Booking Record
-                        </Button>
-                      ) : propertyResaleStatus[property.id]?.hasRequest ? (
-                        <Button 
-                          className="w-full mt-2 bg-green-100 text-green-700 hover:bg-green-200 border-green-300" 
-                          variant="outline"
-                          disabled
-                        >
-                          ✓ Request Submitted ({propertyResaleStatus[property.id]?.status})
-                        </Button>
-                      ) : (
-                        <Button 
-                          className="w-full mt-2" 
-                          variant="outline"
-                          onClick={() => {
-                            console.log('Property selected for resale:', property);
-                            console.log('Booking ID:', property.booking_id);
-                            setSelectedProperty(property);
-                            setShowResaleDialog(true);
-                          }}
-                        >
-                          Request Resale
-                        </Button>
-                      )}
-                    </CardContent>
-                  </Card>
-                ))}
-                {properties.length === 0 && (
-                  <p className="text-gray-500 text-center py-8 col-span-3">No properties found</p>
-                )}
-              </div>
+              {properties.length === 0 ? (
+                <div className="text-center py-12">
+                  <Building className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+                  <h3 className="text-lg font-semibold text-gray-600 mb-2">No Properties Yet</h3>
+                  <p className="text-gray-500">Your booked properties will appear here once you make a booking.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {properties.map((property) => {
+                    // Calculate payment progress
+                    const totalAmount = property.booking?.total_amount || property.price || 0;
+                    const paidAmount = property.booking?.paid_amount || 0;
+                    const pendingAmount = totalAmount - paidAmount;
+                    const paymentProgress = totalAmount > 0 ? Math.round((paidAmount / totalAmount) * 100) : 0;
+                    
+                    return (
+                      <Card key={property.id} className="border-2 border-ocean-primary/10 hover:border-ocean-primary/30 transition-all hover:shadow-xl">
+                        <CardContent className="p-5">
+                          {/* Property Header with Image Placeholder */}
+                          <div className="mb-4 relative">
+                            <div className="bg-gradient-to-br from-ocean-primary/10 to-ocean-secondary/10 h-36 rounded-lg flex items-center justify-center">
+                              <Home className="h-16 w-16 text-ocean-primary/40" />
+                            </div>
+                            {/* Status Badge */}
+                            <Badge 
+                              className={`absolute top-2 right-2 ${
+                                property.payment_status === 'completed' || paymentProgress >= 100
+                                  ? 'bg-green-500' 
+                                  : paymentProgress > 50 
+                                  ? 'bg-blue-500' 
+                                  : 'bg-yellow-500'
+                              }`}
+                            >
+                              {property.payment_status === 'completed' || paymentProgress >= 100 ? 'Fully Paid' : `${paymentProgress}% Paid`}
+                            </Badge>
+                          </div>
+                          
+                          {/* Property Details */}
+                          <div className="space-y-3">
+                            <div>
+                              <h3 className="font-bold text-xl text-ocean-primary">{property.property_number}</h3>
+                              <p className="text-sm text-gray-600 flex items-center gap-1">
+                                <MapPin className="w-3 h-3" />
+                                {property.project?.name || 'N/A'}
+                              </p>
+                            </div>
+                            
+                            {/* Property Info Grid */}
+                            <div className="grid grid-cols-2 gap-3 py-3 border-y border-gray-100">
+                              <div className="text-center p-2 bg-gray-50 rounded">
+                                <p className="text-xs text-gray-500">Area</p>
+                                <p className="font-semibold text-sm">{property.area || '-'} {property.unit || 'sq.yard'}</p>
+                              </div>
+                              <div className="text-center p-2 bg-gray-50 rounded">
+                                <p className="text-xs text-gray-500">Facing</p>
+                                <p className="font-semibold text-sm">{property.facing || 'N/A'}</p>
+                              </div>
+                            </div>
+                            
+                            {/* Financial Summary */}
+                            <div className="space-y-2">
+                              <div className="flex justify-between items-center">
+                                <span className="text-sm text-gray-600">Total Value:</span>
+                                <span className="font-bold text-green-600">₹{(totalAmount || 0).toLocaleString('en-IN')}</span>
+                              </div>
+                              <div className="flex justify-between items-center">
+                                <span className="text-sm text-gray-600">Paid Amount:</span>
+                                <span className="font-semibold text-blue-600">₹{(paidAmount || 0).toLocaleString('en-IN')}</span>
+                              </div>
+                              {pendingAmount > 0 && (
+                                <div className="flex justify-between items-center">
+                                  <span className="text-sm text-gray-600">Pending:</span>
+                                  <span className="font-semibold text-orange-600">₹{pendingAmount.toLocaleString('en-IN')}</span>
+                                </div>
+                              )}
+                              
+                              {/* Payment Progress Bar */}
+                              <div className="pt-2">
+                                <div className="flex justify-between text-xs text-gray-500 mb-1">
+                                  <span>Payment Progress</span>
+                                  <span>{paymentProgress}%</span>
+                                </div>
+                                <Progress value={paymentProgress} className="h-2" />
+                              </div>
+                            </div>
+                            
+                            {/* Booking Date */}
+                            {property.booking?.booking_date && (
+                              <div className="flex items-center gap-2 text-xs text-gray-500 pt-2">
+                                <Clock className="w-3 h-3" />
+                                Booked on: {formatDate(property.booking.booking_date)}
+                              </div>
+                            )}
+                          </div>
+                          
+                          {/* Action Buttons */}
+                          <div className="mt-4 space-y-2">
+                            {/* PDF Download Buttons */}
+                            <div className="flex gap-2">
+                              <Button 
+                                size="sm"
+                                variant="outline"
+                                className="flex-1 text-xs border-ocean-primary/30 text-ocean-primary hover:bg-ocean-primary/10"
+                                onClick={() => window.open(`${API_URL}/api/pdf/allotment-letter/${property.id}`, '_blank')}
+                              >
+                                <FileText className="w-3 h-3 mr-1" />
+                                Allotment Letter
+                              </Button>
+                              <Button 
+                                size="sm"
+                                variant="outline"
+                                className="flex-1 text-xs border-ocean-secondary/30 text-ocean-secondary hover:bg-ocean-secondary/10"
+                                onClick={() => window.open(`${API_URL}/api/pdf/payment-schedule/${property.id}`, '_blank')}
+                              >
+                                <Calendar className="w-3 h-3 mr-1" />
+                                Schedule PDF
+                              </Button>
+                            </div>
+                            
+                            {/* View Payment Schedule Button */}
+                            {property.booking_id && (
+                              <Button 
+                                className="w-full bg-gradient-to-r from-ocean-primary to-ocean-secondary hover:opacity-90 text-white"
+                                size="sm"
+                                onClick={() => {
+                                  setActiveTab('schedules');
+                                  setFilterStatus('all');
+                                }}
+                              >
+                                <IndianRupee className="w-3 h-3 mr-1" />
+                                View Payment Schedule
+                              </Button>
+                            )}
+                            
+                            {/* Resale Request Button */}
+                            {!property.booking_id ? (
+                              <Button 
+                                className="w-full bg-gray-100 text-gray-500 border-gray-300" 
+                                variant="outline"
+                                size="sm"
+                                disabled
+                              >
+                                No Booking Record
+                              </Button>
+                            ) : propertyResaleStatus[property.id]?.hasRequest ? (
+                              <Button 
+                                className="w-full bg-green-50 text-green-700 border-green-200" 
+                                variant="outline"
+                                size="sm"
+                                disabled
+                              >
+                                <CheckCircle className="w-3 h-3 mr-1" />
+                                Resale Request: {propertyResaleStatus[property.id]?.status}
+                              </Button>
+                            ) : (
+                              <Button 
+                                className="w-full border-orange-300 text-orange-600 hover:bg-orange-50" 
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                  setSelectedProperty(property);
+                                  setShowResaleDialog(true);
+                                }}
+                              >
+                                <TrendingUp className="w-3 h-3 mr-1" />
+                                Request Resale
+                              </Button>
+                            )}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
