@@ -190,6 +190,10 @@ api_router.include_router(customer_portal.router)
 api_router.include_router(project_pricing.router)
 api_router.include_router(voters.router)
 api_router.include_router(payu.router)
+api_router.include_router(marketing_agents.router)
+api_router.include_router(push_notifications.router)
+api_router.include_router(push_notifications.whatsapp_router)
+api_router.include_router(calendar_integration.router)  # Re-enabled for Site Visit sync
 
 # PWA Install tracking
 @api_router.post("/analytics/pwa-install")
