@@ -494,6 +494,87 @@ Build a comprehensive Real Estate ERP (RealApex) SaaS platform for the Indian re
     - `frontend/src/pages/ProjectDetail.js` (Pricing Settings button)
     - `backend/routes/bookings.py` (pay-now, pay-status endpoints)
 
+- [x] **Marketing Agents Management System** (Completed Jan 30, 2026)
+  - **Full Agent Management**:
+    - Add/Edit/Disable/Delete marketing agents
+    - Track agent status (active/inactive/terminated)
+    - Store bank details (account, IFSC, UPI) for payments
+    - Commission rate configuration per agent
+  - **Commission Tracking**:
+    - Record sales attributed to agents
+    - Automatic commission calculation based on rate
+    - Track paid vs due amounts
+    - Project-wise sales breakdown
+  - **Payment Management**:
+    - Record commission payments with receipt numbers
+    - Payment modes: UPI, Cash, Bank Transfer, Cheque
+    - Bank account integration for fund deduction
+    - Payment history per agent
+  - **Dashboard Stats**:
+    - Total agents, active count
+    - Total commission earned/paid/due
+    - This month sales and commission
+  - **API Endpoints**:
+    - `GET /api/marketing-agents/` - List agents with stats
+    - `GET /api/marketing-agents/stats` - Overview statistics
+    - `POST /api/marketing-agents/` - Create agent
+    - `PUT /api/marketing-agents/{id}` - Update agent
+    - `DELETE /api/marketing-agents/{id}` - Soft delete
+    - `GET /api/marketing-agents/{id}/sales` - Agent's sales list
+    - `GET /api/marketing-agents/{id}/sales/by-project` - Project breakdown
+    - `GET /api/marketing-agents/{id}/payments` - Payment history
+    - `POST /api/marketing-agents/payments` - Record payment
+  - **Files Created/Updated**:
+    - `backend/routes/marketing_agents.py` (New - Complete CRUD + Commission APIs)
+    - `frontend/src/pages/MarketingAgentsManagement.js` (New - Full UI)
+    - `frontend/src/App.js` (Route added)
+    - `frontend/src/pages/Dashboard.js` (Link updated)
+
+- [x] **WhatsApp Auto-Reply System** (Completed Jan 30, 2026)
+  - **Auto-Reply Features**:
+    - Keyword-based intent detection (price, location, visit, availability, payment)
+    - Multi-language support (English, Telugu, Hindi)
+    - Business hours aware (10 AM - 6 PM IST)
+    - After-hours auto-response
+  - **Lead Capture**:
+    - Automatic lead creation from WhatsApp messages
+    - Intent tracking for analytics
+    - Phone number deduplication
+  - **Templates**:
+    - Welcome message, After hours, Price inquiry
+    - Site visit scheduling, Availability info
+    - Payment options, Lead captured confirmation
+  - **API Endpoints**:
+    - `POST /api/whatsapp/webhook` - Incoming message handler
+    - `GET /api/whatsapp/auto-reply/templates` - View templates
+    - `GET /api/whatsapp/messages` - Message history
+    - `GET /api/whatsapp/stats` - Messaging statistics
+  - **Files Created**:
+    - `backend/services/whatsapp_auto_reply.py` (Auto-reply logic)
+    - `backend/routes/push_notifications.py` (WhatsApp webhook routes)
+
+- [x] **Web Push Notification Service** (Completed Jan 30, 2026)
+  - **Push Subscription Management**:
+    - Save/remove browser push subscriptions
+    - Multi-device support per user
+    - Subscription expiry handling
+  - **Notification Features**:
+    - Send push with title, body, icon, actions
+    - SMS fallback when push fails
+    - Quiet hours configuration
+    - Notification preferences per user
+  - **API Endpoints**:
+    - `GET /api/push-notifications/vapid-public-key` - Get VAPID key
+    - `POST /api/push-notifications/subscribe` - Save subscription
+    - `POST /api/push-notifications/unsubscribe` - Remove subscription
+    - `GET /api/push-notifications/preferences` - Get user preferences
+    - `PUT /api/push-notifications/preferences` - Update preferences
+    - `POST /api/push-notifications/send` - Send notification (admin)
+    - `POST /api/push-notifications/test` - Test push
+  - **Files Created**:
+    - `backend/services/web_push_service.py` (Push + SMS fallback)
+    - `backend/routes/push_notifications.py` (Push notification routes)
+
 
 ### P4 - Future/Backlog
 - [x] Festival Greetings Automation - Backend cron job for Jan 26 & Aug 15 (Completed Jan 12, 2026)
