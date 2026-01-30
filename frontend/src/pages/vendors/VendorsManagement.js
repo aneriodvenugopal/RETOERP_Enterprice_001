@@ -128,6 +128,7 @@ const VendorsManagement = () => {
   };
 
   const getTypeLabel = (type) => {
+    if (!type) return 'Unknown';
     return type.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
   };
 
