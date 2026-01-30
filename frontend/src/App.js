@@ -178,6 +178,9 @@ import ProjectPricingSettings from "./pages/ProjectPricingSettings";
 import VotersList from "./pages/VotersList";
 import VotersImport from "./pages/VotersImport";
 import VotersListImport from "./pages/VotersListImport";
+
+// Marketing Agents Management
+import MarketingAgentsManagement from "./pages/MarketingAgentsManagement";
 import VotersAdmin from "./pages/VotersAdmin";
 import VotersBulkUpdate from "./pages/VotersBulkUpdate";
 
