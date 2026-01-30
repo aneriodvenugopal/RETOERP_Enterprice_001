@@ -473,6 +473,28 @@ Build a comprehensive Real Estate ERP (RealApex) SaaS platform for the Indian re
     - Validation message when no bank accounts configured
     - Files updated: `frontend/src/pages/Bookings.js`, `backend/routes/bookings.py`, `backend/models/payment.py`
 
+- [x] **Customer Dashboard Enhancements** (Completed Jan 30, 2026)
+  - **Enhanced "My Properties" View**: Complete redesign with better UX
+    - Property cards with gradient backgrounds and status badges
+    - Payment progress bars showing paid vs total amount
+    - Financial summary: Total Value, Paid Amount, Pending
+    - Property details grid: Area, Facing
+    - Quick actions: View Allotment Letter, Schedule PDF, View Payment Schedule
+    - Resale request status display
+  - **"Pay Now" Button Integration**: Online payment for EMI schedules
+    - New backend endpoint: `POST /api/bookings/pay-now`
+    - Creates Stripe checkout session for pending installments
+    - Shows Pay Now button on pending/overdue schedules
+    - Status check endpoint: `GET /api/bookings/schedule/{id}/pay-status`
+  - **Project Detail Link to Pricing**: Added "Pricing Settings" button
+    - Quick navigation from ProjectDetail to ProjectPricingSettings
+    - Green button with DollarSign icon next to Share Layout button
+  - Files updated:
+    - `frontend/src/pages/CustomerDashboard.js` (My Properties, Payment Schedule tabs)
+    - `frontend/src/pages/ProjectDetail.js` (Pricing Settings button)
+    - `backend/routes/bookings.py` (pay-now, pay-status endpoints)
+
+
 ### P4 - Future/Backlog
 - [x] Festival Greetings Automation - Backend cron job for Jan 26 & Aug 15 (Completed Jan 12, 2026)
 - [x] SaaS marketing pages - /saas landing page (Completed Jan 12, 2026)
