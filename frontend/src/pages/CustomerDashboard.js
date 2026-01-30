@@ -1052,22 +1052,99 @@ const CustomerDashboard = () => {
               <div className="space-y-3">
                 {paymentSchedules
                   .filter(s => filterStatus === 'all' || s.status === filterStatus)
-                  .map((schedule) => (
-                  <div key={schedule.id} className="flex justify-between items-center p-4 border rounded">
-                    <div className="flex-1">
-                      <p className="font-medium">₹{schedule.amount.toLocaleString()}</p>
-                      <p className="text-sm text-gray-600">{schedule.property_number || 'Property'}</p>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-sm font-medium">{schedule.due_date}</p>
-                      <Badge className="mt-1" variant={schedule.status === 'paid' ? 'success' : schedule.status === 'pending' ? 'secondary' : 'destructive'}>
-                        {schedule.status}
-                      </Badge>
-                    </div>
-                  </div>
-                ))}
+                  .map((schedule) => {
+                    const isPending = schedule.status === 'pending' || schedule.status === 'overdue';
+                    const remainingAmount = schedule.remaining_amount || schedule.amount || 0;
+                    
+                    return (
+                      <div key={schedule.id} className={`flex justify-between items-center p-4 border rounded-lg transition-all ${
+                        schedule.status === 'overdue' ? 'border-red-200 bg-red-50' : 
+                        schedule.status === 'paid' ? 'border-green-200 bg-green-50' : 
+                        'border-gray-200 hover:border-ocean-primary/30'
+                      }`}>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <p className="font-bold text-lg">₹{(schedule.amount || 0).toLocaleString('en-IN')}</p>
+                            {schedule.installment_number !== undefined && (
+                              <Badge variant="outline" className="text-xs">
+                                EMI #{schedule.installment_number}
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="text-sm text-gray-600">{schedule.property_number || 'Property'}</p>
+                          {schedule.paid_amount > 0 && schedule.status !== 'paid' && (
+                            <p className="text-xs text-green-600">
+                              Paid: ₹{schedule.paid_amount.toLocaleString('en-IN')} | 
+                              Remaining: ₹{remainingAmount.toLocaleString('en-IN')}
+                            </p>
+                          )}
+                        </div>
+                        <div className="text-center mr-4">
+                          <p className="text-sm font-medium">{formatDate(schedule.due_date)}</p>
+                          <Badge className={`mt-1 ${
+                            schedule.status === 'paid' ? 'bg-green-500' : 
+                            schedule.status === 'overdue' ? 'bg-red-500' : 
+                            'bg-yellow-500'
+                          }`}>
+                            {schedule.status}
+                          </Badge>
+                        </div>
+                        
+                        {/* Pay Now Button */}
+                        {isPending && remainingAmount > 0 && (
+                          <Button
+                            size="sm"
+                            className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white shadow-md"
+                            onClick={async () => {
+                              try {
+                                toast.loading('Creating payment session...', { id: 'pay-now' });
+                                const response = await fetch(`${API_URL}/api/bookings/pay-now`, {
+                                  method: 'POST',
+                                  headers: {
+                                    'Content-Type': 'application/json',
+                                    ...(isCustomerPortal ? portalHeaders : {
+                                      'Authorization': `Bearer ${localStorage.getItem('token')}`
+                                    })
+                                  },
+                                  body: JSON.stringify({
+                                    schedule_id: schedule.id,
+                                    origin_url: window.location.origin,
+                                    payment_method: 'stripe'
+                                  })
+                                });
+                                
+                                const data = await response.json();
+                                
+                                if (data.success && data.checkout_url) {
+                                  toast.success('Redirecting to payment...', { id: 'pay-now' });
+                                  window.location.href = data.checkout_url;
+                                } else {
+                                  toast.error(data.detail || 'Failed to create payment session', { id: 'pay-now' });
+                                }
+                              } catch (error) {
+                                console.error('Pay Now error:', error);
+                                toast.error('Failed to initiate payment. Please try again.', { id: 'pay-now' });
+                              }
+                            }}
+                          >
+                            <Banknote className="w-4 h-4 mr-1" />
+                            Pay Now
+                          </Button>
+                        )}
+                        
+                        {schedule.status === 'paid' && (
+                          <div className="flex items-center text-green-600">
+                            <CheckCircle className="w-5 h-5" />
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 {paymentSchedules.filter(s => filterStatus === 'all' || s.status === filterStatus).length === 0 && (
-                  <p className="text-gray-500 text-center py-8">No {filterStatus !== 'all' ? filterStatus : ''} payment schedules</p>
+                  <div className="text-center py-12">
+                    <Calendar className="w-12 h-12 mx-auto text-gray-300 mb-4" />
+                    <p className="text-gray-500">No {filterStatus !== 'all' ? filterStatus : ''} payment schedules found</p>
+                  </div>
                 )}
               </div>
             </CardContent>
