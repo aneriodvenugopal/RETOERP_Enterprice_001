@@ -248,22 +248,22 @@ const VendorsManagement = () => {
               <tr key={vendor.id} className="hover:bg-gray-50">
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-3">
-                    <span className="text-2xl">{getTypeIcon(vendor.vendor_type)}</span>
+                    <span className="text-2xl">{getTypeIcon(vendor.vendor_type || vendor.category)}</span>
                     <div>
-                      <p className="font-medium text-gray-900">{vendor.vendor_name}</p>
-                      <p className="text-sm text-gray-500">{vendor.vendor_code}</p>
+                      <p className="font-medium text-gray-900">{vendor.vendor_name || vendor.name}</p>
+                      <p className="text-sm text-gray-500">{vendor.vendor_code || vendor.company_name || '-'}</p>
                     </div>
                   </div>
                 </td>
                 <td className="px-6 py-4">
                   <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">
-                    {getTypeLabel(vendor.vendor_type)}
+                    {getTypeLabel(vendor.vendor_type || vendor.category)}
                   </span>
                 </td>
                 <td className="px-6 py-4">
                   <div className="text-sm">
                     <p className="flex items-center gap-1 text-gray-900">
-                      <Phone size={14} /> {vendor.phone}
+                      <Phone size={14} /> {vendor.phone || '-'}
                     </p>
                     {vendor.email && (
                       <p className="flex items-center gap-1 text-gray-500 mt-1">
@@ -273,7 +273,7 @@ const VendorsManagement = () => {
                   </div>
                 </td>
                 <td className="px-6 py-4">
-                  {vendor.status === 'active_vendor' ? (
+                  {(vendor.status === 'active_vendor' || vendor.status === 'active') ? (
                     <span className="px-3 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">
                       Active
                     </span>
