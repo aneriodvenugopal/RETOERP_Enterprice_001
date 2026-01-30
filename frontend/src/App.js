@@ -681,6 +681,14 @@ function App() {
                 }
               />
               <Route
+                path="/marketing-agents"
+                element={
+                  <PrivateRoute>
+                    <MarketingAgentsManagement />
+                  </PrivateRoute>
+                }
+              />
+              <Route
                 path="/schemes"
                 element={
                   <PrivateRoute>
