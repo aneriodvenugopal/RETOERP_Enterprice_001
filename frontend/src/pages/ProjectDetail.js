@@ -281,7 +281,14 @@ const ProjectDetail = () => {
               <Share2 className="w-4 h-4 mr-2" />
               Share Layout
             </Button>
-            {/* Add Property button removed - Properties are created through Layout Editor */}
+            <Button
+              onClick={() => navigate(`/projects/${projectId}/pricing`)}
+              variant="outline"
+              className="border-green-300 text-green-600 hover:bg-green-50"
+            >
+              <DollarSign className="w-4 h-4 mr-2" />
+              Pricing Settings
+            </Button>
         </div>
       </div>
 
