@@ -507,6 +507,22 @@ function App() {
                 }
               />
               <Route
+                path="/vendors/payment-transfer"
+                element={
+                  <PrivateRoute>
+                    <PaymentTransfer />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/vendors/bills"
+                element={
+                  <PrivateRoute>
+                    <VendorBills />
+                  </PrivateRoute>
+                }
+              />
+              <Route
                 path="/document-locker"
                 element={
                   <PrivateRoute>
