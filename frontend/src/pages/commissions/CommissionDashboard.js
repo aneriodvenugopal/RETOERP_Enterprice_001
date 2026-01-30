@@ -37,15 +37,17 @@ const CommissionDashboard = () => {
 
   const initializeComponent = async () => {
     try {
-      const userResponse = await apiInstance.get('/user/me');
+      const userResponse = await apiInstance.get('/auth/me');
       const user = userResponse.data;
       setCurrentUser(user);
       
       const currentTenantId = user.tenant_id || localStorage.getItem('tenant_id');
       setTenantId(currentTenantId);
       
-      const adminRoles = ['tenant_admin', 'super_admin'];
-      setIsAdmin(adminRoles.includes(user.role));
+      // Check role - handle both string and object formats
+      const userRole = typeof user.role === 'object' ? user.role?.slug : user.role;
+      const adminRoles = ['tenant_admin', 'super_admin', 'tenant-admin', 'super-admin'];
+      setIsAdmin(adminRoles.includes(userRole));
       
     } catch (error) {
       console.error('Error initializing:', error);
