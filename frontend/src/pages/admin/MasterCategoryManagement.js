@@ -171,10 +171,10 @@ const MasterCategoryManagement = () => {
       };
 
       if (editingSubcategory) {
-        await apiInstance.put(`/categories/master/subcategories/${editingSubcategory.id}`, subcategoryData);
+        await apiInstance.put(`/property-categories/subcategories/master/${editingSubcategory.id}`, subcategoryData);
         toast.success('Subcategory updated successfully');
       } else {
-        await apiInstance.post(`/categories/master/${selectedCategoryForSub.id}/subcategories`, subcategoryData);
+        await apiInstance.post(`/property-categories/subcategories/master?master_category_id=${selectedCategoryForSub.id}`, subcategoryData);
         toast.success('Subcategory created successfully');
       }
       
