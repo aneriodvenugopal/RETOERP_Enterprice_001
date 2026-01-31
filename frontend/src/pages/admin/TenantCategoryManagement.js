@@ -136,10 +136,10 @@ const TenantCategoryManagement = () => {
       };
 
       if (editingCategory) {
-        await apiInstance.put(`/categories/tenant/${editingCategory.id}`, data);
+        await apiInstance.put(`/property-categories/categories/tenant/${editingCategory.id}`, data);
         toast.success('Category updated successfully');
       } else {
-        await apiInstance.post('/categories/tenant', data);
+        await apiInstance.post('/property-categories/categories/tenant', data);
         toast.success('Category created successfully');
       }
       
