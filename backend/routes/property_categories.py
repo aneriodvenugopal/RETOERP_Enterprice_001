@@ -11,7 +11,7 @@ from models.property_category import (
 )
 from middleware.auth import get_current_user
 
-router = APIRouter()
+router = APIRouter(prefix="/property-categories", tags=["Property Categories"])
 
 # Database connection
 MONGO_URL = os.getenv('MONGO_URL')
