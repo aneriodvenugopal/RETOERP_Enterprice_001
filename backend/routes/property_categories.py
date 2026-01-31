@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException, Depends
 from typing import List, Optional
 from datetime import datetime, timezone
 import os
+import uuid
 from motor.motor_asyncio import AsyncIOMotorClient
 
 from models.property_category import (
@@ -26,9 +27,10 @@ async def get_master_categories(
 ):
     """Get all master property categories"""
     
-    categories = await db.master_property_categories.find({
-        "is_active": True
-    }, {"_id": 0}).sort("sort_order", 1), {"_id": 0}).to_list(length=None)
+    categories = await db.master_property_categories.find(
+        {"is_active": True},
+        {"_id": 0}
+    ).sort("sort_order", 1).to_list(length=None)
     
     return {
         "success": True,
@@ -43,10 +45,10 @@ async def get_master_subcategories(
 ):
     """Get all subcategories for a master category"""
     
-    subcategories = await db.master_property_subcategories.find({
-        "master_category_id": category_id,
-        "is_active": True
-    }).sort("sort_order", 1), {"_id": 0}).to_list(length=None)
+    subcategories = await db.master_property_subcategories.find(
+        {"master_category_id": category_id, "is_active": True},
+        {"_id": 0}
+    ).sort("sort_order", 1).to_list(length=None)
     
     return {
         "success": True,
@@ -61,16 +63,17 @@ async def get_all_master_categories_with_subcategories(
 ):
     """Get all master categories with their subcategories"""
     
-    categories = await db.master_property_categories.find({
-        "is_active": True
-    }).sort("sort_order", 1), {"_id": 0}).to_list(length=None)
+    categories = await db.master_property_categories.find(
+        {"is_active": True},
+        {"_id": 0}
+    ).sort("sort_order", 1).to_list(length=None)
     
     result = []
     for category in categories:
-        subcategories = await db.master_property_subcategories.find({
-            "master_category_id": category["id"],
-            "is_active": True
-        }).sort("sort_order", 1), {"_id": 0}).to_list(length=None)
+        subcategories = await db.master_property_subcategories.find(
+            {"master_category_id": category["id"], "is_active": True},
+            {"_id": 0}
+        ).sort("sort_order", 1).to_list(length=None)
         
         category["subcategories"] = subcategories
         category["subcategories_count"] = len(subcategories)
@@ -82,7 +85,185 @@ async def get_all_master_categories_with_subcategories(
         "categories": result
     }
 
-# ============= TENANT CATEGORIES (Tenant Customization) =============
+# ============= MASTER CATEGORY CRUD (Super Admin) =============
+
+@router.post("/categories/master", response_model=dict)
+async def create_master_category(
+    category: PropertyCategoryCreate,
+    current_user: dict = Depends(get_current_user)
+):
+    """Create a master property category (Super Admin only)"""
+    
+    # Check if already exists
+    existing = await db.master_property_categories.find_one({
+        "slug": category.slug,
+        "is_active": True
+    })
+    
+    if existing:
+        raise HTTPException(status_code=400, detail="Category with this slug already exists")
+    
+    # Get max sort order
+    max_sort = await db.master_property_categories.find_one(
+        sort=[("sort_order", -1)]
+    )
+    next_sort = (max_sort.get("sort_order", 0) + 1) if max_sort else 1
+    
+    category_doc = {
+        "id": str(uuid.uuid4()),
+        "name": category.name,
+        "slug": category.slug,
+        "description": category.description,
+        "icon": category.icon,
+        "sort_order": next_sort,
+        "is_active": True,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "updated_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    await db.master_property_categories.insert_one(category_doc)
+    category_doc.pop("_id", None)
+    
+    return {
+        "success": True,
+        "message": "Master category created successfully",
+        "category": category_doc
+    }
+
+@router.post("/subcategories/master", response_model=dict)
+async def create_master_subcategory(
+    subcategory: PropertyCategoryCreate,
+    master_category_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Create a master property subcategory (Super Admin only)"""
+    
+    # Verify master category exists
+    master = await db.master_property_categories.find_one({
+        "id": master_category_id,
+        "is_active": True
+    })
+    
+    if not master:
+        raise HTTPException(status_code=404, detail="Master category not found")
+    
+    # Check if already exists
+    existing = await db.master_property_subcategories.find_one({
+        "master_category_id": master_category_id,
+        "slug": subcategory.slug,
+        "is_active": True
+    })
+    
+    if existing:
+        raise HTTPException(status_code=400, detail="Subcategory with this slug already exists")
+    
+    # Get max sort order for this category
+    max_sort = await db.master_property_subcategories.find_one(
+        {"master_category_id": master_category_id},
+        sort=[("sort_order", -1)]
+    )
+    next_sort = (max_sort.get("sort_order", 0) + 1) if max_sort else 1
+    
+    subcategory_doc = {
+        "id": str(uuid.uuid4()),
+        "master_category_id": master_category_id,
+        "name": subcategory.name,
+        "slug": subcategory.slug,
+        "description": subcategory.description,
+        "icon": subcategory.icon,
+        "sort_order": next_sort,
+        "is_active": True,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "updated_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    await db.master_property_subcategories.insert_one(subcategory_doc)
+    subcategory_doc.pop("_id", None)
+    
+    return {
+        "success": True,
+        "message": "Master subcategory created successfully",
+        "subcategory": subcategory_doc
+    }
+
+@router.delete("/categories/master/{category_id}", response_model=dict)
+async def delete_master_category(
+    category_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Soft delete a master category"""
+    
+    result = await db.master_property_categories.update_one(
+        {"id": category_id},
+        {"$set": {
+            "is_active": False,
+            "deleted_at": datetime.now(timezone.utc).isoformat()
+        }}
+    )
+    
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="Category not found")
+    
+    # Also deactivate subcategories
+    await db.master_property_subcategories.update_many(
+        {"master_category_id": category_id},
+        {"$set": {
+            "is_active": False,
+            "deleted_at": datetime.now(timezone.utc).isoformat()
+        }}
+    )
+    
+    return {
+        "success": True,
+        "message": "Master category deleted successfully"
+    }
+
+@router.delete("/subcategories/master/{subcategory_id}", response_model=dict)
+async def delete_master_subcategory(
+    subcategory_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Soft delete a master subcategory"""
+    
+    result = await db.master_property_subcategories.update_one(
+        {"id": subcategory_id},
+        {"$set": {
+            "is_active": False,
+            "deleted_at": datetime.now(timezone.utc).isoformat()
+        }}
+    )
+    
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="Subcategory not found")
+    
+    return {
+        "success": True,
+        "message": "Master subcategory deleted successfully"
+    }
+
+# ============= TENANT CATEGORIES =============
+
+@router.get("/categories/tenant", response_model=dict)
+async def get_tenant_categories(
+    tenant_id: Optional[str] = None,
+    current_user: dict = Depends(get_current_user)
+):
+    """Get all tenant-specific property categories"""
+    
+    query = {"deleted_at": None}
+    if tenant_id:
+        query["tenant_id"] = tenant_id
+    
+    categories = await db.tenant_property_categories.find(
+        query,
+        {"_id": 0}
+    ).sort("sort_order", 1).to_list(length=None)
+    
+    return {
+        "success": True,
+        "count": len(categories),
+        "categories": categories
+    }
 
 @router.post("/categories/tenant", response_model=dict)
 async def create_tenant_category(
@@ -99,100 +280,36 @@ async def create_tenant_category(
     })
     
     if existing:
-        raise HTTPException(
-            status_code=400,
-            detail="Category with this slug already exists for tenant"
-        )
+        raise HTTPException(status_code=400, detail="Category with this slug already exists for this tenant")
     
-    category_dict = category.dict()
-    category_dict["id"] = TenantPropertyCategory().id
-    category_dict["is_active"] = True
-    category_dict["created_at"] = datetime.now(timezone.utc)
-    category_dict["updated_at"] = datetime.now(timezone.utc)
+    # Get max sort order
+    max_sort = await db.tenant_property_categories.find_one(
+        {"tenant_id": category.tenant_id},
+        sort=[("sort_order", -1)]
+    )
+    next_sort = (max_sort.get("sort_order", 0) + 1) if max_sort else 1
     
-    await db.tenant_property_categories.insert_one(category_dict)
+    category_doc = {
+        "id": str(uuid.uuid4()),
+        "tenant_id": category.tenant_id,
+        "name": category.name,
+        "slug": category.slug,
+        "description": category.description,
+        "icon": category.icon,
+        "sort_order": next_sort,
+        "is_active": True,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+        "deleted_at": None
+    }
+    
+    await db.tenant_property_categories.insert_one(category_doc)
+    category_doc.pop("_id", None)
     
     return {
         "success": True,
         "message": "Tenant category created successfully",
-        "category_id": category_dict["id"]
-    }
-
-@router.get("/categories/tenant", response_model=dict)
-async def get_tenant_categories(
-    tenant_id: str,
-    current_user: dict = Depends(get_current_user)
-):
-    """Get all categories for a tenant"""
-    
-    categories = await db.tenant_property_categories.find({
-        "tenant_id": tenant_id,
-        "deleted_at": None,
-        "is_active": True
-    }).sort("sort_order", 1), {"_id": 0}).to_list(length=None)
-    
-    return {
-        "success": True,
-        "tenant_id": tenant_id,
-        "count": len(categories),
-        "categories": categories
-    }
-
-@router.get("/categories/tenant/{category_id}", response_model=dict)
-async def get_tenant_category(
-    category_id: str,
-    current_user: dict = Depends(get_current_user)
-):
-    """Get single tenant category details"""
-    
-    category = await db.tenant_property_categories.find_one({
-        "id": category_id,
-        "deleted_at": None
-    })
-    
-    if not category:
-        raise HTTPException(status_code=404, detail="Category not found")
-    
-    # Get subcategories
-    subcategories = await db.tenant_property_subcategories.find({
-        "tenant_category_id": category_id,
-        "deleted_at": None,
-        "is_active": True
-    }).sort("sort_order", 1), {"_id": 0}).to_list(length=None)
-    
-    return {
-        "success": True,
-        "category": category,
-        "subcategories_count": len(subcategories),
-        "subcategories": subcategories
-    }
-
-@router.put("/categories/tenant/{category_id}", response_model=dict)
-async def update_tenant_category(
-    category_id: str,
-    update_data: dict,
-    current_user: dict = Depends(get_current_user)
-):
-    """Update tenant category"""
-    
-    category = await db.tenant_property_categories.find_one({
-        "id": category_id,
-        "deleted_at": None
-    })
-    
-    if not category:
-        raise HTTPException(status_code=404, detail="Category not found")
-    
-    update_data["updated_at"] = datetime.now(timezone.utc)
-    
-    await db.tenant_property_categories.update_one(
-        {"id": category_id},
-        {"$set": update_data}
-    )
-    
-    return {
-        "success": True,
-        "message": "Category updated successfully"
+        "category": category_doc
     }
 
 @router.delete("/categories/tenant/{category_id}", response_model=dict)
@@ -200,404 +317,182 @@ async def delete_tenant_category(
     category_id: str,
     current_user: dict = Depends(get_current_user)
 ):
-    """Delete tenant category (soft delete)"""
+    """Soft delete a tenant category"""
     
-    category = await db.tenant_property_categories.find_one({
-        "id": category_id,
-        "deleted_at": None
-    })
+    result = await db.tenant_property_categories.update_one(
+        {"id": category_id},
+        {"$set": {
+            "deleted_at": datetime.now(timezone.utc).isoformat()
+        }}
+    )
     
-    if not category:
+    if result.modified_count == 0:
         raise HTTPException(status_code=404, detail="Category not found")
     
-    # Check if used in properties
-    property_count = await db.properties.count_documents({
-        "property_type_id": category_id,
-        "deleted_at": None
-    })
-    
-    if property_count > 0:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Cannot delete category. It is used by {property_count} properties"
-        )
-    
-    await db.tenant_property_categories.update_one(
-        {"id": category_id},
-        {
-            "$set": {
-                "deleted_at": datetime.now(timezone.utc),
-                "updated_at": datetime.now(timezone.utc)
-            }
-        }
+    # Also delete subcategories
+    await db.tenant_property_subcategories.update_many(
+        {"tenant_category_id": category_id},
+        {"$set": {
+            "deleted_at": datetime.now(timezone.utc).isoformat()
+        }}
     )
     
     return {
         "success": True,
-        "message": "Category deleted successfully"
+        "message": "Tenant category deleted successfully"
     }
 
 # ============= TENANT SUBCATEGORIES =============
 
-@router.post("/categories/tenant/{category_id}/subcategories", response_model=dict)
-async def create_tenant_subcategory(
-    category_id: str,
-    subcategory_data: dict,
-    current_user: dict = Depends(get_current_user)
-):
-    """Create tenant subcategory"""
-    
-    # Validate parent category exists
-    category = await db.tenant_property_categories.find_one({
-        "id": category_id,
-        "deleted_at": None
-    })
-    
-    if not category:
-        raise HTTPException(status_code=404, detail="Parent category not found")
-    
-    subcategory_data["id"] = TenantPropertySubcategory().id
-    subcategory_data["tenant_id"] = category["tenant_id"]
-    subcategory_data["tenant_category_id"] = category_id
-    subcategory_data["is_active"] = True
-    subcategory_data["created_at"] = datetime.now(timezone.utc)
-    subcategory_data["updated_at"] = datetime.now(timezone.utc)
-    
-    await db.tenant_property_subcategories.insert_one(subcategory_data)
-    
-    return {
-        "success": True,
-        "message": "Subcategory created successfully",
-        "subcategory_id": subcategory_data["id"]
-    }
-
-@router.get("/categories/tenant/{category_id}/subcategories", response_model=dict)
+@router.get("/subcategories/tenant", response_model=dict)
 async def get_tenant_subcategories(
-    category_id: str,
+    tenant_id: Optional[str] = None,
+    category_id: Optional[str] = None,
     current_user: dict = Depends(get_current_user)
 ):
-    """Get all subcategories for a tenant category"""
+    """Get all tenant-specific property subcategories"""
     
-    subcategories = await db.tenant_property_subcategories.find({
-        "tenant_category_id": category_id,
-        "deleted_at": None,
-        "is_active": True
-    }).sort("sort_order", 1), {"_id": 0}).to_list(length=None)
+    query = {"deleted_at": None}
+    if tenant_id:
+        query["tenant_id"] = tenant_id
+    if category_id:
+        query["tenant_category_id"] = category_id
+    
+    subcategories = await db.tenant_property_subcategories.find(
+        query,
+        {"_id": 0}
+    ).sort("sort_order", 1).to_list(length=None)
     
     return {
         "success": True,
-        "category_id": category_id,
         "count": len(subcategories),
         "subcategories": subcategories
     }
 
-@router.put("/categories/tenant/subcategories/{subcategory_id}", response_model=dict)
-async def update_tenant_subcategory(
-    subcategory_id: str,
-    update_data: dict,
+@router.post("/subcategories/tenant", response_model=dict)
+async def create_tenant_subcategory(
+    subcategory: TenantPropertyCategoryCreate,
+    tenant_category_id: str,
     current_user: dict = Depends(get_current_user)
 ):
-    """Update tenant subcategory"""
+    """Create tenant-specific property subcategory"""
     
-    subcategory = await db.tenant_property_subcategories.find_one({
-        "id": subcategory_id,
+    # Verify tenant category exists
+    parent = await db.tenant_property_categories.find_one({
+        "id": tenant_category_id,
         "deleted_at": None
     })
     
-    if not subcategory:
-        raise HTTPException(status_code=404, detail="Subcategory not found")
+    if not parent:
+        raise HTTPException(status_code=404, detail="Tenant category not found")
     
-    update_data["updated_at"] = datetime.now(timezone.utc)
+    # Check if already exists
+    existing = await db.tenant_property_subcategories.find_one({
+        "tenant_category_id": tenant_category_id,
+        "slug": subcategory.slug,
+        "deleted_at": None
+    })
     
-    await db.tenant_property_subcategories.update_one(
-        {"id": subcategory_id},
-        {"$set": update_data}
+    if existing:
+        raise HTTPException(status_code=400, detail="Subcategory with this slug already exists")
+    
+    # Get max sort order
+    max_sort = await db.tenant_property_subcategories.find_one(
+        {"tenant_category_id": tenant_category_id},
+        sort=[("sort_order", -1)]
     )
+    next_sort = (max_sort.get("sort_order", 0) + 1) if max_sort else 1
+    
+    subcategory_doc = {
+        "id": str(uuid.uuid4()),
+        "tenant_id": subcategory.tenant_id,
+        "tenant_category_id": tenant_category_id,
+        "name": subcategory.name,
+        "slug": subcategory.slug,
+        "description": subcategory.description,
+        "icon": subcategory.icon,
+        "sort_order": next_sort,
+        "is_active": True,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+        "deleted_at": None
+    }
+    
+    await db.tenant_property_subcategories.insert_one(subcategory_doc)
+    subcategory_doc.pop("_id", None)
     
     return {
         "success": True,
-        "message": "Subcategory updated successfully"
+        "message": "Tenant subcategory created successfully",
+        "subcategory": subcategory_doc
     }
 
-@router.delete("/categories/tenant/subcategories/{subcategory_id}", response_model=dict)
+@router.delete("/subcategories/tenant/{subcategory_id}", response_model=dict)
 async def delete_tenant_subcategory(
     subcategory_id: str,
     current_user: dict = Depends(get_current_user)
 ):
-    """Delete tenant subcategory (soft delete)"""
+    """Soft delete a tenant subcategory"""
     
-    subcategory = await db.tenant_property_subcategories.find_one({
-        "id": subcategory_id,
-        "deleted_at": None
-    })
+    result = await db.tenant_property_subcategories.update_one(
+        {"id": subcategory_id},
+        {"$set": {
+            "deleted_at": datetime.now(timezone.utc).isoformat()
+        }}
+    )
     
-    if not subcategory:
+    if result.modified_count == 0:
         raise HTTPException(status_code=404, detail="Subcategory not found")
     
-    # Check if used in properties
-    property_count = await db.properties.count_documents({
-        "property_subtype_id": subcategory_id,
-        "deleted_at": None
-    })
-    
-    if property_count > 0:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Cannot delete subcategory. It is used by {property_count} properties"
-        )
-    
-    await db.tenant_property_subcategories.update_one(
-        {"id": subcategory_id},
-        {
-            "$set": {
-                "deleted_at": datetime.now(timezone.utc),
-                "updated_at": datetime.now(timezone.utc)
-            }
-        }
-    )
-    
     return {
         "success": True,
-        "message": "Subcategory deleted successfully"
+        "message": "Tenant subcategory deleted successfully"
     }
 
+# ============= COMBINED VIEW =============
 
-# ============= SAAS ADMIN - MASTER CATEGORIES CRUD =============
-
-@router.post("/categories/master", response_model=dict)
-async def create_master_category(
-    category: PropertyCategoryCreate,
+@router.get("/all", response_model=dict)
+async def get_all_categories_for_tenant(
+    tenant_id: str,
     current_user: dict = Depends(get_current_user)
 ):
-    """Create master property category (SaaS Admin only)"""
+    """
+    Get all categories available for a tenant.
+    Includes both master categories and tenant-specific categories.
+    """
     
-    # Check if user is SaaS admin
-    if current_user.get("phone") != "9948303060":
-        raise HTTPException(status_code=403, detail="Only SaaS admin can create master categories")
+    # Get master categories with subcategories
+    master_categories = await db.master_property_categories.find(
+        {"is_active": True},
+        {"_id": 0}
+    ).sort("sort_order", 1).to_list(length=None)
     
-    # Check if already exists
-    existing = await db.master_property_categories.find_one({
-        "slug": category.slug
-    })
+    for cat in master_categories:
+        subs = await db.master_property_subcategories.find(
+            {"master_category_id": cat["id"], "is_active": True},
+            {"_id": 0}
+        ).sort("sort_order", 1).to_list(length=None)
+        cat["subcategories"] = subs
+        cat["source"] = "master"
     
-    if existing:
-        raise HTTPException(
-            status_code=400,
-            detail="Master category with this slug already exists"
-        )
+    # Get tenant categories with subcategories
+    tenant_categories = await db.tenant_property_categories.find(
+        {"tenant_id": tenant_id, "deleted_at": None},
+        {"_id": 0}
+    ).sort("sort_order", 1).to_list(length=None)
     
-    import uuid
-    category_dict = category.dict()
-    category_dict["id"] = str(uuid.uuid4())
-    category_dict["is_active"] = True
-    category_dict["created_at"] = datetime.now(timezone.utc)
-    category_dict["updated_at"] = datetime.now(timezone.utc)
-    
-    await db.master_property_categories.insert_one(category_dict)
+    for cat in tenant_categories:
+        subs = await db.tenant_property_subcategories.find(
+            {"tenant_category_id": cat["id"], "deleted_at": None},
+            {"_id": 0}
+        ).sort("sort_order", 1).to_list(length=None)
+        cat["subcategories"] = subs
+        cat["source"] = "tenant"
     
     return {
         "success": True,
-        "message": "Master category created successfully",
-        "category_id": category_dict["id"]
-    }
-
-
-@router.put("/categories/master/{category_id}", response_model=dict)
-async def update_master_category(
-    category_id: str,
-    update_data: dict,
-    current_user: dict = Depends(get_current_user)
-):
-    """Update master category (SaaS Admin only)"""
-    
-    # Check if user is SaaS admin
-    if current_user.get("phone") != "9948303060":
-        raise HTTPException(status_code=403, detail="Only SaaS admin can update master categories")
-    
-    category = await db.master_property_categories.find_one({
-        "id": category_id
-    })
-    
-    if not category:
-        raise HTTPException(status_code=404, detail="Category not found")
-    
-    update_data["updated_at"] = datetime.now(timezone.utc)
-    
-    await db.master_property_categories.update_one(
-        {"id": category_id},
-        {"$set": update_data}
-    )
-    
-    return {
-        "success": True,
-        "message": "Master category updated successfully"
-    }
-
-
-@router.delete("/categories/master/{category_id}", response_model=dict)
-async def delete_master_category(
-    category_id: str,
-    current_user: dict = Depends(get_current_user)
-):
-    """Delete master category (SaaS Admin only)"""
-    
-    # Check if user is SaaS admin
-    if current_user.get("phone") != "9948303060":
-        raise HTTPException(status_code=403, detail="Only SaaS admin can delete master categories")
-    
-    category = await db.master_property_categories.find_one({
-        "id": category_id
-    })
-    
-    if not category:
-        raise HTTPException(status_code=404, detail="Category not found")
-    
-    # Check if has subcategories
-    subcat_count = await db.master_property_subcategories.count_documents({
-        "master_category_id": category_id,
-        "is_active": True
-    })
-    
-    if subcat_count > 0:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Cannot delete category. It has {subcat_count} subcategories"
-        )
-    
-    # Check if used by tenants
-    tenant_usage = await db.tenant_property_categories.count_documents({
-        "master_category_id": category_id,
-        "deleted_at": None
-    })
-    
-    if tenant_usage > 0:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Cannot delete category. It is being used by {tenant_usage} tenants"
-        )
-    
-    await db.master_property_categories.update_one(
-        {"id": category_id},
-        {"$set": {"is_active": False, "updated_at": datetime.now(timezone.utc)}}
-    )
-    
-    return {
-        "success": True,
-        "message": "Master category deleted successfully"
-    }
-
-
-# ============= SAAS ADMIN - MASTER SUBCATEGORIES CRUD =============
-
-@router.post("/categories/master/{category_id}/subcategories", response_model=dict)
-async def create_master_subcategory(
-    category_id: str,
-    subcategory_data: dict,
-    current_user: dict = Depends(get_current_user)
-):
-    """Create master subcategory (SaaS Admin only)"""
-    
-    # Check if user is SaaS admin
-    if current_user.get("phone") != "9948303060":
-        raise HTTPException(status_code=403, detail="Only SaaS admin can create master subcategories")
-    
-    # Validate parent category exists
-    category = await db.master_property_categories.find_one({
-        "id": category_id,
-        "is_active": True
-    })
-    
-    if not category:
-        raise HTTPException(status_code=404, detail="Parent category not found")
-    
-    import uuid
-    subcategory_data["id"] = str(uuid.uuid4())
-    subcategory_data["master_category_id"] = category_id
-    subcategory_data["is_active"] = True
-    subcategory_data["created_at"] = datetime.now(timezone.utc)
-    subcategory_data["updated_at"] = datetime.now(timezone.utc)
-    
-    # Ensure additional_fields exists
-    if "additional_fields" not in subcategory_data:
-        subcategory_data["additional_fields"] = []
-    
-    await db.master_property_subcategories.insert_one(subcategory_data)
-    
-    return {
-        "success": True,
-        "message": "Master subcategory created successfully",
-        "subcategory_id": subcategory_data["id"]
-    }
-
-
-@router.put("/categories/master/subcategories/{subcategory_id}", response_model=dict)
-async def update_master_subcategory(
-    subcategory_id: str,
-    update_data: dict,
-    current_user: dict = Depends(get_current_user)
-):
-    """Update master subcategory (SaaS Admin only)"""
-    
-    # Check if user is SaaS admin
-    if current_user.get("phone") != "9948303060":
-        raise HTTPException(status_code=403, detail="Only SaaS admin can update master subcategories")
-    
-    subcategory = await db.master_property_subcategories.find_one({
-        "id": subcategory_id
-    })
-    
-    if not subcategory:
-        raise HTTPException(status_code=404, detail="Subcategory not found")
-    
-    update_data["updated_at"] = datetime.now(timezone.utc)
-    
-    await db.master_property_subcategories.update_one(
-        {"id": subcategory_id},
-        {"$set": update_data}
-    )
-    
-    return {
-        "success": True,
-        "message": "Master subcategory updated successfully"
-    }
-
-
-@router.delete("/categories/master/subcategories/{subcategory_id}", response_model=dict)
-async def delete_master_subcategory(
-    subcategory_id: str,
-    current_user: dict = Depends(get_current_user)
-):
-    """Delete master subcategory (SaaS Admin only)"""
-    
-    # Check if user is SaaS admin
-    if current_user.get("phone") != "9948303060":
-        raise HTTPException(status_code=403, detail="Only SaaS admin can delete master subcategories")
-    
-    subcategory = await db.master_property_subcategories.find_one({
-        "id": subcategory_id
-    })
-    
-    if not subcategory:
-        raise HTTPException(status_code=404, detail="Subcategory not found")
-    
-    # Check if used by tenants
-    tenant_usage = await db.tenant_property_subcategories.count_documents({
-        "master_subcategory_id": subcategory_id,
-        "deleted_at": None
-    })
-    
-    if tenant_usage > 0:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Cannot delete subcategory. It is being used by {tenant_usage} tenants"
-        )
-    
-    await db.master_property_subcategories.update_one(
-        {"id": subcategory_id},
-        {"$set": {"is_active": False, "updated_at": datetime.now(timezone.utc)}}
-    )
-    
-    return {
-        "success": True,
-        "message": "Master subcategory deleted successfully"
+        "master_categories": master_categories,
+        "tenant_categories": tenant_categories,
+        "total_master": len(master_categories),
+        "total_tenant": len(tenant_categories)
     }
