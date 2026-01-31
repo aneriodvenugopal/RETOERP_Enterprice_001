@@ -454,7 +454,6 @@ const Bookings = () => {
             </form>
           </DialogContent>
         </Dialog>
-      </div>
 
       {/* Bookings List */}
       <Card>
