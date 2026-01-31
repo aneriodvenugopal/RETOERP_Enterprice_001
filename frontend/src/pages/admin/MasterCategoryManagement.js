@@ -48,7 +48,7 @@ const MasterCategoryManagement = () => {
   const loadCategories = async () => {
     setLoading(true);
     try {
-      const response = await apiInstance.get('/categories/master/all-with-subcategories');
+      const response = await apiInstance.get('/property-categories/categories/master/all-with-subcategories');
       setCategories(response.data.categories || []);
     } catch (error) {
       console.error('Error loading categories:', error);
