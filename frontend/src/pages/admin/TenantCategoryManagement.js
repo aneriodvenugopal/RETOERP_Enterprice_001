@@ -59,18 +59,18 @@ const TenantCategoryManagement = () => {
     setLoading(true);
     try {
       // Load master categories for reference
-      const masterRes = await apiInstance.get('/categories/master');
+      const masterRes = await apiInstance.get('/property-categories/categories/master');
       setMasterCategories(masterRes.data.categories || []);
       
       // Load tenant categories
-      const response = await apiInstance.get(`/categories/tenant?tenant_id=${tid}`);
+      const response = await apiInstance.get(`/property-categories/categories/tenant?tenant_id=${tid}`);
       const tenantCats = response.data.categories || [];
       
       // Load subcategories for each category
       const catsWithSubs = await Promise.all(
         tenantCats.map(async (cat) => {
           try {
-            const subRes = await apiInstance.get(`/categories/tenant/${cat.id}/subcategories`);
+            const subRes = await apiInstance.get(`/property-categories/subcategories/tenant?category_id=${cat.id}`);
             return { ...cat, subcategories: subRes.data.subcategories || [] };
           } catch (error) {
             return { ...cat, subcategories: [] };
