@@ -28,7 +28,7 @@ async def get_master_categories(
     
     categories = await db.master_property_categories.find({
         "is_active": True
-    }, {"_id": 0}).sort("sort_order", 1).to_list(length=None)
+    }, {"_id": 0}).sort("sort_order", 1), {"_id": 0}).to_list(length=None)
     
     return {
         "success": True,
@@ -46,7 +46,7 @@ async def get_master_subcategories(
     subcategories = await db.master_property_subcategories.find({
         "master_category_id": category_id,
         "is_active": True
-    }).sort("sort_order", 1).to_list(length=None)
+    }).sort("sort_order", 1), {"_id": 0}).to_list(length=None)
     
     return {
         "success": True,
@@ -63,14 +63,14 @@ async def get_all_master_categories_with_subcategories(
     
     categories = await db.master_property_categories.find({
         "is_active": True
-    }).sort("sort_order", 1).to_list(length=None)
+    }).sort("sort_order", 1), {"_id": 0}).to_list(length=None)
     
     result = []
     for category in categories:
         subcategories = await db.master_property_subcategories.find({
             "master_category_id": category["id"],
             "is_active": True
-        }).sort("sort_order", 1).to_list(length=None)
+        }).sort("sort_order", 1), {"_id": 0}).to_list(length=None)
         
         category["subcategories"] = subcategories
         category["subcategories_count"] = len(subcategories)
@@ -129,7 +129,7 @@ async def get_tenant_categories(
         "tenant_id": tenant_id,
         "deleted_at": None,
         "is_active": True
-    }).sort("sort_order", 1).to_list(length=None)
+    }).sort("sort_order", 1), {"_id": 0}).to_list(length=None)
     
     return {
         "success": True,
@@ -158,7 +158,7 @@ async def get_tenant_category(
         "tenant_category_id": category_id,
         "deleted_at": None,
         "is_active": True
-    }).sort("sort_order", 1).to_list(length=None)
+    }).sort("sort_order", 1), {"_id": 0}).to_list(length=None)
     
     return {
         "success": True,
@@ -282,7 +282,7 @@ async def get_tenant_subcategories(
         "tenant_category_id": category_id,
         "deleted_at": None,
         "is_active": True
-    }).sort("sort_order", 1).to_list(length=None)
+    }).sort("sort_order", 1), {"_id": 0}).to_list(length=None)
     
     return {
         "success": True,
