@@ -25,6 +25,8 @@ const Bookings = () => {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [showWizard, setShowWizard] = useState(false);
+  const [showQuickPayment, setShowQuickPayment] = useState(false);
   const [showDetailsDialog, setShowDetailsDialog] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [bookingDetails, setBookingDetails] = useState(null);
