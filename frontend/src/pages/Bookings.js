@@ -268,16 +268,41 @@ const Bookings = () => {
           <h2 className="text-3xl font-bold">Bookings</h2>
           <p className="text-gray-500">Manage property bookings and payments</p>
         </div>
-        <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="w-4 h-4 mr-2" />
-              New Booking
-            </Button>
-          </DialogTrigger>
+        <div className="flex gap-3">
+          <Button 
+            variant="outline"
+            onClick={() => setShowQuickPayment(true)}
+            className="border-green-300 text-green-600 hover:bg-green-50"
+          >
+            <Zap className="w-4 h-4 mr-2" />
+            Quick Payment
+          </Button>
+          <Button onClick={() => setShowWizard(true)}>
+            <Plus className="w-4 h-4 mr-2" />
+            New Booking
+          </Button>
+        </div>
+      </div>
+      
+      {/* Booking Wizard */}
+      <BookingWizard 
+        isOpen={showWizard}
+        onClose={() => setShowWizard(false)}
+        onSuccess={() => { fetchBookings(); }}
+      />
+      
+      {/* Quick Payment Modal */}
+      <QuickPayment
+        isOpen={showQuickPayment}
+        onClose={() => setShowQuickPayment(false)}
+        onSuccess={() => { fetchBookings(); }}
+      />
+
+      {/* Old Create Dialog - keeping for backup */}
+      <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Create New Booking</DialogTitle>
+              <DialogTitle>Create New Booking (Legacy)</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleCreateBooking} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
