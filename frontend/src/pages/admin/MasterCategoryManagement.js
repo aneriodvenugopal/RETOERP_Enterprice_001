@@ -100,10 +100,10 @@ const MasterCategoryManagement = () => {
       }
 
       if (editingCategory) {
-        await apiInstance.put(`/categories/master/${editingCategory.id}`, categoryForm);
+        await apiInstance.put(`/property-categories/categories/master/${editingCategory.id}`, categoryForm);
         toast.success('Category updated successfully');
       } else {
-        await apiInstance.post('/categories/master', categoryForm);
+        await apiInstance.post('/property-categories/categories/master', categoryForm);
         toast.success('Category created successfully');
       }
       
