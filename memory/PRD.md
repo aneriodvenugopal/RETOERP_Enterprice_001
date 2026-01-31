@@ -602,6 +602,28 @@ Build a comprehensive Real Estate ERP (RealApex) SaaS platform for the Indian re
   - Recorded payment: ₹15,000 via UPI
   - Verified stats display correctly on dashboard
 
+- [x] **Property Categories System Fixed & Seeded** (Completed Jan 31, 2026)
+  - **Master Categories (8 categories, 30 subcategories)**:
+    1. Residential Plots: Villa, Independent House, Gated Community, Farm House
+    2. Commercial Plots: Shop, Office Space, Warehouse, Industrial
+    3. Agricultural Land: Farm Land, Orchard, Plantation
+    4. Mixed Use: Residential+Commercial, Live-Work Spaces
+    5. Premium/Luxury: Lake View, Hill View, Highway Facing, Corner Plots
+    6. Layout Types: DTCP, HMDA, LP, RERA, Panchayat Approved
+    7. By Facing: East, North, West, South
+    8. By Size: Small, Medium, Large, Extra Large
+  - **Tenant Categories (Custom)**:
+    - Premium Ventures: Lake Front Premium, Hill View Premium
+  - **API Fixes**:
+    - Added `/property-categories/` prefix to all routes
+    - Fixed MongoDB `_id` serialization issues
+    - Fixed frontend API path mismatches
+  - **Files Updated**:
+    - `backend/routes/property_categories.py` (Complete rewrite with prefix)
+    - `backend/scripts/seed_property_categories.py` (New seed script)
+    - `frontend/src/pages/admin/MasterCategoryManagement.js` (API paths fixed)
+    - `frontend/src/pages/admin/TenantCategoryManagement.js` (API paths fixed)
+
 
 ### P4 - Future/Backlog
 - [x] Festival Greetings Automation - Backend cron job for Jan 26 & Aug 15 (Completed Jan 12, 2026)
