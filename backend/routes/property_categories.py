@@ -28,7 +28,7 @@ async def get_master_categories(
     
     categories = await db.master_property_categories.find({
         "is_active": True
-    }).sort("sort_order", 1).to_list(length=None)
+    }, {"_id": 0}).sort("sort_order", 1).to_list(length=None)
     
     return {
         "success": True,
