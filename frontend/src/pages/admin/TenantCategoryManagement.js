@@ -229,7 +229,7 @@ const TenantCategoryManagement = () => {
     if (!confirm('Are you sure you want to delete this subcategory?')) return;
     
     try {
-      await apiInstance.delete(`/categories/tenant/subcategories/${subcategoryId}`);
+      await apiInstance.delete(`/property-categories/subcategories/tenant/${subcategoryId}`);
       toast.success('Subcategory deleted successfully');
       loadData(tenantId);
     } catch (error) {
