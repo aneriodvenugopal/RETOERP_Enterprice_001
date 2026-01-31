@@ -575,6 +575,33 @@ Build a comprehensive Real Estate ERP (RealApex) SaaS platform for the Indian re
     - `backend/services/web_push_service.py` (Push + SMS fallback)
     - `backend/routes/push_notifications.py` (Push notification routes)
 
+- [x] **Booking UI Wizard-Based Flow** (Completed Jan 31, 2026)
+  - **4-Step Booking Wizard**:
+    - Step 1: Customer Selection (Search existing or Create new)
+    - Step 2: Property Selection (Project dropdown + visual property cards)
+    - Step 3: Payment Plan (Full/EMI/Custom with auto EMI calculation)
+    - Step 4: Review & Confirm
+  - **Quick Payment Modal**:
+    - Phone number search → Auto-fetch bookings
+    - Select booking → Enter amount → Select bank → Record (3 clicks!)
+    - Floating green button always accessible on Bookings page
+  - **UI Improvements**:
+    - Progress indicators showing current step
+    - Visual property selection cards with price and area
+    - EMI calculator built-in
+    - Confirmation summary before booking creation
+  - **Files Created**:
+    - `frontend/src/components/BookingWizard.js` (4-step wizard)
+    - `frontend/src/components/QuickPayment.js` (Fast payment recording)
+  - **Files Updated**:
+    - `frontend/src/pages/Bookings.js` (Integrated wizard + quick payment)
+
+- [x] **Marketing Agents Flow Tested** (Completed Jan 31, 2026)
+  - Created test agent: "Raju Kumar" (9876543210)
+  - Recorded sale: ₹15,00,000 → Commission: ₹37,500 (2.5%)
+  - Recorded payment: ₹15,000 via UPI
+  - Verified stats display correctly on dashboard
+
 
 ### P4 - Future/Backlog
 - [x] Festival Greetings Automation - Backend cron job for Jan 26 & Aug 15 (Completed Jan 12, 2026)
