@@ -119,7 +119,7 @@ const MasterCategoryManagement = () => {
     if (!confirm('Are you sure you want to delete this category?')) return;
     
     try {
-      await apiInstance.delete(`/categories/master/${categoryId}`);
+      await apiInstance.delete(`/property-categories/categories/master/${categoryId}`);
       toast.success('Category deleted successfully');
       loadCategories();
     } catch (error) {
