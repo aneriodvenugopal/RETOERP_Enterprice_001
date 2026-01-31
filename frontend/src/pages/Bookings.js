@@ -957,6 +957,15 @@ const Bookings = () => {
           }
         ]}
       />
+      
+      {/* Floating Quick Payment Button */}
+      <Button
+        onClick={() => setShowQuickPayment(true)}
+        className="fixed bottom-6 right-6 h-14 w-14 rounded-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 shadow-xl z-50"
+        title="Quick Payment"
+      >
+        <Banknote className="w-6 h-6" />
+      </Button>
     </div>
   );
 };
