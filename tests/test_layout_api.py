@@ -6,7 +6,7 @@ import pytest
 import requests
 import os
 
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://prop-booking-1.preview.emergentagent.com')
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://realtor-dash-2.preview.emergentagent.com')
 TEST_PROJECT_ID = "23dde7ab-0d13-45cc-8886-bcceb3d9d35e"
 
 # Test credentials

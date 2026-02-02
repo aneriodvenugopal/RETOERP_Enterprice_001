@@ -1,109 +1,110 @@
 <analysis>**original_problem_statement:**
-The user's initial request was to fix the PDF data extraction logic for the Voters List feature. However, the user's priorities shifted during the session to address more immediate and critical bugs in the application.
+The user's initial request was to analyze the current SaaS platform from a real estate business perspective, provide a brutal truth assessment, and propose a plan to fix critical gaps.
 
-The work pivoted to:
-1.  **Fix Core Booking & Payment Bugs:**
-    *   Resolving an issue where available properties were not loading in the New Booking modal.
-    *   Integrating a bank account selection mechanism for all internal payment recordings, moving away from online payment flows for manual entries.
-2.  **Add and Refine Voter Data Import Methods:**
-    *   Instead of fixing the complex PDF parsing, the user requested and the agent implemented alternative import methods: Paste from Text and Upload from Excel.
-    *   The Excel import feature was extensively refined to handle specific data formatting, column ordering, and data type conversions (e.g., converting float-like numbers  to integers  and handling Excel's auto-conversion of text like  into dates).
-3.  **Fix System-wide UI & Access Issues:**
-    *   Resolving multiple UI pages that were crashing or not displaying data, including the Bank Accounts, Stripe Payments, Vendors Management, and Commissions pages.
-    - Fixing the Role Assignments page, which wasn't showing roles for existing users, by implementing an auto-migration of legacy roles.
-4.  **Resolve Deployment Blockers:**
-    *   Addressing deployment failures by parameterizing hardcoded Firebase credentials.
-    *   Guiding the user on deployment logs and correct procedures (e.g., using the admin password, understanding initial health check failures).
-5.  **Provide User Support:**
-    *   Revising SMS templates to meet DLT provider requirements.
-    *   Providing technical explanations in Telugu as requested.
+Based on the agent's analysis, the user prioritized several key areas for immediate implementation and fixing:
+1.  **Fix Critical Bugs**: The Bank Accounts page was not loading data, which was a top priority.
+2.  **Data Cleanup**: The user requested to remove all existing project data and set up the system with only two specific projects: Rama Rama Project and another new one, along with associated data like bank accounts.
+3.  **Implement Core Features**:
+    *   **Marketing Agents Dashboard**: A comprehensive module for builders to manage their marketing staff, track sales, and handle commissions. The user provided a detailed specification for this.
+    *   **Booking UI Simplification**: Refactor the complex and cluttered booking form into a simple, multi-step wizard. Add a Quick Payment modal for faster payment recording.
+4.  **Integrate Essential Services**:
+    *   **Google Calendar Sync**: Properly connect the existing site visit creation flow to Google Calendar to send invites to staff and customers.
+    *   **WhatsApp Integration**: Implement WhatsApp messaging using a low-cost provider (like Gupshup or Meta Direct API) now that the user has DLT approval. This includes auto-replies.
+    *   **Push Notifications**: Implement web push notifications with an SMS fallback.
+5.  **Data Seeding**: Populate the newly fixed dynamic property category system with relevant data for residential and commercial properties.
 
-**User's preferred language**: English, with a preference for **Telugu** for technical architecture explanations and plans.
+The user explicitly asked to **skip** the implementation of a PWA mobile app and an inventory auto-pricing feature for now.
+
+**User's preferred language**: English, with a strong preference for **Telugu** for all technical plans, architectural explanations, and business-focused discussions.
 
 **what currently exists?**
-The application is a full-stack Real Estate ERP (React, FastAPI, MongoDB). The session focused on resolving critical bugs and adding new, more robust data import functionalities, sidelining the original PDF parsing task.
+The application is a full-stack Real Estate ERP (React, FastAPI, MongoDB). The agent has made significant progress on the user's requests:
 
--   **Bugs Fixed**:
-    -   Property loading in the booking modal now works correctly by fetching and filtering properties based on their status from the backend.
-    -   The Record Payment form now includes a bank account selection dropdown, and the backend updates bank balances accordingly.
-    -   Project dropdowns on various pages (like Bank Accounts) now load and display data correctly.
-    -   A duplicate header on the Stripe Payments page has been removed.
-    -   Booking creation now automatically creates a new customer if the phone number doesn't exist, preventing crashes.
-    -   PDF generation for booking, allotment, and payment schedule letters is now functional.
-    -   The password validation on the Voters List page was fixed to accept the new password admin.
--   **Features Implemented/Enhanced**:
-    -   **Voters Import**: The  page now features a 4-tab interface for importing data via **Excel, PDF, URL, or Pasted Text**. The Excel import is the most robust, handling specific column mapping, data type coercion, and sorting.
-    -   **Role Management**: The Role Assignments page now correctly displays roles for all users by automatically migrating their legacy  into the new multi-role assignment system.
-    -   **UI/UX**: Navigation links to the previously hidden Vendors Management and Marketing Agents modules have been added to the main dashboard. Crashing bugs on these pages have been resolved.
+-   **Marketing Agents Module**: A complete backend and frontend have been built and tested. It allows for adding agents, recording sales against bookings, and paying commissions.
+-   **Booking UI Overhaul**: The old booking form has been replaced with a new  component and a  modal, dramatically improving the user experience.
+-   **Property Categories System**: The backend routes were fixed ( serialization issue), and a seed script was created and executed to populate the database with a full hierarchy of master categories and subcategories (e.g., Residential -> Plot -> Standard, Commercial -> Office Space -> Coworking).
+-   **Service Scaffolding**: Placeholder services and routes have been created for WhatsApp Auto-Reply () and Web Push Notifications (), but the core logic is not yet implemented.
 
 **Last working item**:
--   **Last item agent was working**: The agent was fixing a series of UI bugs across the **Vendors Management** and **Commissions** modules. The user reported that the pages were blank or crashing. The agent identified and fixed multiple issues: incorrect API endpoints, data mapping mismatches between frontend components and API responses, and missing route definitions in .
--   **Status**: USER VERIFICATION PENDING
--   **Agent Testing Done**: Y
--   **Which testing method agent to use?**: Frontend testing agent. The agent should be instructed to log in as the Tenant Admin (), navigate to , , and  to ensure the pages load correctly without errors and that data is displayed.
+-   **Last item agent was working**: The agent was addressing the user's top priority request from : fixing the Bank Account not loading issue and cleaning up project data. The agent found that the bank accounts API was failing and the database lacked the required project and bank account data. A script, , was created to address this by setting up the specified projects and associated bank accounts.
+-   **Status**: IN PROGRESS
+-   **Agent Testing Done**: N
+-   **Which testing method agent to use?**: Manual testing by curl / python -c. The agent must first execute the  script. Then, it should use  to test the  endpoint, ensuring it returns the newly created accounts. Finally, it should take a screenshot of the frontend Bank Accounts page to confirm the data loads correctly in the UI.
 -   **User Testing Done**: N
 
 **All Pending/In progress Issue list**:
--   **Issue 1: Verify Vendors & Marketing Modules Functionality (P0)**
-    -   **Description**: The user reported that core ERP modules for Vendors and Marketing were inaccessible due to crashing UI. The agent has pushed several fixes for data mapping, API endpoints, and routing. These fixes require user validation to confirm the modules are now functional.
+-   **Issue 1: Bank Account page not loading data (P0)**
+    -   **Description**: The UI for bank accounts is blank, blocking a core financial feature. The agent identified this is due to a combination of an API returning an error (previously  serialization, now likely empty data) and a lack of required data in the database.
     -   **Next debug checklist**:
-        1.  Log in as Tenant Admin ( / ).
-        2.  Navigate directly to . Verify the vendor list loads.
-        3.  From the vendors page, navigate to the Payment Transfer tab and verify the form appears.
-        4.  Navigate directly to . Verify the commissions dashboard loads.
-    -   **Why fix this issue and what will be achieved with the fix?**: This is critical for unblocking core business workflows related to vendor payments and agent commissions.
-    -   **Status**: USER VERIFICATION PENDING
-    -   **Is recurring issue?**: Y
-    -   **Should Test frontend/backend/both after fix?**: Frontend
+        1.  Execute the script: === Setting up Projects and Bank Accounts ===
 
--   **Issue 2: Fix Voter PDF Data Extraction Logic (P1)**
-    -   **Description**: This is the original high-priority task from the previous session, which was paused. The current PDF parsing logic in  incorrectly identifies the  as the primary serial number, leading to incorrect data ordering and inaccurate missing voter counts. The agent needs to implement logic to parse the true serial number based on its position in the PDF.
-    -   **Next debug checklist**:
-        1.  In , modify the  parsing logic.
-        2.  Use word coordinates (, ) to identify the first numerical value in each voter block as the true .
-        3.  Ensure the  is stored as an integer and used for sorting.
-        4.  Update the  endpoint to use this reliable  for gap analysis.
-    -   **Why fix this issue and what will be achieved with the fix?**: To ensure data integrity for the PDF import method and provide accurate analytics on missing voters.
+Cleaning up existing data...
+✓ Existing data cleaned
+✓ Created Project: Rama Rama Project (ID: 6199fb14...)
+✓ Created Project: Sai Krishna Enclave (ID: b3ede0dd...)
+  ✓ Bank Account: SBI - ****2109
+  ✓ Cash Account: Office Cash
+  ✓ Bank Account: HDFC - ****4321
+  ✓ Bank Account: ICICI - ****9012
+
+Creating sample properties for Rama Rama Project...
+  ✓ Created 8 properties
+
+Creating sample properties for Sai Krishna Enclave...
+  ✓ Created 5 properties
+
+=== Setup Complete ===
+Projects: 2 (Rama Rama Project, Sai Krishna Enclave)
+Bank Accounts: 4 (3 for Rama Rama, 1 for Sai Krishna)
+Properties: 13 to create the necessary projects (Rama Rama Project) and bank accounts.
+        2.  Restart the backend backend: stopped
+backend: started.
+        3.  Verify the  endpoint with  to ensure it returns the seeded data correctly.
+        4.  Log in to the frontend and navigate to the Bank Accounts page to confirm the data loads in the UI.
+    -   **Why fix this issue and what will be achieved with the fix?**: Unblocks a critical financial management feature for the user.
+    -   **Status**: IN PROGRESS
+    -   **Is recurring issue?**: Y
+    -   **Should Test frontend/backend/both after fix?**: Both
+
+-   **Issue 2: Fix Voter PDF Data Extraction Logic (P2)**
+    -   **Description**: The original task from a previous session. The PDF parsing logic in  is incorrect. The user has consistently deprioritized this.
     -   **Status**: NOT STARTED
     -   **Is recurring issue?**: Y
     -   **Should Test frontend/backend/both after fix?**: Both
 
 **In progress Task List**:
--   None.
+-   **Task 1: Complete Google Calendar Sync for Site Visits (P1)**
+    -   **Where to resume**: The agent identified that  and  exist but are not properly connected.
+    -   **What will be achieved with this?**: When a site visit is created, it will automatically generate a Google Calendar event and send invites to both the assigned staff and the customer.
+    -   **Status**: NOT STARTED
+    -   **Should Test frontend/backend/both after fix?**: Backend
 
 **Upcoming and Future Tasks**
 -   **Upcoming Tasks**:
-    -   **P1**: Implement My Properties view in .
-    -   **P1**: Add a link from  to .
-    -   **P1**: Implement the backend for the Pay Now button on payment reminders.
-    -   **P1**: Integrate the  component into the main dashboard.
-    -   **P2**: Fully implement RERA compliance rules, particularly for escrow account fund management and withdrawal controls.
-    -   **P2**: Refactor  to move complex parsing logic into a separate service file.
+    -   **P0**: **WhatsApp Integration**: Implement a service using a low-cost provider like **Gupshup** or **Meta Direct API**. This should include sending templated messages for key events (booking, payment, reminders) and setting up **auto-replies**. (Files to create/edit: )
+    -   **P1**: **Web Push Notification with SMS Fallback**: Complete the logic in  and  to ask for web push permission and fall back to SMS if denied.
 -   **Future Tasks**:
-    -   Mobile App development (React Native).
+    -   Refactor  to move logic into a service layer.
+    -   Fully implement RERA compliance rules.
+    -   Build out the Legal & Handover modules.
+    -   Mobile App (React Native).
     -   e-Sign Integration.
-    -   Integrate real Email/WhatsApp providers.
-    -   Build out Legal & Handover modules.
 
 **Completed work in this session**
--   **Bug Fix**: Fixed property loading in the New Booking modal ().
--   **Feature Enhancement**: Integrated bank account selection for all manual payment recordings.
--   **Bug Fix**: Corrected project list loading and display on the Bank Accounts page.
--   **Bug Fix**: Removed duplicate header from the Stripe Payments page.
--   **Bug Fix**: Fixed PDF generation for all booking-related documents ().
--   **Feature**: Added **Paste from Text** and **Excel Upload** options for voter import ().
--   **Feature Enhancement**: Massively improved Excel import logic to handle data cleaning, type conversion, and custom column mapping ().
--   **UI Enhancement**: Updated the Voters List display with new columns and correct sorting ().
--   **Bug Fix**: Changed Voters List password to admin and fixed input validation.
--   **Deployment Fix**: Resolved deployment failures by removing hardcoded Firebase credentials.
--   **Bug Fix**: Fixed the Role Assignments page by auto-migrating legacy user roles ().
--   **UI Bug Fixes**: Patched crashing bugs on  and .
--   **UI Enhancement**: Added navigation cards for Vendors and Marketing modules to the .
--   **User Support**: Provided revised SMS templates for DLT approval and technical explanations in Telugu.
+-   **Feature**: **Marketing Agents Management Module**: A complete feature with backend APIs (), a new frontend page (), and a full end-to-end test of the workflow (creating an agent, recording a sale, paying a commission).
+-   **UI Overhaul**: **Booking & Payment Flow Simplification**:
+    -   Replaced the old complex booking form with a user-friendly, multi-step **Booking Wizard** ().
+    -   Added a **Quick Payment** floating button and modal for fast payment recording ().
+-   **Feature**: **Property Categories System**:
+    -   Fixed  serialization bugs in .
+    -   Created and executed a seed script () to populate the database with a comprehensive set of master categories (Residential, Commercial, etc.) and subcategories (Plot, Villa, Office Space, etc.).
+    -   Fixed all frontend API paths for category management pages.
+-   **User Support**: Provided extensive analysis and planning in Telugu, including a brutal truth assessment of the application and detailed implementation plans for requested features.
+-   **Dependency Management**: Installed  package for the backend.
 
 **Earlier issues found/mentioned but not fixed**
--   **Issue 1: API Route Prefix Conflict**: An unresolved conflict exists between  and . These should use distinct API prefixes.
--   **Issue 2: Frontend Linting**: Pre-existing lint errors in  and  need to be addressed.
+-   **Issue 1: API Route Prefix Conflict**: An unresolved conflict exists between  and .
+-   **Issue 2: Frontend Linting**: Pre-existing lint errors in  and .
 
 **Known issue recurrence from previous fork**
 -   None.
@@ -112,102 +113,108 @@ The application is a full-stack Real Estate ERP (React, FastAPI, MongoDB). The s
 
 
 **Key Technical Concepts**
--   **Data Coercion**: Implemented robust data type handling in Python (using  blocks) to parse values from Excel that could be strings, floats, or dates (e.g., ensuring 1/1 is not read as a timestamp).
--   **Dynamic Frontend Components**: Modified React components to handle different data sources (PDF, URL, Text, Excel) using state management () to toggle UI sections.
--   **Backward Compatibility (Data Migration)**: Implemented an on-the-fly data migration in the  endpoint to ensure users with legacy  fields can still see their roles in the new system without a separate migration script.
--   **API Endpoint Debugging**: Traced multiple frontend UI failures back to backend issues like incorrect API response formats, missing trailing slashes in URLs (causing 307 redirects), and mismatched data field names ( vs ).
--   **Environment Variable Management**: Fixed a critical deployment blocker by moving hardcoded Firebase credentials from the source code () to environment variables ().
+-   **Full-Stack Feature Implementation**: The Marketing Agents module was built end-to-end, from database schema design and backend API creation to a feature-rich React frontend with state management and testing.
+-   **UI/UX Refactoring**: The agent demonstrated a key skill by replacing a complex, single-page form with a modern, component-based wizard (), significantly improving usability.
+-   **Database Seeding and Data Setup**: Used Python scripts to programmatically create and manage database state (, ), a crucial practice for testing and deployment.
+-   **API Debugging & Fixing**: Systematically identified and fixed backend errors, such as MongoDB  serialization issues and incorrect API route prefixes.
+-   **End-to-End Manual Testing**: Verified the complete functionality of the Marketing Agents flow using a chain of  commands to simulate user actions and check database state changes.
 
 **key DB schema**
--   **voters**:  (New fields  and  added for Excel import).
--   **payments**:  (New optional field  added).
--   **role_assignments**:  (This collection is now populated on-the-fly for users who only have a legacy  in the  collection).
+-   **marketing_agents**: 
+-   **agent_sales**: 
+-   **agent_commission_payments**: 
+-   **master_property_categories**: 
+-   **master_property_subcategories**: 
+-   **(tenant_categories & tenant_subcategories follow a similar structure with  and cloning logic)**
 
 **changes in tech stack**
--   None.
+-   Added  to backend dependencies.
 
 **All files of reference**
--   **Heavily Updated**:
-    -   : Core logic for Excel/text import, data cleaning, and password change.
-    -   : New 4-tab UI for different import methods.
-    -   : Fixed property loading and added bank account selection.
-    -   : Fixed data lookups for generating all customer-facing documents.
-    -   : Added logic to auto-migrate legacy user roles.
--   **Other Key Files**:
-    -   : Fixed a crash caused by incorrect data mapping.
-    -   : Fixed a crash caused by a wrong API endpoint.
-    -   : Added routes for vendor management pages.
-    -   : Added navigation cards for vendor/marketing modules.
-    -   : Removed hardcoded keys for deployment.
+-   **New/Critical Backend**:
+    -   
+    -   
+    -   
+-   **Fixed Backend**:
+    -   
+-   **New/Critical Frontend**:
+    -   
+    -   
+    -   
+-   **Refactored Frontend**:
+    -   
 
 **Areas that need refactoring**:
--   The  file has become extremely large and handles business logic for four different import formats. The parsing logic for each format (PDF, Excel, Text) should be extracted into a dedicated  to improve maintainability.
--   The role assignment logic is now split between the  collection (legacy) and the  collection (new). A one-time migration script could clean this up and consolidate all role information into the  collection.
+-   The  file remains large and should have its parsing logic extracted into a service.
+-   The newly created service files (, ) are currently just placeholders and need to be fully implemented.
 
 **key api endpoints**
--   **New**:
-    -   : Handles import of voter data from raw text.
-    -   : Handles import of voter data from an Excel file.
--   **Updated**:
-    -   : Now accepts an optional  to log manual transactions.
-    -   : Response updated to help frontend filter available properties.
-    -   : Now auto-creates a role assignment for users with only a legacy role, ensuring backward compatibility.
-    -   : Data lookup logic fixed.
-    -   : Password logic updated to accept admin.
+-   **New Marketing Endpoints**:
+    -   
+    -   
+    -   
+    -   
+-   **New/Fixed Category Endpoints**:
+    -   
+    -   
 
 **Critical Info for New Agent**
--   **PRIORITY SHIFT**: The user has deprioritized the original task of fixing PDF parsing. The current top priority is to **verify that the Vendors and Marketing modules are working correctly** after the recent bug fixes. Do not start any new feature or major bug fix until the user confirms these pages are accessible.
--   **USER PREFERENCES**: The user prefers very short, concise answers and may ask for technical explanations in **Telugu**.
--   **VOTER IMPORT**: The primary method for voter import is now **Excel upload** via the  page. The logic in  is highly specific to the user's Excel file format. The PDF import logic is still broken.
--   **AUTHENTICATION**:
-    -   Tenant Admin:  / 
-    -   Super Admin:  / 
-    -   Voters List Password: 
+-   **TOP PRIORITY**: Your immediate task is to fix the **Bank Accounts page**. Execute the script at  to seed the required data, restart the backend, and verify the fix on both the backend API and the frontend UI.
+-   **USER'S PLAN**: The user has approved a clear roadmap. After fixing the bank accounts, the next priorities are **WhatsApp Integration** (using a low-cost provider like Gupshup) and properly connecting the **Google Calendar Sync**.
+-   **LANGUAGE**: You **must** provide all technical explanations, plans, and business-related answers in **Telugu**. Use English for code and file names.
+-   **SKIP THESE**: The user has explicitly said to **not** work on the PWA Mobile App or the Inventory Auto-Pricing feature for now.
+-   **LEVERAGE COMPLETED WORK**: The Marketing Agents module and the new Booking Wizard are complete and tested. You can refer to them as examples of expected code quality and structure.
 
 **documents and test reports created in this job**
--   : Test report from the testing agent verifying the booking modal and payment recording fixes.
--   : Updated with notes on the recent bug fixes.
+-    (Updated with completed tasks)
+-   
+-   
 
 **Last 10 User Messages and any pending HUMAN messages**
-10. **User**: Asks for guidance on how to access the Vendors and Marketing modules. (Agent provided a guide and added links to the dashboard).
-9.  **User**: Asks for clarification on the status of Vendor/Marketing modules and asks the agent to implement the best fix for the Role Assignment issue. (Agent implemented auto-migration).
-8.  **User**: Reports that the Role Assignments page is empty for their user. (Agent fixed it).
-7.  **User**: Reports that the Booking Letter PDF download is failing. (Agent fixed it).
-6.  **User**: Asks which database option to choose during deployment to avoid data loss. (Agent advised Keep existing database).
-5.  **User**: Reports the  password admin is being rejected by input validation. (Agent fixed the input pattern).
-4.  **User**: Asks for help debugging a failing deployment. (Agent identified it as normal startup behavior and incorrect password usage).
-3.  **User**: Reports incorrect data formatting (e.g.,  instead of , dates instead of ) after Excel import. (Agent fixed the data coercion logic).
-2.  **User**: Provides new requirements for the Excel import: change password to admin, combine AC-PS-SL fields, display Relation Type, and sort by the Excel serial number. (Agent implemented all).
-1.  **User**: Suggests adding Excel import as an option and provides a file. (Agent implemented it).
+10. **User**: Requests a detailed, brutal truth analysis of the SaaS platform from a real estate business perspective in Telugu. (Agent provided a comprehensive breakdown).
+9.  **User**: Asks for a detailed plan in Telugu to fix the identified issues (Booking UI, Calendar Sync, Marketing Dashboard, WhatsApp, etc.) and asks for clarification on WhatsApp pricing. (Agent provided a detailed, step-by-step plan).
+8.  **User**: Clarifies their WhatsApp DLT status and asks for a low-cost integration solution. Re-confirms the features they want implemented (Marketing Dashboard, Booking UI fix, Calendar sync) and which to skip (PWA, Inventory pricing). (Agent revised the plan to use Gupshup/Meta API and prioritized tasks).
+7.  **User**: Approves the plan and gives the green light to start implementation. (Agent began implementation).
+6.  **User**: Requests to test the Marketing Agents flow and notes the Booking UI wizard is still pending. (Agent performed a full end-to-end test of the marketing flow via API).
+5.  **User**: Asks to populate the master/tenant category modules with data and fix any issues found. (Agent fixed the APIs and seeded data).
+4.  **User**: Reports BANK ACCOUNT NOT LOADING, asks to clean up project data to keep only Rama Rama Project and one other, and provides a detailed spec for a dynamic category system. (Agent started working on the bank account bug).
+3.  **User**: *(This is a duplicate/rephrasing of the previous message, providing more context on the category system)*.
+2.  **User**: *(No new message, just an image artifact showing the blank bank accounts page)*.
+1.  **User**: *(Agent response indicating it will analyze the image)*.
 
 **Project Health Check:**
--   **Broken**: The original PDF import functionality for voters remains broken and inaccurate.
+-   **Broken**:
+    -   The Bank Accounts page is not loading data.
+    -   The original PDF import for voters is still broken.
 -   **Mocked**:
-    -   **Resend**: Email system requires a .
-    -   **WhatsApp**: Integration is blocked, pending DLT approval.
+    -   WhatsApp integration is not implemented.
+    -   SMS integration is configured but not fully live/tested with DLT-approved templates.
+    -   Web Push notifications and Auto-Reply services are scaffolded but contain no logic.
 
 **3rd Party Integrations**
 -   **OpenAI GPT-4o** (via Emergent LLM Key)
 -   **Stripe** (Payments)
 -   **Resend** (Email notifications, in mock mode)
--   **smslogin.co** (Live SMS OTP)
+-   **smslogin.co** (Live SMS OTP, needs DLT IDs)
 -   **PayU** (Live Payment Gateway)
--   **openpyxl, xlsxwriter** (Excel file generation)
--   **pypdf** (PDF parsing - partially implemented, needs fixes)
+-   **openpyxl, xlsxwriter** (Excel file handling)
+-   **pypdf** (PDF parsing - broken)
 -   **ReportLab** (PDF generation)
+-   **pywebpush** (Web push notifications - new, partially implemented)
+-   **Gupshup/Meta Direct API** (Planned for WhatsApp)
 
 **Testing status**
--   **Testing agent used after significant changes**: YES (Used to verify the booking modal and payment recording fixes early in the session).
+-   **Testing agent used after significant changes**: NO
 -   **Troubleshoot agent used after agent stuck in loop**: NO
 -   **Test files created**: None.
--   **Known regressions**: None identified in this session.
+-   **Known regressions**: None identified. The agent performed extensive manual  testing for the new backend APIs and screenshot testing for the new frontend components.
 
 **Credentials to test flow:**
--   **Tenant Admin**:  /  (Use this for testing Vendors/Marketing modules)
+-   **Tenant Admin**:  / 
 -   **Super Admin**:  / 
 -   **Voters List Login**: Use the password .
 
 **What agent forgot to execute**
--   The agent did not address the pre-existing API route prefix conflict between  and .
--   The agent did not fix the pre-existing lint errors in .
--   The core task of fixing the PDF extraction logic in  was paused at the user's request and remains incomplete.</analysis>
+-   The agent created the  script to fix the Bank Account data issue but did not execute it.
+-   The core logic for the newly created services (, ) and their corresponding routes was not implemented; they are currently empty scaffolds.
+-   The Google Calendar sync was identified as needing a fix, but no code changes were made to  to properly connect it.</analysis>

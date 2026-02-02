@@ -47,7 +47,7 @@
         tenantId: tenantId,
         position: position,
         primaryColor: primaryColor,
-        backendUrl: 'https://prop-booking-1.preview.emergentagent.com/api'
+        backendUrl: 'https://realtor-dash-2.preview.emergentagent.com/api'
       };
       
       // Load chat widget bundle
