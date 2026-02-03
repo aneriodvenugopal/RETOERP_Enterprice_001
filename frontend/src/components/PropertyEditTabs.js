@@ -83,15 +83,25 @@ const PropertyEditTabs = ({
         booking_amount: property.booking_amount?.toString() || '',
         
         // Handle both new property_images format and legacy images array
-        property_images: property.property_images?.length > 0 
-          ? property.property_images 
-          : (property.images || []).map((url, idx) => ({
-              url: typeof url === 'string' ? url : url?.url || '',
-              caption: '',
-              is_cover: idx === 0,
-              uploaded_at: new Date().toISOString()
-            })),
-        property_videos: property.property_videos || [],
+        property_images: (() => {
+          let images = property.property_images?.length > 0 
+            ? property.property_images 
+            : (property.images || []).map((url, idx) => ({
+                url: typeof url === 'string' ? url : url?.url || '',
+                caption: '',
+                is_cover: idx === 0,
+                uploaded_at: new Date().toISOString()
+              }));
+          // Filter out entries with empty URLs
+          return images.filter(img => {
+            const url = typeof img === 'string' ? img : img?.url;
+            return url && url.trim() !== '';
+          });
+        })(),
+        property_videos: (property.property_videos || []).filter(v => {
+          const url = typeof v === 'string' ? v : v?.url;
+          return url && url.trim() !== '';
+        }),
         
         latitude: property.latitude?.toString() || '',
         longitude: property.longitude?.toString() || '',
