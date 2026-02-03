@@ -148,7 +148,7 @@ const ProjectDetail = () => {
     }
   };
 
-  // Edit property handler - ONLY for available properties, non-financial fields only
+  // Edit property handler - Opens tabbed edit modal
   const handleEditProperty = (property) => {
     // Check if property is available - Rule: Only available plots can be edited
     const status = propertyStatuses.find(s => s.id === property.status_id);
@@ -158,39 +158,19 @@ const ProjectDetail = () => {
     }
     
     setEditingProperty(property);
-    setEditForm({
-      property_number: property.property_number || '',
-      area: property.area?.toString() || '',
-      unit: property.unit || 'sq.yard',
-      block: property.block || '',
-      facing: property.facing || ''
-    });
     setShowEditDialog(true);
   };
 
-  const handleSaveEdit = async () => {
+  const handleSavePropertyEdit = async (updatedData) => {
     if (!editingProperty) return;
     
-    setLoading(true);
     try {
-      // Only update non-financial fields
-      await propertyService.update(editingProperty.id, {
-        property_number: editForm.property_number,
-        area: parseFloat(editForm.area) || 0,
-        unit: editForm.unit,
-        block: editForm.block,
-        facing: editForm.facing
-        // Note: price is NOT included - cannot edit financial data
-      });
-      
-      toast.success('Property updated successfully!');
+      await propertyService.update(editingProperty.id, updatedData);
       setShowEditDialog(false);
       setEditingProperty(null);
       fetchProjectData();
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Failed to update property');
-    } finally {
-      setLoading(false);
+      throw error;
     }
   };
 
