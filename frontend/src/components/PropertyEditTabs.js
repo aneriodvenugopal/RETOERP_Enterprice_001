@@ -82,7 +82,15 @@ const PropertyEditTabs = ({
         contact_for_price: property.contact_for_price || false,
         booking_amount: property.booking_amount?.toString() || '',
         
-        property_images: property.property_images || [],
+        // Handle both new property_images format and legacy images array
+        property_images: property.property_images?.length > 0 
+          ? property.property_images 
+          : (property.images || []).map((url, idx) => ({
+              url: typeof url === 'string' ? url : url?.url || '',
+              caption: '',
+              is_cover: idx === 0,
+              uploaded_at: new Date().toISOString()
+            })),
         property_videos: property.property_videos || [],
         
         latitude: property.latitude?.toString() || '',
