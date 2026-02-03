@@ -507,14 +507,20 @@ const PropertyEditTabs = ({
                   {/* Image Grid */}
                   {formData.property_images.length > 0 ? (
                     <div className="grid grid-cols-3 gap-4">
-                      {formData.property_images.map((img, index) => (
+                      {formData.property_images.map((img, index) => {
+                        const imageUrl = typeof img === 'string' ? img : img?.url || '';
+                        return (
                         <div key={index} className="relative group rounded-lg overflow-hidden border">
                           <img
-                            src={img.url}
+                            src={imageUrl}
                             alt={`Property ${index + 1}`}
                             className="w-full h-32 object-cover"
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="150" viewBox="0 0 200 150"><rect fill="%23f3f4f6" width="200" height="150"/><text fill="%239ca3af" font-family="sans-serif" font-size="14" x="50%" y="50%" text-anchor="middle" dy=".3em">No Image</text></svg>';
+                            }}
                           />
-                          {img.is_cover && (
+                          {(typeof img === 'object' && img?.is_cover) && (
                             <Badge className="absolute top-2 left-2 bg-green-500">Cover</Badge>
                           )}
                           <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition flex items-center justify-center gap-2">
