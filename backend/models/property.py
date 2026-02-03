@@ -125,12 +125,28 @@ class PropertyCreate(BaseModel):
 class PropertyUpdate(BaseModel):
     property_number: Optional[str] = None
     area: Optional[float] = None
+    unit: Optional[str] = None
     facing: Optional[str] = None
     floor: Optional[int] = None
+    block: Optional[str] = None
+    length: Optional[float] = None
+    width: Optional[float] = None
     price: Optional[float] = None
+    price_per_sqft: Optional[float] = None
+    booking_amount: Optional[float] = None
+    contact_for_price: Optional[bool] = None
     status_id: Optional[str] = None
     features: Optional[list[str]] = None
     images: Optional[list[str]] = None
+    property_images: Optional[List[Dict[str, Any]]] = None
+    property_videos: Optional[List[Dict[str, Any]]] = None
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    google_address: Optional[str] = None
+    is_certified: Optional[bool] = None
+    certification_note: Optional[str] = None
+    survey_number: Optional[str] = None
+    registration_number: Optional[str] = None
 
 class PropertyBlock(BaseModel):
     property_id: str
