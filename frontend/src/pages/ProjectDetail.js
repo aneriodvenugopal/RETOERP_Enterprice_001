@@ -32,13 +32,6 @@ const ProjectDetail = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [editingProperty, setEditingProperty] = useState(null);
   const [showEditDialog, setShowEditDialog] = useState(false);
-  const [editForm, setEditForm] = useState({
-    property_number: '',
-    area: '',
-    unit: 'sq.yard',
-    block: '',
-    facing: ''
-  });
 
   const [formData, setFormData] = useState({
     project_id: projectId,
