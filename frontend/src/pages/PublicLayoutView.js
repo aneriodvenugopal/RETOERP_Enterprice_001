@@ -693,14 +693,32 @@ const PublicLayoutView = () => {
                         </div>
                       </div>
 
-                      {/* Embedded Google Map */}
-                      <div className="rounded-lg overflow-hidden border border-gray-200 bg-gray-100">
+                      {/* Clickable Map Area - Opens Directions */}
+                      <div 
+                        className="rounded-lg overflow-hidden border border-gray-200 bg-gray-100 cursor-pointer relative group"
+                        onClick={() => {
+                          if (project?.latitude && project?.longitude) {
+                            const url = `https://www.google.com/maps/dir/?api=1&destination=${project.latitude},${project.longitude}`;
+                            window.open(url, '_blank');
+                          } else if (project?.google_maps_url) {
+                            window.open(project.google_maps_url, '_blank');
+                          }
+                        }}
+                      >
+                        {/* Overlay hint on hover */}
+                        <div className="absolute inset-0 bg-blue-600/20 opacity-0 group-hover:opacity-100 transition-opacity z-10 flex items-center justify-center">
+                          <div className="bg-white px-4 py-2 rounded-full shadow-lg flex items-center gap-2">
+                            <Navigation className="w-5 h-5 text-blue-600" />
+                            <span className="font-medium text-blue-600">Click for Directions</span>
+                          </div>
+                        </div>
+                        
                         {project?.latitude && project?.longitude ? (
                           <iframe
                             src={`https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3000!2d${project.longitude}!3d${project.latitude}!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zM${project.latitude}!5e0!3m2!1sen!2sin!4v1609459200000!5m2!1sen!2sin`}
                             width="100%"
                             height="300"
-                            style={{ border: 0 }}
+                            style={{ border: 0, pointerEvents: 'none' }}
                             allowFullScreen=""
                             loading="lazy"
                             referrerPolicy="no-referrer-when-downgrade"
@@ -711,7 +729,7 @@ const PublicLayoutView = () => {
                             src={project.google_maps_url.replace('/maps/', '/maps/embed/')}
                             width="100%"
                             height="300"
-                            style={{ border: 0 }}
+                            style={{ border: 0, pointerEvents: 'none' }}
                             allowFullScreen=""
                             loading="lazy"
                             referrerPolicy="no-referrer-when-downgrade"
@@ -731,7 +749,7 @@ const PublicLayoutView = () => {
                         {(project?.latitude && project?.longitude) || project?.google_maps_url ? (
                           <>
                             <Button 
-                              className="flex-1 bg-blue-600 hover:bg-blue-700"
+                              className="flex-1 bg-green-600 hover:bg-green-700"
                               onClick={() => {
                                 const url = project?.google_maps_url || 
                                   `https://www.google.com/maps/dir/?api=1&destination=${project.latitude},${project.longitude}`;
