@@ -545,6 +545,7 @@ const PropertyEditTabs = ({
                             </Button>
                           </div>
                         </div>
+                        );
                       ))}
                     </div>
                   ) : (
