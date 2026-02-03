@@ -698,7 +698,7 @@ const PropertyEditTabs = ({
                     />
                     <div>
                       <Label className="text-yellow-800 font-medium">Contact for Price</Label>
-                      <p className="text-sm text-yellow-600">Hide price and show "Contact for Price" instead</p>
+                      <p className="text-sm text-yellow-600">Hide price and show &quot;Contact for Price&quot; instead</p>
                     </div>
                   </div>
 
