@@ -180,17 +180,27 @@ const PropertyEditTabs = ({
   const handleRemoveImage = (index) => {
     const newImages = formData.property_images.filter((_, i) => i !== index);
     // If removed image was cover, make first one cover
-    if (formData.property_images[index]?.is_cover && newImages.length > 0) {
-      newImages[0].is_cover = true;
+    const removedImg = formData.property_images[index];
+    const wasCover = typeof removedImg === 'object' ? removedImg?.is_cover : index === 0;
+    if (wasCover && newImages.length > 0) {
+      if (typeof newImages[0] === 'object') {
+        newImages[0].is_cover = true;
+      } else {
+        // Convert string to object
+        newImages[0] = { url: newImages[0], is_cover: true, caption: '' };
+      }
     }
     setFormData(prev => ({ ...prev, property_images: newImages }));
   };
 
   const handleSetCoverImage = (index) => {
-    const newImages = formData.property_images.map((img, i) => ({
-      ...img,
-      is_cover: i === index
-    }));
+    const newImages = formData.property_images.map((img, i) => {
+      // Handle both string URLs and object format
+      if (typeof img === 'string') {
+        return { url: img, is_cover: i === index, caption: '' };
+      }
+      return { ...img, is_cover: i === index };
+    });
     setFormData(prev => ({ ...prev, property_images: newImages }));
   };
 
