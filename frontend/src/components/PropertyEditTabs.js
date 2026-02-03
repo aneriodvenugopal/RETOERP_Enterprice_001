@@ -525,7 +525,7 @@ const PropertyEditTabs = ({
                             <Badge className="absolute top-2 left-2 bg-green-500">Cover</Badge>
                           )}
                           <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition flex items-center justify-center gap-2">
-                            {!img.is_cover && (
+                            {!isCover && (
                               <Button
                                 size="sm"
                                 variant="secondary"
