@@ -554,40 +554,63 @@ const PublicLayoutView = () => {
 
                   {/* Gallery Tab */}
                   <TabsContent value="gallery" className="mt-0">
-                    {(selectedPlot.images && selectedPlot.images.length > 0) || (project?.images && project.images.length > 0) ? (
+                    {(() => {
+                      // Collect all available images from different sources
+                      const plotImages = selectedPlot.property_images || selectedPlot.images || [];
+                      const projectImages = project?.property_images || project?.images || [];
+                      const hasImages = plotImages.length > 0 || projectImages.length > 0;
+                      
+                      return hasImages ? (
                       <div className="space-y-4">
                         {/* Plot specific images */}
-                        {selectedPlot.images && selectedPlot.images.length > 0 && (
+                        {plotImages.length > 0 && (
                           <div>
                             <h4 className="font-semibold text-gray-900 mb-3">Plot Images</h4>
                             <div className="grid grid-cols-3 gap-3">
-                              {selectedPlot.images.map((image, idx) => (
+                              {plotImages.map((image, idx) => {
+                                const imgUrl = typeof image === 'string' ? image : (image?.url || '');
+                                return (
                                 <div key={idx} className="relative rounded-lg overflow-hidden bg-gray-100 aspect-square cursor-pointer hover:opacity-90 transition">
                                   <img 
-                                    src={image.url || image} 
-                                    alt={`Plot ${selectedPlot.display_name} - ${idx + 1}`}
+                                    src={imgUrl} 
+                                    alt={`Plot ${selectedPlot.display_name || selectedPlot.property_number} - ${idx + 1}`}
                                     className="w-full h-full object-cover"
+                                    onError={(e) => {
+                                      e.target.onerror = null;
+                                      e.target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><rect fill="%23f3f4f6" width="200" height="200"/><text fill="%239ca3af" font-family="sans-serif" font-size="12" x="50%" y="50%" text-anchor="middle" dy=".3em">Image</text></svg>';
+                                    }}
                                   />
+                                  {(typeof image === 'object' && image?.is_cover) && (
+                                    <span className="absolute top-2 left-2 px-2 py-1 bg-green-500 text-white text-xs rounded">Cover</span>
+                                  )}
                                 </div>
-                              ))}
+                                );
+                              })}
                             </div>
                           </div>
                         )}
                         
                         {/* Project/Layout images */}
-                        {project?.images && project.images.length > 0 && (
+                        {projectImages.length > 0 && (
                           <div>
                             <h4 className="font-semibold text-gray-900 mb-3">Project Gallery</h4>
                             <div className="grid grid-cols-3 gap-3">
-                              {project.images.map((image, idx) => (
+                              {projectImages.map((image, idx) => {
+                                const imgUrl = typeof image === 'string' ? image : (image?.url || '');
+                                return (
                                 <div key={idx} className="relative rounded-lg overflow-hidden bg-gray-100 aspect-square cursor-pointer hover:opacity-90 transition">
                                   <img 
-                                    src={image.url || image} 
+                                    src={imgUrl} 
                                     alt={`${project.name} - ${idx + 1}`}
                                     className="w-full h-full object-cover"
+                                    onError={(e) => {
+                                      e.target.onerror = null;
+                                      e.target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><rect fill="%23f3f4f6" width="200" height="200"/><text fill="%239ca3af" font-family="sans-serif" font-size="12" x="50%" y="50%" text-anchor="middle" dy=".3em">Image</text></svg>';
+                                    }}
                                   />
                                 </div>
-                              ))}
+                                );
+                              })}
                             </div>
                           </div>
                         )}
@@ -598,23 +621,51 @@ const PublicLayoutView = () => {
                         <h3 className="text-lg font-semibold text-gray-700 mb-2">No Images Available</h3>
                         <p className="text-gray-500">Gallery images will be added soon</p>
                       </div>
-                    )}
+                    );
+                    })()}
                   </TabsContent>
 
-                  {/* Videos Tab */}
+                  {/* Videos Tab - YouTube Support */}
                   <TabsContent value="videos" className="mt-0">
-                    {selectedPlot.videos && selectedPlot.videos.length > 0 ? (
-                      <div className="grid grid-cols-2 gap-4">
-                        {selectedPlot.videos.map((video, idx) => (
-                          <div key={idx} className="relative rounded-lg overflow-hidden bg-gray-100 aspect-video">
-                            <video 
-                              src={video.url} 
-                              controls 
-                              className="w-full h-full object-cover"
-                              poster={video.thumbnail}
-                            />
+                    {(() => {
+                      const videos = selectedPlot.property_videos || selectedPlot.videos || [];
+                      
+                      // Extract YouTube ID from URL
+                      const getYouTubeId = (url) => {
+                        if (!url) return null;
+                        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+                        const match = url.match(regExp);
+                        return (match && match[2].length === 11) ? match[2] : null;
+                      };
+                      
+                      return videos.length > 0 ? (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {videos.map((video, idx) => {
+                          const videoUrl = typeof video === 'string' ? video : (video?.url || '');
+                          const youtubeId = video?.youtube_id || getYouTubeId(videoUrl);
+                          
+                          return (
+                          <div key={idx} className="relative rounded-lg overflow-hidden bg-gray-900 aspect-video">
+                            {youtubeId ? (
+                              <iframe
+                                src={`https://www.youtube.com/embed/${youtubeId}?rel=0`}
+                                title={`Property Video ${idx + 1}`}
+                                className="w-full h-full"
+                                frameBorder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowFullScreen
+                              />
+                            ) : (
+                              <video 
+                                src={videoUrl} 
+                                controls 
+                                className="w-full h-full object-cover"
+                                poster={video?.thumbnail}
+                              />
+                            )}
                           </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     ) : (
                       <div className="text-center py-12">
@@ -622,7 +673,8 @@ const PublicLayoutView = () => {
                         <h3 className="text-lg font-semibold text-gray-700 mb-2">No Videos Available</h3>
                         <p className="text-gray-500">Property videos will be added soon</p>
                       </div>
-                    )}
+                    );
+                    })()}
                   </TabsContent>
 
                   {/* Location Tab with Embedded Google Maps */}
