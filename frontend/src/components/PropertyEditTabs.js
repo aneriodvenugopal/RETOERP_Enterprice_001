@@ -509,6 +509,7 @@ const PropertyEditTabs = ({
                     <div className="grid grid-cols-3 gap-4">
                       {formData.property_images.map((img, index) => {
                         const imageUrl = typeof img === 'string' ? img : img?.url || '';
+                        const isCover = typeof img === 'object' && img?.is_cover;
                         return (
                         <div key={index} className="relative group rounded-lg overflow-hidden border">
                           <img
