@@ -13,6 +13,7 @@ import { Badge } from '@/components/ui/badge';
 import PageInfoModal from '../components/PageInfoModal';
 import RoleManagement from '../components/RoleManagement';
 import CustomFieldsManager from '../components/CustomFieldsManager';
+import PropertyEditTabs from '../components/PropertyEditTabs';
 
 const ProjectDetail = () => {
   const { projectId } = useParams();
