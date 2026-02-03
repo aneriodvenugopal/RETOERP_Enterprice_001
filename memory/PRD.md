@@ -624,6 +624,49 @@ Build a comprehensive Real Estate ERP (RealApex) SaaS platform for the Indian re
     - `frontend/src/pages/admin/MasterCategoryManagement.js` (API paths fixed)
     - `frontend/src/pages/admin/TenantCategoryManagement.js` (API paths fixed)
 
+- [x] **Property Edit Tabbed UI** (Completed Feb 3, 2026)
+  - **5-Tab Edit Modal** (Mirrors frontend customer view exactly):
+    - Details Tab: Plot Number, Block, Area, Unit, Facing, Dimensions, Status, Legal & Certification
+    - Gallery Tab: Upload property images, set cover image, remove images
+    - Videos Tab: Add YouTube URLs, preview thumbnails, manage video list
+    - Location Tab: GPS coordinates (lat/long), Google Maps embed, get current location
+    - Pricing Tab: Total price, price per sq.ft, booking amount, "Contact for Price" toggle
+  - **UX Improvements**:
+    - Admin edit UI matches frontend tabs exactly - "What you see is what you edit"
+    - Preview mode shows customer view before saving
+    - Image upload with drag-and-drop support
+    - YouTube thumbnail auto-extraction
+    - Live Google Maps preview for coordinates
+  - **Backend Updates**:
+    - `PropertyUpdate` model extended with new fields (property_images, property_videos, latitude, longitude, booking_amount, contact_for_price, certification fields)
+    - `Property` model updated with booking_amount and contact_for_price fields
+  - **Files Created**:
+    - `frontend/src/components/PropertyEditTabs.js` (New tabbed edit component)
+  - **Files Updated**:
+    - `frontend/src/pages/ProjectDetail.js` (Integrated PropertyEditTabs)
+    - `backend/models/property.py` (Extended models)
+
+- [x] **SMS & WhatsApp DLT Templates** (Completed Feb 3, 2026)
+  - **17 SMS Templates** for DLT approval:
+    - OTP, Token Payment, Booking Confirmed, Payment Received/Reminder/Overdue
+    - EMI Reminder/Received, Site Visit Scheduled/Reminder
+    - Lead Welcome, Document Request/Ready
+    - Staff Lead Assignment, Staff Follow-up Reminder
+    - Project Launch, Special Offer
+  - **16 WhatsApp Business Templates**:
+    - Same categories as SMS but with rich formatting
+    - Line breaks for better readability
+    - No emojis (often rejected by DLT)
+  - **Template Best Practices**:
+    - Single variable per logical unit
+    - No consecutive variables
+    - Clear purpose statement
+    - ELNIOT SOFTWARE signature
+    - Indian format (Rs. not ₹)
+  - **Files Created**:
+    - `/app/memory/WHATSAPP_DLT_TEMPLATES.md` (Formatted templates)
+    - `/app/memory/SMS_WHATSAPP_TEMPLATES_PLAIN.md` (Plain text with samples)
+
 
 ### P4 - Future/Backlog
 - [x] Festival Greetings Automation - Backend cron job for Jan 26 & Aug 15 (Completed Jan 12, 2026)
