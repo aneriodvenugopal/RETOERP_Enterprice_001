@@ -39,6 +39,8 @@ class Property(BaseModel):
     price: float
     currency_id: Optional[str] = None
     price_per_sqft: Optional[float] = None
+    booking_amount: Optional[float] = None  # Token amount to book/block
+    contact_for_price: bool = False  # Hide price, show "Contact for Price"
     
     # Status
     status_id: Optional[str] = None  # Reference to MasterCategory (available, blocked, booked, sold, resale)
