@@ -559,37 +559,61 @@ const PublicLayoutView = () => {
                     )}
                   </TabsContent>
 
-                  {/* Gallery Tab */}
+                  {/* Gallery Tab - Enhanced with better image handling */}
                   <TabsContent value="gallery" className="mt-0">
                     {(() => {
                       // Collect all available images from different sources
-                      const plotImages = selectedPlot.property_images || selectedPlot.images || [];
-                      const projectImages = project?.property_images || project?.images || [];
-                      const hasImages = plotImages.length > 0 || projectImages.length > 0;
+                      // Check multiple possible field names for images
+                      const plotImages = selectedPlot.property_images || selectedPlot.images || selectedPlot.gallery || [];
+                      const projectImages = project?.property_images || project?.images || project?.gallery || [];
+                      
+                      // Filter out empty/invalid URLs
+                      const validPlotImages = plotImages.filter(img => {
+                        const url = typeof img === 'string' ? img : img?.url;
+                        return url && url.trim() !== '' && !url.includes('undefined');
+                      });
+                      const validProjectImages = projectImages.filter(img => {
+                        const url = typeof img === 'string' ? img : img?.url;
+                        return url && url.trim() !== '' && !url.includes('undefined');
+                      });
+                      
+                      const hasImages = validPlotImages.length > 0 || validProjectImages.length > 0;
                       
                       return hasImages ? (
-                      <div className="space-y-4">
+                      <div className="space-y-4 max-h-[400px] overflow-y-auto">
                         {/* Plot specific images */}
-                        {plotImages.length > 0 && (
+                        {validPlotImages.length > 0 && (
                           <div>
-                            <h4 className="font-semibold text-gray-900 mb-3">Plot Images</h4>
+                            <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                              <ImageIcon className="w-4 h-4" />
+                              Plot Images ({validPlotImages.length})
+                            </h4>
                             <div className="grid grid-cols-3 gap-3">
-                              {plotImages.map((image, idx) => {
+                              {validPlotImages.map((image, idx) => {
                                 const imgUrl = typeof image === 'string' ? image : (image?.url || '');
+                                const isCover = typeof image === 'object' && image?.is_cover;
                                 return (
-                                <div key={idx} className="relative rounded-lg overflow-hidden bg-gray-100 aspect-square cursor-pointer hover:opacity-90 transition">
+                                <div 
+                                  key={idx} 
+                                  className="relative rounded-lg overflow-hidden bg-gray-100 aspect-square cursor-pointer hover:scale-105 transition-transform shadow-sm"
+                                  onClick={() => window.open(imgUrl, '_blank')}
+                                >
                                   <img 
                                     src={imgUrl} 
                                     alt={`Plot ${selectedPlot.display_name || selectedPlot.property_number} - ${idx + 1}`}
                                     className="w-full h-full object-cover"
+                                    loading="lazy"
                                     onError={(e) => {
                                       e.target.onerror = null;
-                                      e.target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><rect fill="%23f3f4f6" width="200" height="200"/><text fill="%239ca3af" font-family="sans-serif" font-size="12" x="50%" y="50%" text-anchor="middle" dy=".3em">Image</text></svg>';
+                                      e.target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><rect fill="%23e5e7eb" width="200" height="200"/><text fill="%236b7280" font-family="sans-serif" font-size="12" x="50%" y="50%" text-anchor="middle" dy=".3em">No Preview</text></svg>';
                                     }}
                                   />
-                                  {(typeof image === 'object' && image?.is_cover) && (
-                                    <span className="absolute top-2 left-2 px-2 py-1 bg-green-500 text-white text-xs rounded">Cover</span>
+                                  {isCover && (
+                                    <span className="absolute top-2 left-2 px-2 py-1 bg-green-500 text-white text-xs rounded-full font-medium">Cover</span>
                                   )}
+                                  <div className="absolute inset-0 bg-black/0 hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 hover:opacity-100">
+                                    <ZoomIn className="w-6 h-6 text-white drop-shadow-lg" />
+                                  </div>
                                 </div>
                                 );
                               })}
@@ -598,23 +622,34 @@ const PublicLayoutView = () => {
                         )}
                         
                         {/* Project/Layout images */}
-                        {projectImages.length > 0 && (
+                        {validProjectImages.length > 0 && (
                           <div>
-                            <h4 className="font-semibold text-gray-900 mb-3">Project Gallery</h4>
+                            <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                              <Building2 className="w-4 h-4" />
+                              Project Gallery ({validProjectImages.length})
+                            </h4>
                             <div className="grid grid-cols-3 gap-3">
-                              {projectImages.map((image, idx) => {
+                              {validProjectImages.map((image, idx) => {
                                 const imgUrl = typeof image === 'string' ? image : (image?.url || '');
                                 return (
-                                <div key={idx} className="relative rounded-lg overflow-hidden bg-gray-100 aspect-square cursor-pointer hover:opacity-90 transition">
+                                <div 
+                                  key={idx} 
+                                  className="relative rounded-lg overflow-hidden bg-gray-100 aspect-square cursor-pointer hover:scale-105 transition-transform shadow-sm"
+                                  onClick={() => window.open(imgUrl, '_blank')}
+                                >
                                   <img 
                                     src={imgUrl} 
                                     alt={`${project.name} - ${idx + 1}`}
                                     className="w-full h-full object-cover"
+                                    loading="lazy"
                                     onError={(e) => {
                                       e.target.onerror = null;
-                                      e.target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><rect fill="%23f3f4f6" width="200" height="200"/><text fill="%239ca3af" font-family="sans-serif" font-size="12" x="50%" y="50%" text-anchor="middle" dy=".3em">Image</text></svg>';
+                                      e.target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><rect fill="%23e5e7eb" width="200" height="200"/><text fill="%236b7280" font-family="sans-serif" font-size="12" x="50%" y="50%" text-anchor="middle" dy=".3em">No Preview</text></svg>';
                                     }}
                                   />
+                                  <div className="absolute inset-0 bg-black/0 hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 hover:opacity-100">
+                                    <ZoomIn className="w-6 h-6 text-white drop-shadow-lg" />
+                                  </div>
                                 </div>
                                 );
                               })}
@@ -632,10 +667,16 @@ const PublicLayoutView = () => {
                     })()}
                   </TabsContent>
 
-                  {/* Videos Tab - YouTube Support */}
+                  {/* Videos Tab - Improved UI with thumbnails */}
                   <TabsContent value="videos" className="mt-0">
                     {(() => {
                       const videos = selectedPlot.property_videos || selectedPlot.videos || [];
+                      
+                      // Filter valid videos
+                      const validVideos = videos.filter(v => {
+                        const url = typeof v === 'string' ? v : v?.url;
+                        return url && url.trim() !== '';
+                      });
                       
                       // Extract YouTube ID from URL
                       const getYouTubeId = (url) => {
@@ -645,34 +686,101 @@ const PublicLayoutView = () => {
                         return (match && match[2].length === 11) ? match[2] : null;
                       };
                       
-                      return videos.length > 0 ? (
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {videos.map((video, idx) => {
-                          const videoUrl = typeof video === 'string' ? video : (video?.url || '');
-                          const youtubeId = video?.youtube_id || getYouTubeId(videoUrl);
-                          
-                          return (
-                          <div key={idx} className="relative rounded-lg overflow-hidden bg-gray-900 aspect-video">
-                            {youtubeId ? (
-                              <iframe
-                                src={`https://www.youtube.com/embed/${youtubeId}?rel=0`}
-                                title={`Property Video ${idx + 1}`}
-                                className="w-full h-full"
-                                frameBorder="0"
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                allowFullScreen
-                              />
-                            ) : (
-                              <video 
-                                src={videoUrl} 
-                                controls 
-                                className="w-full h-full object-cover"
-                                poster={video?.thumbnail}
-                              />
-                            )}
+                      // State for selected video (for playing)
+                      const [playingVideo, setPlayingVideo] = React.useState(null);
+                      
+                      return validVideos.length > 0 ? (
+                      <div className="space-y-4 max-h-[400px] overflow-y-auto">
+                        {/* Currently playing video */}
+                        {playingVideo !== null && (
+                          <div className="relative rounded-lg overflow-hidden bg-gray-900 w-full" style={{ aspectRatio: '16/9', maxHeight: '250px' }}>
+                            {(() => {
+                              const video = validVideos[playingVideo];
+                              const videoUrl = typeof video === 'string' ? video : (video?.url || '');
+                              const youtubeId = video?.youtube_id || getYouTubeId(videoUrl);
+                              
+                              return youtubeId ? (
+                                <iframe
+                                  src={`https://www.youtube.com/embed/${youtubeId}?rel=0&autoplay=1`}
+                                  title={`Property Video ${playingVideo + 1}`}
+                                  className="w-full h-full"
+                                  frameBorder="0"
+                                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                  allowFullScreen
+                                />
+                              ) : (
+                                <video 
+                                  src={videoUrl} 
+                                  controls 
+                                  autoPlay
+                                  className="w-full h-full object-contain"
+                                  poster={video?.thumbnail}
+                                />
+                              );
+                            })()}
+                            <button
+                              onClick={() => setPlayingVideo(null)}
+                              className="absolute top-2 right-2 p-1 bg-black/50 rounded-full text-white hover:bg-black/70"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
                           </div>
-                          );
-                        })}
+                        )}
+                        
+                        {/* Video thumbnails grid */}
+                        <div>
+                          <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                            <Video className="w-4 h-4" />
+                            Videos ({validVideos.length})
+                          </h4>
+                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                            {validVideos.map((video, idx) => {
+                              const videoUrl = typeof video === 'string' ? video : (video?.url || '');
+                              const youtubeId = video?.youtube_id || getYouTubeId(videoUrl);
+                              const thumbnail = youtubeId 
+                                ? `https://img.youtube.com/vi/${youtubeId}/mqdefault.jpg`
+                                : (video?.thumbnail || '');
+                              const isPlaying = playingVideo === idx;
+                              
+                              return (
+                              <div 
+                                key={idx} 
+                                className={`relative rounded-lg overflow-hidden bg-gray-900 cursor-pointer group ${isPlaying ? 'ring-2 ring-blue-500' : ''}`}
+                                style={{ aspectRatio: '16/9' }}
+                                onClick={() => setPlayingVideo(idx)}
+                              >
+                                {thumbnail ? (
+                                  <img 
+                                    src={thumbnail}
+                                    alt={`Video ${idx + 1}`}
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => {
+                                      e.target.onerror = null;
+                                      e.target.style.display = 'none';
+                                    }}
+                                  />
+                                ) : (
+                                  <div className="w-full h-full bg-gray-800 flex items-center justify-center">
+                                    <Video className="w-8 h-8 text-gray-500" />
+                                  </div>
+                                )}
+                                
+                                {/* Play button overlay */}
+                                <div className="absolute inset-0 bg-black/30 group-hover:bg-black/50 transition-colors flex items-center justify-center">
+                                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isPlaying ? 'bg-blue-500' : 'bg-red-600'} shadow-lg`}>
+                                    <Play className="w-5 h-5 text-white ml-0.5" fill="white" />
+                                  </div>
+                                </div>
+                                
+                                {/* Video number badge */}
+                                <span className="absolute bottom-1 right-1 px-1.5 py-0.5 bg-black/70 text-white text-xs rounded">
+                                  {idx + 1}
+                                </span>
+                              </div>
+                              );
+                            })}
+                          </div>
+                        </div>
                       </div>
                     ) : (
                       <div className="text-center py-12">
