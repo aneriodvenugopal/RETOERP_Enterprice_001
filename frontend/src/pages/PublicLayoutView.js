@@ -28,6 +28,7 @@ const PublicLayoutView = () => {
   const [isFullScreen, setIsFullScreen] = useState(true);
   const [activeTab, setActiveTab] = useState('details');
   const [svgDimensions, setSvgDimensions] = useState({ width: 1200, height: 800 });
+  const [playingVideoIndex, setPlayingVideoIndex] = useState(null); // For video player
   const containerRef = useRef(null);
   
   // Interest form state
