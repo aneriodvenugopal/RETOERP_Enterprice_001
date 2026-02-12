@@ -28,7 +28,7 @@ const PublicLayoutView = () => {
   const [isFullScreen, setIsFullScreen] = useState(true);
   const [activeTab, setActiveTab] = useState('details');
   const [svgDimensions, setSvgDimensions] = useState({ width: 1200, height: 800 });
-  const [playingVideoIndex, setPlayingVideoIndex] = useState(null); // For video player
+  const [playingVideoIndexIndex, setPlayingVideoIndexIndex] = useState(null); // For video player
   const containerRef = useRef(null);
   
   // Interest form state
@@ -688,22 +688,22 @@ const PublicLayoutView = () => {
                       };
                       
                       // State for selected video (for playing)
-                      const [playingVideo, setPlayingVideo] = React.useState(null);
+                      const [playingVideoIndex, setPlayingVideoIndex] = React.useState(null);
                       
                       return validVideos.length > 0 ? (
                       <div className="space-y-4 max-h-[400px] overflow-y-auto">
                         {/* Currently playing video */}
-                        {playingVideo !== null && (
+                        {playingVideoIndex !== null && (
                           <div className="relative rounded-lg overflow-hidden bg-gray-900 w-full" style={{ aspectRatio: '16/9', maxHeight: '250px' }}>
                             {(() => {
-                              const video = validVideos[playingVideo];
+                              const video = validVideos[playingVideoIndex];
                               const videoUrl = typeof video === 'string' ? video : (video?.url || '');
                               const youtubeId = video?.youtube_id || getYouTubeId(videoUrl);
                               
                               return youtubeId ? (
                                 <iframe
                                   src={`https://www.youtube.com/embed/${youtubeId}?rel=0&autoplay=1`}
-                                  title={`Property Video ${playingVideo + 1}`}
+                                  title={`Property Video ${playingVideoIndex + 1}`}
                                   className="w-full h-full"
                                   frameBorder="0"
                                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -720,7 +720,7 @@ const PublicLayoutView = () => {
                               );
                             })()}
                             <button
-                              onClick={() => setPlayingVideo(null)}
+                              onClick={() => setPlayingVideoIndex(null)}
                               className="absolute top-2 right-2 p-1 bg-black/50 rounded-full text-white hover:bg-black/70"
                             >
                               <X className="w-4 h-4" />
@@ -741,14 +741,14 @@ const PublicLayoutView = () => {
                               const thumbnail = youtubeId 
                                 ? `https://img.youtube.com/vi/${youtubeId}/mqdefault.jpg`
                                 : (video?.thumbnail || '');
-                              const isPlaying = playingVideo === idx;
+                              const isPlaying = playingVideoIndex === idx;
                               
                               return (
                               <div 
                                 key={idx} 
                                 className={`relative rounded-lg overflow-hidden bg-gray-900 cursor-pointer group ${isPlaying ? 'ring-2 ring-blue-500' : ''}`}
                                 style={{ aspectRatio: '16/9' }}
-                                onClick={() => setPlayingVideo(idx)}
+                                onClick={() => setPlayingVideoIndex(idx)}
                               >
                                 {thumbnail ? (
                                   <img 
