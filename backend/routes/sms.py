@@ -346,7 +346,7 @@ async def get_default_templates(
 
 
 
-# ============= SMS LOGIN API (Real SMS Provider) =============
+# ============= SMS LOGIN API (Real SMS Provider with DLT Templates) =============
 
 @router.get("/balance")
 async def get_sms_balance(
@@ -358,6 +358,25 @@ async def get_sms_balance(
     
     result = await SMSLoginService.get_credit_balance()
     return result
+
+
+@router.get("/dlt-templates")
+async def get_dlt_templates(
+    request: Request,
+    current_user: dict = Depends(get_current_user)
+):
+    """Get all DLT approved templates"""
+    from services.sms_templates import DLT_TEMPLATES, get_templates_by_type
+    
+    return {
+        "success": True,
+        "total": len(DLT_TEMPLATES),
+        "templates": DLT_TEMPLATES,
+        "by_type": {
+            "transactional": get_templates_by_type("transactional"),
+            "service": get_templates_by_type("service")
+        }
+    }
 
 
 @router.post("/check-delivery/{message_id}")
@@ -426,4 +445,306 @@ async def test_otp_sms(
     
     # Generate and send OTP
     result = await SMSLoginService.generate_and_send_otp(phone)
+    return result
+
+
+# ============= DLT Template-Based SMS Endpoints =============
+
+@router.post("/send/payment-received")
+async def send_payment_received_sms(
+    request: Request,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Send Payment Received SMS
+    Body: {"phone": "9876543210", "customer_name": "Raju", "amount": "50000", "receipt_no": "RCP123"}
+    """
+    from services.sms_login_service import SMSLoginService
+    
+    body = await request.json()
+    result = await SMSLoginService.send_payment_received(
+        phone=body.get("phone"),
+        customer_name=body.get("customer_name"),
+        amount=body.get("amount"),
+        receipt_no=body.get("receipt_no")
+    )
+    return result
+
+
+@router.post("/send/token-received")
+async def send_token_received_sms(
+    request: Request,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Send Token Received SMS
+    Body: {"phone": "9876543210", "amount": "50000"}
+    """
+    from services.sms_login_service import SMSLoginService
+    
+    body = await request.json()
+    result = await SMSLoginService.send_token_received(
+        phone=body.get("phone"),
+        amount=body.get("amount")
+    )
+    return result
+
+
+@router.post("/send/booking-confirmed")
+async def send_booking_confirmed_sms(
+    request: Request,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Send Booking Confirmed SMS
+    Body: {"phone": "9876543210", "customer_name": "Raju", "booking_id": "BK123", "total_amount": "500000"}
+    """
+    from services.sms_login_service import SMSLoginService
+    
+    body = await request.json()
+    result = await SMSLoginService.send_booking_confirmed(
+        phone=body.get("phone"),
+        customer_name=body.get("customer_name"),
+        booking_id=body.get("booking_id"),
+        total_amount=body.get("total_amount")
+    )
+    return result
+
+
+@router.post("/send/emi-due")
+async def send_emi_due_sms(
+    request: Request,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Send EMI Due Reminder SMS
+    Body: {"phone": "9876543210", "customer_name": "Raju", "amount": "25000", "due_date": "15-Feb-2026", "installment_no": "3"}
+    """
+    from services.sms_login_service import SMSLoginService
+    
+    body = await request.json()
+    result = await SMSLoginService.send_emi_due(
+        phone=body.get("phone"),
+        customer_name=body.get("customer_name"),
+        amount=body.get("amount"),
+        due_date=body.get("due_date"),
+        installment_no=body.get("installment_no")
+    )
+    return result
+
+
+@router.post("/send/payment-reminder")
+async def send_payment_reminder_sms(
+    request: Request,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Send Payment Reminder SMS
+    Body: {"phone": "9876543210", "amount": "150000", "due_date": "15-Feb-2026"}
+    """
+    from services.sms_login_service import SMSLoginService
+    
+    body = await request.json()
+    result = await SMSLoginService.send_payment_reminder(
+        phone=body.get("phone"),
+        amount=body.get("amount"),
+        due_date=body.get("due_date")
+    )
+    return result
+
+
+@router.post("/send/payment-link")
+async def send_payment_link_sms(
+    request: Request,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Send Payment Link SMS
+    Body: {"phone": "9876543210", "customer_name": "Raju", "amount": "50000", "payment_link": "https://pay.realapex.in/xyz"}
+    """
+    from services.sms_login_service import SMSLoginService
+    
+    body = await request.json()
+    result = await SMSLoginService.send_payment_link(
+        phone=body.get("phone"),
+        customer_name=body.get("customer_name"),
+        amount=body.get("amount"),
+        payment_link=body.get("payment_link")
+    )
+    return result
+
+
+@router.post("/send/visit-confirmed")
+async def send_visit_confirmed_sms(
+    request: Request,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Send Site Visit Confirmed SMS
+    Body: {"phone": "9876543210", "customer_name": "Raju", "visit_date": "10-Feb-2026", "visit_time": "11:00 AM"}
+    """
+    from services.sms_login_service import SMSLoginService
+    
+    body = await request.json()
+    result = await SMSLoginService.send_visit_confirmed(
+        phone=body.get("phone"),
+        customer_name=body.get("customer_name"),
+        visit_date=body.get("visit_date"),
+        visit_time=body.get("visit_time")
+    )
+    return result
+
+
+@router.post("/send/visit-reminder")
+async def send_visit_reminder_sms(
+    request: Request,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Send Site Visit Reminder SMS
+    Body: {"phone": "9876543210", "customer_name": "Raju", "visit_time": "11:00 AM"}
+    """
+    from services.sms_login_service import SMSLoginService
+    
+    body = await request.json()
+    result = await SMSLoginService.send_visit_reminder(
+        phone=body.get("phone"),
+        customer_name=body.get("customer_name"),
+        visit_time=body.get("visit_time")
+    )
+    return result
+
+
+@router.post("/send/visit-rescheduled")
+async def send_visit_rescheduled_sms(
+    request: Request,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Send Site Visit Rescheduled SMS
+    Body: {"phone": "9876543210", "customer_name": "Raju", "new_date": "12-Feb-2026", "new_time": "3:00 PM"}
+    """
+    from services.sms_login_service import SMSLoginService
+    
+    body = await request.json()
+    result = await SMSLoginService.send_visit_rescheduled(
+        phone=body.get("phone"),
+        customer_name=body.get("customer_name"),
+        new_date=body.get("new_date"),
+        new_time=body.get("new_time")
+    )
+    return result
+
+
+@router.post("/send/document-ready")
+async def send_document_ready_sms(
+    request: Request,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Send Document Ready SMS
+    Body: {"phone": "9876543210"}
+    """
+    from services.sms_login_service import SMSLoginService
+    
+    body = await request.json()
+    result = await SMSLoginService.send_document_ready(phone=body.get("phone"))
+    return result
+
+
+@router.post("/send/agreement-ready")
+async def send_agreement_ready_sms(
+    request: Request,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Send Agreement Ready SMS
+    Body: {"phone": "9876543210", "customer_name": "Raju"}
+    """
+    from services.sms_login_service import SMSLoginService
+    
+    body = await request.json()
+    result = await SMSLoginService.send_agreement_ready(
+        phone=body.get("phone"),
+        customer_name=body.get("customer_name")
+    )
+    return result
+
+
+@router.post("/send/registration-done")
+async def send_registration_done_sms(
+    request: Request,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Send Registration Done SMS
+    Body: {"phone": "9876543210", "customer_name": "Raju", "registration_no": "REG2026001"}
+    """
+    from services.sms_login_service import SMSLoginService
+    
+    body = await request.json()
+    result = await SMSLoginService.send_registration_done(
+        phone=body.get("phone"),
+        customer_name=body.get("customer_name"),
+        registration_no=body.get("registration_no")
+    )
+    return result
+
+
+@router.post("/send/welcome")
+async def send_welcome_sms(
+    request: Request,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Send Welcome SMS to new customer
+    Body: {"phone": "9876543210", "customer_name": "Raju"}
+    """
+    from services.sms_login_service import SMSLoginService
+    
+    body = await request.json()
+    result = await SMSLoginService.send_welcome(
+        phone=body.get("phone"),
+        customer_name=body.get("customer_name")
+    )
+    return result
+
+
+@router.post("/send/new-lead-assigned")
+async def send_new_lead_assigned_sms(
+    request: Request,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Send New Lead Assigned SMS to Staff
+    Body: {"phone": "9876543210", "staff_name": "Ramesh", "lead_name": "Suresh Kumar"}
+    """
+    from services.sms_login_service import SMSLoginService
+    
+    body = await request.json()
+    result = await SMSLoginService.send_new_lead_assigned(
+        phone=body.get("phone"),
+        staff_name=body.get("staff_name"),
+        lead_name=body.get("lead_name")
+    )
+    return result
+
+
+@router.post("/send/follow-up-reminder")
+async def send_follow_up_reminder_sms(
+    request: Request,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Send Follow-up Reminder SMS to Staff
+    Body: {"phone": "9876543210", "staff_name": "Ramesh", "lead_name": "Suresh Kumar"}
+    """
+    from services.sms_login_service import SMSLoginService
+    
+    body = await request.json()
+    result = await SMSLoginService.send_follow_up_reminder(
+        phone=body.get("phone"),
+        staff_name=body.get("staff_name"),
+        lead_name=body.get("lead_name")
+    )
     return result
