@@ -137,8 +137,8 @@ const PublicLayoutView = () => {
     }
   }, [svgUrl]);
 
-  const fetchPublicLayout = async () => {
-    setLoading(true);
+  const fetchPublicLayout = async (silent = false) => {
+    if (!silent) setLoading(true);
     try {
       const response = await axios.get(
         `${process.env.REACT_APP_BACKEND_URL}/api/layouts/public/projects/${projectId}/layout`
@@ -176,9 +176,9 @@ const PublicLayoutView = () => {
       }
     } catch (err) {
       console.error('Error loading public layout:', err);
-      setError('Layout not found or not available for public viewing');
+      if (!silent) setError('Layout not found or not available for public viewing');
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   };
 
