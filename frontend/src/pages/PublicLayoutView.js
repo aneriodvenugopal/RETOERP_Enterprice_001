@@ -52,6 +52,13 @@ const PublicLayoutView = () => {
 
   useEffect(() => {
     fetchPublicLayout();
+    
+    // Auto-refresh every 10 seconds to reflect plot status changes in real-time
+    const pollInterval = setInterval(() => {
+      fetchPublicLayout(true); // Silent refresh (no loading state)
+    }, 10000);
+    
+    return () => clearInterval(pollInterval);
   }, [projectId]);
 
   // Calculate viewBox based on plot coordinates - this ensures plots align correctly
