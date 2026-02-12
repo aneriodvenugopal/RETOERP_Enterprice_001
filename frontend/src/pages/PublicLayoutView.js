@@ -687,9 +687,6 @@ const PublicLayoutView = () => {
                         return (match && match[2].length === 11) ? match[2] : null;
                       };
                       
-                      // State for selected video (for playing)
-                      const [playingVideoIndex, setPlayingVideoIndex] = React.useState(null);
-                      
                       return validVideos.length > 0 ? (
                       <div className="space-y-4 max-h-[400px] overflow-y-auto">
                         {/* Currently playing video */}
