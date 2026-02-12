@@ -791,11 +791,6 @@ const PublicLayoutView = () => {
                     );
                     })()}
                   </TabsContent>
-                        <p className="text-gray-500">Property videos will be added soon</p>
-                      </div>
-                    );
-                    })()}
-                  </TabsContent>
 
                   {/* Location Tab with Embedded Google Maps */}
                   <TabsContent value="location" className="mt-0">
