@@ -306,7 +306,7 @@ Make sure questions test key concepts from the script."""
                 api_key=EMERGENT_LLM_KEY,
                 session_id=f"quiz-{uuid.uuid4()}",
                 system_message="You are a quiz generator. Output only valid JSON."
-            ).with_model("anthropic", "claude-sonnet-4-5-20250929")
+            ).with_model("anthropic", "claude-sonnet-4-20250514")
             
             quiz_response = await chat.send_message(UserMessage(text=quiz_prompt))
             
