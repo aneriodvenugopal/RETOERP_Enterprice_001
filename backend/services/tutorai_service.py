@@ -80,7 +80,7 @@ Output the complete script ready for video narration."""
                 api_key=EMERGENT_LLM_KEY,
                 session_id=f"tutorai-{uuid.uuid4()}",
                 system_message="You are an expert educational content creator specializing in creating engaging video scripts for school students."
-            ).with_model("anthropic", "claude-sonnet-4-5-20250929")
+            ).with_model("anthropic", "claude-sonnet-4-20250514")
             
             user_message = UserMessage(text=prompt)
             script = await chat.send_message(user_message)
