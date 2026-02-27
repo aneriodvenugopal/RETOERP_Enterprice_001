@@ -23,22 +23,22 @@ db = client[DB_NAME]
 HEYGEN_API_KEY = os.getenv('HEYGEN_API_KEY', '')
 EMERGENT_LLM_KEY = os.getenv('EMERGENT_LLM_KEY', '')
 
-# HeyGen Avatar Configuration
+# HeyGen Avatar Configuration - Using available public avatars
 HEYGEN_AVATARS = {
     "male_teacher": {
-        "avatar_id": "josh_lite3_20230714",  # Default male avatar
+        "avatar_id": "Aditya_public_4",  # Aditya in Brown blazer - Indian male
         "voice_id": {
-            "telugu": "te-IN-MohanNeural",
-            "hindi": "hi-IN-MadhurNeural", 
-            "english": "en-US-DavisNeural"
+            "telugu": "9d50356dea1440bd8af1dcc0f618e161",  # Mohan - Telugu
+            "hindi": "9e02bd3d74bb48a6bbfe468177e1857b",   # Arjun - Hindi
+            "english": "d92994ae0de34b2e8659b456a2f388b8"  # John Doe - English
         }
     },
     "female_teacher": {
-        "avatar_id": "anna_costume1_20210906",  # Default female avatar
+        "avatar_id": "Abigail_expressive_2024112501",  # Abigail Upper Body - female
         "voice_id": {
-            "telugu": "te-IN-ShrutiNeural",
-            "hindi": "hi-IN-SwaraNeural",
-            "english": "en-US-JennyNeural"
+            "telugu": "8b06642340ad474e8d32b040928fe459",  # Shruti - Telugu
+            "hindi": "6dffedab3a534ef292aaa51e7e8791c7",   # Muskaan - Hindi
+            "english": "f8c69e517f424cafaecde32dde57096b"  # Allison - English
         }
     }
 }
