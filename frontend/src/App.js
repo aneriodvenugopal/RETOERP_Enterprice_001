@@ -81,6 +81,7 @@ import ChatManagement from "./pages/admin/ChatManagement";
 import IncomeLandsAdminDashboard from "./pages/admin/IncomeLandsAdminDashboard";
 import MasterCategoryManagement from "./pages/admin/MasterCategoryManagement";
 import TenantCategoryManagement from "./pages/admin/TenantCategoryManagement";
+import TutorAIAdmin from "./pages/TutorAIAdmin";
 
 // Settings Pages
 import RoleAssignments from "./pages/settings/RoleAssignments";
