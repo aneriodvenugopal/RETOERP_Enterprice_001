@@ -184,7 +184,7 @@
 
    **మొదటి referrer:**
    ```
-   https://realtor-dash-2.preview.emergentagent.com/*
+   https://tutorai-video-gen.preview.emergentagent.com/*
    ```
    - Paste చేసి Enter నొక్కండి
 

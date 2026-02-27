@@ -48,7 +48,7 @@ This watermark appears when Google Maps API billing is not properly configured.
    - Select "HTTP referrers (websites)"
    - Add your domains:
      ```
-     https://realtor-dash-2.preview.emergentagent.com/*
+     https://tutorai-video-gen.preview.emergentagent.com/*
      http://localhost:3000/*
      ```
 

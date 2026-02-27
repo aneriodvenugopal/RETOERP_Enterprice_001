@@ -47,7 +47,7 @@
         tenantId: tenantId,
         position: position,
         primaryColor: primaryColor,
-        backendUrl: 'https://realtor-dash-2.preview.emergentagent.com/api'
+        backendUrl: 'https://tutorai-video-gen.preview.emergentagent.com/api'
       };
       
       // Load chat widget bundle
