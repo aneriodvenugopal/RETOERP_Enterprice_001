@@ -890,6 +890,16 @@ function App() {
                 }
               />
               
+              {/* TutorAI Admin - Protected Admin Route */}
+              <Route
+                path="/tutorai/admin"
+                element={
+                  <PrivateRoute>
+                    <TutorAIAdmin />
+                  </PrivateRoute>
+                }
+              />
+              
               {/* Settings Routes */}
               <Route
                 path="/settings/role-assignments"
