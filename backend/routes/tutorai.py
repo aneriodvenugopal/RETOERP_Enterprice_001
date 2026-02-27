@@ -12,10 +12,8 @@ import os
 
 router = APIRouter(prefix="/tutorai", tags=["TutorAI"])
 
-# Import auth dependency
-import sys
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from routes.auth import get_current_user
+# Import auth middleware
+from middleware.auth import get_current_user
 
 
 # Pydantic Models
