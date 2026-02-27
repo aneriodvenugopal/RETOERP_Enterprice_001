@@ -269,3 +269,56 @@ async def get_config(
         "heygen_configured": bool(os.getenv('HEYGEN_API_KEY')),
         "llm_configured": bool(os.getenv('EMERGENT_LLM_KEY'))
     }
+
+
+@router.post("/webhook/heygen")
+async def heygen_webhook(request: Request):
+    """
+    HeyGen webhook callback - receives video completion notifications
+    Set this URL in HeyGen dashboard: https://www.realapex.in/api/tutorai/webhook/heygen
+    """
+    try:
+        body = await request.json()
+        print(f"📹 HeyGen Webhook received: {body}")
+        
+        event_type = body.get("event_type")
+        video_id = body.get("video_id") or body.get("data", {}).get("video_id")
+        
+        if event_type == "avatar_video.success" or body.get("status") == "completed":
+            video_url = body.get("video_url") or body.get("data", {}).get("video_url")
+            
+            if video_id and video_url:
+                from motor.motor_asyncio import AsyncIOMotorClient
+                client = AsyncIOMotorClient(os.getenv('MONGO_URL'))
+                db = client[os.getenv('DB_NAME', 'test_database')]
+                
+                await db.tutorai_generated_videos.update_one(
+                    {"heygen_video_id": video_id},
+                    {"$set": {
+                        "status": "completed",
+                        "video_url": video_url,
+                        "download_url": video_url,
+                        "completed_at": body.get("timestamp")
+                    }}
+                )
+                print(f"✅ Video {video_id} marked as completed")
+        
+        elif event_type == "avatar_video.fail" or body.get("status") == "failed":
+            error = body.get("error") or body.get("data", {}).get("error", "Unknown error")
+            
+            if video_id:
+                from motor.motor_asyncio import AsyncIOMotorClient
+                client = AsyncIOMotorClient(os.getenv('MONGO_URL'))
+                db = client[os.getenv('DB_NAME', 'test_database')]
+                
+                await db.tutorai_generated_videos.update_one(
+                    {"heygen_video_id": video_id},
+                    {"$set": {"status": "failed", "error": str(error)}}
+                )
+                print(f"❌ Video {video_id} failed: {error}")
+        
+        return {"success": True, "message": "Webhook received"}
+        
+    except Exception as e:
+        print(f"❌ Webhook error: {str(e)}")
+        return {"success": False, "error": str(e)}
