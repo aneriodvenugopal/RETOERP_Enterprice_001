@@ -194,6 +194,7 @@ api_router.include_router(marketing_agents.router)
 api_router.include_router(push_notifications.router)
 api_router.include_router(push_notifications.whatsapp_router)
 api_router.include_router(calendar_integration.router)  # Re-enabled for Site Visit sync
+api_router.include_router(tutorai.router)  # TutorAI Admin Tool
 
 # PWA Install tracking
 @api_router.post("/analytics/pwa-install")
