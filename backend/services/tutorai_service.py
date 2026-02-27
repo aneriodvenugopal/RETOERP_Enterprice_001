@@ -138,7 +138,7 @@ Output the complete script ready for video narration."""
                     "height": 720
                 },
                 "aspect_ratio": "16:9",
-                "test": False  # Set to True for testing without consuming credits
+                "test": True  # TEST MODE: Video will have watermark but won't consume credits
             }
             
             headers = {
