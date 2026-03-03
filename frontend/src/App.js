@@ -82,6 +82,7 @@ import IncomeLandsAdminDashboard from "./pages/admin/IncomeLandsAdminDashboard";
 import MasterCategoryManagement from "./pages/admin/MasterCategoryManagement";
 import TenantCategoryManagement from "./pages/admin/TenantCategoryManagement";
 import TutorAIAdmin from "./pages/TutorAIAdmin";
+import RealApexDemos from "./pages/RealApexDemos";
 
 // Settings Pages
 import RoleAssignments from "./pages/settings/RoleAssignments";
@@ -896,6 +897,15 @@ function App() {
                 element={
                   <PrivateRoute>
                     <TutorAIAdmin />
+                  </PrivateRoute>
+                }
+              />
+              
+              <Route
+                path="/realapex-demos"
+                element={
+                  <PrivateRoute>
+                    <RealApexDemos />
                   </PrivateRoute>
                 }
               />

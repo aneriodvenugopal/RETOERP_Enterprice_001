@@ -1,0 +1,757 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { 
+  Video, FileText, Download, Loader2, 
+  CheckCircle, RefreshCw, Sparkles, Play,
+  Building2, Users, CreditCard, BarChart3,
+  MessageSquare, Calendar, Shield, Cpu,
+  TrendingUp, Globe, Smartphone, Bot
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { toast } from 'sonner';
+import api from '../services/api';
+
+// 2026 Indian Real Estate Market - AI Era Categories & Concepts
+const DEMO_CATEGORIES = [
+  {
+    id: 'proptech_foundation',
+    name: '🏗️ PropTech Foundation',
+    icon: Building2,
+    description: 'Core digital infrastructure for modern real estate',
+    concepts: [
+      { id: 'PF01', title: 'Digital Property Management System', subtitle: 'Centralized project & property database' },
+      { id: 'PF02', title: 'Smart Layout & Plot Mapping', subtitle: 'Interactive plot visualization with real-time status' },
+      { id: 'PF03', title: 'Multi-Project Portfolio Management', subtitle: 'Manage multiple ventures from single dashboard' },
+      { id: 'PF04', title: 'Property Gallery & Virtual Tours', subtitle: 'Rich media showcase with YouTube integration' },
+      { id: 'PF05', title: 'Geo-Tagged Property Locations', subtitle: 'Google Maps integration for site navigation' },
+    ]
+  },
+  {
+    id: 'ai_sales_marketing',
+    name: '🤖 AI-Powered Sales & Marketing',
+    icon: Bot,
+    description: 'Intelligent automation for lead conversion',
+    concepts: [
+      { id: 'AI01', title: 'AI Lead Scoring & Prioritization', subtitle: 'ML-based hot lead identification' },
+      { id: 'AI02', title: 'Automated Follow-up Sequences', subtitle: 'Smart drip campaigns via SMS/WhatsApp' },
+      { id: 'AI03', title: 'Marketing Agent Performance Analytics', subtitle: 'AI insights on agent productivity' },
+      { id: 'AI04', title: 'Predictive Sales Forecasting', subtitle: 'Revenue prediction using historical data' },
+      { id: 'AI05', title: 'AI Video Content Generation', subtitle: 'TutorAI for educational marketing videos' },
+      { id: 'AI06', title: 'Smart Customer Segmentation', subtitle: 'Auto-categorize leads by buying intent' },
+    ]
+  },
+  {
+    id: 'customer_experience',
+    name: '✨ Smart Customer Experience',
+    icon: Users,
+    description: 'Digital-first customer journey',
+    concepts: [
+      { id: 'CX01', title: 'Public Layout Sharing Portal', subtitle: 'Shareable links for plot availability' },
+      { id: 'CX02', title: 'Real-Time Plot Status Updates', subtitle: 'Live availability without page refresh' },
+      { id: 'CX03', title: 'Self-Service Booking System', subtitle: 'Online plot reservation workflow' },
+      { id: 'CX04', title: 'Customer Payment Dashboard', subtitle: 'Track EMIs, receipts & payment history' },
+      { id: 'CX05', title: 'Site Visit Self-Scheduling', subtitle: 'Calendar-based appointment booking' },
+      { id: 'CX06', title: 'Document Download Center', subtitle: 'Agreements, receipts, legal docs access' },
+    ]
+  },
+  {
+    id: 'fintech_integration',
+    name: '💳 FinTech & Payment Solutions',
+    icon: CreditCard,
+    description: 'Seamless digital payment ecosystem',
+    concepts: [
+      { id: 'FT01', title: 'Multi-Gateway Payment Processing', subtitle: 'Stripe, Razorpay, PayU integration' },
+      { id: 'FT02', title: 'EMI & Installment Tracking', subtitle: 'Automated payment schedule management' },
+      { id: 'FT03', title: 'Payment Reminder Automation', subtitle: 'SMS/Email alerts for due payments' },
+      { id: 'FT04', title: 'Bank Account Reconciliation', subtitle: 'Multi-account financial tracking' },
+      { id: 'FT05', title: 'Digital Receipt Generation', subtitle: 'Instant payment acknowledgments' },
+      { id: 'FT06', title: 'Revenue Analytics Dashboard', subtitle: 'Collection reports & projections' },
+    ]
+  },
+  {
+    id: 'compliance_transparency',
+    name: '🛡️ RERA Compliance & Transparency',
+    icon: Shield,
+    description: 'Regulatory adherence & trust building',
+    concepts: [
+      { id: 'CT01', title: 'DLT-Approved SMS Templates', subtitle: 'TRAI compliant transactional messaging' },
+      { id: 'CT02', title: 'Legal Document Management', subtitle: 'Agreement templates & e-signatures' },
+      { id: 'CT03', title: 'Booking Transparency Trail', subtitle: 'Complete audit log of transactions' },
+      { id: 'CT04', title: 'Customer KYC & Verification', subtitle: 'Digital identity verification workflow' },
+      { id: 'CT05', title: 'Handover Documentation', subtitle: 'Possession & registry process tracking' },
+    ]
+  },
+  {
+    id: 'omnichannel_communication',
+    name: '📱 Omnichannel Communication',
+    icon: MessageSquare,
+    description: 'Unified customer touchpoints',
+    concepts: [
+      { id: 'OC01', title: 'WhatsApp Business Integration', subtitle: 'Automated replies & broadcast messages' },
+      { id: 'OC02', title: 'SMS Campaign Management', subtitle: 'Bulk SMS with DLT compliance' },
+      { id: 'OC03', title: 'Email Notification System', subtitle: 'Transactional & marketing emails' },
+      { id: 'OC04', title: 'Web Push Notifications', subtitle: 'Browser-based instant alerts' },
+      { id: 'OC05', title: 'In-App Notification Center', subtitle: 'Centralized message inbox' },
+    ]
+  },
+  {
+    id: 'analytics_insights',
+    name: '📊 Data Analytics & Insights',
+    icon: BarChart3,
+    description: 'Business intelligence for growth',
+    concepts: [
+      { id: 'DA01', title: 'Executive Dashboard Overview', subtitle: 'KPIs at a glance for leadership' },
+      { id: 'DA02', title: 'Sales Pipeline Analytics', subtitle: 'Lead-to-booking conversion funnel' },
+      { id: 'DA03', title: 'Agent Performance Reports', subtitle: 'Individual & team productivity metrics' },
+      { id: 'DA04', title: 'Financial Health Indicators', subtitle: 'Cash flow & collection efficiency' },
+      { id: 'DA05', title: 'Customer Behavior Analytics', subtitle: 'Engagement patterns & preferences' },
+      { id: 'DA06', title: 'Market Trend Analysis', subtitle: 'Pricing & demand insights' },
+    ]
+  },
+  {
+    id: 'operational_efficiency',
+    name: '⚡ Operational Efficiency',
+    icon: TrendingUp,
+    description: 'Streamlined business processes',
+    concepts: [
+      { id: 'OE01', title: 'Role-Based Access Control', subtitle: 'Multi-tenant user permissions' },
+      { id: 'OE02', title: 'Google Calendar Sync', subtitle: 'Site visits synced to calendar' },
+      { id: 'OE03', title: 'Automated Workflow Triggers', subtitle: 'Event-based task automation' },
+      { id: 'OE04', title: 'Bulk Data Import/Export', subtitle: 'CSV upload for leads & properties' },
+      { id: 'OE05', title: 'Multi-Branch Management', subtitle: 'Centralized control for franchises' },
+    ]
+  }
+];
+
+const VIDEO_TYPES = [
+  { id: 'demo_walkthrough', name: 'Demo Walkthrough', description: 'Complete feature demonstration' },
+  { id: 'feature_highlight', name: 'Feature Highlight', description: 'Focus on single feature benefits' },
+  { id: 'tutorial', name: 'Step-by-Step Tutorial', description: 'How-to guide for users' },
+  { id: 'sales_pitch', name: 'Sales Pitch', description: 'Benefits-focused for prospects' },
+  { id: 'comparison', name: 'Comparison Video', description: 'Before/After or vs competitors' },
+  { id: 'testimonial_script', name: 'Testimonial Script', description: 'Customer success story format' },
+];
+
+const TARGET_AUDIENCES = [
+  { id: 'real_estate_developer', name: 'Real Estate Developers', icon: '🏢' },
+  { id: 'sales_manager', name: 'Sales Managers', icon: '👔' },
+  { id: 'marketing_agent', name: 'Marketing Agents', icon: '📣' },
+  { id: 'property_buyer', name: 'Property Buyers', icon: '🏠' },
+  { id: 'investor', name: 'Investors', icon: '💰' },
+  { id: 'tech_decision_maker', name: 'Tech Decision Makers', icon: '💻' },
+];
+
+const LANGUAGES = [
+  { id: 'telugu', name: 'Telugu', flag: '🇮🇳' },
+  { id: 'hindi', name: 'Hindi', flag: '🇮🇳' },
+  { id: 'english', name: 'English', flag: '🌐' },
+  { id: 'bilingual_te_en', name: 'Telugu + English Mix', flag: '🔀' },
+  { id: 'bilingual_hi_en', name: 'Hindi + English Mix', flag: '🔀' },
+];
+
+const RealApexDemos = () => {
+  // Form state
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedConcept, setSelectedConcept] = useState('');
+  const [conceptTitle, setConceptTitle] = useState('');
+  const [videoType, setVideoType] = useState('');
+  const [targetAudience, setTargetAudience] = useState('');
+  const [language, setLanguage] = useState('english');
+  const [avatarStyle, setAvatarStyle] = useState('male_teacher');
+  const [customNotes, setCustomNotes] = useState('');
+  
+  // Generated content state
+  const [script, setScript] = useState('');
+  const [isGeneratingScript, setIsGeneratingScript] = useState(false);
+  const [isGeneratingVideo, setIsGeneratingVideo] = useState(false);
+  
+  // Video generation state
+  const [videoId, setVideoId] = useState(null);
+  const [videoStatus, setVideoStatus] = useState(null);
+  const [videoUrl, setVideoUrl] = useState(null);
+  const [videoProgress, setVideoProgress] = useState(0);
+  
+  // Generated videos list
+  const [generatedVideos, setGeneratedVideos] = useState([]);
+  const [isLoadingVideos, setIsLoadingVideos] = useState(false);
+  
+  // Config
+  const [config, setConfig] = useState(null);
+  
+  const pollIntervalRef = useRef(null);
+
+  // Get concepts for selected category
+  const currentConcepts = DEMO_CATEGORIES.find(c => c.id === selectedCategory)?.concepts || [];
+
+  useEffect(() => {
+    loadConfig();
+    loadGeneratedVideos();
+    
+    return () => {
+      if (pollIntervalRef.current) {
+        clearInterval(pollIntervalRef.current);
+      }
+    };
+  }, []);
+
+  // When concept is selected, populate the title
+  useEffect(() => {
+    if (selectedConcept) {
+      const concept = currentConcepts.find(c => c.id === selectedConcept);
+      if (concept) {
+        setConceptTitle(`${concept.id}: ${concept.title}`);
+      }
+    }
+  }, [selectedConcept, currentConcepts]);
+
+  const loadConfig = async () => {
+    try {
+      const response = await api.get('/tutorai/config');
+      setConfig(response.data);
+    } catch (error) {
+      console.error('Failed to load config:', error);
+    }
+  };
+
+  const loadGeneratedVideos = async () => {
+    setIsLoadingVideos(true);
+    try {
+      const response = await api.get('/realapex-demos/videos');
+      setGeneratedVideos(response.data.videos || []);
+    } catch (error) {
+      // Fallback to tutorai videos
+      try {
+        const fallback = await api.get('/tutorai/videos');
+        setGeneratedVideos((fallback.data.videos || []).filter(v => v.subject === 'RealApex Demo'));
+      } catch (e) {
+        console.error('Failed to load videos:', e);
+      }
+    } finally {
+      setIsLoadingVideos(false);
+    }
+  };
+
+  // Generate Script for RealApex Demo
+  const handleGenerateScript = async () => {
+    if (!conceptTitle || !videoType || !targetAudience) {
+      toast.error('Please fill in all required fields');
+      return;
+    }
+
+    setIsGeneratingScript(true);
+    setScript('');
+    setVideoId(null);
+    setVideoUrl(null);
+    setVideoStatus(null);
+
+    const concept = currentConcepts.find(c => c.id === selectedConcept);
+    const videoTypeInfo = VIDEO_TYPES.find(v => v.id === videoType);
+    const audienceInfo = TARGET_AUDIENCES.find(a => a.id === targetAudience);
+    const categoryInfo = DEMO_CATEGORIES.find(c => c.id === selectedCategory);
+
+    try {
+      const response = await api.post('/realapex-demos/generate-script', {
+        concept_title: conceptTitle,
+        concept_subtitle: concept?.subtitle || '',
+        category_name: categoryInfo?.name || '',
+        video_type: videoTypeInfo?.name || videoType,
+        video_type_description: videoTypeInfo?.description || '',
+        target_audience: audienceInfo?.name || targetAudience,
+        language: language,
+        custom_notes: customNotes
+      });
+
+      if (response.data.success) {
+        setScript(response.data.script);
+        toast.success('Script generated successfully!');
+      } else {
+        toast.error(response.data.error || 'Failed to generate script');
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Failed to generate script');
+    } finally {
+      setIsGeneratingScript(false);
+    }
+  };
+
+  // Generate Video
+  const handleGenerateVideo = async () => {
+    if (!script) {
+      toast.error('Please generate a script first');
+      return;
+    }
+
+    setIsGeneratingVideo(true);
+    setVideoProgress(0);
+    setVideoStatus('initiating');
+
+    try {
+      const response = await api.post('/tutorai/generate-video', {
+        script: script,
+        language: language,
+        avatar_style: avatarStyle,
+        concept_name: conceptTitle,
+        class_level: 'RealApex Demo',
+        subject: 'RealApex Demo'
+      });
+
+      if (response.data.success) {
+        setVideoId(response.data.video_id);
+        setVideoStatus('processing');
+        toast.success('Video generation started!');
+        startStatusPolling(response.data.video_id);
+      } else {
+        toast.error(response.data.error || 'Failed to start video generation');
+        setIsGeneratingVideo(false);
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Failed to generate video');
+      setIsGeneratingVideo(false);
+    }
+  };
+
+  // Poll video status
+  const startStatusPolling = (vid) => {
+    let progress = 10;
+    
+    pollIntervalRef.current = setInterval(async () => {
+      try {
+        const response = await api.get(`/tutorai/video-status/${vid}`);
+        
+        if (response.data.success) {
+          const status = response.data.status;
+          setVideoStatus(status);
+          
+          if (status === 'completed') {
+            setVideoUrl(response.data.video_url);
+            setVideoProgress(100);
+            setIsGeneratingVideo(false);
+            clearInterval(pollIntervalRef.current);
+            toast.success('Video generated successfully!');
+            loadGeneratedVideos();
+          } else if (status === 'failed') {
+            setIsGeneratingVideo(false);
+            clearInterval(pollIntervalRef.current);
+            toast.error(response.data.error || 'Video generation failed');
+          } else {
+            progress = Math.min(progress + 5, 90);
+            setVideoProgress(progress);
+          }
+        }
+      } catch (error) {
+        console.error('Status check error:', error);
+      }
+    }, 15000);
+  };
+
+  const getStatusBadge = (status) => {
+    switch (status) {
+      case 'completed':
+        return <Badge className="bg-green-500"><CheckCircle className="w-3 h-3 mr-1" />Completed</Badge>;
+      case 'processing':
+        return <Badge className="bg-blue-500"><Loader2 className="w-3 h-3 mr-1 animate-spin" />Processing</Badge>;
+      case 'failed':
+        return <Badge className="bg-red-500">Failed</Badge>;
+      default:
+        return <Badge variant="secondary">{status}</Badge>;
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-6">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex items-center gap-4 mb-4">
+            <div className="p-4 bg-gradient-to-r from-orange-500 to-pink-500 rounded-2xl shadow-lg">
+              <Sparkles className="w-10 h-10 text-white" />
+            </div>
+            <div>
+              <h1 className="text-4xl font-bold text-white">RealApex Demo Generator</h1>
+              <p className="text-purple-200">AI-Powered YouTube Demo Videos for Real Estate SaaS</p>
+            </div>
+          </div>
+          
+          {/* Config Status */}
+          <div className="flex gap-2 mt-4">
+            <Badge variant={config?.llm_configured ? "default" : "destructive"} className="bg-green-600">
+              {config?.llm_configured ? '✓' : '✗'} Claude AI
+            </Badge>
+            <Badge variant={config?.heygen_configured ? "default" : "destructive"} className="bg-blue-600">
+              {config?.heygen_configured ? '✓' : '✗'} HeyGen Video
+            </Badge>
+            <Badge className="bg-orange-600">2026 PropTech Edition</Badge>
+          </div>
+        </div>
+
+        <Tabs defaultValue="generate" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-3 max-w-lg bg-slate-800/50">
+            <TabsTrigger value="generate" className="data-[state=active]:bg-purple-600">Generate</TabsTrigger>
+            <TabsTrigger value="concepts" className="data-[state=active]:bg-purple-600">All Concepts</TabsTrigger>
+            <TabsTrigger value="history" className="data-[state=active]:bg-purple-600">History</TabsTrigger>
+          </TabsList>
+
+          {/* Generate Tab */}
+          <TabsContent value="generate">
+            <div className="grid lg:grid-cols-2 gap-6">
+              {/* Input Form */}
+              <Card className="bg-slate-800/50 border-slate-700">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-white">
+                    <Video className="w-5 h-5 text-orange-400" />
+                    Demo Video Details
+                  </CardTitle>
+                  <CardDescription className="text-slate-400">
+                    Select concept and configure video parameters
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-5">
+                  {/* Category Selection */}
+                  <div className="space-y-2">
+                    <Label className="text-slate-200">Category *</Label>
+                    <Select value={selectedCategory} onValueChange={(val) => {
+                      setSelectedCategory(val);
+                      setSelectedConcept('');
+                      setConceptTitle('');
+                    }}>
+                      <SelectTrigger className="bg-slate-700 border-slate-600 text-white" data-testid="category-select">
+                        <SelectValue placeholder="Select category" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-slate-800 border-slate-700">
+                        {DEMO_CATEGORIES.map(cat => (
+                          <SelectItem key={cat.id} value={cat.id} className="text-white hover:bg-slate-700">
+                            {cat.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Concept Selection */}
+                  {selectedCategory && (
+                    <div className="space-y-2">
+                      <Label className="text-slate-200">Concept *</Label>
+                      <Select value={selectedConcept} onValueChange={setSelectedConcept}>
+                        <SelectTrigger className="bg-slate-700 border-slate-600 text-white" data-testid="concept-select">
+                          <SelectValue placeholder="Select concept" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-slate-800 border-slate-700 max-h-[300px]">
+                          {currentConcepts.map(concept => (
+                            <SelectItem key={concept.id} value={concept.id} className="text-white hover:bg-slate-700">
+                              <span className="font-mono text-orange-400 mr-2">{concept.id}</span>
+                              {concept.title}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+
+                  {/* Concept Title (Editable) */}
+                  <div className="space-y-2">
+                    <Label className="text-slate-200">Concept Title *</Label>
+                    <Input
+                      placeholder="Auto-filled from selection or enter custom"
+                      value={conceptTitle}
+                      onChange={(e) => setConceptTitle(e.target.value)}
+                      className="bg-slate-700 border-slate-600 text-white"
+                      data-testid="concept-title-input"
+                    />
+                    {selectedConcept && currentConcepts.find(c => c.id === selectedConcept) && (
+                      <p className="text-xs text-slate-400 mt-1">
+                        {currentConcepts.find(c => c.id === selectedConcept)?.subtitle}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Video Type & Target Audience */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label className="text-slate-200">Video Type *</Label>
+                      <Select value={videoType} onValueChange={setVideoType}>
+                        <SelectTrigger className="bg-slate-700 border-slate-600 text-white" data-testid="video-type-select">
+                          <SelectValue placeholder="Select type" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-slate-800 border-slate-700">
+                          {VIDEO_TYPES.map(type => (
+                            <SelectItem key={type.id} value={type.id} className="text-white hover:bg-slate-700">
+                              {type.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-slate-200">Target Audience *</Label>
+                      <Select value={targetAudience} onValueChange={setTargetAudience}>
+                        <SelectTrigger className="bg-slate-700 border-slate-600 text-white" data-testid="audience-select">
+                          <SelectValue placeholder="Select audience" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-slate-800 border-slate-700">
+                          {TARGET_AUDIENCES.map(aud => (
+                            <SelectItem key={aud.id} value={aud.id} className="text-white hover:bg-slate-700">
+                              {aud.icon} {aud.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  {/* Language & Avatar */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label className="text-slate-200">Language</Label>
+                      <Select value={language} onValueChange={setLanguage}>
+                        <SelectTrigger className="bg-slate-700 border-slate-600 text-white" data-testid="language-select">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className="bg-slate-800 border-slate-700">
+                          {LANGUAGES.map(lang => (
+                            <SelectItem key={lang.id} value={lang.id} className="text-white hover:bg-slate-700">
+                              {lang.flag} {lang.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-slate-200">Avatar Style</Label>
+                      <Select value={avatarStyle} onValueChange={setAvatarStyle}>
+                        <SelectTrigger className="bg-slate-700 border-slate-600 text-white" data-testid="avatar-select">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className="bg-slate-800 border-slate-700">
+                          <SelectItem value="male_teacher" className="text-white hover:bg-slate-700">👨‍💼 Male Presenter</SelectItem>
+                          <SelectItem value="female_teacher" className="text-white hover:bg-slate-700">👩‍💼 Female Presenter</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  {/* Custom Notes */}
+                  <div className="space-y-2">
+                    <Label className="text-slate-200">Custom Notes (Optional)</Label>
+                    <Textarea
+                      placeholder="Add any specific points, USPs, or instructions for the script..."
+                      value={customNotes}
+                      onChange={(e) => setCustomNotes(e.target.value)}
+                      className="bg-slate-700 border-slate-600 text-white min-h-[80px]"
+                      data-testid="custom-notes"
+                    />
+                  </div>
+
+                  <Button 
+                    className="w-full bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white font-semibold"
+                    onClick={handleGenerateScript}
+                    disabled={isGeneratingScript || !conceptTitle || !videoType || !targetAudience}
+                    data-testid="generate-script-btn"
+                  >
+                    {isGeneratingScript ? (
+                      <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Generating Script...</>
+                    ) : (
+                      <><FileText className="w-4 h-4 mr-2" />Generate Script</>
+                    )}
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Script Output */}
+              <Card className="bg-slate-800/50 border-slate-700">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-white">
+                    <FileText className="w-5 h-5 text-green-400" />
+                    Generated Script
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <Textarea
+                    placeholder="Script will appear here after generation..."
+                    value={script}
+                    onChange={(e) => setScript(e.target.value)}
+                    className="min-h-[350px] font-mono text-sm bg-slate-900 border-slate-600 text-slate-100"
+                    data-testid="script-textarea"
+                  />
+
+                  {script && (
+                    <div className="space-y-3">
+                      {/* Video Generation */}
+                      {!videoUrl && (
+                        <Button 
+                          className="w-full bg-gradient-to-r from-red-500 to-purple-500 hover:from-red-600 hover:to-purple-600"
+                          onClick={handleGenerateVideo}
+                          disabled={isGeneratingVideo || !config?.heygen_configured}
+                          data-testid="generate-video-btn"
+                        >
+                          {isGeneratingVideo ? (
+                            <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Generating Video...</>
+                          ) : (
+                            <><Video className="w-4 h-4 mr-2" />Generate Video</>
+                          )}
+                        </Button>
+                      )}
+
+                      {/* Progress Bar */}
+                      {isGeneratingVideo && (
+                        <div className="space-y-2 p-4 bg-slate-900 rounded-lg">
+                          <div className="flex items-center justify-between text-sm text-slate-300">
+                            <span>Video Generation Progress</span>
+                            <span>{videoProgress}%</span>
+                          </div>
+                          <Progress value={videoProgress} className="h-2" />
+                          <p className="text-xs text-slate-400 text-center">
+                            {videoStatus === 'processing' ? 'Processing... This may take 5-10 minutes' : videoStatus}
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Video Download */}
+                      {videoUrl && (
+                        <div className="p-4 bg-green-900/30 rounded-lg border border-green-700">
+                          <div className="flex items-center gap-2 text-green-400 mb-3">
+                            <CheckCircle className="w-5 h-5" />
+                            <span className="font-semibold">Video Ready!</span>
+                          </div>
+                          <Button 
+                            className="w-full bg-green-600 hover:bg-green-700"
+                            onClick={() => window.open(videoUrl, '_blank')}
+                            data-testid="download-video-btn"
+                          >
+                            <Download className="w-4 h-4 mr-2" />
+                            Download Video
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          {/* All Concepts Tab */}
+          <TabsContent value="concepts">
+            <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
+              {DEMO_CATEGORIES.map(category => {
+                const IconComponent = category.icon;
+                return (
+                  <Card key={category.id} className="bg-slate-800/50 border-slate-700 hover:border-purple-500 transition-colors">
+                    <CardHeader className="pb-3">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg">
+                          <IconComponent className="w-5 h-5 text-white" />
+                        </div>
+                        <div>
+                          <CardTitle className="text-lg text-white">{category.name}</CardTitle>
+                          <CardDescription className="text-slate-400 text-xs">{category.description}</CardDescription>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <ul className="space-y-2">
+                        {category.concepts.map(concept => (
+                          <li 
+                            key={concept.id} 
+                            className="flex items-start gap-2 p-2 rounded hover:bg-slate-700/50 cursor-pointer transition-colors"
+                            onClick={() => {
+                              setSelectedCategory(category.id);
+                              setSelectedConcept(concept.id);
+                              setConceptTitle(`${concept.id}: ${concept.title}`);
+                              document.querySelector('[value="generate"]')?.click();
+                            }}
+                          >
+                            <Badge variant="outline" className="text-orange-400 border-orange-400 text-xs font-mono shrink-0">
+                              {concept.id}
+                            </Badge>
+                            <div>
+                              <p className="text-sm text-white font-medium">{concept.title}</p>
+                              <p className="text-xs text-slate-400">{concept.subtitle}</p>
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          </TabsContent>
+
+          {/* History Tab */}
+          <TabsContent value="history">
+            <Card className="bg-slate-800/50 border-slate-700">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="flex items-center gap-2 text-white">
+                      <Video className="w-5 h-5 text-purple-400" />
+                      Generated Demo Videos
+                    </CardTitle>
+                    <CardDescription className="text-slate-400">All RealApex demo videos</CardDescription>
+                  </div>
+                  <Button variant="outline" size="sm" onClick={loadGeneratedVideos} className="border-slate-600 text-slate-300">
+                    <RefreshCw className={`w-4 h-4 mr-2 ${isLoadingVideos ? 'animate-spin' : ''}`} />
+                    Refresh
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {isLoadingVideos ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="w-8 h-8 animate-spin text-purple-400" />
+                  </div>
+                ) : generatedVideos.length === 0 ? (
+                  <div className="text-center py-12 text-slate-400">
+                    <Video className="w-16 h-16 mx-auto mb-4 opacity-30" />
+                    <p className="text-lg">No demo videos generated yet</p>
+                    <p className="text-sm mt-1">Start by selecting a concept and generating a script</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {generatedVideos.map((video) => (
+                      <div key={video.id} className="p-4 bg-slate-900/50 border border-slate-700 rounded-lg hover:border-purple-500 transition-colors">
+                        <div className="flex items-start justify-between">
+                          <div>
+                            <h4 className="font-semibold text-white">{video.concept_name}</h4>
+                            <p className="text-sm text-slate-400">
+                              {video.language} • {new Date(video.created_at).toLocaleDateString()}
+                            </p>
+                          </div>
+                          {getStatusBadge(video.status)}
+                        </div>
+                        
+                        {video.status === 'completed' && video.download_url && (
+                          <div className="flex gap-2 mt-3">
+                            <Button size="sm" onClick={() => window.open(video.download_url, '_blank')} className="bg-purple-600 hover:bg-purple-700">
+                              <Download className="w-4 h-4 mr-1" />
+                              Download
+                            </Button>
+                            <Button size="sm" variant="outline" onClick={() => window.open(video.download_url, '_blank')} className="border-slate-600 text-slate-300">
+                              <Play className="w-4 h-4 mr-1" />
+                              Preview
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
+    </div>
+  );
+};
+
+export default RealApexDemos;
