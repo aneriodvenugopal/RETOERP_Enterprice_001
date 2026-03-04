@@ -241,7 +241,10 @@ async def generate_voiceover(
         EMERGENT_LLM_KEY = os.getenv('EMERGENT_LLM_KEY', '')
         
         if not EMERGENT_LLM_KEY:
-            raise HTTPException(status_code=500, detail="EMERGENT_LLM_KEY not configured")
+            print("❌ EMERGENT_LLM_KEY not found in environment!")
+            raise HTTPException(status_code=500, detail="EMERGENT_LLM_KEY not configured. Please contact support.")
+        
+        print(f"🔑 Using EMERGENT_LLM_KEY: {EMERGENT_LLM_KEY[:20]}...")
         
         # Clean script - remove [SCREEN:...] and [PAUSE] markers for TTS
         import re
@@ -250,6 +253,11 @@ async def generate_voiceover(
         clean_script = re.sub(r'\*\*([^*]+)\*\*', r'\1', clean_script)  # Remove markdown bold
         clean_script = re.sub(r'#{1,6}\s*', '', clean_script)  # Remove markdown headers
         clean_script = clean_script.strip()
+        
+        if not clean_script:
+            raise HTTPException(status_code=400, detail="Script is empty after cleaning")
+        
+        print(f"📝 Script length: {len(clean_script)} chars")
         
         # Check text length limit (4096 chars per request)
         if len(clean_script) > 4096:

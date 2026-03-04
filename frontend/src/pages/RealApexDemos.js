@@ -458,7 +458,7 @@ const RealApexDemos = () => {
     }
   };
 
-  // Generate Presentation (FREE - python-pptx)
+  // Generate Presentation (FREE - python-pptx) - Auto-generates images if none exist
   const handleGeneratePresentation = async () => {
     if (!script) {
       toast.error('Please generate a script first');
@@ -469,13 +469,35 @@ const RealApexDemos = () => {
     setPresentationUrl(null);
 
     try {
+      let imagesToUse = [...uploadedScreenshots.map(s => s.url), ...generatedImages.map(img => img.url)];
+      
+      // Auto-generate images if no images exist
+      if (imagesToUse.length === 0) {
+        toast.info('Auto-generating images for presentation...');
+        
+        const imgResponse = await api.post('/realapex-demos/auto-generate-images', {
+          concept_title: conceptTitle,
+          script: script,
+          category_name: DEMO_CATEGORIES.find(c => c.id === selectedCategory)?.name || '',
+          num_images: 3
+        });
+        
+        if (imgResponse.data.success && imgResponse.data.images.length > 0) {
+          setGeneratedImages(imgResponse.data.images);
+          imagesToUse = imgResponse.data.images.map(img => img.url);
+          toast.success(`${imgResponse.data.images.length} images generated!`);
+        }
+      }
+      
+      // Now generate presentation with images
+      toast.info('Creating presentation...');
       const response = await api.post('/realapex-demos/generate-presentation', {
         concept_title: conceptTitle,
         script: script,
         language: language,
         theme: presentationTheme,
-        include_screenshots: uploadedScreenshots.length > 0 || generatedImages.length > 0,
-        screenshot_urls: [...uploadedScreenshots.map(s => s.url), ...generatedImages.map(img => img.url)]
+        include_screenshots: imagesToUse.length > 0,
+        screenshot_urls: imagesToUse
       });
 
       if (response.data.success) {
@@ -837,14 +859,24 @@ const RealApexDemos = () => {
                           <Badge className="bg-blue-600 text-xs">python-pptx</Badge>
                         </div>
                         
-                        {/* Auto-Generate Images OR Upload */}
+                        {/* Images Section - Optional pre-generation or upload */}
                         <div className="mb-3">
-                          <Label className="text-slate-300 text-xs mb-2 block">Slide Images</Label>
+                          <Label className="text-slate-300 text-xs mb-2 block">
+                            Slide Images <span className="text-slate-500">(Optional - Auto-generated if empty)</span>
+                          </Label>
                           
-                          {/* Auto Generate Button */}
+                          {/* Info about auto-generation */}
+                          {generatedImages.length === 0 && uploadedScreenshots.length === 0 && (
+                            <p className="text-xs text-slate-400 mb-2 p-2 bg-slate-800/50 rounded">
+                              💡 No images? PPT will auto-generate AI images when you click "Generate PowerPoint"
+                            </p>
+                          )}
+                          
+                          {/* Manual Pre-Generate Button */}
                           <Button
                             size="sm"
-                            className="w-full mb-2 bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700"
+                            variant="outline"
+                            className="w-full mb-2 border-purple-600 text-purple-300 hover:bg-purple-900/30"
                             onClick={handleAutoGenerateImages}
                             disabled={isGeneratingImages || (!conceptTitle && !script)}
                             data-testid="auto-generate-images-btn"
@@ -852,7 +884,7 @@ const RealApexDemos = () => {
                             {isGeneratingImages ? (
                               <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Generating AI Images...</>
                             ) : (
-                              <><Sparkles className="w-4 h-4 mr-2" />Auto-Generate Images (FREE)</>
+                              <><Sparkles className="w-4 h-4 mr-2" />Pre-Generate Images (Optional)</>
                             )}
                           </Button>
                           
@@ -880,7 +912,7 @@ const RealApexDemos = () => {
                           {/* Divider */}
                           <div className="flex items-center gap-2 my-2">
                             <div className="flex-1 h-px bg-slate-700"></div>
-                            <span className="text-xs text-slate-500">OR upload your own</span>
+                            <span className="text-xs text-slate-500">Add more images (optional)</span>
                             <div className="flex-1 h-px bg-slate-700"></div>
                           </div>
                           
