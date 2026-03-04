@@ -40,10 +40,129 @@ class GeneratePresentationRequest(BaseModel):
 
 class GenerateVoiceoverRequest(BaseModel):
     script: str
-    voice: Literal["alloy", "ash", "coral", "echo", "fable", "nova", "onyx", "sage", "shimmer"] = "nova"
+    voice: str = "nova"  # Now supports edge-tts voices
     speed: float = 1.0
-    model: Literal["tts-1", "tts-1-hd"] = "tts-1-hd"
+    model: str = "edge-tts"  # Using free Edge TTS
     concept_title: Optional[str] = "voiceover"
+
+
+def parse_script_to_slides(script: str, concept_title: str, num_screenshots: int = 0) -> list:
+    """Parse script into slide structure WITHOUT using any AI - 100% FREE"""
+    import re
+    
+    slides = []
+    
+    # Slide 1: Title
+    slides.append({
+        "slide_number": 1,
+        "type": "title",
+        "title": concept_title.replace(":", " -") if concept_title else "RealApex Demo",
+        "subtitle": "Professional Real Estate SaaS Solution",
+        "notes": "Welcome the audience"
+    })
+    
+    # Parse script sections
+    lines = script.strip().split('\n')
+    current_bullets = []
+    current_title = "Overview"
+    slide_num = 2
+    screenshot_count = 0
+    
+    for line in lines:
+        line = line.strip()
+        if not line:
+            continue
+            
+        # Check for [SCREEN:...] markers - add screenshot slide
+        if '[SCREEN:' in line or '[Screenshot:' in line.lower():
+            # Save current bullets if any
+            if current_bullets:
+                slides.append({
+                    "slide_number": slide_num,
+                    "type": "content",
+                    "title": current_title,
+                    "bullets": current_bullets[:5],
+                    "notes": ""
+                })
+                slide_num += 1
+                current_bullets = []
+            
+            # Add screenshot slide
+            caption = re.search(r'\[SCREEN:([^\]]+)\]', line, re.IGNORECASE)
+            caption_text = caption.group(1) if caption else "Application Screenshot"
+            slides.append({
+                "slide_number": slide_num,
+                "type": "screenshot",
+                "title": f"Screenshot {screenshot_count + 1}",
+                "caption": caption_text,
+                "notes": "",
+                "screenshot_index": screenshot_count
+            })
+            slide_num += 1
+            screenshot_count += 1
+            continue
+        
+        # Check for bullet points
+        if line.startswith('-') or line.startswith('•') or line.startswith('*'):
+            bullet = line.lstrip('-•* ').strip()
+            if bullet:
+                current_bullets.append(bullet)
+        
+        # Check for headers/titles
+        elif line.startswith('#') or (len(line) < 50 and line.endswith(':')):
+            # Save previous section
+            if current_bullets:
+                slides.append({
+                    "slide_number": slide_num,
+                    "type": "content",
+                    "title": current_title,
+                    "bullets": current_bullets[:5],
+                    "notes": ""
+                })
+                slide_num += 1
+                current_bullets = []
+            current_title = line.lstrip('#').strip().rstrip(':')
+        
+        # Regular text - convert to bullet
+        elif len(line) > 20:
+            # Split long text into bullet points
+            if len(line) < 100:
+                current_bullets.append(line)
+    
+    # Add remaining bullets
+    if current_bullets:
+        slides.append({
+            "slide_number": slide_num,
+            "type": "content",
+            "title": current_title,
+            "bullets": current_bullets[:5],
+            "notes": ""
+        })
+        slide_num += 1
+    
+    # Add screenshot slides for uploaded images if not already added
+    while screenshot_count < num_screenshots:
+        slides.append({
+            "slide_number": slide_num,
+            "type": "screenshot",
+            "title": f"Feature Demo {screenshot_count + 1}",
+            "caption": "Application screenshot",
+            "notes": "",
+            "screenshot_index": screenshot_count
+        })
+        slide_num += 1
+        screenshot_count += 1
+    
+    # Add CTA slide
+    slides.append({
+        "slide_number": slide_num,
+        "type": "cta",
+        "title": "Get Started Today!",
+        "bullets": ["Visit RealApex.in", "Request a Free Demo", "Contact Us"],
+        "notes": "Call to action"
+    })
+    
+    return slides
 
 
 # Admin check helper
@@ -232,88 +351,82 @@ async def generate_voiceover(
     request: GenerateVoiceoverRequest,
     current_user: dict = Depends(get_current_user)
 ):
-    """Generate high-quality voiceover audio using OpenAI TTS (FREE with Emergent Key)"""
+    """Generate high-quality voiceover audio using Edge TTS (100% FREE - Unlimited)"""
     check_admin(current_user)
     
     try:
-        from emergentintegrations.llm.openai import OpenAITextToSpeech
-        
-        EMERGENT_LLM_KEY = os.getenv('EMERGENT_LLM_KEY', '')
-        
-        if not EMERGENT_LLM_KEY:
-            print("❌ EMERGENT_LLM_KEY not found in environment!")
-            raise HTTPException(status_code=500, detail="EMERGENT_LLM_KEY not configured. Please contact support.")
-        
-        print(f"🔑 Using EMERGENT_LLM_KEY: {EMERGENT_LLM_KEY[:20]}...")
-        
-        # Clean script - remove [SCREEN:...] and [PAUSE] markers for TTS
+        import edge_tts
         import re
+        
+        # Edge TTS voice mapping
+        EDGE_VOICES = {
+            # English voices
+            "nova": "en-US-JennyNeural",       # Female, friendly
+            "alloy": "en-US-GuyNeural",        # Male, neutral
+            "echo": "en-US-AriaNeural",        # Female, professional
+            "fable": "en-US-DavisNeural",      # Male, narrator
+            "onyx": "en-US-ChristopherNeural", # Male, deep
+            "shimmer": "en-US-SaraNeural",     # Female, bright
+            # Indian English
+            "indian_male": "en-IN-PrabhatNeural",
+            "indian_female": "en-IN-NeerjaNeural",
+            # Telugu
+            "telugu_male": "te-IN-MohanNeural",
+            "telugu_female": "te-IN-ShrutiNeural",
+            # Hindi
+            "hindi_male": "hi-IN-MadhurNeural",
+            "hindi_female": "hi-IN-SwaraNeural",
+        }
+        
+        # Get voice or default
+        voice = EDGE_VOICES.get(request.voice, "en-US-JennyNeural")
+        
+        # Clean script
         clean_script = re.sub(r'\[SCREEN:[^\]]*\]', '', request.script)
         clean_script = re.sub(r'\[PAUSE\]', '...', clean_script)
-        clean_script = re.sub(r'\*\*([^*]+)\*\*', r'\1', clean_script)  # Remove markdown bold
-        clean_script = re.sub(r'#{1,6}\s*', '', clean_script)  # Remove markdown headers
+        clean_script = re.sub(r'\*\*([^*]+)\*\*', r'\1', clean_script)
+        clean_script = re.sub(r'#{1,6}\s*', '', clean_script)
         clean_script = clean_script.strip()
         
         if not clean_script:
-            raise HTTPException(status_code=400, detail="Script is empty after cleaning")
+            raise HTTPException(status_code=400, detail="Script is empty")
         
-        print(f"📝 Script length: {len(clean_script)} chars")
+        print(f"🎙️ Generating voiceover with Edge TTS (FREE)")
+        print(f"📝 Script: {len(clean_script)} chars, Voice: {voice}")
         
-        # Check text length limit (4096 chars per request)
-        if len(clean_script) > 4096:
-            # Split into chunks if too long
-            chunks = []
-            current_chunk = ""
-            sentences = clean_script.replace('\n', ' ').split('. ')
-            
-            for sentence in sentences:
-                if len(current_chunk) + len(sentence) + 2 < 4000:
-                    current_chunk += sentence + ". "
-                else:
-                    if current_chunk:
-                        chunks.append(current_chunk.strip())
-                    current_chunk = sentence + ". "
-            if current_chunk:
-                chunks.append(current_chunk.strip())
-        else:
-            chunks = [clean_script]
-        
-        # Initialize TTS
-        tts = OpenAITextToSpeech(api_key=EMERGENT_LLM_KEY)
-        
-        # Generate audio for each chunk
-        all_audio_bytes = b""
-        for i, chunk in enumerate(chunks):
-            print(f"🎙️ Generating voiceover chunk {i+1}/{len(chunks)} ({len(chunk)} chars)")
-            audio_bytes = await tts.generate_speech(
-                text=chunk,
-                model=request.model,
-                voice=request.voice,
-                speed=request.speed,
-                response_format="mp3"
-            )
-            all_audio_bytes += audio_bytes
-        
-        # Save to temp file
-        filename = f"voiceover_{request.concept_title.replace(' ', '_')}_{uuid.uuid4().hex[:8]}.mp3"
+        # Generate audio using Edge TTS
+        filename = f"voiceover_{request.concept_title.replace(' ', '_').replace(':', '')}_{uuid.uuid4().hex[:8]}.mp3"
         filepath = f"/tmp/{filename}"
         
-        with open(filepath, "wb") as f:
-            f.write(all_audio_bytes)
+        # Calculate rate adjustment for Edge TTS
+        if request.speed == 1.0:
+            rate = "+0%"
+        elif request.speed > 1:
+            rate = f"+{int((request.speed - 1) * 100)}%"
+        else:
+            rate = f"-{int((1 - request.speed) * 100)}%"
         
-        print(f"✅ Voiceover generated: {filename} ({len(all_audio_bytes)} bytes)")
+        communicate = edge_tts.Communicate(clean_script, voice, rate=rate)
+        await communicate.save(filepath)
+        
+        # Get file size
+        file_size = os.path.getsize(filepath)
+        
+        print(f"✅ Voiceover generated: {filename} ({file_size} bytes)")
         
         return {
             "success": True,
             "filename": filename,
             "filepath": filepath,
-            "size_bytes": len(all_audio_bytes),
-            "chunks_processed": len(chunks),
+            "size_bytes": file_size,
+            "voice_used": voice,
             "download_url": f"/api/realapex-demos/download-voiceover/{filename}"
         }
         
     except Exception as e:
-        print(f"❌ Voiceover generation error: {str(e)}")
+        print(f"❌ Voiceover error: {str(e)}")
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -376,85 +489,24 @@ async def generate_presentation(
     request: GeneratePresentationRequest,
     current_user: dict = Depends(get_current_user)
 ):
-    """Generate PowerPoint presentation from script (FREE - python-pptx)"""
+    """Generate PowerPoint presentation from script (100% FREE - No AI/API needed)"""
     check_admin(current_user)
     
     try:
-        from emergentintegrations.llm.chat import LlmChat, UserMessage
         from pptx import Presentation
         from pptx.util import Inches, Pt
         from pptx.dml.color import RGBColor
         from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
         import re
         
-        EMERGENT_LLM_KEY = os.getenv('EMERGENT_LLM_KEY', '')
+        print(f"📊 Generating PPT (FREE) for: {request.concept_title}")
         
-        # Step 1: Use Claude to extract slide structure from script
-        slide_prompt = f"""Analyze this demo video script and create a PowerPoint presentation structure.
-
-SCRIPT:
-{request.script}
-
-Create exactly 6-8 slides for a professional SaaS demo presentation.
-
-Return a JSON array with this exact format (no other text):
-[
-  {{
-    "slide_number": 1,
-    "type": "title",
-    "title": "Main title text",
-    "subtitle": "Subtitle or tagline",
-    "notes": "Speaker notes for this slide"
-  }},
-  {{
-    "slide_number": 2,
-    "type": "content",
-    "title": "Slide title",
-    "bullets": ["Point 1", "Point 2", "Point 3"],
-    "notes": "Speaker notes"
-  }},
-  {{
-    "slide_number": 3,
-    "type": "screenshot",
-    "title": "Feature Screenshot",
-    "caption": "What this screenshot shows",
-    "notes": "Speaker notes"
-  }}
-]
-
-Slide types: "title", "content", "screenshot", "benefits", "cta"
-Include 2-3 "screenshot" type slides where app screenshots should go.
-Make content concise - max 4-5 bullet points per slide.
-Language: {request.language}"""
-
-        chat = LlmChat(
-            api_key=EMERGENT_LLM_KEY,
-            session_id=f"ppt-{uuid.uuid4()}",
-            system_message="You are a presentation designer. Output only valid JSON."
-        ).with_model("anthropic", "claude-sonnet-4-20250514")
+        # Step 1: Parse script into slides WITHOUT using any AI
+        slides_data = parse_script_to_slides(request.script, request.concept_title, len(request.screenshot_urls))
         
-        response = await chat.send_message(UserMessage(text=slide_prompt))
+        print(f"📝 Created {len(slides_data)} slides from script")
         
-        # Parse JSON from response
-        try:
-            json_start = response.find('[')
-            json_end = response.rfind(']') + 1
-            if json_start >= 0 and json_end > json_start:
-                slides_json = response[json_start:json_end]
-                slides_data = json.loads(slides_json)
-            else:
-                slides_data = json.loads(response)
-        except json.JSONDecodeError as e:
-            print(f"JSON parse error: {e}")
-            # Fallback to basic structure
-            slides_data = [
-                {"slide_number": 1, "type": "title", "title": request.concept_title, "subtitle": "RealApex Demo", "notes": ""},
-                {"slide_number": 2, "type": "content", "title": "Overview", "bullets": ["Feature overview", "Key benefits", "How it works"], "notes": ""},
-                {"slide_number": 3, "type": "screenshot", "title": "Live Demo", "caption": "Application screenshot", "notes": ""},
-                {"slide_number": 4, "type": "cta", "title": "Get Started", "bullets": ["Visit RealApex.in", "Request a demo", "Contact us"], "notes": ""}
-            ]
-        
-        # Step 2: Create PowerPoint presentation
+        # Create PowerPoint presentation
         prs = Presentation()
         prs.slide_width = Inches(16)
         prs.slide_height = Inches(9)

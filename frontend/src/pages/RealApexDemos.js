@@ -458,7 +458,7 @@ const RealApexDemos = () => {
     }
   };
 
-  // Generate Presentation (FREE - python-pptx) - Auto-generates images if none exist
+  // Generate Presentation (100% FREE - No API costs)
   const handleGeneratePresentation = async () => {
     if (!script) {
       toast.error('Please generate a script first');
@@ -469,27 +469,9 @@ const RealApexDemos = () => {
     setPresentationUrl(null);
 
     try {
-      let imagesToUse = [...uploadedScreenshots.map(s => s.url), ...generatedImages.map(img => img.url)];
+      // Use uploaded screenshots only (no AI image generation)
+      const imagesToUse = uploadedScreenshots.map(s => s.url);
       
-      // Auto-generate images if no images exist
-      if (imagesToUse.length === 0) {
-        toast.info('Auto-generating images for presentation...');
-        
-        const imgResponse = await api.post('/realapex-demos/auto-generate-images', {
-          concept_title: conceptTitle,
-          script: script,
-          category_name: DEMO_CATEGORIES.find(c => c.id === selectedCategory)?.name || '',
-          num_images: 3
-        });
-        
-        if (imgResponse.data.success && imgResponse.data.images.length > 0) {
-          setGeneratedImages(imgResponse.data.images);
-          imagesToUse = imgResponse.data.images.map(img => img.url);
-          toast.success(`${imgResponse.data.images.length} images generated!`);
-        }
-      }
-      
-      // Now generate presentation with images
       toast.info('Creating presentation...');
       const response = await api.post('/realapex-demos/generate-presentation', {
         concept_title: conceptTitle,
@@ -778,12 +760,12 @@ const RealApexDemos = () => {
 
                   {script && (
                     <div className="space-y-3">
-                      {/* Voiceover Generation - FREE */}
+                      {/* Voiceover Generation - 100% FREE */}
                       <div className="p-4 bg-gradient-to-r from-emerald-900/30 to-teal-900/30 rounded-lg border border-emerald-700">
                         <div className="flex items-center gap-2 text-emerald-400 mb-3">
                           <Mic className="w-5 h-5" />
-                          <span className="font-semibold">Generate Voiceover (FREE)</span>
-                          <Badge className="bg-emerald-600 text-xs">OpenAI TTS</Badge>
+                          <span className="font-semibold">Generate Voiceover</span>
+                          <Badge className="bg-emerald-600 text-xs">100% FREE - Unlimited</Badge>
                         </div>
                         
                         <div className="grid grid-cols-2 gap-3 mb-3">
@@ -794,12 +776,14 @@ const RealApexDemos = () => {
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent className="bg-slate-800 border-slate-700">
-                                <SelectItem value="nova" className="text-white">Nova (Energetic - Recommended)</SelectItem>
-                                <SelectItem value="alloy" className="text-white">Alloy (Neutral)</SelectItem>
-                                <SelectItem value="echo" className="text-white">Echo (Smooth)</SelectItem>
-                                <SelectItem value="fable" className="text-white">Fable (Expressive)</SelectItem>
-                                <SelectItem value="onyx" className="text-white">Onyx (Deep)</SelectItem>
-                                <SelectItem value="shimmer" className="text-white">Shimmer (Bright)</SelectItem>
+                                <SelectItem value="nova" className="text-white">Jenny (Female, Friendly)</SelectItem>
+                                <SelectItem value="alloy" className="text-white">Guy (Male, Neutral)</SelectItem>
+                                <SelectItem value="indian_female" className="text-white">Neerja (Indian Female)</SelectItem>
+                                <SelectItem value="indian_male" className="text-white">Prabhat (Indian Male)</SelectItem>
+                                <SelectItem value="telugu_female" className="text-white">Shruti (Telugu Female)</SelectItem>
+                                <SelectItem value="telugu_male" className="text-white">Mohan (Telugu Male)</SelectItem>
+                                <SelectItem value="hindi_female" className="text-white">Swara (Hindi Female)</SelectItem>
+                                <SelectItem value="hindi_male" className="text-white">Madhur (Hindi Male)</SelectItem>
                               </SelectContent>
                             </Select>
                           </div>
@@ -873,50 +857,7 @@ const RealApexDemos = () => {
                           )}
                           
                           {/* Manual Pre-Generate Button */}
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="w-full mb-2 border-purple-600 text-purple-300 hover:bg-purple-900/30"
-                            onClick={handleAutoGenerateImages}
-                            disabled={isGeneratingImages || (!conceptTitle && !script)}
-                            data-testid="auto-generate-images-btn"
-                          >
-                            {isGeneratingImages ? (
-                              <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Generating AI Images...</>
-                            ) : (
-                              <><Sparkles className="w-4 h-4 mr-2" />Pre-Generate Images (Optional)</>
-                            )}
-                          </Button>
-                          
-                          {/* Generated Images Preview */}
-                          {generatedImages.length > 0 && (
-                            <div className="mb-2 p-2 bg-purple-900/30 rounded-lg">
-                              <p className="text-xs text-purple-300 mb-2">AI Generated Images:</p>
-                              <div className="flex gap-2 flex-wrap">
-                                {generatedImages.map((img, idx) => (
-                                  <div key={idx} className="relative group">
-                                    <img 
-                                      src={`${API_URL}${img.url}`} 
-                                      alt={`Generated ${idx + 1}`}
-                                      className="w-20 h-12 object-cover rounded border border-purple-600"
-                                    />
-                                    <span className="absolute -top-1 -right-1 bg-purple-600 text-white text-xs w-4 h-4 rounded-full flex items-center justify-center">
-                                      {idx + 1}
-                                    </span>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-                          
-                          {/* Divider */}
-                          <div className="flex items-center gap-2 my-2">
-                            <div className="flex-1 h-px bg-slate-700"></div>
-                            <span className="text-xs text-slate-500">Add more images (optional)</span>
-                            <div className="flex-1 h-px bg-slate-700"></div>
-                          </div>
-                          
-                          {/* Manual Upload */}
+                          {/* Upload Screenshots */}
                           <div className="flex gap-2">
                             <input
                               type="file"
@@ -928,21 +869,22 @@ const RealApexDemos = () => {
                             />
                             <Button
                               size="sm"
-                              variant="outline"
-                              className="border-slate-600 text-slate-300 flex-1"
+                              className="flex-1 bg-blue-600 hover:bg-blue-700"
                               onClick={() => screenshotInputRef.current?.click()}
                               disabled={isUploadingScreenshots}
                             >
                               {isUploadingScreenshots ? (
                                 <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Uploading...</>
                               ) : (
-                                <><Upload className="w-4 h-4 mr-2" />Upload Screenshots</>
+                                <><Upload className="w-4 h-4 mr-2" />Upload Your Screenshots</>
                               )}
                             </Button>
                             {uploadedScreenshots.length > 0 && (
-                              <Badge className="bg-blue-600">{uploadedScreenshots.length} uploaded</Badge>
+                              <Badge className="bg-green-600">{uploadedScreenshots.length} uploaded</Badge>
                             )}
                           </div>
+                          
+                          {/* Uploaded Screenshots Preview */}
                           {uploadedScreenshots.length > 0 && (
                             <div className="flex gap-2 mt-2 flex-wrap">
                               {uploadedScreenshots.map((ss, idx) => (
@@ -950,7 +892,7 @@ const RealApexDemos = () => {
                                   <img 
                                     src={`${API_URL}${ss.url}`} 
                                     alt={ss.original_name}
-                                    className="w-16 h-10 object-cover rounded border border-slate-600"
+                                    className="w-16 h-10 object-cover rounded border border-blue-600"
                                   />
                                   <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-xs w-4 h-4 rounded-full flex items-center justify-center">
                                     {idx + 1}
@@ -958,6 +900,12 @@ const RealApexDemos = () => {
                                 </div>
                               ))}
                             </div>
+                          )}
+                          
+                          {uploadedScreenshots.length === 0 && (
+                            <p className="text-xs text-slate-400 mt-1">
+                              💡 Upload your app screenshots - they will be added as slides in PPT
+                            </p>
                           )}
                         </div>
                         
