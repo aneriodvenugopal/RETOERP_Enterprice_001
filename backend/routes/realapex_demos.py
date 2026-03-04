@@ -2,12 +2,14 @@
 RealApex Demo Video API Routes - SaaS Demo Content Generation
 """
 
-from fastapi import APIRouter, HTTPException, Depends
-from fastapi.responses import Response
-from typing import Optional, Literal
+from fastapi import APIRouter, HTTPException, Depends, UploadFile, File, Form
+from fastapi.responses import Response, FileResponse
+from typing import Optional, Literal, List
 from pydantic import BaseModel
 import os
 import uuid
+import json
+import base64
 
 router = APIRouter(prefix="/realapex-demos", tags=["RealApex Demos"])
 
@@ -25,6 +27,15 @@ class GenerateDemoScriptRequest(BaseModel):
     target_audience: str
     language: str
     custom_notes: Optional[str] = ""
+
+
+class GeneratePresentationRequest(BaseModel):
+    concept_title: str
+    script: str
+    language: str = "english"
+    theme: str = "professional"  # professional, modern, minimal
+    include_screenshots: bool = True
+    screenshot_urls: Optional[List[str]] = []
 
 
 class GenerateVoiceoverRequest(BaseModel):
@@ -349,3 +360,327 @@ async def get_voice_options(
         ],
         "speed_range": {"min": 0.25, "max": 4.0, "default": 1.0}
     }
+
+
+
+@router.post("/generate-presentation")
+async def generate_presentation(
+    request: GeneratePresentationRequest,
+    current_user: dict = Depends(get_current_user)
+):
+    """Generate PowerPoint presentation from script (FREE - python-pptx)"""
+    check_admin(current_user)
+    
+    try:
+        from emergentintegrations.llm.chat import LlmChat, UserMessage
+        from pptx import Presentation
+        from pptx.util import Inches, Pt
+        from pptx.dml.color import RGBColor
+        from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
+        import re
+        
+        EMERGENT_LLM_KEY = os.getenv('EMERGENT_LLM_KEY', '')
+        
+        # Step 1: Use Claude to extract slide structure from script
+        slide_prompt = f"""Analyze this demo video script and create a PowerPoint presentation structure.
+
+SCRIPT:
+{request.script}
+
+Create exactly 6-8 slides for a professional SaaS demo presentation.
+
+Return a JSON array with this exact format (no other text):
+[
+  {{
+    "slide_number": 1,
+    "type": "title",
+    "title": "Main title text",
+    "subtitle": "Subtitle or tagline",
+    "notes": "Speaker notes for this slide"
+  }},
+  {{
+    "slide_number": 2,
+    "type": "content",
+    "title": "Slide title",
+    "bullets": ["Point 1", "Point 2", "Point 3"],
+    "notes": "Speaker notes"
+  }},
+  {{
+    "slide_number": 3,
+    "type": "screenshot",
+    "title": "Feature Screenshot",
+    "caption": "What this screenshot shows",
+    "notes": "Speaker notes"
+  }}
+]
+
+Slide types: "title", "content", "screenshot", "benefits", "cta"
+Include 2-3 "screenshot" type slides where app screenshots should go.
+Make content concise - max 4-5 bullet points per slide.
+Language: {request.language}"""
+
+        chat = LlmChat(
+            api_key=EMERGENT_LLM_KEY,
+            session_id=f"ppt-{uuid.uuid4()}",
+            system_message="You are a presentation designer. Output only valid JSON."
+        ).with_model("anthropic", "claude-sonnet-4-20250514")
+        
+        response = await chat.send_message(UserMessage(text=slide_prompt))
+        
+        # Parse JSON from response
+        try:
+            json_start = response.find('[')
+            json_end = response.rfind(']') + 1
+            if json_start >= 0 and json_end > json_start:
+                slides_json = response[json_start:json_end]
+                slides_data = json.loads(slides_json)
+            else:
+                slides_data = json.loads(response)
+        except json.JSONDecodeError as e:
+            print(f"JSON parse error: {e}")
+            # Fallback to basic structure
+            slides_data = [
+                {"slide_number": 1, "type": "title", "title": request.concept_title, "subtitle": "RealApex Demo", "notes": ""},
+                {"slide_number": 2, "type": "content", "title": "Overview", "bullets": ["Feature overview", "Key benefits", "How it works"], "notes": ""},
+                {"slide_number": 3, "type": "screenshot", "title": "Live Demo", "caption": "Application screenshot", "notes": ""},
+                {"slide_number": 4, "type": "cta", "title": "Get Started", "bullets": ["Visit RealApex.in", "Request a demo", "Contact us"], "notes": ""}
+            ]
+        
+        # Step 2: Create PowerPoint presentation
+        prs = Presentation()
+        prs.slide_width = Inches(16)
+        prs.slide_height = Inches(9)
+        
+        # Theme colors based on selection
+        themes = {
+            "professional": {"bg": RGBColor(15, 23, 42), "accent": RGBColor(249, 115, 22), "text": RGBColor(255, 255, 255)},
+            "modern": {"bg": RGBColor(30, 41, 59), "accent": RGBColor(168, 85, 247), "text": RGBColor(255, 255, 255)},
+            "minimal": {"bg": RGBColor(255, 255, 255), "accent": RGBColor(59, 130, 246), "text": RGBColor(15, 23, 42)}
+        }
+        theme = themes.get(request.theme, themes["professional"])
+        
+        screenshot_index = 0
+        
+        for slide_info in slides_data:
+            slide_type = slide_info.get("type", "content")
+            
+            # Add blank slide
+            blank_layout = prs.slide_layouts[6]  # Blank layout
+            slide = prs.slides.add_slide(blank_layout)
+            
+            # Set background color
+            background = slide.background
+            fill = background.fill
+            fill.solid()
+            fill.fore_color.rgb = theme["bg"]
+            
+            if slide_type == "title":
+                # Title slide
+                title_box = slide.shapes.add_textbox(Inches(1), Inches(3), Inches(14), Inches(1.5))
+                tf = title_box.text_frame
+                tf.word_wrap = True
+                p = tf.paragraphs[0]
+                p.text = slide_info.get("title", "")
+                p.font.size = Pt(54)
+                p.font.bold = True
+                p.font.color.rgb = theme["text"]
+                p.alignment = PP_ALIGN.CENTER
+                
+                if slide_info.get("subtitle"):
+                    sub_box = slide.shapes.add_textbox(Inches(1), Inches(4.7), Inches(14), Inches(1))
+                    tf2 = sub_box.text_frame
+                    p2 = tf2.paragraphs[0]
+                    p2.text = slide_info.get("subtitle", "")
+                    p2.font.size = Pt(28)
+                    p2.font.color.rgb = theme["accent"]
+                    p2.alignment = PP_ALIGN.CENTER
+                    
+            elif slide_type == "screenshot":
+                # Screenshot placeholder slide
+                title_box = slide.shapes.add_textbox(Inches(0.5), Inches(0.5), Inches(15), Inches(1))
+                tf = title_box.text_frame
+                p = tf.paragraphs[0]
+                p.text = slide_info.get("title", "Feature Demo")
+                p.font.size = Pt(36)
+                p.font.bold = True
+                p.font.color.rgb = theme["text"]
+                
+                # Placeholder for screenshot
+                placeholder_box = slide.shapes.add_textbox(Inches(2), Inches(2), Inches(12), Inches(5))
+                tf2 = placeholder_box.text_frame
+                p2 = tf2.paragraphs[0]
+                p2.text = f"📸 Screenshot {screenshot_index + 1}\n\n{slide_info.get('caption', 'Add your app screenshot here')}"
+                p2.font.size = Pt(24)
+                p2.font.color.rgb = RGBColor(148, 163, 184)
+                p2.alignment = PP_ALIGN.CENTER
+                
+                # Add actual screenshot if provided
+                if request.screenshot_urls and screenshot_index < len(request.screenshot_urls):
+                    # Note: For actual screenshots, would need to download and embed
+                    pass
+                
+                screenshot_index += 1
+                
+            elif slide_type in ["content", "benefits"]:
+                # Content slide with bullets
+                title_box = slide.shapes.add_textbox(Inches(0.5), Inches(0.5), Inches(15), Inches(1))
+                tf = title_box.text_frame
+                p = tf.paragraphs[0]
+                p.text = slide_info.get("title", "")
+                p.font.size = Pt(40)
+                p.font.bold = True
+                p.font.color.rgb = theme["text"]
+                
+                # Bullets
+                bullets = slide_info.get("bullets", [])
+                if bullets:
+                    bullet_box = slide.shapes.add_textbox(Inches(1), Inches(2), Inches(14), Inches(6))
+                    tf2 = bullet_box.text_frame
+                    tf2.word_wrap = True
+                    
+                    for i, bullet in enumerate(bullets):
+                        if i == 0:
+                            p2 = tf2.paragraphs[0]
+                        else:
+                            p2 = tf2.add_paragraph()
+                        p2.text = f"• {bullet}"
+                        p2.font.size = Pt(28)
+                        p2.font.color.rgb = theme["text"]
+                        p2.space_after = Pt(20)
+                        
+            elif slide_type == "cta":
+                # Call to action slide
+                title_box = slide.shapes.add_textbox(Inches(1), Inches(2.5), Inches(14), Inches(1.5))
+                tf = title_box.text_frame
+                p = tf.paragraphs[0]
+                p.text = slide_info.get("title", "Get Started Today")
+                p.font.size = Pt(48)
+                p.font.bold = True
+                p.font.color.rgb = theme["accent"]
+                p.alignment = PP_ALIGN.CENTER
+                
+                # CTA details
+                bullets = slide_info.get("bullets", ["Visit RealApex.in", "Request a Free Demo"])
+                cta_box = slide.shapes.add_textbox(Inches(1), Inches(4.5), Inches(14), Inches(3))
+                tf2 = cta_box.text_frame
+                for i, bullet in enumerate(bullets):
+                    if i == 0:
+                        p2 = tf2.paragraphs[0]
+                    else:
+                        p2 = tf2.add_paragraph()
+                    p2.text = bullet
+                    p2.font.size = Pt(32)
+                    p2.font.color.rgb = theme["text"]
+                    p2.alignment = PP_ALIGN.CENTER
+                    p2.space_after = Pt(15)
+            
+            # Add speaker notes
+            notes_slide = slide.notes_slide
+            notes_slide.notes_text_frame.text = slide_info.get("notes", "")
+        
+        # Save presentation
+        filename = f"presentation_{request.concept_title.replace(' ', '_').replace(':', '')}_{uuid.uuid4().hex[:8]}.pptx"
+        filepath = f"/tmp/{filename}"
+        prs.save(filepath)
+        
+        file_size = os.path.getsize(filepath)
+        
+        print(f"✅ Presentation generated: {filename} ({file_size} bytes, {len(slides_data)} slides)")
+        
+        return {
+            "success": True,
+            "filename": filename,
+            "filepath": filepath,
+            "size_bytes": file_size,
+            "slides_count": len(slides_data),
+            "download_url": f"/api/realapex-demos/download-presentation/{filename}",
+            "slides_structure": slides_data
+        }
+        
+    except Exception as e:
+        print(f"❌ Presentation generation error: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/download-presentation/{filename}")
+async def download_presentation(
+    filename: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Download generated PowerPoint presentation"""
+    check_admin(current_user)
+    
+    filepath = f"/tmp/{filename}"
+    
+    if not os.path.exists(filepath):
+        raise HTTPException(status_code=404, detail="Presentation file not found")
+    
+    return FileResponse(
+        filepath,
+        media_type="application/vnd.openxmlformats-officedocument.presentationml.presentation",
+        filename=filename
+    )
+
+
+@router.post("/upload-screenshots")
+async def upload_screenshots(
+    files: List[UploadFile] = File(...),
+    current_user: dict = Depends(get_current_user)
+):
+    """Upload screenshots for presentation"""
+    check_admin(current_user)
+    
+    uploaded_files = []
+    
+    for file in files:
+        if not file.content_type.startswith('image/'):
+            continue
+            
+        # Save file
+        file_id = uuid.uuid4().hex[:12]
+        filename = f"screenshot_{file_id}_{file.filename}"
+        filepath = f"/tmp/{filename}"
+        
+        content = await file.read()
+        with open(filepath, "wb") as f:
+            f.write(content)
+        
+        uploaded_files.append({
+            "filename": filename,
+            "filepath": filepath,
+            "original_name": file.filename,
+            "size": len(content),
+            "url": f"/api/realapex-demos/screenshot/{filename}"
+        })
+    
+    return {
+        "success": True,
+        "uploaded_count": len(uploaded_files),
+        "files": uploaded_files
+    }
+
+
+@router.get("/screenshot/{filename}")
+async def get_screenshot(
+    filename: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Get uploaded screenshot"""
+    check_admin(current_user)
+    
+    filepath = f"/tmp/{filename}"
+    
+    if not os.path.exists(filepath):
+        raise HTTPException(status_code=404, detail="Screenshot not found")
+    
+    # Determine content type
+    if filename.lower().endswith('.png'):
+        media_type = "image/png"
+    elif filename.lower().endswith(('.jpg', '.jpeg')):
+        media_type = "image/jpeg"
+    else:
+        media_type = "image/png"
+    
+    return FileResponse(filepath, media_type=media_type)

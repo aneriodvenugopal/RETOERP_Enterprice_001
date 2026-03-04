@@ -4,7 +4,8 @@ import {
   CheckCircle, RefreshCw, Sparkles, Play,
   Building2, Users, CreditCard, BarChart3,
   MessageSquare, Calendar, Shield, Cpu,
-  TrendingUp, Globe, Smartphone, Bot, Mic, Volume2
+  TrendingUp, Globe, Smartphone, Bot, Mic, Volume2,
+  Presentation, Upload, Image
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -184,6 +185,13 @@ const RealApexDemos = () => {
   const [selectedVoice, setSelectedVoice] = useState('nova');
   const [voiceSpeed, setVoiceSpeed] = useState(1.0);
   
+  // Presentation state
+  const [isGeneratingPresentation, setIsGeneratingPresentation] = useState(false);
+  const [presentationUrl, setPresentationUrl] = useState(null);
+  const [presentationTheme, setPresentationTheme] = useState('professional');
+  const [uploadedScreenshots, setUploadedScreenshots] = useState([]);
+  const [isUploadingScreenshots, setIsUploadingScreenshots] = useState(false);
+  
   // Generated videos list
   const [generatedVideos, setGeneratedVideos] = useState([]);
   const [isLoadingVideos, setIsLoadingVideos] = useState(false);
@@ -192,6 +200,7 @@ const RealApexDemos = () => {
   const [config, setConfig] = useState(null);
   
   const pollIntervalRef = useRef(null);
+  const screenshotInputRef = useRef(null);
   const API_URL = process.env.REACT_APP_BACKEND_URL;
 
   // Get concepts for selected category
@@ -387,6 +396,67 @@ const RealApexDemos = () => {
       toast.error(error.response?.data?.detail || 'Failed to generate voiceover');
     } finally {
       setIsGeneratingVoiceover(false);
+    }
+  };
+
+  // Upload Screenshots
+  const handleScreenshotUpload = async (e) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setIsUploadingScreenshots(true);
+
+    try {
+      const formData = new FormData();
+      for (let i = 0; i < files.length; i++) {
+        formData.append('files', files[i]);
+      }
+
+      const response = await api.post('/realapex-demos/upload-screenshots', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+
+      if (response.data.success) {
+        setUploadedScreenshots(prev => [...prev, ...response.data.files]);
+        toast.success(`${response.data.uploaded_count} screenshots uploaded!`);
+      }
+    } catch (error) {
+      toast.error('Failed to upload screenshots');
+    } finally {
+      setIsUploadingScreenshots(false);
+    }
+  };
+
+  // Generate Presentation (FREE - python-pptx)
+  const handleGeneratePresentation = async () => {
+    if (!script) {
+      toast.error('Please generate a script first');
+      return;
+    }
+
+    setIsGeneratingPresentation(true);
+    setPresentationUrl(null);
+
+    try {
+      const response = await api.post('/realapex-demos/generate-presentation', {
+        concept_title: conceptTitle,
+        script: script,
+        language: language,
+        theme: presentationTheme,
+        include_screenshots: uploadedScreenshots.length > 0,
+        screenshot_urls: uploadedScreenshots.map(s => s.url)
+      });
+
+      if (response.data.success) {
+        setPresentationUrl(`${API_URL}${response.data.download_url}`);
+        toast.success(`Presentation ready! ${response.data.slides_count} slides generated`);
+      } else {
+        toast.error(response.data.error || 'Failed to generate presentation');
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Failed to generate presentation');
+    } finally {
+      setIsGeneratingPresentation(false);
     }
   };
 
@@ -691,6 +761,117 @@ const RealApexDemos = () => {
                             </Button>
                             <p className="text-xs text-emerald-400 mt-2 text-center">
                               HeyGen → Create Video → Upload Audio → Avatar will lip-sync!
+                            </p>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Presentation Generation - FREE */}
+                      <div className="p-4 bg-gradient-to-r from-blue-900/30 to-indigo-900/30 rounded-lg border border-blue-700">
+                        <div className="flex items-center gap-2 text-blue-400 mb-3">
+                          <Presentation className="w-5 h-5" />
+                          <span className="font-semibold">Generate PowerPoint (FREE)</span>
+                          <Badge className="bg-blue-600 text-xs">python-pptx</Badge>
+                        </div>
+                        
+                        {/* Screenshot Upload */}
+                        <div className="mb-3">
+                          <Label className="text-slate-300 text-xs mb-2 block">Upload App Screenshots (Optional)</Label>
+                          <div className="flex gap-2">
+                            <input
+                              type="file"
+                              ref={screenshotInputRef}
+                              onChange={handleScreenshotUpload}
+                              multiple
+                              accept="image/*"
+                              className="hidden"
+                            />
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="border-slate-600 text-slate-300 flex-1"
+                              onClick={() => screenshotInputRef.current?.click()}
+                              disabled={isUploadingScreenshots}
+                            >
+                              {isUploadingScreenshots ? (
+                                <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Uploading...</>
+                              ) : (
+                                <><Upload className="w-4 h-4 mr-2" />Upload Screenshots</>
+                              )}
+                            </Button>
+                            {uploadedScreenshots.length > 0 && (
+                              <Badge className="bg-blue-600">{uploadedScreenshots.length} uploaded</Badge>
+                            )}
+                          </div>
+                          {uploadedScreenshots.length > 0 && (
+                            <div className="flex gap-2 mt-2 flex-wrap">
+                              {uploadedScreenshots.map((ss, idx) => (
+                                <div key={idx} className="relative group">
+                                  <img 
+                                    src={`${API_URL}${ss.url}`} 
+                                    alt={ss.original_name}
+                                    className="w-16 h-10 object-cover rounded border border-slate-600"
+                                  />
+                                  <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-xs w-4 h-4 rounded-full flex items-center justify-center">
+                                    {idx + 1}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                        
+                        {/* Theme Selection */}
+                        <div className="grid grid-cols-2 gap-3 mb-3">
+                          <div className="space-y-1">
+                            <Label className="text-slate-300 text-xs">Theme</Label>
+                            <Select value={presentationTheme} onValueChange={setPresentationTheme}>
+                              <SelectTrigger className="bg-slate-800 border-slate-600 text-white h-9">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent className="bg-slate-800 border-slate-700">
+                                <SelectItem value="professional" className="text-white">Professional (Dark)</SelectItem>
+                                <SelectItem value="modern" className="text-white">Modern (Purple)</SelectItem>
+                                <SelectItem value="minimal" className="text-white">Minimal (Light)</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="flex items-end">
+                            <p className="text-xs text-slate-400">
+                              6-8 slides with speaker notes
+                            </p>
+                          </div>
+                        </div>
+                        
+                        <Button 
+                          className="w-full bg-blue-600 hover:bg-blue-700"
+                          onClick={handleGeneratePresentation}
+                          disabled={isGeneratingPresentation}
+                          data-testid="generate-presentation-btn"
+                        >
+                          {isGeneratingPresentation ? (
+                            <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Generating Presentation...</>
+                          ) : (
+                            <><Presentation className="w-4 h-4 mr-2" />Generate PowerPoint</>
+                          )}
+                        </Button>
+                        
+                        {presentationUrl && (
+                          <div className="mt-3 p-3 bg-blue-900/50 rounded-lg">
+                            <div className="flex items-center gap-2 text-blue-300 mb-2">
+                              <CheckCircle className="w-4 h-4" />
+                              <span className="text-sm font-medium">Presentation Ready!</span>
+                            </div>
+                            <Button 
+                              size="sm"
+                              className="w-full bg-blue-700 hover:bg-blue-800"
+                              onClick={() => window.open(presentationUrl, '_blank')}
+                            >
+                              <Download className="w-4 h-4 mr-2" />
+                              Download .PPTX
+                            </Button>
+                            <p className="text-xs text-blue-400 mt-2 text-center">
+                              Open in PowerPoint → Add your screenshots → Export as video!
                             </p>
                           </div>
                         )}
