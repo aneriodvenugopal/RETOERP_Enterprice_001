@@ -4,7 +4,7 @@ import {
   CheckCircle, RefreshCw, Sparkles, Play,
   Building2, Users, CreditCard, BarChart3,
   MessageSquare, Calendar, Shield, Cpu,
-  TrendingUp, Globe, Smartphone, Bot
+  TrendingUp, Globe, Smartphone, Bot, Mic, Volume2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -178,6 +178,12 @@ const RealApexDemos = () => {
   const [videoUrl, setVideoUrl] = useState(null);
   const [videoProgress, setVideoProgress] = useState(0);
   
+  // Voiceover state
+  const [isGeneratingVoiceover, setIsGeneratingVoiceover] = useState(false);
+  const [voiceoverUrl, setVoiceoverUrl] = useState(null);
+  const [selectedVoice, setSelectedVoice] = useState('nova');
+  const [voiceSpeed, setVoiceSpeed] = useState(1.0);
+  
   // Generated videos list
   const [generatedVideos, setGeneratedVideos] = useState([]);
   const [isLoadingVideos, setIsLoadingVideos] = useState(false);
@@ -186,6 +192,7 @@ const RealApexDemos = () => {
   const [config, setConfig] = useState(null);
   
   const pollIntervalRef = useRef(null);
+  const API_URL = process.env.REACT_APP_BACKEND_URL;
 
   // Get concepts for selected category
   const currentConcepts = DEMO_CATEGORIES.find(c => c.id === selectedCategory)?.concepts || [];
@@ -349,6 +356,38 @@ const RealApexDemos = () => {
         console.error('Status check error:', error);
       }
     }, 15000);
+  };
+
+  // Generate Voiceover (FREE - OpenAI TTS)
+  const handleGenerateVoiceover = async () => {
+    if (!script) {
+      toast.error('Please generate a script first');
+      return;
+    }
+
+    setIsGeneratingVoiceover(true);
+    setVoiceoverUrl(null);
+
+    try {
+      const response = await api.post('/realapex-demos/generate-voiceover', {
+        script: script,
+        voice: selectedVoice,
+        speed: voiceSpeed,
+        model: 'tts-1-hd',
+        concept_title: conceptTitle
+      });
+
+      if (response.data.success) {
+        setVoiceoverUrl(`${API_URL}${response.data.download_url}`);
+        toast.success('Voiceover generated! Click to download MP3');
+      } else {
+        toast.error(response.data.error || 'Failed to generate voiceover');
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Failed to generate voiceover');
+    } finally {
+      setIsGeneratingVoiceover(false);
+    }
   };
 
   const getStatusBadge = (status) => {
@@ -584,6 +623,83 @@ const RealApexDemos = () => {
 
                   {script && (
                     <div className="space-y-3">
+                      {/* Voiceover Generation - FREE */}
+                      <div className="p-4 bg-gradient-to-r from-emerald-900/30 to-teal-900/30 rounded-lg border border-emerald-700">
+                        <div className="flex items-center gap-2 text-emerald-400 mb-3">
+                          <Mic className="w-5 h-5" />
+                          <span className="font-semibold">Generate Voiceover (FREE)</span>
+                          <Badge className="bg-emerald-600 text-xs">OpenAI TTS</Badge>
+                        </div>
+                        
+                        <div className="grid grid-cols-2 gap-3 mb-3">
+                          <div className="space-y-1">
+                            <Label className="text-slate-300 text-xs">Voice Style</Label>
+                            <Select value={selectedVoice} onValueChange={setSelectedVoice}>
+                              <SelectTrigger className="bg-slate-800 border-slate-600 text-white h-9">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent className="bg-slate-800 border-slate-700">
+                                <SelectItem value="nova" className="text-white">Nova (Energetic - Recommended)</SelectItem>
+                                <SelectItem value="alloy" className="text-white">Alloy (Neutral)</SelectItem>
+                                <SelectItem value="echo" className="text-white">Echo (Smooth)</SelectItem>
+                                <SelectItem value="fable" className="text-white">Fable (Expressive)</SelectItem>
+                                <SelectItem value="onyx" className="text-white">Onyx (Deep)</SelectItem>
+                                <SelectItem value="shimmer" className="text-white">Shimmer (Bright)</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="space-y-1">
+                            <Label className="text-slate-300 text-xs">Speed: {voiceSpeed}x</Label>
+                            <input 
+                              type="range" 
+                              min="0.5" 
+                              max="1.5" 
+                              step="0.1"
+                              value={voiceSpeed}
+                              onChange={(e) => setVoiceSpeed(parseFloat(e.target.value))}
+                              className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer"
+                            />
+                          </div>
+                        </div>
+                        
+                        <Button 
+                          className="w-full bg-emerald-600 hover:bg-emerald-700"
+                          onClick={handleGenerateVoiceover}
+                          disabled={isGeneratingVoiceover}
+                          data-testid="generate-voiceover-btn"
+                        >
+                          {isGeneratingVoiceover ? (
+                            <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Generating Voiceover...</>
+                          ) : (
+                            <><Volume2 className="w-4 h-4 mr-2" />Generate Voiceover MP3</>
+                          )}
+                        </Button>
+                        
+                        {voiceoverUrl && (
+                          <div className="mt-3 p-3 bg-emerald-900/50 rounded-lg">
+                            <div className="flex items-center gap-2 text-emerald-300 mb-2">
+                              <CheckCircle className="w-4 h-4" />
+                              <span className="text-sm font-medium">Voiceover Ready!</span>
+                            </div>
+                            <Button 
+                              size="sm"
+                              className="w-full bg-emerald-700 hover:bg-emerald-800"
+                              onClick={() => window.open(voiceoverUrl, '_blank')}
+                            >
+                              <Download className="w-4 h-4 mr-2" />
+                              Download MP3 (Upload to HeyGen)
+                            </Button>
+                            <p className="text-xs text-emerald-400 mt-2 text-center">
+                              HeyGen → Create Video → Upload Audio → Avatar will lip-sync!
+                            </p>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="border-t border-slate-700 pt-3">
+                        <p className="text-xs text-slate-500 text-center mb-2">OR generate full avatar video (requires HeyGen credits)</p>
+                      </div>
+
                       {/* Video Generation */}
                       {!videoUrl && (
                         <Button 
@@ -595,7 +711,7 @@ const RealApexDemos = () => {
                           {isGeneratingVideo ? (
                             <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Generating Video...</>
                           ) : (
-                            <><Video className="w-4 h-4 mr-2" />Generate Video</>
+                            <><Video className="w-4 h-4 mr-2" />Generate Video (HeyGen)</>
                           )}
                         </Button>
                       )}
