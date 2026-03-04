@@ -663,12 +663,9 @@ async def upload_screenshots(
 
 
 @router.get("/screenshot/{filename}")
-async def get_screenshot(
-    filename: str,
-    current_user: dict = Depends(get_current_user)
-):
-    """Get uploaded screenshot"""
-    check_admin(current_user)
+async def get_screenshot(filename: str):
+    """Get uploaded/generated screenshot - public endpoint for image display"""
+    # Made public so images can load in <img> tags without auth headers
     
     filepath = f"/tmp/{filename}"
     
@@ -684,3 +681,126 @@ async def get_screenshot(
         media_type = "image/png"
     
     return FileResponse(filepath, media_type=media_type)
+
+
+
+class AutoGenerateImagesRequest(BaseModel):
+    concept_title: str
+    script: Optional[str] = ""
+    category_name: Optional[str] = ""
+    num_images: int = 3
+
+
+@router.post("/auto-generate-images")
+async def auto_generate_images(
+    request: AutoGenerateImagesRequest,
+    current_user: dict = Depends(get_current_user)
+):
+    """Auto-generate relevant images using OpenAI Image Generation (FREE with Emergent Key)"""
+    check_admin(current_user)
+    
+    try:
+        from emergentintegrations.llm.openai.image_generation import OpenAIImageGeneration
+        
+        EMERGENT_LLM_KEY = os.getenv('EMERGENT_LLM_KEY', '')
+        
+        if not EMERGENT_LLM_KEY:
+            raise HTTPException(status_code=500, detail="EMERGENT_LLM_KEY not configured")
+        
+        # Generate image prompts based on concept
+        image_prompts = []
+        
+        # Create relevant prompts based on the concept
+        base_context = f"Professional SaaS software dashboard screenshot, clean modern UI design, dark theme"
+        
+        if "layout" in request.concept_title.lower() or "plot" in request.concept_title.lower():
+            image_prompts = [
+                f"{base_context}, real estate property layout map with colored plots showing available (green), booked (yellow), and sold (red) status, interactive grid view",
+                f"{base_context}, property management dashboard showing plot details, pricing information, customer data in a sidebar panel",
+                f"{base_context}, mobile-responsive real estate app showing property gallery with images and status indicators"
+            ]
+        elif "payment" in request.concept_title.lower() or "emi" in request.concept_title.lower() or "fintech" in request.concept_title.lower():
+            image_prompts = [
+                f"{base_context}, payment dashboard showing EMI schedule, due dates, payment history with charts and graphs",
+                f"{base_context}, financial analytics dashboard with revenue graphs, collection reports, payment gateway integration",
+                f"{base_context}, customer payment portal showing balance, upcoming payments, receipt download options"
+            ]
+        elif "lead" in request.concept_title.lower() or "sales" in request.concept_title.lower() or "crm" in request.concept_title.lower():
+            image_prompts = [
+                f"{base_context}, CRM lead management dashboard showing lead pipeline, conversion funnel, priority scores",
+                f"{base_context}, sales analytics dashboard with charts showing lead sources, conversion rates, agent performance",
+                f"{base_context}, customer profile page showing contact details, interaction history, follow-up reminders"
+            ]
+        elif "analytics" in request.concept_title.lower() or "dashboard" in request.concept_title.lower() or "report" in request.concept_title.lower():
+            image_prompts = [
+                f"{base_context}, executive dashboard with KPI cards, revenue charts, sales metrics, performance indicators",
+                f"{base_context}, analytics page with pie charts, bar graphs, trend lines showing business performance",
+                f"{base_context}, report generation interface with filters, date range selectors, export options"
+            ]
+        elif "sms" in request.concept_title.lower() or "whatsapp" in request.concept_title.lower() or "notification" in request.concept_title.lower():
+            image_prompts = [
+                f"{base_context}, notification center showing SMS templates, WhatsApp messages, delivery status",
+                f"{base_context}, messaging dashboard with template editor, recipient list, send history",
+                f"{base_context}, communication settings page with channel configuration, automation rules"
+            ]
+        else:
+            # Generic SaaS dashboard prompts
+            image_prompts = [
+                f"{base_context}, main dashboard overview with key metrics cards, quick action buttons, recent activity feed",
+                f"{base_context}, feature showcase screen with step-by-step workflow, highlighted UI elements",
+                f"{base_context}, settings and configuration page with form inputs, toggle switches, save buttons"
+            ]
+        
+        # Limit to requested number
+        image_prompts = image_prompts[:request.num_images]
+        
+        # Generate images
+        image_gen = OpenAIImageGeneration(api_key=EMERGENT_LLM_KEY)
+        
+        generated_images = []
+        
+        for i, prompt in enumerate(image_prompts):
+            print(f"🎨 Generating image {i+1}/{len(image_prompts)}")
+            
+            try:
+                # generate_images returns List[bytes]
+                image_bytes_list = await image_gen.generate_images(
+                    prompt=prompt,
+                    model="gpt-image-1",
+                    number_of_images=1,
+                    quality="low"  # Use low for faster generation
+                )
+                
+                if image_bytes_list and len(image_bytes_list) > 0:
+                    # Save image to file
+                    img_filename = f"generated_img_{uuid.uuid4().hex[:8]}.png"
+                    img_filepath = f"/tmp/{img_filename}"
+                    
+                    with open(img_filepath, "wb") as f:
+                        f.write(image_bytes_list[0])
+                    
+                    generated_images.append({
+                        "url": f"/api/realapex-demos/screenshot/{img_filename}",
+                        "filename": img_filename,
+                        "prompt": prompt[:100],
+                        "index": i + 1
+                    })
+                    print(f"✅ Image {i+1} generated and saved: {img_filename}")
+            except Exception as img_error:
+                print(f"⚠️ Image {i+1} failed: {str(img_error)}")
+                import traceback
+                traceback.print_exc()
+                continue
+        
+        return {
+            "success": True,
+            "images": generated_images,
+            "total_requested": request.num_images,
+            "total_generated": len(generated_images)
+        }
+        
+    except Exception as e:
+        print(f"❌ Auto-generate images error: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))

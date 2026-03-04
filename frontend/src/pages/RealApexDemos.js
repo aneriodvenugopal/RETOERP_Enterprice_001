@@ -184,13 +184,19 @@ const RealApexDemos = () => {
   const [voiceoverUrl, setVoiceoverUrl] = useState(null);
   const [selectedVoice, setSelectedVoice] = useState('nova');
   const [voiceSpeed, setVoiceSpeed] = useState(1.0);
+  const [voiceoverFilename, setVoiceoverFilename] = useState('');
   
   // Presentation state
   const [isGeneratingPresentation, setIsGeneratingPresentation] = useState(false);
   const [presentationUrl, setPresentationUrl] = useState(null);
+  const [presentationFilename, setPresentationFilename] = useState('');
   const [presentationTheme, setPresentationTheme] = useState('professional');
   const [uploadedScreenshots, setUploadedScreenshots] = useState([]);
   const [isUploadingScreenshots, setIsUploadingScreenshots] = useState(false);
+  
+  // Auto-generate images state
+  const [isGeneratingImages, setIsGeneratingImages] = useState(false);
+  const [generatedImages, setGeneratedImages] = useState([]);
   
   // Generated videos list
   const [generatedVideos, setGeneratedVideos] = useState([]);
@@ -387,7 +393,8 @@ const RealApexDemos = () => {
       });
 
       if (response.data.success) {
-        setVoiceoverUrl(`${API_URL}${response.data.download_url}`);
+        setVoiceoverUrl(response.data.download_url);
+        setVoiceoverFilename(response.data.filename);
         toast.success('Voiceover generated! Click to download MP3');
       } else {
         toast.error(response.data.error || 'Failed to generate voiceover');
@@ -396,6 +403,30 @@ const RealApexDemos = () => {
       toast.error(error.response?.data?.detail || 'Failed to generate voiceover');
     } finally {
       setIsGeneratingVoiceover(false);
+    }
+  };
+
+  // Download file with authentication (fixes "Not authenticated" error)
+  const handleAuthenticatedDownload = async (downloadUrl, filename, mimeType = 'application/octet-stream') => {
+    try {
+      toast.info('Preparing download...');
+      const response = await api.get(downloadUrl, { responseType: 'blob' });
+      
+      // Create blob URL and trigger download
+      const blob = new Blob([response.data], { type: mimeType });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      
+      toast.success('Download started!');
+    } catch (error) {
+      toast.error('Download failed. Please try again.');
+      console.error('Download error:', error);
     }
   };
 
@@ -443,12 +474,13 @@ const RealApexDemos = () => {
         script: script,
         language: language,
         theme: presentationTheme,
-        include_screenshots: uploadedScreenshots.length > 0,
-        screenshot_urls: uploadedScreenshots.map(s => s.url)
+        include_screenshots: uploadedScreenshots.length > 0 || generatedImages.length > 0,
+        screenshot_urls: [...uploadedScreenshots.map(s => s.url), ...generatedImages.map(img => img.url)]
       });
 
       if (response.data.success) {
-        setPresentationUrl(`${API_URL}${response.data.download_url}`);
+        setPresentationUrl(response.data.download_url);
+        setPresentationFilename(response.data.filename);
         toast.success(`Presentation ready! ${response.data.slides_count} slides generated`);
       } else {
         toast.error(response.data.error || 'Failed to generate presentation');
@@ -457,6 +489,37 @@ const RealApexDemos = () => {
       toast.error(error.response?.data?.detail || 'Failed to generate presentation');
     } finally {
       setIsGeneratingPresentation(false);
+    }
+  };
+
+  // Auto-generate Images from Prompt (FREE - OpenAI Image Generation)
+  const handleAutoGenerateImages = async () => {
+    if (!conceptTitle && !script) {
+      toast.error('Please enter a concept title or generate a script first');
+      return;
+    }
+
+    setIsGeneratingImages(true);
+    setGeneratedImages([]);
+
+    try {
+      const response = await api.post('/realapex-demos/auto-generate-images', {
+        concept_title: conceptTitle,
+        script: script,
+        category_name: DEMO_CATEGORIES.find(c => c.id === selectedCategory)?.name || '',
+        num_images: 3
+      });
+
+      if (response.data.success) {
+        setGeneratedImages(response.data.images);
+        toast.success(`${response.data.images.length} images generated!`);
+      } else {
+        toast.error(response.data.error || 'Failed to generate images');
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Failed to generate images');
+    } finally {
+      setIsGeneratingImages(false);
     }
   };
 
@@ -754,7 +817,7 @@ const RealApexDemos = () => {
                             <Button 
                               size="sm"
                               className="w-full bg-emerald-700 hover:bg-emerald-800"
-                              onClick={() => window.open(voiceoverUrl, '_blank')}
+                              onClick={() => handleAuthenticatedDownload(voiceoverUrl, voiceoverFilename, 'audio/mpeg')}
                             >
                               <Download className="w-4 h-4 mr-2" />
                               Download MP3 (Upload to HeyGen)
@@ -774,9 +837,54 @@ const RealApexDemos = () => {
                           <Badge className="bg-blue-600 text-xs">python-pptx</Badge>
                         </div>
                         
-                        {/* Screenshot Upload */}
+                        {/* Auto-Generate Images OR Upload */}
                         <div className="mb-3">
-                          <Label className="text-slate-300 text-xs mb-2 block">Upload App Screenshots (Optional)</Label>
+                          <Label className="text-slate-300 text-xs mb-2 block">Slide Images</Label>
+                          
+                          {/* Auto Generate Button */}
+                          <Button
+                            size="sm"
+                            className="w-full mb-2 bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700"
+                            onClick={handleAutoGenerateImages}
+                            disabled={isGeneratingImages || (!conceptTitle && !script)}
+                            data-testid="auto-generate-images-btn"
+                          >
+                            {isGeneratingImages ? (
+                              <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Generating AI Images...</>
+                            ) : (
+                              <><Sparkles className="w-4 h-4 mr-2" />Auto-Generate Images (FREE)</>
+                            )}
+                          </Button>
+                          
+                          {/* Generated Images Preview */}
+                          {generatedImages.length > 0 && (
+                            <div className="mb-2 p-2 bg-purple-900/30 rounded-lg">
+                              <p className="text-xs text-purple-300 mb-2">AI Generated Images:</p>
+                              <div className="flex gap-2 flex-wrap">
+                                {generatedImages.map((img, idx) => (
+                                  <div key={idx} className="relative group">
+                                    <img 
+                                      src={`${API_URL}${img.url}`} 
+                                      alt={`Generated ${idx + 1}`}
+                                      className="w-20 h-12 object-cover rounded border border-purple-600"
+                                    />
+                                    <span className="absolute -top-1 -right-1 bg-purple-600 text-white text-xs w-4 h-4 rounded-full flex items-center justify-center">
+                                      {idx + 1}
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                          
+                          {/* Divider */}
+                          <div className="flex items-center gap-2 my-2">
+                            <div className="flex-1 h-px bg-slate-700"></div>
+                            <span className="text-xs text-slate-500">OR upload your own</span>
+                            <div className="flex-1 h-px bg-slate-700"></div>
+                          </div>
+                          
+                          {/* Manual Upload */}
                           <div className="flex gap-2">
                             <input
                               type="file"
@@ -865,7 +973,7 @@ const RealApexDemos = () => {
                             <Button 
                               size="sm"
                               className="w-full bg-blue-700 hover:bg-blue-800"
-                              onClick={() => window.open(presentationUrl, '_blank')}
+                              onClick={() => handleAuthenticatedDownload(presentationUrl, presentationFilename, 'application/vnd.openxmlformats-officedocument.presentationml.presentation')}
                             >
                               <Download className="w-4 h-4 mr-2" />
                               Download .PPTX
