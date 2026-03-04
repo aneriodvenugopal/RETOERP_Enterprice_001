@@ -410,7 +410,11 @@ const RealApexDemos = () => {
   const handleAuthenticatedDownload = async (downloadUrl, filename, mimeType = 'application/octet-stream') => {
     try {
       toast.info('Preparing download...');
-      const response = await api.get(downloadUrl, { responseType: 'blob' });
+      
+      // Remove /api prefix if present (api.get already adds /api)
+      const cleanUrl = downloadUrl.startsWith('/api/') ? downloadUrl.substring(4) : downloadUrl;
+      
+      const response = await api.get(cleanUrl, { responseType: 'blob' });
       
       // Create blob URL and trigger download
       const blob = new Blob([response.data], { type: mimeType });
@@ -423,10 +427,10 @@ const RealApexDemos = () => {
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
       
-      toast.success('Download started!');
+      toast.success('Download complete!');
     } catch (error) {
-      toast.error('Download failed. Please try again.');
       console.error('Download error:', error);
+      toast.error('Download failed. Please try again.');
     }
   };
 
