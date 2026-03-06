@@ -308,8 +308,8 @@ const QuickPropertyPost = () => {
         </div>
       </header>
 
-      {/* Chat Area */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 pb-32">
+      {/* Chat Area - Add padding top for header */}
+      <div className="flex-1 overflow-y-auto overflow-x-hidden px-4 pt-2 pb-32">
         <AnimatePresence>
           {messages.map((m, i) => (
             <Bubble key={i} text={m.text} isUser={m.isUser} />

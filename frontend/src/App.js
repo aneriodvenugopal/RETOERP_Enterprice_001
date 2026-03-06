@@ -214,6 +214,11 @@ function ScrollToTop() {
 function ConditionalAssistant() {
   const location = useLocation();
   
+  // Hide chatbot completely on AgentApex app routes
+  if (location.pathname.startsWith('/agentapex')) {
+    return null;
+  }
+  
   // Check if on tenant or project detail pages
   const isTenantOrProjectPage = 
     location.pathname.startsWith('/public/tenant/') || 

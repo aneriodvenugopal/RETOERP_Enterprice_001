@@ -121,8 +121,8 @@ const Home = () => {
       {/* Hero Carousel */}
       <HeroCarousel />
       
-      {/* App Install Banner */}
-      <AppInstallBanner />
+      {/* App Install Banner - Hidden for now */}
+      {/* <AppInstallBanner /> */}
       
       {/* Our Story */}
       <OurStoryImproved />
