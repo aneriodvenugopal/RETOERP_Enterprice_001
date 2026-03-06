@@ -15,19 +15,19 @@ const BottomNav = () => {
   
   return (
     <nav className="bottom-nav">
-      <button onClick={() => navigate('/')} data-testid="nav-home">
+      <button onClick={() => navigate('/agentapex')} data-testid="nav-home">
         <Home className={`w-6 h-6 ${isActive('/') ? 'text-gray-900' : 'text-gray-400'}`} strokeWidth={isActive('/') ? 2.5 : 1.5} />
       </button>
-      <button onClick={() => navigate('/search')} data-testid="nav-search">
+      <button onClick={() => navigate('/agentapex/search')} data-testid="nav-search">
         <Search className={`w-6 h-6 ${isActive('/search') ? 'text-gray-900' : 'text-gray-400'}`} strokeWidth={isActive('/search') ? 2.5 : 1.5} />
       </button>
-      <button onClick={() => navigate('/post')} data-testid="nav-post">
+      <button onClick={() => navigate('/agentapex/post')} data-testid="nav-post">
         <PlusSquare className={`w-6 h-6 ${isActive('/post') ? 'text-gray-900' : 'text-gray-400'}`} strokeWidth={isActive('/post') ? 2.5 : 1.5} />
       </button>
-      <button onClick={() => navigate('/favorites')} data-testid="nav-favorites">
+      <button onClick={() => navigate('/agentapex/favorites')} data-testid="nav-favorites">
         <Heart className={`w-6 h-6 ${isActive('/favorites') ? 'text-gray-900 fill-gray-900' : 'text-gray-400'}`} strokeWidth={isActive('/favorites') ? 2.5 : 1.5} />
       </button>
-      <button onClick={() => navigate('/profile')} data-testid="nav-profile">
+      <button onClick={() => navigate('/agentapex/profile')} data-testid="nav-profile">
         <User className={`w-6 h-6 ${isActive('/profile') ? 'text-gray-900' : 'text-gray-400'}`} strokeWidth={isActive('/profile') ? 2.5 : 1.5} />
       </button>
     </nav>
@@ -69,7 +69,7 @@ const Profile = () => {
   const handleLogout = () => { 
     if (window.confirm('Are you sure you want to logout?')) { 
       logout(); 
-      navigate('/login'); 
+      navigate('/agentapex/login'); 
     } 
   };
 
@@ -79,7 +79,7 @@ const Profile = () => {
       <header className="bg-white border-b border-gray-100 px-4 py-3 sticky top-0 z-50">
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-bold text-gray-900">{user?.name || user?.phone}</h1>
-          <button onClick={() => navigate('/settings')} className="w-10 h-10 flex items-center justify-center">
+          <button onClick={() => navigate('/agentapex/settings')} className="w-10 h-10 flex items-center justify-center">
             <Settings className="w-6 h-6 text-gray-900" />
           </button>
         </div>
@@ -95,15 +95,15 @@ const Profile = () => {
           
           {/* Stats */}
           <div className="flex-1 flex justify-around pt-2">
-            <button onClick={() => navigate('/my-properties')} className="text-center">
+            <button onClick={() => navigate('/agentapex/my-properties')} className="text-center">
               <p className="text-xl font-bold text-gray-900">{stats.properties}</p>
               <p className="text-xs text-gray-500">Properties</p>
             </button>
-            <button onClick={() => navigate('/leads')} className="text-center">
+            <button onClick={() => navigate('/agentapex/leads')} className="text-center">
               <p className="text-xl font-bold text-gray-900">{stats.leads}</p>
               <p className="text-xs text-gray-500">Leads</p>
             </button>
-            <button onClick={() => navigate('/followups')} className="text-center">
+            <button onClick={() => navigate('/agentapex/followups')} className="text-center">
               <p className="text-xl font-bold text-gray-900">{stats.followups}</p>
               <p className="text-xs text-gray-500">Follow-ups</p>
             </button>
@@ -177,7 +177,7 @@ const Profile = () => {
           <Grid3X3 className="w-6 h-6 text-gray-900" />
         </button>
         <button 
-          onClick={() => navigate('/favorites')}
+          onClick={() => navigate('/agentapex/favorites')}
           className="flex-1 py-3 flex items-center justify-center"
         >
           <Bookmark className="w-6 h-6 text-gray-400" />

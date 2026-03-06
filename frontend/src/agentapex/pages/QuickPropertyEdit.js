@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { useLocation } from '../context/LocationContext';
+import { useGeoLocation } from '../context/LocationContext';
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -67,7 +67,7 @@ const QuickPropertyEdit = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const { api } = useAuth();
-  const { location: userLoc } = useLocation();
+  const { location: userLoc } = useGeoLocation();
   const fileInputRef = useRef(null);
   
   const [property, setProperty] = useState(null);
@@ -247,7 +247,7 @@ const QuickPropertyEdit = () => {
     try {
       await api().put(`/properties/${id}`, updates);
       toast.success('Property updated successfully!');
-      navigate('/my-properties');
+      navigate('/agentapex/my-properties');
     } catch (err) {
       console.error(err);
       toast.error('Failed to update property');

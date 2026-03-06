@@ -1,12 +1,11 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { toast } from 'sonner';
 
 const LocationContext = createContext(null);
 
-export const useLocation = () => {
+export const useGeoLocation = () => {
   const context = useContext(LocationContext);
   if (!context) {
-    throw new Error('useLocation must be used within LocationProvider');
+    throw new Error('useGeoLocation must be used within LocationProvider');
   }
   return context;
 };

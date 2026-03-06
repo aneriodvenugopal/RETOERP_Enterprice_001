@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { useLocation } from '../context/LocationContext';
+import { useGeoLocation } from '../context/LocationContext';
 import { MapContainer, TileLayer, Marker, Popup, Circle, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -82,7 +82,7 @@ const PropertyCard = ({ property, isBuying, onFavorite, isFavorite }) => {
 const MapSearch = () => {
   const navigate = useNavigate();
   const { api } = useAuth();
-  const { location: userLocation } = useLocation();
+  const { location: userLocation } = useGeoLocation();
   
   const [viewMode, setViewMode] = useState('map');
   const [listingMode, setListingMode] = useState('sell');

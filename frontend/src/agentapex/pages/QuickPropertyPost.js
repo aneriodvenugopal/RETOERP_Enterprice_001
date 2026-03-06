@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { useLocation } from '../context/LocationContext';
+import { useGeoLocation } from '../context/LocationContext';
 import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -153,7 +153,7 @@ const Bubble = ({ text, isUser, isTyping }) => (
 const QuickPropertyPost = () => {
   const navigate = useNavigate();
   const { api } = useAuth();
-  const { location: userLoc, requestLocation, permissionStatus } = useLocation();
+  const { location: userLoc, requestLocation, permissionStatus } = useGeoLocation();
   const [messages, setMessages] = useState([]);
   const [step, setStep] = useState(0);
   const [input, setInput] = useState('');
@@ -262,7 +262,7 @@ const QuickPropertyPost = () => {
         longitude: data.longitude || 0,
         negotiable: data.negotiable === 'Yes'
       });
-      navigate('/my-properties', { state: { success: true } });
+      navigate('/agentapex/my-properties', { state: { success: true } });
     } catch (e) { 
       console.error(e); 
       toast.error('Failed to post property'); 
@@ -281,7 +281,7 @@ const QuickPropertyPost = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="agentapex-page-container">
       {/* Header */}
       <header className="bg-white border-b border-gray-100 px-4 py-3 sticky top-0 z-50">
         <div className="flex items-center gap-3">
@@ -292,7 +292,7 @@ const QuickPropertyPost = () => {
             <h1 className="text-lg font-semibold text-gray-900">New Post</h1>
           </div>
           <button 
-            onClick={() => navigate('/post/voice')}
+            onClick={() => navigate('/agentapex/post/voice')}
             data-testid="voice-post-btn"
             className="w-10 h-10 flex items-center justify-center bg-red-50 rounded-full"
           >

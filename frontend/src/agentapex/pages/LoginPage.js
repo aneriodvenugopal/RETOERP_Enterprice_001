@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { motion } from 'framer-motion';
 import { Building2 } from 'lucide-react';
@@ -11,6 +11,32 @@ const LoginPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [demoOtp, setDemoOtp] = useState('');
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
+
+  // Handle iOS keyboard - prevent content push
+  useEffect(() => {
+    const handleResize = () => {
+      // Detect if keyboard is open on iOS
+      const viewportHeight = window.visualViewport?.height || window.innerHeight;
+      const windowHeight = window.innerHeight;
+      setKeyboardVisible(viewportHeight < windowHeight * 0.75);
+    };
+
+    // Use visualViewport API for better iOS support
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', handleResize);
+      window.visualViewport.addEventListener('scroll', handleResize);
+    }
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener('resize', handleResize);
+        window.visualViewport.removeEventListener('scroll', handleResize);
+      }
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   const handleSendOtp = async (e) => {
     e.preventDefault();
@@ -47,30 +73,32 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
-      {/* Main Content - Centered */}
-      <div className="flex-1 flex flex-col items-center justify-center px-10">
-        {/* Logo */}
-        <motion.div
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.3 }}
-          className="mb-8"
-        >
-          <div className="w-20 h-20 bg-gradient-to-br from-amber-400 to-orange-500 rounded-2xl flex items-center justify-center shadow-lg">
-            <Building2 className="w-10 h-10 text-white" />
-          </div>
-        </motion.div>
+    <div className="login-page-container">
+      {/* Main Content - Fixed position to prevent keyboard push */}
+      <div className={`login-content ${keyboardVisible ? 'keyboard-open' : ''}`}>
+        {/* Logo - Hide when keyboard is open */}
+        {!keyboardVisible && (
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.3 }}
+            className="mb-6"
+          >
+            <div className="w-20 h-20 bg-gradient-to-br from-amber-400 to-orange-500 rounded-2xl flex items-center justify-center shadow-lg mx-auto">
+              <Building2 className="w-10 h-10 text-white" />
+            </div>
+          </motion.div>
+        )}
 
-        {/* App Name */}
+        {/* App Name - Compact when keyboard open */}
         <motion.div
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.1, duration: 0.3 }}
-          className="text-center mb-10"
+          className={`text-center ${keyboardVisible ? 'mb-4' : 'mb-8'}`}
         >
-          <h1 className="text-3xl font-bold text-gray-900 tracking-tight">AgentApex</h1>
-          <p className="text-gray-500 mt-1">Property Intelligence</p>
+          <h1 className={`font-bold text-gray-900 tracking-tight ${keyboardVisible ? 'text-xl' : 'text-3xl'}`}>AgentApex</h1>
+          {!keyboardVisible && <p className="text-gray-500 mt-1">Property Intelligence</p>}
         </motion.div>
 
         {/* Form */}
@@ -78,7 +106,7 @@ const LoginPage = () => {
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.2, duration: 0.3 }}
-          className="w-full max-w-xs"
+          className="w-full max-w-xs mx-auto px-6"
         >
           {step === 'phone' ? (
             <form onSubmit={handleSendOtp} className="space-y-4">
@@ -86,6 +114,7 @@ const LoginPage = () => {
                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-medium">+91</span>
                 <input
                   type="tel"
+                  inputMode="numeric"
                   data-testid="phone-input"
                   placeholder="Phone number"
                   value={phone}
@@ -122,7 +151,8 @@ const LoginPage = () => {
               </div>
               
               <input
-                type="text"
+                type="tel"
+                inputMode="numeric"
                 data-testid="otp-input"
                 placeholder="6-digit code"
                 value={otp}
@@ -132,7 +162,7 @@ const LoginPage = () => {
                 autoComplete="one-time-code"
               />
               
-              {demoOtp && (
+              {demoOtp && !keyboardVisible && (
                 <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-center">
                   <p className="text-amber-700 text-sm">Demo OTP: <span className="font-bold">{demoOtp}</span></p>
                 </div>
@@ -167,12 +197,14 @@ const LoginPage = () => {
         </motion.div>
       </div>
 
-      {/* Footer */}
-      <div className="py-6 text-center">
-        <p className="text-gray-400 text-xs">
-          By RealApex
-        </p>
-      </div>
+      {/* Footer - Hide when keyboard open */}
+      {!keyboardVisible && (
+        <div className="login-footer">
+          <p className="text-gray-400 text-xs">
+            By RealApex
+          </p>
+        </div>
+      )}
     </div>
   );
 };

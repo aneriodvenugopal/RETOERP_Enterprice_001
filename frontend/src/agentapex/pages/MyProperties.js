@@ -56,7 +56,7 @@ const MyProperties = () => {
             </div>
           </div>
           <button 
-            onClick={() => navigate('/post')} 
+            onClick={() => navigate('/agentapex/post')} 
             data-testid="add-property-btn" 
             className="w-10 h-10 flex items-center justify-center"
           >
@@ -81,7 +81,7 @@ const MyProperties = () => {
             <p className="text-gray-900 font-semibold">No properties yet</p>
             <p className="text-gray-500 text-sm mt-1">Start by posting your first property</p>
             <button 
-              onClick={() => navigate('/post')} 
+              onClick={() => navigate('/agentapex/post')} 
               data-testid="add-first-property" 
               className="mt-6 px-8 py-3 bg-blue-500 text-white font-semibold rounded-xl"
             >

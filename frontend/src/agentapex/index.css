@@ -248,9 +248,12 @@ button {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1) !important;
 }
 
-/* Hide external badges */
+/* Hide external badges and chatbot widgets */
 [class*="emergent"], [class*="Emergent"], [id*="emergent"],
-body > div:last-child:not(.App):not(#root) {
+body > div:last-child:not(.App):not(#root),
+[class*="chatbot"], [id*="chatbot"],
+.intercom-lightweight-app, .intercom-launcher,
+[data-testid="chatbot-widget"] {
   display: none !important;
   visibility: hidden !important;
   opacity: 0 !important;
@@ -259,6 +262,13 @@ body > div:last-child:not(.App):not(#root) {
   width: 0 !important;
   position: absolute !important;
   left: -9999px !important;
+}
+
+/* Override for AgentApex app - ensure chatbots are hidden */
+.agentapex-app [class*="emergent"],
+.agentapex-app [class*="chatbot"],
+.agentapex-app iframe[src*="chat"] {
+  display: none !important;
 }
 
 /* Animations */
@@ -299,4 +309,112 @@ body > div:last-child:not(.App):not(#root) {
 @keyframes skeleton-loading {
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
+}
+
+/* ==================== */
+/* iOS Keyboard Handling */
+/* ==================== */
+
+/* AgentApex App Container - Fixed viewport for iOS */
+.agentapex-app {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  background: var(--bg-primary);
+}
+
+/* Login Page - PhonePe style fixed layout */
+.login-page-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  background: white;
+  overflow: hidden;
+}
+
+.login-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  transition: all 0.25s ease;
+}
+
+/* When keyboard is open - move content up but don't compress */
+.login-content.keyboard-open {
+  justify-content: flex-start;
+  padding-top: 60px;
+}
+
+.login-footer {
+  padding: 24px;
+  text-align: center;
+}
+
+/* Prevent iOS zoom on input focus */
+@supports (-webkit-touch-callout: none) {
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* iOS viewport fix for keyboard */
+@supports (-webkit-touch-callout: none) {
+  .agentapex-app {
+    min-height: -webkit-fill-available;
+  }
+  
+  .login-page-container {
+    min-height: -webkit-fill-available;
+  }
+}
+
+/* Prevent body scroll when keyboard opens */
+body.keyboard-open {
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+}
+
+/* Generic page container for AgentApex - prevents keyboard push */
+.agentapex-page-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  background: white;
+  overflow: hidden;
+}
+
+.agentapex-page-container > .flex-1 {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Input area at bottom - fixed position */
+.agentapex-input-area {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  border-top: 1px solid var(--border-light);
+  padding: 12px 16px;
+  padding-bottom: calc(12px + env(safe-area-inset-bottom, 0));
+  z-index: 100;
 }

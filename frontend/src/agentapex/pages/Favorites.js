@@ -15,19 +15,19 @@ const BottomNav = () => {
   
   return (
     <nav className="bottom-nav">
-      <button onClick={() => navigate('/')} data-testid="nav-home">
+      <button onClick={() => navigate('/agentapex')} data-testid="nav-home">
         <Home className={`w-6 h-6 ${isActive('/') ? 'text-gray-900' : 'text-gray-400'}`} strokeWidth={isActive('/') ? 2.5 : 1.5} />
       </button>
-      <button onClick={() => navigate('/search')} data-testid="nav-search">
+      <button onClick={() => navigate('/agentapex/search')} data-testid="nav-search">
         <Search className={`w-6 h-6 ${isActive('/search') ? 'text-gray-900' : 'text-gray-400'}`} strokeWidth={isActive('/search') ? 2.5 : 1.5} />
       </button>
-      <button onClick={() => navigate('/post')} data-testid="nav-post">
+      <button onClick={() => navigate('/agentapex/post')} data-testid="nav-post">
         <PlusSquare className={`w-6 h-6 ${isActive('/post') ? 'text-gray-900' : 'text-gray-400'}`} strokeWidth={isActive('/post') ? 2.5 : 1.5} />
       </button>
-      <button onClick={() => navigate('/favorites')} data-testid="nav-favorites">
+      <button onClick={() => navigate('/agentapex/favorites')} data-testid="nav-favorites">
         <Heart className={`w-6 h-6 ${isActive('/favorites') ? 'text-gray-900 fill-gray-900' : 'text-gray-400'}`} strokeWidth={isActive('/favorites') ? 2.5 : 1.5} />
       </button>
-      <button onClick={() => navigate('/profile')} data-testid="nav-profile">
+      <button onClick={() => navigate('/agentapex/profile')} data-testid="nav-profile">
         <User className={`w-6 h-6 ${isActive('/profile') ? 'text-gray-900' : 'text-gray-400'}`} strokeWidth={isActive('/profile') ? 2.5 : 1.5} />
       </button>
     </nav>
@@ -89,7 +89,7 @@ const Favorites = () => {
             <p className="text-gray-900 font-semibold">Save properties you like</p>
             <p className="text-gray-500 text-sm mt-1">They'll show up here</p>
             <button 
-              onClick={() => navigate('/search')} 
+              onClick={() => navigate('/agentapex/search')} 
               data-testid="browse-properties"
               className="mt-6 px-8 py-3 bg-blue-500 text-white font-semibold rounded-xl"
             >

@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { useLocation } from '../context/LocationContext';
+import { useGeoLocation } from '../context/LocationContext';
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import { motion } from 'framer-motion';
@@ -23,7 +23,7 @@ L.Icon.Default.mergeOptions({
 const VoicePropertyPost = () => {
   const navigate = useNavigate();
   const { api } = useAuth();
-  const { location: userLoc, requestLocation, permissionStatus } = useLocation();
+  const { location: userLoc, requestLocation, permissionStatus } = useGeoLocation();
   
   // Recording state
   const [isRecording, setIsRecording] = useState(false);
@@ -226,7 +226,7 @@ const VoicePropertyPost = () => {
         area: parseFloat(propertyData.area)
       });
       toast.success('Property posted successfully!');
-      navigate('/my-properties');
+      navigate('/agentapex/my-properties');
     } catch (err) {
       console.error(err);
       toast.error('Failed to post property');
