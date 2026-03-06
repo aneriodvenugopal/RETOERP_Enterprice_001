@@ -35,16 +35,7 @@ const LocationPicker = ({ onSelect, initialPosition }) => {
   const [pos, setPos] = useState(initialPosition);
   const [loading, setLoading] = useState(false);
   const [gettingLocation, setGettingLocation] = useState(false);
-  const [mapReady, setMapReady] = useState(false);
-  
-  // Try to get user location on mount
-  useEffect(() => {
-    if (!mapReady) return;
-    // Auto-get location if initial position is default Hyderabad
-    if (initialPosition[0] === 17.385 && initialPosition[1] === 78.4867) {
-      getCurrentLocation();
-    }
-  }, [mapReady]);
+  const [locationError, setLocationError] = useState('');
   
   const MapClick = () => { 
     useMapEvents({ click: (e) => setPos([e.latlng.lat, e.latlng.lng]) }); 
@@ -53,22 +44,42 @@ const LocationPicker = ({ onSelect, initialPosition }) => {
 
   const getCurrentLocation = async () => {
     setGettingLocation(true);
+    setLocationError('');
+    
+    // Check if geolocation is supported
+    if (!navigator.geolocation) {
+      setLocationError('Location not supported');
+      toast.error('Location not supported on this device');
+      setGettingLocation(false);
+      return;
+    }
+    
     try {
       const position = await new Promise((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject, {
-          enableHighAccuracy: true,
-          timeout: 15000,
-          maximumAge: 0
-        });
+        navigator.geolocation.getCurrentPosition(
+          resolve, 
+          reject, 
+          {
+            enableHighAccuracy: true,
+            timeout: 20000,
+            maximumAge: 0
+          }
+        );
       });
       const newPos = [position.coords.latitude, position.coords.longitude];
       setPos(newPos);
       toast.success('Location updated!');
     } catch (err) {
-      console.log('Geolocation error:', err.message);
-      // Don't show error toast on auto-attempt, only on manual click
+      console.log('Geolocation error:', err.code, err.message);
       if (err.code === 1) {
-        toast.error('Please enable location permission');
+        setLocationError('Permission denied');
+        toast.error('Please enable location in Settings');
+      } else if (err.code === 2) {
+        setLocationError('Location unavailable');
+        toast.error('Location unavailable. Please try again.');
+      } else if (err.code === 3) {
+        setLocationError('Timeout');
+        toast.error('Location request timed out');
       }
     }
     setGettingLocation(false);
@@ -80,31 +91,42 @@ const LocationPicker = ({ onSelect, initialPosition }) => {
       return;
     }
     setLoading(true);
+    
+    let locationData = {
+      latitude: pos[0],
+      longitude: pos[1],
+      address: `Location: ${pos[0].toFixed(4)}, ${pos[1].toFixed(4)}`,
+      city: '',
+      state: '',
+      postal_code: ''
+    };
+    
     try {
-      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${pos[0]}&lon=${pos[1]}&accept-language=en`);
-      if (!res.ok) throw new Error('Geocoding failed');
-      const data = await res.json();
-      onSelect({ 
-        latitude: pos[0], 
-        longitude: pos[1], 
-        address: data.display_name || `${pos[0].toFixed(4)}, ${pos[1].toFixed(4)}`, 
-        city: data.address?.city || data.address?.town || data.address?.village || data.address?.suburb, 
-        state: data.address?.state, 
-        postal_code: data.address?.postcode 
+      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${pos[0]}&lon=${pos[1]}&accept-language=en`, {
+        headers: {
+          'Accept': 'application/json'
+        }
       });
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.display_name) {
+          locationData = {
+            latitude: pos[0],
+            longitude: pos[1],
+            address: data.display_name,
+            city: data.address?.city || data.address?.town || data.address?.village || data.address?.suburb || '',
+            state: data.address?.state || '',
+            postal_code: data.address?.postcode || ''
+          };
+        }
+      }
     } catch (err) { 
-      console.log('Reverse geocode error:', err);
-      // Still allow selection even if reverse geocoding fails
-      onSelect({ 
-        latitude: pos[0], 
-        longitude: pos[1], 
-        address: `Location: ${pos[0].toFixed(4)}, ${pos[1].toFixed(4)}`,
-        city: '',
-        state: '',
-        postal_code: ''
-      }); 
+      console.log('Reverse geocode failed, using coordinates:', err);
     }
+    
+    // Always call onSelect with location data
     setLoading(false);
+    onSelect(locationData);
   };
 
   return (
@@ -113,7 +135,6 @@ const LocationPicker = ({ onSelect, initialPosition }) => {
         center={pos} 
         zoom={14} 
         className="h-full w-full"
-        whenReady={() => setMapReady(true)}
       >
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
         <Marker position={pos} />
@@ -121,18 +142,29 @@ const LocationPicker = ({ onSelect, initialPosition }) => {
         <MapRecenter center={pos} />
       </MapContainer>
       
-      {/* Get current location button */}
+      {/* Get current location button - PROMINENT for iOS */}
       <button
         onClick={getCurrentLocation}
         disabled={gettingLocation}
-        className="absolute top-3 right-3 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center z-[1000]"
+        data-testid="get-location-btn"
+        className="absolute top-3 right-3 bg-white rounded-full shadow-lg flex items-center justify-center z-[1000] px-3 py-2 gap-2"
       >
         {gettingLocation ? (
           <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />
         ) : (
-          <Navigation className="w-5 h-5 text-blue-500" />
+          <>
+            <Navigation className="w-5 h-5 text-blue-500" />
+            <span className="text-xs font-medium text-blue-600">Use GPS</span>
+          </>
         )}
       </button>
+      
+      {/* Location error message */}
+      {locationError && (
+        <div className="absolute top-16 right-3 bg-red-50 border border-red-200 rounded-lg px-3 py-2 z-[1000]">
+          <p className="text-xs text-red-600">{locationError}</p>
+        </div>
+      )}
       
       <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-white via-white to-transparent">
         <p className="text-xs text-gray-500 text-center mb-2">Tap on map or use GPS to select location</p>
