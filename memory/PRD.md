@@ -24,7 +24,36 @@ Build a comprehensive Real Estate ERP (RealApex) SaaS platform for the Indian re
 
 ---
 
-## What's Been Implemented (As of Jan 12, 2026)
+## What's Been Implemented (As of December 6, 2026)
+
+### NEW: AgentApex Mobile Property App Integration (December 6, 2026)
+- [x] **AgentApex Mobile App** (`/agentapex`) - Mobile-first property management app
+  - OTP-based authentication (separate from RealApex auth)
+  - Dashboard with stats (Properties, Leads, Follow-ups, Saved)
+  - Property posting with map location
+  - Lead management
+  - Follow-ups tracking
+  - Favorites/Saved properties
+  - Requirements posting
+  - Document management per property
+  - Voice property posting (Whisper integration)
+  - AI Area Intelligence (GPT-4o integration)
+  - Instagram-style bottom navigation
+- [x] **AgentApex Admin Module** (`/admin/agentapex`) - SaaS admin management
+  - Overview tab with user/property/lead/requirement stats
+  - Users tab with search and table view
+  - Properties tab with search and filtering
+  - Leads tab with status management
+- [x] **AgentApex Backend APIs** (`/api/agentapex/*`)
+  - Auth: send-otp, verify-otp, me, profile
+  - Properties: CRUD, images, documents
+  - Leads: create, list, status update
+  - Follow-ups: CRUD
+  - Favorites: add, remove, list
+  - Requirements: CRUD
+  - Conversation flow for guided property posting
+  - Admin endpoints for user/lead/stats management
+- [x] **Separate MongoDB Collections**: agentapex_users, agentapex_properties, agentapex_leads, agentapex_followups, agentapex_favorites, agentapex_requirements, agentapex_files, agentapex_conversations
 
 ### Phase 0: Core Platform
 - [x] Authentication system (OTP + Password login)
