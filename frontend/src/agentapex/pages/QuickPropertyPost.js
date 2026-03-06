@@ -5,7 +5,7 @@ import { useGeoLocation } from '../context/LocationContext';
 import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Send, MapPin, Check, Loader2, Mic, Navigation } from 'lucide-react';
+import { ArrowLeft, Send, MapPin, Check, Loader2, Mic, Navigation, CheckCircle2, Building2 } from 'lucide-react';
 import { toast } from 'sonner';
 import 'leaflet/dist/leaflet.css';
 
@@ -35,6 +35,16 @@ const LocationPicker = ({ onSelect, initialPosition }) => {
   const [pos, setPos] = useState(initialPosition);
   const [loading, setLoading] = useState(false);
   const [gettingLocation, setGettingLocation] = useState(false);
+  const [mapReady, setMapReady] = useState(false);
+  
+  // Try to get user location on mount
+  useEffect(() => {
+    if (!mapReady) return;
+    // Auto-get location if initial position is default Hyderabad
+    if (initialPosition[0] === 17.385 && initialPosition[1] === 78.4867) {
+      getCurrentLocation();
+    }
+  }, [mapReady]);
   
   const MapClick = () => { 
     useMapEvents({ click: (e) => setPos([e.latlng.lat, e.latlng.lng]) }); 
@@ -47,36 +57,51 @@ const LocationPicker = ({ onSelect, initialPosition }) => {
       const position = await new Promise((resolve, reject) => {
         navigator.geolocation.getCurrentPosition(resolve, reject, {
           enableHighAccuracy: true,
-          timeout: 10000
+          timeout: 15000,
+          maximumAge: 0
         });
       });
       const newPos = [position.coords.latitude, position.coords.longitude];
       setPos(newPos);
       toast.success('Location updated!');
     } catch (err) {
-      toast.error('Could not get location. Please enable GPS.');
+      console.log('Geolocation error:', err.message);
+      // Don't show error toast on auto-attempt, only on manual click
+      if (err.code === 1) {
+        toast.error('Please enable location permission');
+      }
     }
     setGettingLocation(false);
   };
 
   const confirm = async () => {
+    if (!pos || !pos[0] || !pos[1]) {
+      toast.error('Please select a location on the map');
+      return;
+    }
     setLoading(true);
     try {
-      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${pos[0]}&lon=${pos[1]}`);
+      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${pos[0]}&lon=${pos[1]}&accept-language=en`);
+      if (!res.ok) throw new Error('Geocoding failed');
       const data = await res.json();
       onSelect({ 
         latitude: pos[0], 
         longitude: pos[1], 
-        address: data.display_name, 
-        city: data.address?.city || data.address?.town, 
+        address: data.display_name || `${pos[0].toFixed(4)}, ${pos[1].toFixed(4)}`, 
+        city: data.address?.city || data.address?.town || data.address?.village || data.address?.suburb, 
         state: data.address?.state, 
         postal_code: data.address?.postcode 
       });
-    } catch { 
+    } catch (err) { 
+      console.log('Reverse geocode error:', err);
+      // Still allow selection even if reverse geocoding fails
       onSelect({ 
         latitude: pos[0], 
         longitude: pos[1], 
-        address: `${pos[0].toFixed(4)}, ${pos[1].toFixed(4)}` 
+        address: `Location: ${pos[0].toFixed(4)}, ${pos[1].toFixed(4)}`,
+        city: '',
+        state: '',
+        postal_code: ''
       }); 
     }
     setLoading(false);
@@ -84,7 +109,12 @@ const LocationPicker = ({ onSelect, initialPosition }) => {
 
   return (
     <div className="relative h-72 rounded-2xl overflow-hidden border border-gray-200">
-      <MapContainer center={pos} zoom={14} className="h-full w-full">
+      <MapContainer 
+        center={pos} 
+        zoom={14} 
+        className="h-full w-full"
+        whenReady={() => setMapReady(true)}
+      >
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
         <Marker position={pos} />
         <MapClick />
@@ -132,7 +162,7 @@ const Bubble = ({ text, isUser, isTyping }) => (
     animate={{ opacity: 1, y: 0 }} 
     className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-3`}
   >
-    <div className={`max-w-[85%] rounded-3xl px-4 py-3 ${
+    <div className={`max-w-[80%] rounded-3xl px-4 py-3 ${
       isUser 
         ? 'bg-blue-500 text-white rounded-br-lg' 
         : 'bg-gray-100 text-gray-900 rounded-bl-lg'
@@ -144,9 +174,106 @@ const Bubble = ({ text, isUser, isTyping }) => (
           <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
         </div>
       ) : (
-        <p className="text-sm">{text}</p>
+        <p className="text-sm break-words">{text}</p>
       )}
     </div>
+  </motion.div>
+);
+
+// PhonePe-style Success Screen
+const SuccessScreen = ({ data, onViewProperties, onPostAnother }) => (
+  <motion.div 
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    className="fixed inset-0 bg-gradient-to-b from-green-500 to-green-600 flex flex-col items-center justify-center p-6 z-50"
+  >
+    {/* Success Animation */}
+    <motion.div
+      initial={{ scale: 0 }}
+      animate={{ scale: 1 }}
+      transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.2 }}
+      className="w-24 h-24 bg-white rounded-full flex items-center justify-center mb-6 shadow-lg"
+    >
+      <motion.div
+        initial={{ scale: 0 }}
+        animate={{ scale: 1 }}
+        transition={{ delay: 0.5 }}
+      >
+        <CheckCircle2 className="w-14 h-14 text-green-500" />
+      </motion.div>
+    </motion.div>
+    
+    {/* Success Text */}
+    <motion.h1
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.6 }}
+      className="text-2xl font-bold text-white mb-2"
+    >
+      Property Posted!
+    </motion.h1>
+    
+    <motion.p
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ delay: 0.8 }}
+      className="text-green-100 text-center mb-8"
+    >
+      Your property is now live and visible to buyers
+    </motion.p>
+    
+    {/* Property Summary Card */}
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 1 }}
+      className="w-full max-w-sm bg-white rounded-2xl p-5 shadow-xl mb-8"
+    >
+      <div className="flex items-center gap-3 mb-4">
+        <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+          <Building2 className="w-6 h-6 text-green-600" />
+        </div>
+        <div>
+          <p className="font-semibold text-gray-900">{data.property_type || 'Property'}</p>
+          <p className="text-sm text-gray-500">{data.location || 'Location set'}</p>
+        </div>
+      </div>
+      <div className="flex justify-between text-sm">
+        <div>
+          <p className="text-gray-500">Price</p>
+          <p className="font-semibold text-gray-900">{data.price || 'N/A'}</p>
+        </div>
+        <div>
+          <p className="text-gray-500">Size</p>
+          <p className="font-semibold text-gray-900">{data.area || 'N/A'}</p>
+        </div>
+        <div>
+          <p className="text-gray-500">Negotiable</p>
+          <p className="font-semibold text-gray-900">{data.negotiable || 'No'}</p>
+        </div>
+      </div>
+    </motion.div>
+    
+    {/* Action Buttons */}
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ delay: 1.2 }}
+      className="w-full max-w-sm space-y-3"
+    >
+      <button
+        onClick={onViewProperties}
+        className="w-full py-4 bg-white text-green-600 font-semibold rounded-xl shadow-lg"
+      >
+        View My Properties
+      </button>
+      <button
+        onClick={onPostAnother}
+        className="w-full py-4 bg-green-600 border-2 border-white text-white font-semibold rounded-xl"
+      >
+        Post Another Property
+      </button>
+    </motion.div>
   </motion.div>
 );
 
@@ -163,6 +290,7 @@ const QuickPropertyPost = () => {
   const [typing, setTyping] = useState(false);
   const [done, setDone] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
   const endRef = useRef(null);
 
   useEffect(() => { 
@@ -262,12 +390,31 @@ const QuickPropertyPost = () => {
         longitude: data.longitude || 0,
         negotiable: data.negotiable === 'Yes'
       });
-      navigate('/agentapex/my-properties', { state: { success: true } });
+      // Show PhonePe-style success screen
+      setShowSuccess(true);
     } catch (e) { 
       console.error(e); 
       toast.error('Failed to post property'); 
     }
     setLoading(false);
+  };
+
+  const handlePostAnother = () => {
+    setShowSuccess(false);
+    setMessages([]);
+    setStep(0);
+    setData({});
+    setDone(false);
+    setInput('');
+    setSuffix('');
+    // Re-trigger initial question
+    setTimeout(() => {
+      setTyping(true);
+      setTimeout(() => { 
+        setTyping(false); 
+        setMessages([{ text: STEPS[0].question, isUser: false }]); 
+      }, 600);
+    }, 300);
   };
 
   const s = getStep();
@@ -281,32 +428,42 @@ const QuickPropertyPost = () => {
   };
 
   return (
-    <div className="agentapex-page-container">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-100 px-4 py-3 sticky top-0 z-50">
-        <div className="flex items-center gap-3">
-          <button onClick={() => navigate(-1)} data-testid="back-btn" className="w-10 h-10 flex items-center justify-center">
-            <ArrowLeft className="w-6 h-6 text-gray-900" />
-          </button>
-          <div className="flex-1">
-            <h1 className="text-lg font-semibold text-gray-900">New Post</h1>
+    <>
+      {/* PhonePe-style Success Screen */}
+      {showSuccess && (
+        <SuccessScreen 
+          data={data}
+          onViewProperties={() => navigate('/agentapex/my-properties')}
+          onPostAnother={handlePostAnother}
+        />
+      )}
+      
+      <div className="agentapex-page-container">
+        {/* Header */}
+        <header className="bg-white border-b border-gray-100 px-4 py-3 sticky top-0 z-50">
+          <div className="flex items-center gap-3">
+            <button onClick={() => navigate(-1)} data-testid="back-btn" className="w-10 h-10 flex items-center justify-center shrink-0">
+              <ArrowLeft className="w-6 h-6 text-gray-900" />
+            </button>
+            <div className="flex-1 min-w-0">
+              <h1 className="text-lg font-semibold text-gray-900">New Post</h1>
+            </div>
+            <button 
+              onClick={() => navigate('/agentapex/post/voice')}
+              data-testid="voice-post-btn"
+              className="w-10 h-10 flex items-center justify-center bg-red-50 rounded-full shrink-0"
+            >
+              <Mic className="w-5 h-5 text-red-500" />
+            </button>
           </div>
-          <button 
-            onClick={() => navigate('/agentapex/post/voice')}
-            data-testid="voice-post-btn"
-            className="w-10 h-10 flex items-center justify-center bg-red-50 rounded-full"
-          >
-            <Mic className="w-5 h-5 text-red-500" />
-          </button>
-        </div>
-        {/* Progress */}
-        <div className="mt-3 h-1 bg-gray-100 rounded-full">
-          <div 
-            className="h-full bg-blue-500 rounded-full transition-all duration-300" 
-            style={{ width: `${((step + 1) / STEPS.length) * 100}%` }} 
-          />
-        </div>
-      </header>
+          {/* Progress */}
+          <div className="mt-3 h-1 bg-gray-100 rounded-full">
+            <div 
+              className="h-full bg-blue-500 rounded-full transition-all duration-300" 
+              style={{ width: `${((step + 1) / STEPS.length) * 100}%` }} 
+            />
+          </div>
+        </header>
 
       {/* Chat Area - Add padding top for header */}
       <div className="flex-1 overflow-y-auto overflow-x-hidden px-4 pt-2 pb-32">
@@ -360,32 +517,33 @@ const QuickPropertyPost = () => {
         <div ref={endRef} />
       </div>
 
-      {/* Input Area */}
+      {/* Input Area - Fixed responsive width */}
       {!done && !showMap && (
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 p-4 safe-bottom">
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 p-4 safe-bottom" style={{ maxWidth: '100vw' }}>
           {s.options ? (
-            <div className="flex gap-3">
+            <div className="flex gap-2 max-w-full">
               {s.options.map(o => (
                 <button 
                   key={o} 
                   onClick={() => send(o)} 
                   data-testid={`option-${o.toLowerCase()}`} 
-                  className="flex-1 py-3.5 bg-gray-100 hover:bg-gray-200 active:bg-gray-200 text-gray-900 rounded-xl font-semibold transition-colors"
+                  className="flex-1 py-3.5 bg-gray-100 hover:bg-gray-200 active:bg-gray-200 text-gray-900 rounded-xl font-semibold transition-colors text-sm"
                 >
                   {o}
                 </button>
               ))}
             </div>
           ) : (
-            <div className="flex gap-3 items-center">
-              <div className="flex-1 flex gap-2 bg-gray-100 rounded-full px-4 py-2">
+            <div className="flex gap-2 items-center max-w-full">
+              <div className="flex-1 min-w-0 flex items-center gap-2 bg-gray-100 rounded-full px-3 py-2">
                 <input 
-                  type={s.type === 'number' ? 'number' : 'text'} 
+                  type={s.type === 'number' ? 'tel' : 'text'}
+                  inputMode={s.type === 'number' ? 'decimal' : 'text'}
                   value={input} 
                   onChange={(e) => setInput(e.target.value)} 
                   placeholder="Type a message..." 
                   data-testid="chat-input" 
-                  className="flex-1 bg-transparent border-none outline-none text-sm" 
+                  className="flex-1 min-w-0 bg-transparent border-none outline-none text-sm"
                   onKeyDown={(e) => e.key === 'Enter' && input && send(suffix ? `${input} ${suffix}` : input)} 
                 />
                 {s.suffix && (
@@ -393,7 +551,7 @@ const QuickPropertyPost = () => {
                     value={suffix} 
                     onChange={(e) => setSuffix(e.target.value)} 
                     data-testid="suffix-select" 
-                    className="bg-transparent border-none outline-none text-sm text-gray-500"
+                    className="bg-transparent border-none outline-none text-sm text-gray-500 shrink-0 w-16"
                   >
                     <option value="">Unit</option>
                     {s.suffix.map(u => <option key={u} value={u}>{u}</option>)}
@@ -410,7 +568,7 @@ const QuickPropertyPost = () => {
                 }} 
                 disabled={!input} 
                 data-testid="send-btn" 
-                className="w-10 h-10 bg-blue-500 disabled:bg-gray-200 rounded-full flex items-center justify-center"
+                className="w-10 h-10 bg-blue-500 disabled:bg-gray-200 rounded-full flex items-center justify-center shrink-0"
               >
                 <Send className="w-5 h-5 text-white" />
               </button>
@@ -418,7 +576,8 @@ const QuickPropertyPost = () => {
           )}
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 };
 
