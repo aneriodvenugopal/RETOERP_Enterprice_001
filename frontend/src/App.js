@@ -79,6 +79,7 @@ import PackageManagement from "./pages/admin/PackageManagement";
 import TenantManagement from "./pages/admin/TenantManagement";
 import ChatManagement from "./pages/admin/ChatManagement";
 import IncomeLandsAdminDashboard from "./pages/admin/IncomeLandsAdminDashboard";
+import AgentApexAdminDashboard from "./pages/admin/AgentApexAdminDashboard";
 import MasterCategoryManagement from "./pages/admin/MasterCategoryManagement";
 import TenantCategoryManagement from "./pages/admin/TenantCategoryManagement";
 import TutorAIAdmin from "./pages/TutorAIAdmin";
@@ -99,6 +100,12 @@ import TenantsDirectory from "./pages/public/TenantsDirectory";
 
 // Mobile App
 import IncomeLandsApp from "./pages/mobile/IncomeLandsApp";
+
+// NEW: Incomelands 2.0 App (from GitHub repo)
+import IncomelandsAppNew from "./incomelands/IncomelandsApp";
+
+// AgentApex Mobile Property App
+import AgentApexApp from "./agentapex/AgentApexApp";
 
 // Workforce Map
 import WorkforceMap from "./pages/WorkforceMap";
@@ -305,8 +312,14 @@ function App() {
                 <Route path="/public/tenant/:tenantId" element={<TenantLandingPage />} />
                 <Route path="/public/project/:projectId" element={<ProjectLandingPage />} />
                 
-                {/* IncomeLands Mobile App */}
+                {/* IncomeLands Mobile App (OLD) */}
                 <Route path="/incomelands" element={<IncomeLandsApp />} />
+                
+                {/* IncomeLands App 2.0 (NEW - from GitHub) */}
+                <Route path="/incomelandsapp/*" element={<IncomelandsAppNew />} />
+                
+                {/* AgentApex Mobile Property App */}
+                <Route path="/agentapex/*" element={<AgentApexApp />} />
                 
                 {/* Workforce Map - Public */}
                 <Route path="/workforce-map" element={<WorkforceMap />} />
@@ -973,6 +986,14 @@ function App() {
                 element={
                   <PrivateRoute>
                     <IncomeLandsAdminDashboard />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/admin/agentapex"
+                element={
+                  <PrivateRoute>
+                    <AgentApexAdminDashboard />
                   </PrivateRoute>
                 }
               />

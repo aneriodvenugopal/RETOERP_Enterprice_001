@@ -184,7 +184,7 @@
 
    **మొదటి referrer:**
    ```
-   https://tutorai-video-gen.preview.emergentagent.com/*
+   https://agentapex-build.preview.emergentagent.com/*
    ```
    - Paste చేసి Enter నొక్కండి
 
