@@ -1,6 +1,6 @@
 /* eslint-disable no-restricted-globals */
 
-const CACHE_NAME = 'retoerp-pwa-v2';
+const CACHE_NAME = 'retoerp-pwa-v3';
 const urlsToCache = [
   '/',
   '/manifest.json'

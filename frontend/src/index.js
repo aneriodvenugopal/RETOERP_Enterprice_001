@@ -49,19 +49,16 @@ if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
         registration.update();
       }, 60000); // Check every minute
       
-      // Handle updates
+      // Handle updates - silently update without prompting user
       registration.addEventListener('updatefound', () => {
         const newWorker = registration.installing;
         console.log('Service Worker update found');
         
         newWorker.addEventListener('statechange', () => {
           if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-            console.log('New Service Worker installed');
-            // New service worker available, prompt user to refresh
-            if (confirm('New version available! Reload to update?')) {
-              newWorker.postMessage({ type: 'SKIP_WAITING' });
-              window.location.reload();
-            }
+            console.log('New Service Worker installed - applying silently');
+            // Silently activate new service worker without annoying prompt
+            newWorker.postMessage({ type: 'SKIP_WAITING' });
           }
         });
       });
@@ -70,14 +67,9 @@ if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
     }
   });
   
-  // Handle service worker controller change
-  let refreshing = false;
+  // Handle service worker controller change - log only, no auto-reload
   navigator.serviceWorker.addEventListener('controllerchange', () => {
-    if (!refreshing) {
-      refreshing = true;
-      console.log('Service Worker controller changed, reloading...');
-      window.location.reload();
-    }
+    console.log('Service Worker updated - changes will apply on next visit');
   });
 } else if ('serviceWorker' in navigator) {
   // In development/preview, just clean up any existing service workers
