@@ -18,11 +18,17 @@
   --danger: #ED4956;
   --success: #58C322;
   --amber: #FFBB00;
+  
+  /* iOS-like timing */
+  --ios-spring: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --ios-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --ios-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
 * {
   box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
 }
 
 html {
@@ -32,7 +38,7 @@ html {
 
 body {
   margin: 0;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: var(--bg-primary);
@@ -40,9 +46,11 @@ body {
   font-size: 14px;
   line-height: 1.5;
   overscroll-behavior: none;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
-/* Instagram-style scrollbar - hidden but functional */
+/* iOS-style scrollbar - hidden but functional */
 ::-webkit-scrollbar {
   width: 0;
   height: 0;
@@ -59,29 +67,202 @@ input, select, textarea, button {
 input, textarea {
   background: var(--bg-primary);
   border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 12px 16px;
+  border-radius: 12px;
+  padding: 14px 16px;
   outline: none;
-  transition: border-color 0.2s ease;
+  transition: all 0.2s var(--ios-ease);
 }
 
 input:focus, textarea:focus {
-  border-color: var(--text-primary);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(0, 149, 246, 0.1);
 }
 
 input::placeholder, textarea::placeholder {
   color: var(--text-secondary);
 }
 
-/* Instagram-style buttons */
+/* iOS-style buttons with haptic-like feedback */
 button {
   cursor: pointer;
   border: none;
   background: none;
-  padding: 0;
-  outline: none;
-  min-height: 44px; /* Touch target */
-  min-width: 44px;
+  transition: all 0.15s var(--ios-ease);
+  -webkit-appearance: none;
+}
+
+button:active {
+  transform: scale(0.97);
+  opacity: 0.8;
+}
+
+/* iOS-style touch feedback */
+.ios-tap {
+  transition: all 0.12s var(--ios-ease);
+}
+
+.ios-tap:active {
+  transform: scale(0.96);
+  opacity: 0.7;
+}
+
+/* iOS-style card with press effect */
+.ios-card {
+  transition: all 0.2s var(--ios-ease);
+  will-change: transform;
+}
+
+.ios-card:active {
+  transform: scale(0.98);
+  opacity: 0.9;
+}
+
+/* iOS-style spring animation for elements */
+@keyframes ios-spring-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.9) translateY(10px);
+  }
+  50% {
+    transform: scale(1.02) translateY(-2px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes ios-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes ios-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes ios-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* iOS-style bounce scroll effect */
+.ios-scroll {
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+}
+
+/* iOS-style blur backdrop */
+.ios-blur {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.ios-blur-dark {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  background: rgba(0, 0, 0, 0.7);
+}
+
+/* iOS-style header */
+.ios-header {
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  background: rgba(255, 255, 255, 0.85);
+}
+
+/* iOS-style navigation bar */
+.ios-nav {
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  background: rgba(255, 255, 255, 0.9);
+}
+
+/* iOS-style button styles */
+.ios-btn-primary {
+  background: var(--accent);
+  color: white;
+  padding: 14px 24px;
+  border-radius: 12px;
+  font-weight: 600;
+  transition: all 0.15s var(--ios-ease);
+}
+
+.ios-btn-primary:active {
+  transform: scale(0.97);
+  background: #0084db;
+}
+
+.ios-btn-secondary {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  padding: 14px 24px;
+  border-radius: 12px;
+  font-weight: 600;
+  transition: all 0.15s var(--ios-ease);
+}
+
+.ios-btn-secondary:active {
+  transform: scale(0.97);
+  background: #e8e8e8;
+}
+
+/* iOS-style list item */
+.ios-list-item {
+  padding: 16px;
+  border-bottom: 0.5px solid var(--border-light);
+  transition: background 0.15s var(--ios-ease);
+}
+
+.ios-list-item:active {
+  background: var(--bg-secondary);
+}
+
+/* iOS-style modal/sheet */
+.ios-sheet {
+  border-radius: 16px 16px 0 0;
+  animation: ios-slide-up 0.3s var(--ios-spring);
+}
+
+/* iOS-style segmented control */
+.ios-segment {
+  background: var(--bg-tertiary);
+  border-radius: 10px;
+  padding: 3px;
+}
+
+.ios-segment-item {
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.2s var(--ios-ease);
+}
+
+.ios-segment-item.active {
+  background: white;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
 /* Primary button */

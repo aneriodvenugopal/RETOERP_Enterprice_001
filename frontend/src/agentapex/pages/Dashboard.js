@@ -8,7 +8,32 @@ import {
   FileText, Clock
 } from 'lucide-react';
 
-// Instagram-style Bottom Navigation
+// iOS-style stagger animation
+const containerVariants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.05,
+      delayChildren: 0.1
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  show: { 
+    opacity: 1, 
+    y: 0,
+    transition: {
+      type: "spring",
+      stiffness: 300,
+      damping: 24
+    }
+  }
+};
+
+// iOS-style Bottom Navigation with blur
 const BottomNav = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -16,47 +41,83 @@ const BottomNav = () => {
   const isActive = (path) => location.pathname === `/agentapex${path}` || (path === '/' && location.pathname === '/agentapex');
   
   return (
-    <nav className="bottom-nav">
-      <button onClick={() => navigate('/agentapex')} data-testid="nav-home">
-        <Home className={`w-6 h-6 ${isActive('/') ? 'text-gray-900' : 'text-gray-400'}`} strokeWidth={isActive('/') ? 2.5 : 1.5} />
-      </button>
-      <button onClick={() => navigate('/agentapex/search')} data-testid="nav-search">
-        <Search className={`w-6 h-6 ${isActive('/search') ? 'text-gray-900' : 'text-gray-400'}`} strokeWidth={isActive('/search') ? 2.5 : 1.5} />
-      </button>
-      <button onClick={() => navigate('/agentapex/post')} data-testid="nav-post">
-        <PlusSquare className={`w-6 h-6 ${isActive('/post') ? 'text-gray-900' : 'text-gray-400'}`} strokeWidth={isActive('/post') ? 2.5 : 1.5} />
-      </button>
-      <button onClick={() => navigate('/agentapex/favorites')} data-testid="nav-favorites">
-        <Heart className={`w-6 h-6 ${isActive('/favorites') ? 'text-gray-900 fill-gray-900' : 'text-gray-400'}`} strokeWidth={isActive('/favorites') ? 2.5 : 1.5} />
-      </button>
-      <button onClick={() => navigate('/agentapex/profile')} data-testid="nav-profile">
-        <User className={`w-6 h-6 ${isActive('/profile') ? 'text-gray-900' : 'text-gray-400'}`} strokeWidth={isActive('/profile') ? 2.5 : 1.5} />
-      </button>
+    <nav className="bottom-nav ios-nav">
+      <motion.button 
+        whileTap={{ scale: 0.85 }} 
+        onClick={() => navigate('/agentapex')} 
+        data-testid="nav-home"
+        className="flex flex-col items-center gap-1"
+      >
+        <Home className={`w-6 h-6 transition-all duration-200 ${isActive('/') ? 'text-blue-500' : 'text-gray-400'}`} strokeWidth={isActive('/') ? 2.5 : 1.5} />
+        {isActive('/') && <motion.div layoutId="navIndicator" className="w-1 h-1 bg-blue-500 rounded-full" />}
+      </motion.button>
+      <motion.button 
+        whileTap={{ scale: 0.85 }} 
+        onClick={() => navigate('/agentapex/search')} 
+        data-testid="nav-search"
+        className="flex flex-col items-center gap-1"
+      >
+        <Search className={`w-6 h-6 transition-all duration-200 ${isActive('/search') ? 'text-blue-500' : 'text-gray-400'}`} strokeWidth={isActive('/search') ? 2.5 : 1.5} />
+        {isActive('/search') && <motion.div layoutId="navIndicator" className="w-1 h-1 bg-blue-500 rounded-full" />}
+      </motion.button>
+      <motion.button 
+        whileTap={{ scale: 0.85 }} 
+        onClick={() => navigate('/agentapex/post')} 
+        data-testid="nav-post"
+        className="flex flex-col items-center gap-1"
+      >
+        <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30">
+          <PlusSquare className="w-5 h-5 text-white" strokeWidth={2} />
+        </div>
+      </motion.button>
+      <motion.button 
+        whileTap={{ scale: 0.85 }} 
+        onClick={() => navigate('/agentapex/favorites')} 
+        data-testid="nav-favorites"
+        className="flex flex-col items-center gap-1"
+      >
+        <Heart className={`w-6 h-6 transition-all duration-200 ${isActive('/favorites') ? 'text-red-500 fill-red-500' : 'text-gray-400'}`} strokeWidth={isActive('/favorites') ? 2.5 : 1.5} />
+        {isActive('/favorites') && <motion.div layoutId="navIndicator" className="w-1 h-1 bg-red-500 rounded-full" />}
+      </motion.button>
+      <motion.button 
+        whileTap={{ scale: 0.85 }} 
+        onClick={() => navigate('/agentapex/profile')} 
+        data-testid="nav-profile"
+        className="flex flex-col items-center gap-1"
+      >
+        <User className={`w-6 h-6 transition-all duration-200 ${isActive('/profile') ? 'text-blue-500' : 'text-gray-400'}`} strokeWidth={isActive('/profile') ? 2.5 : 1.5} />
+        {isActive('/profile') && <motion.div layoutId="navIndicator" className="w-1 h-1 bg-blue-500 rounded-full" />}
+      </motion.button>
     </nav>
   );
 };
 
-// Stat Card
+// iOS-style Stat Card with spring animation
 const StatCard = ({ icon: Icon, label, value, color, onClick }) => (
   <motion.button
-    whileTap={{ scale: 0.98 }}
+    variants={itemVariants}
+    whileTap={{ scale: 0.95 }}
     onClick={onClick}
-    className="flex-1 bg-white border border-gray-100 rounded-2xl p-4 text-left"
+    className="flex-1 bg-white border border-gray-100 rounded-2xl p-4 text-left shadow-sm active:shadow-none transition-shadow"
   >
-    <div className={`w-10 h-10 ${color} rounded-xl flex items-center justify-center mb-3`}>
+    <motion.div 
+      className={`w-10 h-10 ${color} rounded-xl flex items-center justify-center mb-3`}
+      whileHover={{ scale: 1.05 }}
+    >
       <Icon className="w-5 h-5 text-white" />
-    </div>
+    </motion.div>
     <p className="text-2xl font-bold text-gray-900">{value}</p>
     <p className="text-gray-500 text-sm">{label}</p>
   </motion.button>
 );
 
-// Menu Item
+// iOS-style Menu Item with smooth press effect
 const MenuItem = ({ icon: Icon, label, sublabel, onClick, badge }) => (
   <motion.button
-    whileTap={{ scale: 0.98 }}
+    variants={itemVariants}
+    whileTap={{ scale: 0.98, backgroundColor: 'rgba(0,0,0,0.03)' }}
     onClick={onClick}
-    className="w-full flex items-center gap-4 p-4 bg-white border-b border-gray-50 active:bg-gray-50"
+    className="w-full flex items-center gap-4 p-4 bg-white border-b border-gray-50 transition-colors"
   >
     <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
       <Icon className="w-6 h-6 text-gray-600" />
@@ -96,27 +157,40 @@ const Dashboard = () => {
   }, [api]);
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-16">
-      {/* Header - Instagram style */}
-      <header className="bg-white border-b border-gray-100 px-4 py-3 sticky top-0 z-50">
+    <div className="min-h-screen bg-gray-50 pb-20">
+      {/* iOS-style Header with blur */}
+      <motion.header 
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ type: "spring", stiffness: 300, damping: 25 }}
+        className="ios-header border-b border-gray-100 px-4 py-3 sticky top-0 z-50"
+      >
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-amber-400 to-orange-500 rounded-xl flex items-center justify-center">
+          <motion.div 
+            className="flex items-center gap-3"
+            whileTap={{ scale: 0.97 }}
+          >
+            <div className="w-10 h-10 bg-gradient-to-br from-amber-400 to-orange-500 rounded-xl flex items-center justify-center shadow-lg shadow-orange-500/20">
               <Building2 className="w-5 h-5 text-white" />
             </div>
             <div>
               <h1 className="text-lg font-bold text-gray-900">AgentApex</h1>
             </div>
-          </div>
+          </motion.div>
           <div className="text-right">
             <p className="text-xs text-gray-500">Welcome back</p>
-            <p className="text-sm font-medium text-gray-900">{user?.name || user?.phone}</p>
+            <p className="text-sm font-semibold text-gray-900">{user?.name || user?.phone}</p>
           </div>
         </div>
-      </header>
+      </motion.header>
 
-      {/* Stats Section */}
-      <div className="p-4">
+      {/* Stats Section with stagger animation */}
+      <motion.div 
+        className="p-4"
+        variants={containerVariants}
+        initial="hidden"
+        animate="show"
+      >
         <div className="flex gap-3">
           <StatCard
             icon={Building2}
@@ -150,30 +224,41 @@ const Dashboard = () => {
             onClick={() => navigate('/agentapex/favorites')}
           />
         </div>
-      </div>
+      </motion.div>
 
-      {/* Quick Actions */}
-      <div className="px-4 mb-4">
+      {/* Quick Actions with spring animation */}
+      <motion.div 
+        className="px-4 mb-4"
+        variants={itemVariants}
+      >
         <motion.button
-          whileTap={{ scale: 0.98 }}
+          whileTap={{ scale: 0.97 }}
+          whileHover={{ scale: 1.01 }}
           onClick={() => navigate('/agentapex/post')}
           data-testid="quick-post-btn"
-          className="w-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl p-5 text-left"
+          className="w-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl p-5 text-left shadow-xl shadow-blue-500/25"
         >
           <div className="flex items-center justify-between">
             <div>
               <p className="text-white font-semibold text-lg">Post Property</p>
               <p className="text-blue-100 text-sm">Sell your land or plot</p>
             </div>
-            <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+            <motion.div 
+              className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center"
+              whileHover={{ rotate: 90 }}
+              transition={{ type: "spring", stiffness: 300 }}
+            >
               <PlusSquare className="w-6 h-6 text-white" />
-            </div>
+            </motion.div>
           </div>
         </motion.button>
-      </div>
+      </motion.div>
 
-      {/* Menu List */}
-      <div className="bg-white">
+      {/* Menu List with stagger */}
+      <motion.div 
+        className="bg-white rounded-t-3xl shadow-sm"
+        variants={containerVariants}
+      >
         <MenuItem
           icon={MapPin}
           label="Map Search"
@@ -207,8 +292,9 @@ const Dashboard = () => {
           onClick={() => navigate('/agentapex/leads')}
           badge={stats.leads > 0 ? stats.leads : null}
         />
-      </div>
+      </motion.div>
 
+      {/* iOS-style Bottom Navigation */}
       <BottomNav />
     </div>
   );
