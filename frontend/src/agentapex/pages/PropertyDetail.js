@@ -8,7 +8,7 @@ import { Drawer } from 'vaul';
 import { 
   ArrowLeft, Heart, Share2, MapPin, MessageCircle, 
   ChevronLeft, ChevronRight, FolderOpen, FileText, MoreHorizontal, Bookmark,
-  Brain, Edit
+  Brain, Edit, Send
 } from 'lucide-react';
 import { toast } from 'sonner';
 import AreaIntelligence from '../components/AreaIntelligence';
@@ -87,16 +87,54 @@ const PropertyDetail = () => {
   };
 
   const handleShare = async () => {
+    const shareUrl = `${window.location.origin}/agentapex/property/${id}`;
+    const shareText = `🏠 *${property?.property_type} For Sale*
+
+💰 *Price:* ₹${property?.price} ${property?.price_unit} ${property?.negotiable ? '(Negotiable)' : ''}
+📐 *Area:* ${property?.area} ${property?.area_unit}
+📍 *Location:* ${property?.location}
+
+${property?.description ? `📝 ${property?.description?.slice(0, 100)}...` : ''}
+
+👉 View Details & Contact: ${shareUrl}
+
+_Listed on AgentApex - Property Intelligence_`;
+
+    // Try WhatsApp share first
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
+    
     if (navigator.share) {
-      await navigator.share({
-        title: property?.title,
-        text: `Check out this property: ${property?.title}`,
-        url: window.location.href
-      });
+      try {
+        await navigator.share({
+          title: `${property?.property_type} - ₹${property?.price} ${property?.price_unit}`,
+          text: shareText,
+          url: shareUrl
+        });
+      } catch (err) {
+        // If share fails, open WhatsApp
+        window.open(whatsappUrl, '_blank');
+      }
     } else {
-      await navigator.clipboard.writeText(window.location.href);
-      toast.success('Link copied!');
+      // Open WhatsApp directly
+      window.open(whatsappUrl, '_blank');
     }
+  };
+
+  const handleWhatsAppShare = () => {
+    const shareUrl = `${window.location.origin}/agentapex/property/${id}`;
+    const shareText = `🏠 *${property?.property_type} For Sale*
+
+💰 *Price:* ₹${property?.price} ${property?.price_unit} ${property?.negotiable ? '(Negotiable)' : ''}
+📐 *Area:* ${property?.area} ${property?.area_unit}
+📍 *Location:* ${property?.location}
+
+${property?.description ? `📝 ${property?.description?.slice(0, 100)}...` : ''}
+
+👉 View Details & Contact: ${shareUrl}
+
+_Listed on AgentApex - Property Intelligence_`;
+
+    window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank');
   };
 
   const defaultImages = [
@@ -200,8 +238,9 @@ const PropertyDetail = () => {
             <Share2 className="w-7 h-7 text-gray-900" />
           </button>
         </div>
-        <button>
-          <Bookmark className={`w-7 h-7 ${isFavorite ? 'fill-gray-900' : ''} text-gray-900`} />
+        <button onClick={handleWhatsAppShare} className="flex items-center gap-1.5 px-3 py-1.5 bg-green-500 text-white rounded-full text-sm font-medium">
+          <Send className="w-4 h-4" />
+          WhatsApp
         </button>
       </div>
 
@@ -255,7 +294,7 @@ const PropertyDetail = () => {
           </div>
           {isOwner && (
             <button
-              onClick={() => navigate(`/property/${id}/documents`)}
+              onClick={() => navigate(`/agentapex/property/${id}/documents`)}
               data-testid="manage-docs-btn"
               className="px-4 py-2 bg-gray-100 rounded-lg text-sm font-medium text-gray-900"
             >
@@ -332,14 +371,14 @@ const PropertyDetail = () => {
         {isOwner ? (
           <div className="flex gap-3">
             <button
-              onClick={() => navigate(`/property/${id}/documents`)}
+              onClick={() => navigate(`/agentapex/property/${id}/documents`)}
               className="flex-1 py-3.5 bg-gray-100 text-gray-900 font-semibold rounded-xl flex items-center justify-center gap-2"
             >
               <FolderOpen className="w-5 h-5" />
               Documents
             </button>
             <button
-              onClick={() => navigate(`/property/${id}/edit`)}
+              onClick={() => navigate(`/agentapex/property/${id}/edit`)}
               data-testid="edit-property-btn"
               className="flex-1 py-3.5 bg-gray-900 text-white font-semibold rounded-xl flex items-center justify-center gap-2"
             >

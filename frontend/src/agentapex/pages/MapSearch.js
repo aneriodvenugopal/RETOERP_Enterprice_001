@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useGeoLocation } from '../context/LocationContext';
@@ -6,8 +6,19 @@ import { MapContainer, TileLayer, Marker, Popup, Circle, useMap } from 'react-le
 import L from 'leaflet';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Drawer } from 'vaul';
-import { ArrowLeft, SlidersHorizontal, MapPin, Grid3X3, X, Heart, ChevronDown } from 'lucide-react';
+import { ArrowLeft, SlidersHorizontal, MapPin, Grid3X3, X, Heart, Search, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 import 'leaflet/dist/leaflet.css';
+
+// Debounce hook for search
+const useDebounce = (value, delay) => {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+  useEffect(() => {
+    const handler = setTimeout(() => setDebouncedValue(value), delay);
+    return () => clearTimeout(handler);
+  }, [value, delay]);
+  return debouncedValue;
+};
 
 // Simple markers
 const createSaleMarker = () => L.divIcon({
@@ -38,7 +49,7 @@ const PropertyCard = ({ property, isBuying, onFavorite, isFavorite }) => {
   return (
     <motion.div
       whileTap={{ scale: 0.98 }}
-      onClick={() => !isBuying && navigate(`/property/${property.id}`)}
+      onClick={() => !isBuying && navigate(`/agentapex/property/${property.id}`)}
       className="bg-white rounded-2xl overflow-hidden border border-gray-100"
     >
       <div className="relative aspect-[4/3]">
@@ -91,20 +102,66 @@ const MapSearch = () => {
   const [loading, setLoading] = useState(true);
   const [favorites, setFavorites] = useState(new Set());
   
-  // Filters
+  // Search & Filters
   const [showFilters, setShowFilters] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [searchLoading, setSearchLoading] = useState(false);
   const [selectedType, setSelectedType] = useState('All');
   const [maxPrice, setMaxPrice] = useState(500);
   const [radius, setRadius] = useState(10);
+  const [searchCenter, setSearchCenter] = useState(null);
   
-  const mapCenter = [userLocation?.latitude || 17.385, userLocation?.longitude || 78.4867];
+  const debouncedSearch = useDebounce(searchQuery, 300);
+  
+  const mapCenter = searchCenter || [userLocation?.latitude || 17.385, userLocation?.longitude || 78.4867];
 
-  useEffect(() => { fetchData(); }, [selectedType, maxPrice, radius]);
+  // Location search with Nominatim
+  useEffect(() => {
+    if (debouncedSearch.length >= 3) {
+      searchLocations(debouncedSearch);
+    } else {
+      setSearchResults([]);
+    }
+  }, [debouncedSearch]);
+
+  const searchLocations = async (query) => {
+    setSearchLoading(true);
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=in&limit=5`,
+        { headers: { 'Accept': 'application/json' } }
+      );
+      const data = await response.json();
+      setSearchResults(data.map(r => ({
+        id: r.place_id,
+        name: r.display_name,
+        lat: parseFloat(r.lat),
+        lon: parseFloat(r.lon)
+      })));
+    } catch (err) {
+      console.error('Search error:', err);
+    }
+    setSearchLoading(false);
+  };
+
+  const selectLocation = (result) => {
+    setSearchCenter([result.lat, result.lon]);
+    setShowSearch(false);
+    setSearchQuery('');
+    setSearchResults([]);
+    toast.success(`Showing properties near ${result.name.split(',')[0]}`);
+  };
+
+  useEffect(() => { fetchData(); }, [selectedType, maxPrice, radius, searchCenter]);
 
   const fetchData = async () => {
     setLoading(true);
     try {
-      const params = { latitude: userLocation?.latitude, longitude: userLocation?.longitude, radius_km: radius };
+      const lat = searchCenter?.[0] || userLocation?.latitude;
+      const lng = searchCenter?.[1] || userLocation?.longitude;
+      const params = { latitude: lat, longitude: lng, radius_km: radius };
       if (selectedType !== 'All') params.property_type = selectedType;
       if (maxPrice) params.max_price = maxPrice;
       
@@ -140,14 +197,25 @@ const MapSearch = () => {
       {/* Header */}
       <header className="bg-white border-b border-gray-100 px-4 py-3 sticky top-0 z-50">
         <div className="flex items-center gap-3">
-          <button onClick={() => navigate(-1)} data-testid="back-btn" className="w-10 h-10 flex items-center justify-center">
+          <button onClick={() => navigate(-1)} data-testid="back-btn" className="w-10 h-10 flex items-center justify-center shrink-0">
             <ArrowLeft className="w-6 h-6 text-gray-900" />
           </button>
-          <h1 className="flex-1 text-lg font-semibold text-gray-900">Search</h1>
+          
+          {/* Search Bar */}
+          <div 
+            onClick={() => setShowSearch(true)}
+            className="flex-1 flex items-center gap-2 bg-gray-100 rounded-full px-4 py-2.5 cursor-pointer"
+          >
+            <Search className="w-5 h-5 text-gray-400" />
+            <span className="text-gray-500 text-sm">
+              {searchCenter ? 'Custom location' : 'Search location...'}
+            </span>
+          </div>
+          
           <button 
             onClick={() => setShowFilters(true)} 
             data-testid="filter-btn"
-            className="w-10 h-10 flex items-center justify-center"
+            className="w-10 h-10 flex items-center justify-center shrink-0"
           >
             <SlidersHorizontal className="w-6 h-6 text-gray-900" />
           </button>
@@ -175,6 +243,77 @@ const MapSearch = () => {
           </button>
         </div>
       </header>
+
+      {/* Search Modal */}
+      <AnimatePresence>
+        {showSearch && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-white z-[1000] flex flex-col"
+          >
+            <div className="p-4 border-b">
+              <div className="flex items-center gap-3">
+                <button onClick={() => { setShowSearch(false); setSearchQuery(''); setSearchResults([]); }} className="w-10 h-10 flex items-center justify-center">
+                  <ArrowLeft className="w-6 h-6" />
+                </button>
+                <div className="flex-1 flex items-center gap-2 bg-gray-100 rounded-full px-4 py-2.5">
+                  <Search className="w-5 h-5 text-gray-400" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search city, area, landmark..."
+                    className="flex-1 bg-transparent border-none outline-none text-sm"
+                    autoFocus
+                  />
+                  {searchLoading && <Loader2 className="w-4 h-4 text-gray-400 animate-spin" />}
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto">
+              {searchResults.length > 0 ? (
+                <div className="divide-y">
+                  {searchResults.map((result) => (
+                    <button
+                      key={result.id}
+                      onClick={() => selectLocation(result)}
+                      className="w-full px-4 py-4 flex items-start gap-3 text-left hover:bg-gray-50"
+                    >
+                      <MapPin className="w-5 h-5 text-gray-400 mt-0.5 shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-900 truncate">{result.name.split(',')[0]}</p>
+                        <p className="text-xs text-gray-500 truncate">{result.name.split(',').slice(1).join(',')}</p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              ) : searchQuery.length >= 3 && !searchLoading ? (
+                <div className="p-8 text-center">
+                  <p className="text-gray-500">No locations found</p>
+                </div>
+              ) : (
+                <div className="p-4">
+                  <p className="text-sm text-gray-500 mb-4">Popular searches</p>
+                  <div className="flex flex-wrap gap-2">
+                    {['Hyderabad', 'Bangalore', 'Mumbai', 'Chennai', 'Pune'].map(city => (
+                      <button
+                        key={city}
+                        onClick={() => setSearchQuery(city)}
+                        className="px-4 py-2 bg-gray-100 rounded-full text-sm text-gray-700"
+                      >
+                        {city}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* View Toggle */}
       <div className="flex border-b border-gray-100">
@@ -236,7 +375,7 @@ const MapSearch = () => {
                       <p className="text-gray-600 text-sm">{p.property_type}</p>
                       <p className="text-gray-400 text-xs">{p.area} {p.area_unit}</p>
                       <button 
-                        onClick={() => navigate(`/property/${p.id}`)} 
+                        onClick={() => navigate(`/agentapex/property/${p.id}`)} 
                         className="mt-2 w-full py-2 bg-gray-900 text-white rounded-lg text-sm font-medium"
                       >
                         View Details
