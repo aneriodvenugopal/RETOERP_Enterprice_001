@@ -39,6 +39,10 @@ Build a comprehensive Real Estate ERP (RealApex) SaaS platform for the Indian re
   - Voice property posting (Whisper integration)
   - AI Area Intelligence (GPT-4o integration)
   - Instagram-style bottom navigation
+  - [x] **Bug Fixes (Mar 7, 2026)**:
+    - Dropdown mandatory validation in property post chat
+    - Navigation URL prefix fixes in MyProperties.js
+    - Documents page routing verified working
 - [x] **AgentApex Admin Module** (`/admin/agentapex`) - SaaS admin management
   - Overview tab with user/property/lead/requirement stats
   - Users tab with search and table view
@@ -757,6 +761,7 @@ Build a comprehensive Real Estate ERP (RealApex) SaaS platform for the Indian re
 - **Tenant Admin (email)**: rajam@retoerp.com / 12345678
 
 ## Test Reports
+- `/app/test_reports/iteration_27.json` - AgentApex Bug Fixes (Mar 7, 2026) - Dropdown validation, navigation fixes, 100% pass
 - `/app/test_reports/iteration_1.json` - Layout features
 - `/app/test_reports/iteration_2.json` - Document Locker, Festival Greetings
 - `/app/test_reports/iteration_3.json` - Site Visits, Booking Queue (30/30 tests passed)
