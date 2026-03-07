@@ -101,7 +101,7 @@ const MyProperties = () => {
                 <div className="flex">
                   <div 
                     className="w-28 h-28 flex-shrink-0 cursor-pointer"
-                    onClick={() => navigate(`/property/${p.id}`)}
+                    onClick={() => navigate(`/agentapex/property/${p.id}`)}
                   >
                     <img 
                       src={p.images?.[0] || 'https://images.pexels.com/photos/3030307/pexels-photo-3030307.jpeg?auto=compress&cs=tinysrgb&w=400'} 
@@ -111,7 +111,7 @@ const MyProperties = () => {
                   </div>
                   <div className="flex-1 p-3 min-w-0">
                     <div className="flex items-start justify-between gap-2">
-                      <div className="min-w-0" onClick={() => navigate(`/property/${p.id}`)}>
+                      <div className="min-w-0" onClick={() => navigate(`/agentapex/property/${p.id}`)}>
                         <p className="text-base font-bold text-gray-900">₹{p.price} {p.price_unit}</p>
                         <p className="text-sm text-gray-900 truncate">{p.title || p.property_type}</p>
                         <p className="text-xs text-gray-500 truncate flex items-center gap-1 mt-0.5">
@@ -131,7 +131,7 @@ const MyProperties = () => {
                       </div>
                       <div className="flex items-center gap-2">
                         <button 
-                          onClick={() => navigate(`/property/${p.id}/documents`)}
+                          onClick={() => navigate(`/agentapex/property/${p.id}/documents`)}
                           className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center"
                           data-testid={`docs-${p.id}`}
                         >

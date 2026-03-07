@@ -39,7 +39,7 @@ Your API key needs to allow your domain.
 
 **Current Domain:**
 ```
-https://agentapex-build.preview.emergentagent.com/*
+https://apex-mobile-ux.preview.emergentagent.com/*
 ```
 
 **Action Required:**
@@ -48,7 +48,7 @@ https://agentapex-build.preview.emergentagent.com/*
 3. Under "Application restrictions" → "HTTP referrers"
 4. Add these referrers:
    ```
-   https://agentapex-build.preview.emergentagent.com/*
+   https://apex-mobile-ux.preview.emergentagent.com/*
    https://*.emergentagent.com/*
    http://localhost:3000/*
    ```

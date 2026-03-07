@@ -48,7 +48,7 @@ This watermark appears when Google Maps API billing is not properly configured.
    - Select "HTTP referrers (websites)"
    - Add your domains:
      ```
-     https://agentapex-build.preview.emergentagent.com/*
+     https://apex-mobile-ux.preview.emergentagent.com/*
      http://localhost:3000/*
      ```
 

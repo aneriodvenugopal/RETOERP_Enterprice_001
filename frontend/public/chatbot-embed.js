@@ -47,7 +47,7 @@
         tenantId: tenantId,
         position: position,
         primaryColor: primaryColor,
-        backendUrl: 'https://agentapex-build.preview.emergentagent.com/api'
+        backendUrl: 'https://apex-mobile-ux.preview.emergentagent.com/api'
       };
       
       // Load chat widget bundle

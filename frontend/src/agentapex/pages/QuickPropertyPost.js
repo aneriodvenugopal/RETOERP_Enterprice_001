@@ -706,7 +706,17 @@ const QuickPropertyPost = () => {
                   placeholder="Type a message..." 
                   data-testid="chat-input" 
                   className="flex-1 min-w-0 bg-transparent border-none outline-none text-sm"
-                  onKeyDown={(e) => e.key === 'Enter' && input && send(suffix ? `${input} ${suffix}` : input)} 
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && input) {
+                      if (s.suffix && !suffix) {
+                        toast.error('Please select a unit from dropdown');
+                        return;
+                      }
+                      send(suffix ? `${input} ${suffix}` : input);
+                      setInput('');
+                      setSuffix('');
+                    }
+                  }} 
                 />
                 {s.suffix && (
                   <select 
@@ -722,7 +732,12 @@ const QuickPropertyPost = () => {
               </div>
               <button 
                 onClick={() => { 
-                  if (input) { 
+                  if (input) {
+                    // Check if suffix is required and not selected
+                    if (s.suffix && !suffix) {
+                      toast.error('Please select a unit from dropdown');
+                      return;
+                    }
                     send(suffix ? `${input} ${suffix}` : input); 
                     setInput(''); 
                     setSuffix(''); 

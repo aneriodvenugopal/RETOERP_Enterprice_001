@@ -161,9 +161,9 @@ async def setup_customer_test():
     print("      → '🏠 Resale Request from Ramesh Kumar'")
     
     print("\n🔗 URLs:")
-    print("   Login: https://agentapex-build.preview.emergentagent.com/login")
-    print("   Properties: https://agentapex-build.preview.emergentagent.com/properties")
-    print("   Customer Dashboard: https://agentapex-build.preview.emergentagent.com/customer-dashboard")
+    print("   Login: https://apex-mobile-ux.preview.emergentagent.com/login")
+    print("   Properties: https://apex-mobile-ux.preview.emergentagent.com/properties")
+    print("   Customer Dashboard: https://apex-mobile-ux.preview.emergentagent.com/customer-dashboard")
     
     print("\n💡 TIP: Keep both browsers open side-by-side to see")
     print("   notifications appear in real-time (refreshes every 30 seconds)")
