@@ -59,6 +59,20 @@ Build a comprehensive Real Estate ERP (RealApex) SaaS platform for the Indian re
       - Payment flow with Razorpay checkout
       - Contact revealed after successful payment
       - Already-paid users see contact directly
+    - **Interest Areas (Saved Locations)**:
+      - Save favorite locations for property alerts
+      - Set radius (2, 5, 10, 20 km) and property types
+      - Min/Max price filters
+      - Toggle notifications per area
+      - Max 10 interest areas per user
+    - **Notifications System**:
+      - Auto-notify when new properties match interest areas
+      - Unread badge on Dashboard menu
+      - Mark as read / Mark all read
+      - Click notification to view property
+    - **Requirements with Location**:
+      - Buyer requirements can now have lat/lng coordinates
+      - Show as blue markers on MapSearch (Wanted tab)
 - [x] **AgentApex Admin Module** (`/admin/agentapex`) - SaaS admin management
   - Overview tab with user/property/lead/requirement stats
   - Users tab with search and table view
@@ -781,7 +795,9 @@ Build a comprehensive Real Estate ERP (RealApex) SaaS platform for the Indian re
 - **Tenant Admin (email)**: rajam@retoerp.com / 12345678
 
 ## Test Reports
-- `/app/test_reports/iteration_27.json` - AgentApex Bug Fixes (Mar 7, 2026) - Dropdown validation, navigation fixes, 100% pass
+- `/app/test_reports/iteration_29.json` - Interest Areas & Notifications (Mar 8, 2026) - 100% pass, 10/10 pytest tests
+- `/app/test_reports/iteration_28.json` - AgentApex Enhancements (Mar 8, 2026) - 100% pass
+- `/app/test_reports/iteration_27.json` - AgentApex Bug Fixes (Mar 7, 2026) - 100% pass
 - `/app/test_reports/iteration_1.json` - Layout features
 - `/app/test_reports/iteration_2.json` - Document Locker, Festival Greetings
 - `/app/test_reports/iteration_3.json` - Site Visits, Booking Queue (30/30 tests passed)
