@@ -1008,52 +1008,161 @@ async def get_area_intelligence(
     property_type: str = Form(None),
     user: dict = Depends(get_current_user)
 ):
-    """Get AI-powered area intelligence for a location"""
-    try:
-        from emergentintegrations.llm.chat import LlmChat, UserMessage
-    except ImportError:
-        raise HTTPException(status_code=503, detail="AI service unavailable")
+    """Get FREE area intelligence using OpenStreetMap and public data"""
+    import httpx
     
-    api_key = os.environ.get('EMERGENT_LLM_KEY')
-    if not api_key:
-        raise HTTPException(status_code=503, detail="AI service not configured")
+    intelligence_parts = []
     
     try:
-        chat = LlmChat(
-            api_key=api_key,
-            session_id=f"area-intel-{user['id']}-{generate_id()}",
-            system_message="""You are a real estate area intelligence expert for India. 
-            Provide helpful, practical insights about property locations.
-            Be concise but informative. Use bullet points where appropriate.
-            Focus on: growth potential, nearby amenities, connectivity, investment outlook.
-            If you don't have specific data, provide general guidance based on the area type."""
-        ).with_model("openai", "gpt-4o")
-        
-        prompt = f"""Analyze this property location in India:
-Location: {location}
-Coordinates: {latitude}, {longitude}
-Property Type: {property_type or 'General'}
-
-Provide a brief area intelligence report with:
-1. **Area Overview** (2-3 sentences)
-2. **Growth Potential** (High/Medium/Low with reason)
-3. **Key Amenities Nearby** (schools, hospitals, markets, transport)
-4. **Investment Outlook** (1-2 sentences)
-5. **Price Trend** (estimated appreciation potential)
-
-Keep response concise and practical for a real estate buyer/seller."""
-        
-        user_message = UserMessage(text=prompt)
-        response = await chat.send_message(user_message)
-        
-        return {
-            "intelligence": response,
-            "location": location,
-            "success": True
-        }
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            # 1. Get nearby amenities from OpenStreetMap Overpass API
+            overpass_url = "https://overpass-api.de/api/interpreter"
+            
+            # Query for nearby amenities within 2km
+            overpass_query = f"""
+            [out:json][timeout:10];
+            (
+              node["amenity"](around:2000,{latitude},{longitude});
+              node["shop"](around:2000,{latitude},{longitude});
+              node["highway"="bus_stop"](around:1000,{latitude},{longitude});
+              node["railway"="station"](around:3000,{latitude},{longitude});
+            );
+            out body 100;
+            """
+            
+            amenities = {"schools": 0, "hospitals": 0, "banks": 0, "restaurants": 0, 
+                        "shops": 0, "bus_stops": 0, "railway": 0, "atm": 0}
+            
+            try:
+                overpass_res = await client.post(overpass_url, data={"data": overpass_query})
+                if overpass_res.status_code == 200:
+                    data = overpass_res.json()
+                    for element in data.get("elements", []):
+                        tags = element.get("tags", {})
+                        amenity = tags.get("amenity", "")
+                        shop = tags.get("shop", "")
+                        highway = tags.get("highway", "")
+                        railway = tags.get("railway", "")
+                        
+                        if amenity in ["school", "college", "university"]:
+                            amenities["schools"] += 1
+                        elif amenity in ["hospital", "clinic", "doctors"]:
+                            amenities["hospitals"] += 1
+                        elif amenity in ["bank"]:
+                            amenities["banks"] += 1
+                        elif amenity == "atm":
+                            amenities["atm"] += 1
+                        elif amenity in ["restaurant", "cafe", "fast_food"]:
+                            amenities["restaurants"] += 1
+                        elif shop:
+                            amenities["shops"] += 1
+                        elif highway == "bus_stop":
+                            amenities["bus_stops"] += 1
+                        elif railway == "station":
+                            amenities["railway"] += 1
+            except Exception as e:
+                logging.warning(f"Overpass API error: {e}")
+            
+            # 2. Get reverse geocode info from Nominatim
+            nominatim_url = f"https://nominatim.openstreetmap.org/reverse?format=json&lat={latitude}&lon={longitude}&zoom=16"
+            area_info = {}
+            try:
+                nom_res = await client.get(nominatim_url, headers={"User-Agent": "AgentApex/1.0"})
+                if nom_res.status_code == 200:
+                    nom_data = nom_res.json()
+                    area_info = nom_data.get("address", {})
+            except Exception as e:
+                logging.warning(f"Nominatim error: {e}")
+            
+            # Build intelligence report
+            area_name = area_info.get("suburb") or area_info.get("neighbourhood") or location.split(",")[0]
+            city = area_info.get("city") or area_info.get("town") or area_info.get("state_district") or ""
+            
+            # Area Overview
+            overview = f"📍 **{area_name}** is located in {city}. "
+            if amenities["schools"] > 3 or amenities["hospitals"] > 2:
+                overview += "This is a well-developed residential area with good social infrastructure. "
+            elif amenities["shops"] > 10:
+                overview += "This area has good commercial activity with various shops and services nearby. "
+            else:
+                overview += "This is a developing area with potential for growth. "
+            intelligence_parts.append(overview)
+            
+            # Key Amenities
+            amenity_text = "🏪 **Nearby Amenities (within 2km):**\n"
+            if amenities["schools"] > 0:
+                amenity_text += f"• Schools/Colleges: {amenities['schools']}\n"
+            if amenities["hospitals"] > 0:
+                amenity_text += f"• Hospitals/Clinics: {amenities['hospitals']}\n"
+            if amenities["banks"] > 0 or amenities["atm"] > 0:
+                amenity_text += f"• Banks/ATMs: {amenities['banks'] + amenities['atm']}\n"
+            if amenities["restaurants"] > 0:
+                amenity_text += f"• Restaurants/Cafes: {amenities['restaurants']}\n"
+            if amenities["shops"] > 0:
+                amenity_text += f"• Shops: {amenities['shops']}\n"
+            if amenities["schools"] == 0 and amenities["hospitals"] == 0 and amenities["shops"] == 0:
+                amenity_text += "• Limited amenities - developing area\n"
+            intelligence_parts.append(amenity_text)
+            
+            # Connectivity
+            connectivity = "🚌 **Connectivity:**\n"
+            if amenities["bus_stops"] > 0:
+                connectivity += f"• Bus Stops nearby: {amenities['bus_stops']}\n"
+            if amenities["railway"] > 0:
+                connectivity += f"• Railway Station within 3km: Yes\n"
+            else:
+                connectivity += "• Railway Station: Check for metro/local train connectivity\n"
+            if amenities["bus_stops"] == 0:
+                connectivity += "• Public transport may be limited\n"
+            intelligence_parts.append(connectivity)
+            
+            # Growth Assessment
+            total_amenities = sum(amenities.values())
+            if total_amenities > 20:
+                growth = "📈 **Growth Potential:** HIGH - Well-developed area with excellent infrastructure"
+            elif total_amenities > 10:
+                growth = "📈 **Growth Potential:** MEDIUM - Good infrastructure, steady appreciation expected"
+            else:
+                growth = "📈 **Growth Potential:** HIGH (Emerging) - Developing area with good appreciation potential for early investors"
+            intelligence_parts.append(growth)
+            
+            # Investment tip based on property type
+            if property_type:
+                tip = f"\n💡 **Tip for {property_type}:** "
+                if property_type.lower() in ["land", "plot"]:
+                    tip += "Check for approved layout, clear title, and upcoming infrastructure projects in the area."
+                elif property_type.lower() in ["apartment", "flat"]:
+                    tip += "Verify builder reputation, RERA registration, and check for water/power supply reliability."
+                else:
+                    tip += "Research recent sale prices in the locality and verify all documents before purchase."
+                intelligence_parts.append(tip)
+            
+            return {
+                "intelligence": "\n\n".join(intelligence_parts),
+                "location": location,
+                "amenities_count": total_amenities,
+                "success": True,
+                "source": "OpenStreetMap (Free)"
+            }
+            
     except Exception as e:
-        logging.error(f"AI Intelligence error: {e}")
-        raise HTTPException(status_code=500, detail=f"AI analysis failed: {str(e)}")
+        logging.error(f"Area Intelligence error: {e}")
+        # Fallback response
+        return {
+            "intelligence": f"""📍 **{location}**
+
+🏪 **Note:** Unable to fetch detailed amenity data at this moment.
+
+💡 **General Tips:**
+• Visit the location physically to assess infrastructure
+• Check for nearby schools, hospitals, and markets
+• Verify road connectivity and public transport
+• Research recent property prices in the area
+• Ensure clear title and approved layout for land/plots""",
+            "location": location,
+            "success": True,
+            "source": "Fallback"
+        }
 
 # ================== STATS ROUTES ==================
 
