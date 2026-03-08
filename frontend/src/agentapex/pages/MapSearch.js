@@ -6,7 +6,7 @@ import { MapContainer, TileLayer, Marker, Popup, Circle, useMap } from 'react-le
 import L from 'leaflet';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Drawer } from 'vaul';
-import { ArrowLeft, SlidersHorizontal, MapPin, Grid3X3, X, Heart, Search, Loader2 } from 'lucide-react';
+import { ArrowLeft, SlidersHorizontal, MapPin, Grid3X3, X, Heart, Search, Loader2, Crosshair } from 'lucide-react';
 import { toast } from 'sonner';
 import 'leaflet/dist/leaflet.css';
 
@@ -127,7 +127,7 @@ const PropertyCard = ({ property, isBuying, onFavorite, isFavorite }) => {
 const MapSearch = () => {
   const navigate = useNavigate();
   const { api } = useAuth();
-  const { location: userLocation } = useGeoLocation();
+  const { location: userLocation, loading: locationLoading, requestLocation, permissionStatus } = useGeoLocation();
   
   const [viewMode, setViewMode] = useState('map');
   const [listingMode, setListingMode] = useState('sell');
@@ -149,7 +149,9 @@ const MapSearch = () => {
   
   const debouncedSearch = useDebounce(searchQuery, 300);
   
-  const mapCenter = searchCenter || [userLocation?.latitude || 17.385, userLocation?.longitude || 78.4867];
+  // Default to Hyderabad if no user location
+  const DEFAULT_CENTER = [17.385, 78.4867];
+  const mapCenter = searchCenter || (userLocation ? [userLocation.latitude, userLocation.longitude] : DEFAULT_CENTER);
 
   // Location search with Nominatim
   useEffect(() => {
@@ -443,6 +445,23 @@ const MapSearch = () => {
                 </Marker>
               ))}
             </MapContainer>
+            
+            {/* My Location Button */}
+            <button
+              onClick={() => {
+                if (userLocation) {
+                  setSearchCenter([userLocation.latitude, userLocation.longitude]);
+                  toast.success('Centered on your location');
+                } else {
+                  requestLocation();
+                  toast.info('Requesting location access...');
+                }
+              }}
+              className="absolute top-4 right-4 z-[1000] w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center border border-gray-200"
+              data-testid="my-location-btn"
+            >
+              <Crosshair className={`w-5 h-5 ${userLocation ? 'text-blue-500' : 'text-gray-400'}`} />
+            </button>
             
             {/* Floating Result Count */}
             <div className="absolute bottom-6 left-4 right-4 z-[1000]">

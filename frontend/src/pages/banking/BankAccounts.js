@@ -30,9 +30,12 @@ const BankAccounts = () => {
   });
 
   useEffect(() => {
-    loadAccounts();
-    loadProjects();
-  }, []);
+    // Only load data when user is available
+    if (user?.tenant_id) {
+      loadAccounts();
+      loadProjects();
+    }
+  }, [user?.tenant_id]);
 
   const loadProjects = async () => {
     try {
@@ -53,6 +56,11 @@ const BankAccounts = () => {
   };
 
   const loadAccounts = async () => {
+    if (!user?.tenant_id) {
+      setLoading(false);
+      return;
+    }
+    
     setLoading(true);
     try {
       const response = await axios.get(

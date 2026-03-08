@@ -69,21 +69,26 @@ export const LocationProvider = ({ children }) => {
     );
   }, []);
 
-  // Initial load - try saved location first, then request
+  // Initial load - try saved location first, then request fresh
   useEffect(() => {
     const saved = localStorage.getItem('userLocation');
     if (saved) {
-      setLocation(JSON.parse(saved));
-      setLoading(false);
+      try {
+        setLocation(JSON.parse(saved));
+      } catch (e) {
+        console.error('Failed to parse saved location:', e);
+        localStorage.removeItem('userLocation');
+      }
     }
     
-    // Request fresh location if permission already granted
-    if (permissionStatus === 'granted') {
+    // Auto-request location on first load (if permission granted or not yet asked)
+    // This triggers the browser permission prompt for new users
+    if (permissionStatus === 'granted' || permissionStatus === 'prompt') {
       requestLocation();
     } else {
       setLoading(false);
     }
-  }, [permissionStatus]);
+  }, [permissionStatus, requestLocation]);
 
   const updateLocation = (lat, lng) => {
     const loc = { latitude: lat, longitude: lng };
