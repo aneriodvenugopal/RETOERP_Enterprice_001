@@ -73,6 +73,23 @@ Build a comprehensive Real Estate ERP (RealApex) SaaS platform for the Indian re
     - **Requirements with Location**:
       - Buyer requirements can now have lat/lng coordinates
       - Show as blue markers on MapSearch (Wanted tab)
+  - [x] **Map Enhancements (Mar 8, 2026)**:
+    - My Location button (Crosshair icon) to center on user's current location
+    - Auto-request location permission on app load
+    - LocationContext auto-requests location when permission is 'prompt' or 'granted'
+    - Default fallback to Hyderabad coordinates if location unavailable
+  - [x] **Share App Feature**:
+    - Web Share API integration for native mobile sharing
+    - Clipboard fallback for unsupported browsers
+    - Share menu item in Dashboard
+- [x] **YouTube Content Generator (Mar 8, 2026)** (`/realapex-demos`)
+  - AI-powered YouTube script generation using Claude
+  - 6 content categories: Property Tips, Area Reviews, Market Updates, Investment Guide, Legal Tips, Success Stories
+  - Tone options: Professional, Friendly, Motivational
+  - Language support: English, Hindi, Telugu, Hinglish
+  - Emotional Intelligence toggle for storytelling hooks
+  - Content history with Copy/View/Delete actions
+  - FREE for users (uses Emergent LLM Key)
 - [x] **AgentApex Admin Module** (`/admin/agentapex`) - SaaS admin management
   - Overview tab with user/property/lead/requirement stats
   - Users tab with search and table view
@@ -795,6 +812,7 @@ Build a comprehensive Real Estate ERP (RealApex) SaaS platform for the Indian re
 - **Tenant Admin (email)**: rajam@retoerp.com / 12345678
 
 ## Test Reports
+- `/app/test_reports/iteration_31.json` - P0/P1/P2 Fixes: YouTube Content, Bank Accounts, Map Location (Mar 8, 2026) - 100% pass
 - `/app/test_reports/iteration_29.json` - Interest Areas & Notifications (Mar 8, 2026) - 100% pass, 10/10 pytest tests
 - `/app/test_reports/iteration_28.json` - AgentApex Enhancements (Mar 8, 2026) - 100% pass
 - `/app/test_reports/iteration_27.json` - AgentApex Bug Fixes (Mar 7, 2026) - 100% pass
