@@ -184,7 +184,7 @@
 
    **మొదటి referrer:**
    ```
-   https://apex-mobile-ux.preview.emergentagent.com/*
+   https://agent-tools-2.preview.emergentagent.com/*
    ```
    - Paste చేసి Enter నొక్కండి
 

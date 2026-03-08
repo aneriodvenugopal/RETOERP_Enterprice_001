@@ -864,3 +864,260 @@ async def auto_generate_images(
         import traceback
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
+
+
+# ================== YOUTUBE CONTENT GENERATOR (AgentApex) ==================
+
+YOUTUBE_CONTENT_CATEGORIES = [
+    {
+        "id": "property_tips",
+        "name": "Property Tips",
+        "icon": "💡",
+        "description": "Buying, selling, and investment tips"
+    },
+    {
+        "id": "area_reviews",
+        "name": "Area Reviews",
+        "icon": "📍",
+        "description": "Location analysis and reviews"
+    },
+    {
+        "id": "market_updates",
+        "name": "Market Updates",
+        "icon": "📈",
+        "description": "Current market trends and prices"
+    },
+    {
+        "id": "investment_guide",
+        "name": "Investment Guide",
+        "icon": "💰",
+        "description": "Investment strategies and returns"
+    },
+    {
+        "id": "legal_tips",
+        "name": "Legal Tips",
+        "icon": "⚖️",
+        "description": "Documentation and legal advice"
+    },
+    {
+        "id": "success_stories",
+        "name": "Success Stories",
+        "icon": "🏆",
+        "description": "Client testimonials and case studies"
+    }
+]
+
+class YouTubeContentRequest(BaseModel):
+    topic: str
+    category: str
+    language: str = "english"
+    tone: str = "professional"  # professional, friendly, motivational
+    target_audience: str = "property_buyers"
+    include_emotional: bool = True
+    custom_context: Optional[str] = ""
+
+class YouTubeContentHistory(BaseModel):
+    id: str
+    topic: str
+    category: str
+    content: str
+    language: str
+    created_at: str
+    published: bool = False
+    seo_slug: Optional[str] = None
+
+@router.get("/youtube-content/categories")
+async def get_youtube_categories():
+    """Get available YouTube content categories"""
+    return {"categories": YOUTUBE_CONTENT_CATEGORIES}
+
+@router.post("/youtube-content/generate")
+async def generate_youtube_content(request: YouTubeContentRequest):
+    """Generate YouTube script content using Claude AI - with emotional intelligence"""
+    try:
+        from emergentintegrations.llm.chat import LlmChat, UserMessage
+    except ImportError:
+        raise HTTPException(status_code=503, detail="AI service unavailable")
+    
+    api_key = os.environ.get('EMERGENT_LLM_KEY')
+    if not api_key:
+        raise HTTPException(status_code=503, detail="AI service not configured")
+    
+    # Build emotional tone guidance
+    tone_guide = {
+        "professional": "Use confident, authoritative language. Build trust through expertise.",
+        "friendly": "Use warm, approachable language. Connect personally with viewers like a helpful friend.",
+        "motivational": "Use inspiring, energetic language. Encourage action and build excitement."
+    }
+    
+    emotional_guidance = ""
+    if request.include_emotional:
+        emotional_guidance = """
+EMOTIONAL INTELLIGENCE GUIDELINES:
+- Start with a relatable problem or aspiration the viewer has
+- Use storytelling elements - paint scenarios they can visualize
+- Include moments of empathy ("I know how frustrating it can be when...")
+- Build confidence gradually ("Here's the good news...")
+- End with hope and clear next steps
+- Use power words: discover, transform, secure, achieve, protect, thrive
+"""
+    
+    category_info = next((c for c in YOUTUBE_CONTENT_CATEGORIES if c["id"] == request.category), None)
+    category_name = category_info["name"] if category_info else request.category
+    
+    prompt = f"""You are an expert real estate content creator for YouTube in India. Create COPY-PASTE READY content for a video.
+
+TOPIC: {request.topic}
+CATEGORY: {category_name}
+LANGUAGE: {request.language}
+TONE: {tone_guide.get(request.tone, tone_guide['professional'])}
+TARGET AUDIENCE: {request.target_audience}
+
+{emotional_guidance}
+
+{f"ADDITIONAL CONTEXT: {request.custom_context}" if request.custom_context else ""}
+
+CREATE THE FOLLOWING (ready to copy-paste):
+
+1. **VIDEO TITLE** (catchy, SEO-friendly, max 60 chars)
+
+2. **VIDEO DESCRIPTION** (for YouTube description box, include relevant keywords)
+
+3. **HASHTAGS** (10-15 relevant hashtags)
+
+4. **FULL SCRIPT/CONTENT**
+Write the complete spoken content as if speaking directly to the viewer.
+- DO NOT include timestamps or duration markers
+- DO NOT include [INTRO], [OUTRO] or any section markers
+- Just write the natural, flowing script that can be read directly
+- Include hook, main points, and strong call-to-action
+- Make it conversational and engaging
+
+5. **SEO KEYWORDS** (comma separated, for internal use)
+
+6. **THUMBNAIL TEXT SUGGESTION** (2-4 words max for overlay text)
+
+IMPORTANT:
+- Content should be 100% ready to copy-paste
+- No instructions or meta-comments
+- No time markers (like "0:00-0:30")
+- Just pure, usable content
+"""
+    
+    try:
+        chat = LlmChat(
+            api_key=api_key,
+            session_id=f"yt-content-{uuid.uuid4()}",
+            system_message="You are a professional YouTube content creator specializing in Indian real estate. Create engaging, emotional, and actionable content."
+        ).with_model("anthropic", "claude-sonnet-4-20250514")
+        
+        user_message = UserMessage(text=prompt)
+        response = await chat.send_message(user_message)
+        
+        # Store in database
+        from motor.motor_asyncio import AsyncIOMotorClient
+        from datetime import datetime, timezone
+        
+        mongo_url = os.environ.get('MONGO_URL')
+        if mongo_url:
+            client = AsyncIOMotorClient(mongo_url)
+            db = client[os.environ.get('DB_NAME', 'realapex')]
+            
+            content_record = {
+                "id": str(uuid.uuid4()),
+                "topic": request.topic,
+                "category": request.category,
+                "language": request.language,
+                "tone": request.tone,
+                "content": response,
+                "published": False,
+                "seo_slug": None,
+                "created_at": datetime.now(timezone.utc).isoformat()
+            }
+            
+            await db.youtube_content_history.insert_one(content_record)
+            client.close()
+        
+        return {
+            "success": True,
+            "content": response,
+            "topic": request.topic,
+            "category": category_name
+        }
+        
+    except Exception as e:
+        print(f"YouTube content generation error: {e}")
+        raise HTTPException(status_code=500, detail=f"Content generation failed: {str(e)}")
+
+@router.get("/youtube-content/history")
+async def get_youtube_content_history():
+    """Get history of generated YouTube content"""
+    from motor.motor_asyncio import AsyncIOMotorClient
+    
+    mongo_url = os.environ.get('MONGO_URL')
+    if not mongo_url:
+        return {"history": []}
+    
+    try:
+        client = AsyncIOMotorClient(mongo_url)
+        db = client[os.environ.get('DB_NAME', 'realapex')]
+        
+        history = await db.youtube_content_history.find(
+            {}, {"_id": 0}
+        ).sort("created_at", -1).limit(50).to_list(50)
+        
+        client.close()
+        return {"history": history}
+    except Exception as e:
+        print(f"Error fetching history: {e}")
+        return {"history": []}
+
+@router.put("/youtube-content/{content_id}/publish")
+async def publish_content_as_seo(content_id: str, seo_slug: str):
+    """Mark content as published and set SEO slug for website"""
+    from motor.motor_asyncio import AsyncIOMotorClient
+    
+    mongo_url = os.environ.get('MONGO_URL')
+    if not mongo_url:
+        raise HTTPException(status_code=503, detail="Database not configured")
+    
+    try:
+        client = AsyncIOMotorClient(mongo_url)
+        db = client[os.environ.get('DB_NAME', 'realapex')]
+        
+        result = await db.youtube_content_history.update_one(
+            {"id": content_id},
+            {"$set": {"published": True, "seo_slug": seo_slug}}
+        )
+        
+        client.close()
+        
+        if result.modified_count == 0:
+            raise HTTPException(status_code=404, detail="Content not found")
+        
+        return {"success": True, "message": "Content marked as published", "seo_slug": seo_slug}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.delete("/youtube-content/{content_id}")
+async def delete_youtube_content(content_id: str):
+    """Delete a YouTube content record"""
+    from motor.motor_asyncio import AsyncIOMotorClient
+    
+    mongo_url = os.environ.get('MONGO_URL')
+    if not mongo_url:
+        raise HTTPException(status_code=503, detail="Database not configured")
+    
+    try:
+        client = AsyncIOMotorClient(mongo_url)
+        db = client[os.environ.get('DB_NAME', 'realapex')]
+        
+        result = await db.youtube_content_history.delete_one({"id": content_id})
+        client.close()
+        
+        if result.deleted_count == 0:
+            raise HTTPException(status_code=404, detail="Content not found")
+        
+        return {"success": True, "message": "Content deleted"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

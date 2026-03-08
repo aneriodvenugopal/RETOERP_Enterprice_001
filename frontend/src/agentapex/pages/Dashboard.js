@@ -5,8 +5,9 @@ import { motion } from 'framer-motion';
 import { 
   Home, Search, PlusSquare, Heart, User,
   Building2, MapPin, Users, TrendingUp, ChevronRight,
-  FileText, Clock, Bell
+  FileText, Clock, Bell, Share2
 } from 'lucide-react';
+import { toast } from 'sonner';
 
 // iOS-style stagger animation
 const containerVariants = {
@@ -161,6 +162,29 @@ const Dashboard = () => {
     fetchStats();
   }, [api]);
 
+  const shareApp = async () => {
+    const shareData = {
+      title: 'AgentApex - Property Management',
+      text: 'Check out AgentApex! The best app for real estate agents to post and find properties. 🏠',
+      url: window.location.origin + '/agentapex'
+    };
+    
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        // Fallback - copy to clipboard
+        await navigator.clipboard.writeText(`${shareData.text}\n${shareData.url}`);
+        toast.success('Link copied to clipboard!');
+      }
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        await navigator.clipboard.writeText(`${shareData.text}\n${shareData.url}`);
+        toast.success('Link copied to clipboard!');
+      }
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
       {/* iOS-style Header with blur */}
@@ -309,6 +333,12 @@ const Dashboard = () => {
           sublabel="Track buyer enquiries"
           onClick={() => navigate('/agentapex/leads')}
           badge={stats.leads > 0 ? stats.leads : null}
+        />
+        <MenuItem
+          icon={Share2}
+          label="Share App"
+          sublabel="Invite other agents"
+          onClick={shareApp}
         />
       </motion.div>
 

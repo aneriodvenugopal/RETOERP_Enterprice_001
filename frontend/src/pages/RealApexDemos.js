@@ -5,7 +5,7 @@ import {
   Building2, Users, CreditCard, BarChart3,
   MessageSquare, Calendar, Shield, Cpu,
   TrendingUp, Globe, Smartphone, Bot, Mic, Volume2,
-  Presentation, Upload, Image
+  Presentation, Upload, Image, Copy, Eye, Trash2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -202,6 +202,19 @@ const RealApexDemos = () => {
   const [generatedVideos, setGeneratedVideos] = useState([]);
   const [isLoadingVideos, setIsLoadingVideos] = useState(false);
   
+  // YouTube Content Generator State
+  const [ytTopic, setYtTopic] = useState('');
+  const [ytCategory, setYtCategory] = useState('');
+  const [ytLanguage, setYtLanguage] = useState('english');
+  const [ytTone, setYtTone] = useState('professional');
+  const [ytAudience, setYtAudience] = useState('property_buyers');
+  const [ytEmotional, setYtEmotional] = useState(true);
+  const [ytContext, setYtContext] = useState('');
+  const [ytContent, setYtContent] = useState('');
+  const [ytGenerating, setYtGenerating] = useState(false);
+  const [ytHistory, setYtHistory] = useState([]);
+  const [ytCategories, setYtCategories] = useState([]);
+  
   // Config
   const [config, setConfig] = useState(null);
   
@@ -215,6 +228,8 @@ const RealApexDemos = () => {
   useEffect(() => {
     loadConfig();
     loadGeneratedVideos();
+    loadYtCategories();
+    loadYtHistory();
     
     return () => {
       if (pollIntervalRef.current) {
@@ -222,6 +237,74 @@ const RealApexDemos = () => {
       }
     };
   }, []);
+
+  const loadYtCategories = async () => {
+    try {
+      const response = await api.get('/realapex-demos/youtube-content/categories');
+      setYtCategories(response.data.categories || []);
+    } catch (error) {
+      console.error('Failed to load YT categories:', error);
+    }
+  };
+
+  const loadYtHistory = async () => {
+    try {
+      const response = await api.get('/realapex-demos/youtube-content/history');
+      setYtHistory(response.data.history || []);
+    } catch (error) {
+      console.error('Failed to load YT history:', error);
+    }
+  };
+
+  const generateYtContent = async () => {
+    if (!ytTopic || !ytCategory) {
+      toast.error('Please enter topic and select category');
+      return;
+    }
+    
+    setYtGenerating(true);
+    setYtContent('');
+    
+    try {
+      const response = await api.post('/realapex-demos/youtube-content/generate', {
+        topic: ytTopic,
+        category: ytCategory,
+        language: ytLanguage,
+        tone: ytTone,
+        target_audience: ytAudience,
+        include_emotional: ytEmotional,
+        custom_context: ytContext
+      });
+      
+      if (response.data.success) {
+        setYtContent(response.data.content);
+        toast.success('Content generated!');
+        loadYtHistory(); // Refresh history
+      } else {
+        toast.error('Failed to generate content');
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Generation failed');
+    } finally {
+      setYtGenerating(false);
+    }
+  };
+
+  const copyToClipboard = (text) => {
+    navigator.clipboard.writeText(text);
+    toast.success('Copied to clipboard!');
+  };
+
+  const deleteYtContent = async (contentId) => {
+    if (!window.confirm('Delete this content?')) return;
+    try {
+      await api.delete(`/realapex-demos/youtube-content/${contentId}`);
+      toast.success('Deleted!');
+      loadYtHistory();
+    } catch (error) {
+      toast.error('Failed to delete');
+    }
+  };
 
   // When concept is selected, populate the title
   useEffect(() => {
@@ -572,8 +655,9 @@ const RealApexDemos = () => {
         </div>
 
         <Tabs defaultValue="generate" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 max-w-lg bg-slate-800/50">
+          <TabsList className="grid w-full grid-cols-4 max-w-2xl bg-slate-800/50">
             <TabsTrigger value="generate" className="data-[state=active]:bg-purple-600">Generate</TabsTrigger>
+            <TabsTrigger value="youtube" className="data-[state=active]:bg-red-600">YouTube Content</TabsTrigger>
             <TabsTrigger value="concepts" className="data-[state=active]:bg-purple-600">All Concepts</TabsTrigger>
             <TabsTrigger value="history" className="data-[state=active]:bg-purple-600">History</TabsTrigger>
           </TabsList>
@@ -1136,6 +1220,249 @@ const RealApexDemos = () => {
                 )}
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* YouTube Content Generator Tab */}
+          <TabsContent value="youtube">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Generator Form */}
+              <Card className="bg-slate-900/80 border-red-500/30">
+                <CardHeader>
+                  <CardTitle className="text-white flex items-center gap-2">
+                    <svg className="w-6 h-6 text-red-500" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                    </svg>
+                    YouTube Content Generator
+                  </CardTitle>
+                  <CardDescription className="text-slate-400">
+                    Generate copy-paste ready content for your YouTube videos
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {/* Topic */}
+                  <div>
+                    <label className="text-sm text-slate-300 mb-2 block">Video Topic *</label>
+                    <input
+                      type="text"
+                      value={ytTopic}
+                      onChange={(e) => setYtTopic(e.target.value)}
+                      placeholder="e.g., 5 Things to Check Before Buying Land in Hyderabad"
+                      className="w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded-lg text-white placeholder-slate-500"
+                    />
+                  </div>
+
+                  {/* Category */}
+                  <div>
+                    <label className="text-sm text-slate-300 mb-2 block">Category *</label>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                      {ytCategories.map(cat => (
+                        <button
+                          key={cat.id}
+                          onClick={() => setYtCategory(cat.id)}
+                          className={`p-3 rounded-lg text-left transition-all ${
+                            ytCategory === cat.id
+                              ? 'bg-red-600 text-white'
+                              : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                          }`}
+                        >
+                          <span className="text-lg">{cat.icon}</span>
+                          <p className="text-sm font-medium mt-1">{cat.name}</p>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Tone & Language */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm text-slate-300 mb-2 block">Tone</label>
+                      <select
+                        value={ytTone}
+                        onChange={(e) => setYtTone(e.target.value)}
+                        className="w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded-lg text-white"
+                      >
+                        <option value="professional">Professional</option>
+                        <option value="friendly">Friendly</option>
+                        <option value="motivational">Motivational</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-sm text-slate-300 mb-2 block">Language</label>
+                      <select
+                        value={ytLanguage}
+                        onChange={(e) => setYtLanguage(e.target.value)}
+                        className="w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded-lg text-white"
+                      >
+                        <option value="english">English</option>
+                        <option value="hindi">Hindi</option>
+                        <option value="telugu">Telugu</option>
+                        <option value="hinglish">Hinglish</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Target Audience */}
+                  <div>
+                    <label className="text-sm text-slate-300 mb-2 block">Target Audience</label>
+                    <select
+                      value={ytAudience}
+                      onChange={(e) => setYtAudience(e.target.value)}
+                      className="w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded-lg text-white"
+                    >
+                      <option value="property_buyers">Property Buyers</option>
+                      <option value="investors">Real Estate Investors</option>
+                      <option value="first_time_buyers">First Time Home Buyers</option>
+                      <option value="nri_buyers">NRI Buyers</option>
+                      <option value="agents">Real Estate Agents</option>
+                    </select>
+                  </div>
+
+                  {/* Emotional Intelligence Toggle */}
+                  <div className="flex items-center justify-between p-3 bg-slate-800 rounded-lg">
+                    <div>
+                      <p className="text-sm font-medium text-white">Emotional Intelligence</p>
+                      <p className="text-xs text-slate-400">Add storytelling & emotional hooks</p>
+                    </div>
+                    <button
+                      onClick={() => setYtEmotional(!ytEmotional)}
+                      className={`w-12 h-6 rounded-full transition-colors ${
+                        ytEmotional ? 'bg-red-500' : 'bg-slate-600'
+                      }`}
+                    >
+                      <div className={`w-5 h-5 bg-white rounded-full transition-transform ${
+                        ytEmotional ? 'translate-x-6' : 'translate-x-1'
+                      }`} />
+                    </button>
+                  </div>
+
+                  {/* Custom Context */}
+                  <div>
+                    <label className="text-sm text-slate-300 mb-2 block">Additional Context (Optional)</label>
+                    <textarea
+                      value={ytContext}
+                      onChange={(e) => setYtContext(e.target.value)}
+                      placeholder="Any specific points to cover, local references, etc."
+                      rows={2}
+                      className="w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded-lg text-white placeholder-slate-500 resize-none"
+                    />
+                  </div>
+
+                  <Button
+                    onClick={generateYtContent}
+                    disabled={ytGenerating || !ytTopic || !ytCategory}
+                    className="w-full bg-red-600 hover:bg-red-700 text-white py-6 text-lg"
+                  >
+                    {ytGenerating ? (
+                      <>
+                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                        Generating Content...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="w-5 h-5 mr-2" />
+                        Generate YouTube Content
+                      </>
+                    )}
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Generated Content / History */}
+              <Card className="bg-slate-900/80 border-slate-700">
+                <CardHeader>
+                  <CardTitle className="text-white">
+                    {ytContent ? 'Generated Content' : 'Content History'}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {ytContent ? (
+                    <div className="space-y-4">
+                      <div className="bg-slate-800 rounded-lg p-4 max-h-[600px] overflow-y-auto">
+                        <pre className="whitespace-pre-wrap text-slate-300 text-sm font-sans">
+                          {ytContent}
+                        </pre>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          onClick={() => copyToClipboard(ytContent)}
+                          className="flex-1 bg-green-600 hover:bg-green-700"
+                        >
+                          <Copy className="w-4 h-4 mr-2" />
+                          Copy All
+                        </Button>
+                        <Button
+                          onClick={() => setYtContent('')}
+                          variant="outline"
+                          className="border-slate-600 text-slate-300"
+                        >
+                          Clear
+                        </Button>
+                      </div>
+                    </div>
+                  ) : ytHistory.length > 0 ? (
+                    <div className="space-y-3 max-h-[600px] overflow-y-auto">
+                      {ytHistory.map((item) => (
+                        <div
+                          key={item.id}
+                          className="p-4 bg-slate-800 rounded-lg hover:bg-slate-700 transition-colors"
+                        >
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <p className="font-medium text-white">{item.topic}</p>
+                              <p className="text-xs text-slate-400 mt-1">
+                                {ytCategories.find(c => c.id === item.category)?.name || item.category} • {item.language}
+                              </p>
+                              <p className="text-xs text-slate-500 mt-1">
+                                {new Date(item.created_at).toLocaleDateString()}
+                              </p>
+                            </div>
+                            <div className="flex gap-1">
+                              <button
+                                onClick={() => {
+                                  setYtContent(item.content);
+                                  setYtTopic(item.topic);
+                                }}
+                                className="p-2 text-blue-400 hover:bg-slate-600 rounded"
+                                title="View"
+                              >
+                                <Eye className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => copyToClipboard(item.content)}
+                                className="p-2 text-green-400 hover:bg-slate-600 rounded"
+                                title="Copy"
+                              >
+                                <Copy className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => deleteYtContent(item.id)}
+                                className="p-2 text-red-400 hover:bg-slate-600 rounded"
+                                title="Delete"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </div>
+                          {item.published && (
+                            <span className="inline-block mt-2 px-2 py-0.5 bg-green-500/20 text-green-400 text-xs rounded">
+                              Published
+                            </span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-12 text-slate-400">
+                      <svg className="w-16 h-16 mx-auto mb-4 opacity-30" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                      </svg>
+                      <p className="text-lg">No content generated yet</p>
+                      <p className="text-sm mt-1">Generate your first YouTube content</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
         </Tabs>
       </div>
