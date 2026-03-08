@@ -43,11 +43,31 @@ Build a comprehensive Real Estate ERP (RealApex) SaaS platform for the Indian re
     - Dropdown mandatory validation in property post chat
     - Navigation URL prefix fixes in MyProperties.js
     - Documents page routing verified working
+  - [x] **Enhancements (Mar 8, 2026)**:
+    - MapSearch: Price markers on map (₹50L, ₹85L format) - clickable with popup
+    - Property Post: Plot on left, Land on right (Land more common)
+    - Property Post: Faster animation delays (200ms/300ms vs 400ms/600ms)
+    - Property Post: Better touch feedback with framer-motion
+    - Follow-up Module: Complete revamp with multiple statuses
+      - Status options: Interested, Not Interested, Reschedule, Follow-up Again
+      - Notes/feedback per follow-up
+      - Reschedule with date/time picker
+      - Follow-up history view
+      - Location/area field for contacts
+    - Contact Reveal Payment: Razorpay integration
+      - Non-owners see "View Contact ₹X" button
+      - Payment flow with Razorpay checkout
+      - Contact revealed after successful payment
+      - Already-paid users see contact directly
 - [x] **AgentApex Admin Module** (`/admin/agentapex`) - SaaS admin management
   - Overview tab with user/property/lead/requirement stats
   - Users tab with search and table view
   - Properties tab with search and filtering
   - Leads tab with status management
+  - [x] **Settings tab (Mar 8, 2026)**: Contact reveal pricing
+    - Dynamic contact view price setting (default ₹10)
+    - Enable/disable toggle
+    - Settings saved to database
 - [x] **AgentApex Backend APIs** (`/api/agentapex/*`)
   - Auth: send-otp, verify-otp, me, profile
   - Properties: CRUD, images, documents
