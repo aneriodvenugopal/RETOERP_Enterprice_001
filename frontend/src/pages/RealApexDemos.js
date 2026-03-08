@@ -306,6 +306,26 @@ const RealApexDemos = () => {
     }
   };
 
+  const publishAsArticle = async (item) => {
+    // Generate SEO-friendly slug from topic
+    const slug = item.topic
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '')
+      .substring(0, 60);
+    
+    const finalSlug = window.prompt('Edit SEO URL slug:', slug);
+    if (!finalSlug) return;
+    
+    try {
+      await api.put(`/realapex-demos/youtube-content/${item.id}/publish?seo_slug=${encodeURIComponent(finalSlug)}`);
+      toast.success(`Published! View at /articles/${finalSlug}`);
+      loadYtHistory();
+    } catch (error) {
+      toast.error('Failed to publish');
+    }
+  };
+
   // When concept is selected, populate the title
   useEffect(() => {
     if (selectedConcept) {
@@ -1434,6 +1454,15 @@ const RealApexDemos = () => {
                               >
                                 <Copy className="w-4 h-4" />
                               </button>
+                              {!item.published && (
+                                <button
+                                  onClick={() => publishAsArticle(item)}
+                                  className="p-2 text-purple-400 hover:bg-slate-600 rounded"
+                                  title="Publish as SEO Article"
+                                >
+                                  <Globe className="w-4 h-4" />
+                                </button>
+                              )}
                               <button
                                 onClick={() => deleteYtContent(item.id)}
                                 className="p-2 text-red-400 hover:bg-slate-600 rounded"
@@ -1443,10 +1472,20 @@ const RealApexDemos = () => {
                               </button>
                             </div>
                           </div>
-                          {item.published && (
-                            <span className="inline-block mt-2 px-2 py-0.5 bg-green-500/20 text-green-400 text-xs rounded">
-                              Published
-                            </span>
+                          {item.published && item.seo_slug && (
+                            <div className="mt-2 flex items-center gap-2">
+                              <span className="px-2 py-0.5 bg-green-500/20 text-green-400 text-xs rounded">
+                                Published
+                              </span>
+                              <a 
+                                href={`/articles/${item.seo_slug}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-xs text-blue-400 hover:underline"
+                              >
+                                /articles/{item.seo_slug}
+                              </a>
+                            </div>
                           )}
                         </div>
                       ))}

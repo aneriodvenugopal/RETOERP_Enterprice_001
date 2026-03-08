@@ -468,41 +468,41 @@ const FollowUps = () => {
               
               {/* Feedback/Notes */}
               <div className="mb-4">
-                <label className="text-sm text-gray-500 mb-1.5 block">Feedback/Notes</label>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">Feedback/Notes</label>
                 <textarea
                   value={newNote.feedback}
                   onChange={(e) => setNewNote({ ...newNote, feedback: e.target.value })}
                   placeholder="What did they say? Any specific requirements?"
                   rows={3}
-                  className="w-full resize-none"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 />
               </div>
               
               {/* Reschedule Date/Time */}
               {(newNote.status === 'reschedule' || newNote.status === 'followup_again') && (
-                <div className="mb-6 p-4 bg-amber-50 rounded-xl">
+                <div className="mb-6 p-4 bg-amber-50 rounded-xl border border-amber-100">
                   <p className="text-sm font-medium text-amber-800 mb-3 flex items-center gap-2">
                     <Calendar className="w-4 h-4" />
                     Schedule Next Follow-up
                   </p>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="text-xs text-gray-500 mb-1 block">Date</label>
+                      <label className="text-xs font-medium text-gray-600 mb-1.5 block">Date</label>
                       <input
                         type="date"
                         value={newNote.next_date}
                         onChange={(e) => setNewNote({ ...newNote, next_date: e.target.value })}
-                        className="w-full text-sm"
+                        className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl bg-white focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                         min={new Date().toISOString().split('T')[0]}
                       />
                     </div>
                     <div>
-                      <label className="text-xs text-gray-500 mb-1 block">Time</label>
+                      <label className="text-xs font-medium text-gray-600 mb-1.5 block">Time</label>
                       <input
                         type="time"
                         value={newNote.next_time}
                         onChange={(e) => setNewNote({ ...newNote, next_time: e.target.value })}
-                        className="w-full text-sm"
+                        className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl bg-white focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                       />
                     </div>
                   </div>
@@ -511,7 +511,7 @@ const FollowUps = () => {
               
               <button
                 onClick={() => handleAddNote(showAddNote?.id)}
-                className="w-full py-3.5 bg-blue-500 text-white font-semibold rounded-xl"
+                className="w-full py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all active:scale-[0.98]"
               >
                 Save Note
               </button>

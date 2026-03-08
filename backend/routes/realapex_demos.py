@@ -391,7 +391,7 @@ async def generate_voiceover(
         if not clean_script:
             raise HTTPException(status_code=400, detail="Script is empty")
         
-        print(f"🎙️ Generating voiceover with Edge TTS (FREE)")
+        print("🎙️ Generating voiceover with Edge TTS (FREE)")
         print(f"📝 Script: {len(clean_script)} chars, Voice: {voice}")
         
         # Generate audio using Edge TTS
@@ -771,7 +771,7 @@ async def auto_generate_images(
         image_prompts = []
         
         # Create relevant prompts based on the concept
-        base_context = f"Professional SaaS software dashboard screenshot, clean modern UI design, dark theme"
+        base_context = "Professional SaaS software dashboard screenshot, clean modern UI design, dark theme"
         
         if "layout" in request.concept_title.lower() or "plot" in request.concept_title.lower():
             image_prompts = [
@@ -1018,13 +1018,14 @@ IMPORTANT:
         from motor.motor_asyncio import AsyncIOMotorClient
         from datetime import datetime, timezone
         
+        content_id = str(uuid.uuid4())
         mongo_url = os.environ.get('MONGO_URL')
         if mongo_url:
             client = AsyncIOMotorClient(mongo_url)
             db = client[os.environ.get('DB_NAME', 'realapex')]
             
             content_record = {
-                "id": str(uuid.uuid4()),
+                "id": content_id,
                 "topic": request.topic,
                 "category": request.category,
                 "language": request.language,
@@ -1041,6 +1042,7 @@ IMPORTANT:
         return {
             "success": True,
             "content": response,
+            "content_id": content_id,
             "topic": request.topic,
             "category": category_name
         }
@@ -1119,5 +1121,62 @@ async def delete_youtube_content(content_id: str):
             raise HTTPException(status_code=404, detail="Content not found")
         
         return {"success": True, "message": "Content deleted"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+
+# ===================== PUBLIC SEO PAGES =====================
+
+@router.get("/seo-articles")
+async def get_published_articles():
+    """Get all published articles for SEO listing page"""
+    from motor.motor_asyncio import AsyncIOMotorClient
+    
+    mongo_url = os.environ.get('MONGO_URL')
+    if not mongo_url:
+        return {"articles": []}
+    
+    try:
+        client = AsyncIOMotorClient(mongo_url)
+        db = client[os.environ.get('DB_NAME', 'realapex')]
+        
+        articles = await db.youtube_content_history.find(
+            {"published": True},
+            {"_id": 0, "id": 1, "topic": 1, "category": 1, "language": 1, "seo_slug": 1, "created_at": 1}
+        ).sort("created_at", -1).to_list(100)
+        
+        client.close()
+        return {"articles": articles}
+    except Exception as e:
+        print(f"Error fetching articles: {e}")
+        return {"articles": []}
+
+@router.get("/seo-article/{slug}")
+async def get_seo_article(slug: str):
+    """Get a single published article by SEO slug for public viewing"""
+    from motor.motor_asyncio import AsyncIOMotorClient
+    
+    mongo_url = os.environ.get('MONGO_URL')
+    if not mongo_url:
+        raise HTTPException(status_code=503, detail="Database not configured")
+    
+    try:
+        client = AsyncIOMotorClient(mongo_url)
+        db = client[os.environ.get('DB_NAME', 'realapex')]
+        
+        article = await db.youtube_content_history.find_one(
+            {"seo_slug": slug, "published": True},
+            {"_id": 0}
+        )
+        
+        client.close()
+        
+        if not article:
+            raise HTTPException(status_code=404, detail="Article not found")
+        
+        return {"success": True, "article": article}
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

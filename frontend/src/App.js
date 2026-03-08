@@ -196,6 +196,10 @@ import VotersBulkUpdate from "./pages/VotersBulkUpdate";
 // Settings Page
 import SettingsPage from "./pages/SettingsPage";
 
+// SEO Articles
+import ArticlesListing from "./pages/ArticlesListing";
+import SEOArticle from "./pages/SEOArticle";
+
 // PWA Components
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
 import AvatarAssistant from "./components/AvatarAssistant";
@@ -261,6 +265,10 @@ function App() {
                 <Route path="/content" element={<ContentLibrary />} />
                 <Route path="/content/:slug" element={<ArticleDetail />} />
                 <Route path="/learn" element={<ContentLibrary />} />
+                
+                {/* SEO Articles - Public */}
+                <Route path="/articles" element={<ArticlesListing />} />
+                <Route path="/articles/:slug" element={<SEOArticle />} />
                 
                 {/* Advisory Routes - Public */}
                 <Route path="/advisory" element={<AdvisoryHub />} />
