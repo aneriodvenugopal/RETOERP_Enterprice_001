@@ -8,7 +8,7 @@ import { Drawer } from 'vaul';
 import { 
   ArrowLeft, Heart, Share2, MapPin, MessageCircle, 
   ChevronLeft, ChevronRight, FolderOpen, FileText, MoreHorizontal, Bookmark,
-  Brain, Edit, Send
+  Brain, Edit, Send, Phone, Lock, Unlock, Loader2
 } from 'lucide-react';
 import { toast } from 'sonner';
 import AreaIntelligence from '../components/AreaIntelligence';
@@ -32,12 +32,19 @@ const PropertyDetail = () => {
   const [showEnquiry, setShowEnquiry] = useState(false);
   const [enquiry, setEnquiry] = useState({ buyer_name: '', buyer_phone: '', message: '' });
   const [sending, setSending] = useState(false);
+  
+  // Contact reveal states
+  const [contactRevealed, setContactRevealed] = useState(false);
+  const [ownerContact, setOwnerContact] = useState(null);
+  const [revealPrice, setRevealPrice] = useState(10);
+  const [processingPayment, setProcessingPayment] = useState(false);
 
   const isOwner = property?.user_id === user?.id;
 
   useEffect(() => {
     fetchProperty();
     checkFavorite();
+    checkContactReveal();
   }, [id]);
 
   const fetchProperty = async () => {
@@ -56,6 +63,91 @@ const PropertyDetail = () => {
       setIsFavorite(response.data.some(p => p.id === id));
     } catch (error) {
       console.error('Error:', error);
+    }
+  };
+
+  const checkContactReveal = async () => {
+    try {
+      const response = await api().get(`/contact-reveal/check/${id}`);
+      if (response.data.revealed) {
+        setContactRevealed(true);
+        setOwnerContact({
+          name: response.data.owner_name,
+          phone: response.data.owner_phone
+        });
+      } else {
+        setRevealPrice(response.data.price || 10);
+      }
+    } catch (error) {
+      console.error('Error checking contact reveal:', error);
+    }
+  };
+
+  const handleRevealContact = async () => {
+    setProcessingPayment(true);
+    try {
+      const orderRes = await api().post(`/contact-reveal/create-order?property_id=${id}`);
+      
+      if (orderRes.data.already_paid) {
+        setContactRevealed(true);
+        setOwnerContact({
+          name: orderRes.data.owner_name,
+          phone: orderRes.data.owner_phone
+        });
+        setProcessingPayment(false);
+        return;
+      }
+      
+      // Load Razorpay
+      const options = {
+        key: orderRes.data.key_id,
+        amount: orderRes.data.amount * 100,
+        currency: orderRes.data.currency,
+        name: 'AgentApex',
+        description: 'Contact Reveal',
+        order_id: orderRes.data.order_id,
+        handler: async function (response) {
+          try {
+            const verifyRes = await api().post('/contact-reveal/verify', null, {
+              params: {
+                order_id: response.razorpay_order_id,
+                payment_id: response.razorpay_payment_id,
+                signature: response.razorpay_signature
+              }
+            });
+            
+            if (verifyRes.data.success) {
+              setContactRevealed(true);
+              setOwnerContact({
+                name: verifyRes.data.owner_name,
+                phone: verifyRes.data.owner_phone
+              });
+              toast.success('Contact revealed!');
+            }
+          } catch (e) {
+            toast.error('Payment verification failed');
+          }
+          setProcessingPayment(false);
+        },
+        modal: {
+          ondismiss: function () {
+            setProcessingPayment(false);
+          }
+        },
+        prefill: {
+          contact: user?.phone
+        },
+        theme: {
+          color: '#3B82F6'
+        }
+      };
+      
+      const razorpay = new window.Razorpay(options);
+      razorpay.open();
+    } catch (error) {
+      console.error('Payment error:', error);
+      toast.error('Failed to initiate payment');
+      setProcessingPayment(false);
     }
   };
 
@@ -386,14 +478,58 @@ _Listed on AgentApex - Property Intelligence_`;
               Edit
             </button>
           </div>
+        ) : contactRevealed && ownerContact ? (
+          <div className="space-y-3">
+            <div className="flex items-center justify-between bg-green-50 p-3 rounded-xl">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
+                  <Unlock className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <p className="font-semibold text-gray-900">{ownerContact.name || 'Property Owner'}</p>
+                  <p className="text-sm text-gray-600">{ownerContact.phone}</p>
+                </div>
+              </div>
+              <a 
+                href={`tel:${ownerContact.phone}`}
+                className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center"
+              >
+                <Phone className="w-6 h-6 text-white" />
+              </a>
+            </div>
+            <button
+              onClick={() => setShowEnquiry(true)}
+              className="w-full py-3 bg-gray-100 text-gray-900 font-semibold rounded-xl flex items-center justify-center gap-2"
+            >
+              <MessageCircle className="w-5 h-5" />
+              Send Enquiry
+            </button>
+          </div>
         ) : (
-          <button
-            onClick={() => setShowEnquiry(true)}
-            className="w-full py-3.5 bg-blue-500 text-white font-semibold rounded-xl flex items-center justify-center gap-2"
-          >
-            <MessageCircle className="w-5 h-5" />
-            Send Enquiry
-          </button>
+          <div className="flex gap-3">
+            <button
+              onClick={() => setShowEnquiry(true)}
+              className="flex-1 py-3.5 bg-gray-100 text-gray-900 font-semibold rounded-xl flex items-center justify-center gap-2"
+            >
+              <MessageCircle className="w-5 h-5" />
+              Enquiry
+            </button>
+            <button
+              onClick={handleRevealContact}
+              disabled={processingPayment}
+              data-testid="reveal-contact-btn"
+              className="flex-1 py-3.5 bg-blue-500 text-white font-semibold rounded-xl flex items-center justify-center gap-2"
+            >
+              {processingPayment ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : (
+                <>
+                  <Lock className="w-5 h-5" />
+                  View Contact ₹{revealPrice}
+                </>
+              )}
+            </button>
+          </div>
         )}
       </div>
 

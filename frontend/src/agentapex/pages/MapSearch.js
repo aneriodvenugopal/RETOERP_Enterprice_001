@@ -20,17 +20,39 @@ const useDebounce = (value, delay) => {
   return debouncedValue;
 };
 
-// Simple markers
-const createSaleMarker = () => L.divIcon({
+// Property markers - larger and more visible
+const createSaleMarker = (price, priceUnit) => L.divIcon({
   className: 'sale-marker',
-  html: `<div style="width:14px;height:14px;background:#FF9500;border:2px solid white;border-radius:50%;box-shadow:0 2px 4px rgba(0,0,0,0.2)"></div>`,
-  iconSize: [14, 14], iconAnchor: [7, 7], popupAnchor: [0, -7]
+  html: `<div style="
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-width:60px;
+    height:28px;
+    padding:0 8px;
+    background:#FF9500;
+    border:2px solid white;
+    border-radius:14px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.3);
+    font-size:11px;
+    font-weight:700;
+    color:white;
+    white-space:nowrap;
+  ">₹${price}${priceUnit === 'Crore' ? 'Cr' : 'L'}</div>`,
+  iconSize: [60, 28], iconAnchor: [30, 14], popupAnchor: [0, -14]
 });
 
 const createBuyMarker = () => L.divIcon({
   className: 'buy-marker',
-  html: `<div style="width:14px;height:14px;background:#0095F6;border:2px solid white;border-radius:50%;box-shadow:0 2px 4px rgba(0,0,0,0.2)"></div>`,
-  iconSize: [14, 14], iconAnchor: [7, 7], popupAnchor: [0, -7]
+  html: `<div style="
+    width:24px;
+    height:24px;
+    background:#0095F6;
+    border:3px solid white;
+    border-radius:50%;
+    box-shadow:0 2px 8px rgba(0,0,0,0.3);
+  "></div>`,
+  iconSize: [24, 24], iconAnchor: [12, 12], popupAnchor: [0, -12]
 });
 
 const TYPES = ['All', 'Land', 'Plot', 'Apartment', 'House', 'Commercial'];
@@ -368,7 +390,7 @@ const MapSearch = () => {
               )}
               
               {listingMode === 'sell' && properties.map(p => (
-                <Marker key={p.id} position={[p.latitude, p.longitude]} icon={createSaleMarker()}>
+                <Marker key={p.id} position={[p.latitude, p.longitude]} icon={createSaleMarker(p.price, p.price_unit)}>
                   <Popup>
                     <div className="min-w-[160px]">
                       <p className="font-bold text-amber-600">₹{p.price} {p.price_unit}</p>

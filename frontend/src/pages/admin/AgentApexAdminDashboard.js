@@ -3,7 +3,7 @@ import { api } from '../../services';
 import { 
   Users, Building2, TrendingUp, Heart, FileText, Clock, 
   MapPin, ChevronDown, Search, Eye, Trash2, MoreVertical,
-  Phone, Calendar, IndianRupee
+  Phone, Calendar, IndianRupee, Settings, Save
 } from 'lucide-react';
 
 const AgentApexAdminDashboard = () => {
@@ -19,10 +19,38 @@ const AgentApexAdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
   const [searchTerm, setSearchTerm] = useState('');
+  
+  // Settings state
+  const [contactRevealPrice, setContactRevealPrice] = useState(10);
+  const [contactRevealEnabled, setContactRevealEnabled] = useState(true);
+  const [savingSettings, setSavingSettings] = useState(false);
 
   useEffect(() => {
     fetchData();
+    fetchSettings();
   }, []);
+
+  const fetchSettings = async () => {
+    try {
+      const res = await api.get('/agentapex/settings/contact-reveal');
+      setContactRevealPrice(res.data.contact_view_price || 10);
+      setContactRevealEnabled(res.data.enabled !== false);
+    } catch (e) {
+      console.error('Error fetching settings:', e);
+    }
+  };
+
+  const saveSettings = async () => {
+    setSavingSettings(true);
+    try {
+      await api.put(`/agentapex/admin/settings/contact-reveal?price=${contactRevealPrice}&enabled=${contactRevealEnabled}`);
+      alert('Settings saved successfully!');
+    } catch (e) {
+      console.error('Error saving settings:', e);
+      alert('Failed to save settings');
+    }
+    setSavingSettings(false);
+  };
 
   const fetchData = async () => {
     try {
@@ -115,7 +143,7 @@ const AgentApexAdminDashboard = () => {
       <div className="bg-white border-b sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <nav className="flex space-x-8">
-            {['overview', 'users', 'properties', 'leads'].map((tab) => (
+            {['overview', 'users', 'properties', 'leads', 'settings'].map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -422,6 +450,76 @@ const AgentApexAdminDashboard = () => {
               {leads.length === 0 && (
                 <div className="text-center py-12 text-gray-400">No leads found</div>
               )}
+            </div>
+          </div>
+        )}
+
+        {/* Settings Tab */}
+        {activeTab === 'settings' && (
+          <div className="max-w-2xl">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+              <div className="p-6 border-b border-gray-100">
+                <div className="flex items-center gap-3">
+                  <div className="p-3 bg-amber-100 rounded-xl">
+                    <Settings className="w-6 h-6 text-amber-600" />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold text-gray-900">Contact Reveal Settings</h2>
+                    <p className="text-sm text-gray-500">Configure pricing for property owner contact reveal</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="p-6 space-y-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Contact View Price (₹)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="1"
+                    value={contactRevealPrice}
+                    onChange={(e) => setContactRevealPrice(Number(e.target.value))}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                    placeholder="Enter price in INR"
+                  />
+                  <p className="mt-2 text-sm text-gray-500">
+                    Users will pay this amount to view property owner's contact details
+                  </p>
+                </div>
+                
+                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+                  <div>
+                    <p className="font-medium text-gray-900">Enable Contact Reveal</p>
+                    <p className="text-sm text-gray-500">Allow users to pay and view contacts</p>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={contactRevealEnabled}
+                      onChange={(e) => setContactRevealEnabled(e.target.checked)}
+                      className="sr-only peer"
+                    />
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-amber-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
+                  </label>
+                </div>
+                
+                <button
+                  onClick={saveSettings}
+                  disabled={savingSettings}
+                  className="w-full py-3 bg-amber-500 hover:bg-amber-600 text-white font-semibold rounded-xl flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
+                >
+                  {savingSettings ? (
+                    <span>Saving...</span>
+                  ) : (
+                    <>
+                      <Save className="w-5 h-5" />
+                      Save Settings
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         )}

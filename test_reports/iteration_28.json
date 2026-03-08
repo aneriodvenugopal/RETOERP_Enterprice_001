@@ -1,0 +1,123 @@
+{
+  "summary": "AgentApex Multiple Enhancements Testing Complete. All 8 features verified successfully: 1) MapSearch shows price markers (₹50L format), 2) Property post shows Plot on left, Land on right, 3) Dropdown validation shows toast error, 4) Follow-up add contact form works, 5) Follow-up add note with 4 status options works, 6) Reschedule shows date/time picker, 7) Non-owner sees 'View Contact ₹10' button, 8) Admin Settings tab exists with contact reveal pricing (code verified, requires SaaS auth).",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/test_reports/iteration_28.json"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Console warning: DialogContent requires a DialogTitle for accessibility (vaul drawer components)"
+  ],
+  "updated_files": [],
+  "success_rate": {
+    "backend": "N/A - Frontend only testing",
+    "frontend": "100% - All 8 features verified"
+  },
+  "test_credentials": {
+    "phone": "9999999999",
+    "owned_property_id": "daa8ce22-4af4-4a19-8046-3891586e11f4",
+    "non_owned_property_id": "4eb6f1de-a4df-441b-b968-412195e9b75e"
+  },
+  "seed_data_creation": "Added 1 test follow-up contact during testing (Test Contact, 8888888888)",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "All 8 requested features are working correctly. OTP login flow works with test phone 9999999999 - send OTP returns demo_otp in response. Admin dashboard at /admin/agentapex requires SaaS login but code verified to have Settings tab with contact reveal pricing.",
+  "features_tested": {
+    "feature_1_map_search_price_markers": {
+      "status": "PASS",
+      "description": "MapSearch shows price markers (e.g., ₹50L) on map for properties",
+      "evidence": [
+        "Found 8 sale markers on map",
+        "Currency symbol ₹ and unit markers (Cr/L) present",
+        "Price marker visible on map showing ₹50L"
+      ]
+    },
+    "feature_2_property_post_plot_land_order": {
+      "status": "PASS",
+      "description": "Property post screen shows Plot on left, Land on right",
+      "evidence": [
+        "Plot button X position: 16 (LEFT)",
+        "Land button X position: 201 (RIGHT)",
+        "Order matches STEPS config: options: ['Plot', 'Land']"
+      ]
+    },
+    "feature_3_dropdown_validation": {
+      "status": "PASS",
+      "description": "Dropdown validation works - shows toast error if unit not selected",
+      "evidence": [
+        "Entered price '100' without selecting unit",
+        "Clicked send button",
+        "Toast appeared: 'Please select a unit from dropdown'"
+      ]
+    },
+    "feature_4_followup_add_contact": {
+      "status": "PASS",
+      "description": "Follow-up module: Add contact form works with name, phone, location, notes",
+      "evidence": [
+        "All form fields found: Name, Phone, Location, Notes, Submit Button",
+        "Successfully added test contact",
+        "Toast confirmation: 'Contact added!'"
+      ]
+    },
+    "feature_5_followup_add_note_status": {
+      "status": "PASS",
+      "description": "Follow-up module: Add Note with status options (Interested, Not Interested, Reschedule, Follow-up Again)",
+      "evidence": [
+        "All 4 status options present in Add Note modal",
+        "Status buttons are clickable and highlightable",
+        "Feedback/Notes textarea available"
+      ]
+    },
+    "feature_6_reschedule_datetime": {
+      "status": "PASS",
+      "description": "Follow-up module: Reschedule shows date/time picker",
+      "evidence": [
+        "Clicking Reschedule status shows 'Schedule Next Follow-up' section",
+        "Date picker input found (type='date')",
+        "Time picker input found (type='time')"
+      ]
+    },
+    "feature_7_contact_reveal_button": {
+      "status": "PASS",
+      "description": "Property detail: non-owner sees 'View Contact ₹X' button",
+      "evidence": [
+        "Non-owned property (4eb6f1de...) shows 'View Contact ₹10' button",
+        "Button has lock icon",
+        "Price dynamically loaded from settings API"
+      ]
+    },
+    "feature_8_admin_settings_tab": {
+      "status": "PASS",
+      "description": "Admin AgentApex dashboard has Settings tab with contact reveal pricing",
+      "evidence": [
+        "Code verified: Settings tab exists in AgentApexAdminDashboard.js",
+        "Settings tab includes: Contact View Price input, Enable toggle, Save button",
+        "Backend API working: /api/agentapex/settings/contact-reveal returns {contact_view_price: 10.0, enabled: true}",
+        "Note: Admin route requires SaaS auth - tested via code review and API verification"
+      ]
+    }
+  },
+  "api_tests": {
+    "contact_reveal_settings": {
+      "endpoint": "GET /api/agentapex/settings/contact-reveal",
+      "response": {"contact_view_price": 10.0, "enabled": true},
+      "status": "PASS"
+    }
+  },
+  "ui_flow_tests": [
+    "OTP Login flow - PASS",
+    "Dashboard loads after login - PASS",
+    "Property Post flow - PASS",
+    "Map Search navigation - PASS",
+    "Follow-ups module - PASS",
+    "Property Detail (non-owner) - PASS"
+  ]
+}

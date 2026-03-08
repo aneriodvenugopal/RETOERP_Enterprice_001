@@ -116,6 +116,7 @@ class FollowUpCreate(BaseModel):
     contact_phone: str
     notes: Optional[str] = None
     next_follow_up: Optional[str] = None
+    location: Optional[str] = None
 
 class FollowUp(BaseModel):
     id: str
@@ -126,6 +127,8 @@ class FollowUp(BaseModel):
     notes: Optional[str] = None
     next_follow_up: Optional[str] = None
     status: str = "pending"
+    location: Optional[str] = None
+    updated_at: Optional[str] = None
     created_at: str
 
 class RequirementCreate(BaseModel):
@@ -592,7 +595,9 @@ async def create_followup(request: Request, data: FollowUpCreate, user: dict = D
         "contact_phone": data.contact_phone,
         "notes": data.notes,
         "next_follow_up": data.next_follow_up,
+        "location": data.location,
         "status": "pending",
+        "updated_at": None,
         "created_at": get_timestamp()
     }
     await db.agentapex_followups.insert_one(followup)
@@ -614,12 +619,12 @@ async def update_followup(
     user: dict = Depends(get_current_user)
 ):
     db = request.app.state.db
-    update_data = {}
-    if notes:
+    update_data = {"updated_at": get_timestamp()}
+    if notes is not None:
         update_data["notes"] = notes
     if status:
         update_data["status"] = status
-    if next_follow_up:
+    if next_follow_up is not None:
         update_data["next_follow_up"] = next_follow_up
     
     result = await db.agentapex_followups.update_one(
@@ -1091,4 +1096,194 @@ async def admin_get_stats(request: Request):
         "total_properties": properties_count,
         "total_leads": leads_count,
         "total_requirements": requirements_count
+    }
+
+
+# ================== CONTACT REVEAL PAYMENT ROUTES ==================
+
+class ContactRevealSettings(BaseModel):
+    contact_view_price: float = 10.0  # Default ₹10
+    enabled: bool = True
+
+@router.get("/settings/contact-reveal")
+async def get_contact_reveal_settings(request: Request):
+    """Get contact reveal pricing settings"""
+    db = request.app.state.db
+    settings = await db.agentapex_settings.find_one({"key": "contact_reveal"}, {"_id": 0})
+    if not settings:
+        return {"contact_view_price": 10.0, "enabled": True}
+    return settings.get("value", {"contact_view_price": 10.0, "enabled": True})
+
+@router.put("/admin/settings/contact-reveal")
+async def update_contact_reveal_settings(
+    request: Request,
+    price: float,
+    enabled: bool = True
+):
+    """Admin: Update contact reveal pricing"""
+    db = request.app.state.db
+    await db.agentapex_settings.update_one(
+        {"key": "contact_reveal"},
+        {"$set": {"key": "contact_reveal", "value": {"contact_view_price": price, "enabled": enabled}}},
+        upsert=True
+    )
+    return {"message": "Settings updated", "contact_view_price": price, "enabled": enabled}
+
+@router.post("/contact-reveal/create-order")
+async def create_contact_reveal_order(
+    request: Request,
+    property_id: str,
+    user: dict = Depends(get_current_user)
+):
+    """Create Razorpay order for contact reveal"""
+    import razorpay
+    
+    db = request.app.state.db
+    
+    # Check if already revealed
+    existing = await db.agentapex_contact_reveals.find_one({
+        "user_id": user["id"],
+        "property_id": property_id,
+        "status": "paid"
+    })
+    if existing:
+        # Already paid, return owner details
+        prop = await db.agentapex_properties.find_one({"id": property_id}, {"_id": 0})
+        if prop:
+            owner = await db.agentapex_users.find_one({"id": prop["user_id"]}, {"_id": 0})
+            return {
+                "already_paid": True,
+                "owner_name": owner.get("name", "Property Owner"),
+                "owner_phone": owner.get("phone")
+            }
+    
+    # Get pricing
+    settings = await db.agentapex_settings.find_one({"key": "contact_reveal"}, {"_id": 0})
+    price = settings.get("value", {}).get("contact_view_price", 10.0) if settings else 10.0
+    
+    # Create Razorpay order
+    try:
+        client = razorpay.Client(
+            auth=(
+                os.environ.get("RAZORPAY_KEY_ID", ""),
+                os.environ.get("RAZORPAY_KEY_SECRET", "")
+            )
+        )
+        
+        order = client.order.create({
+            "amount": int(price * 100),  # Amount in paise
+            "currency": "INR",
+            "notes": {
+                "property_id": property_id,
+                "user_id": user["id"],
+                "type": "contact_reveal"
+            }
+        })
+        
+        # Store pending order
+        await db.agentapex_contact_reveals.insert_one({
+            "id": generate_id(),
+            "user_id": user["id"],
+            "property_id": property_id,
+            "order_id": order["id"],
+            "amount": price,
+            "status": "pending",
+            "created_at": get_timestamp()
+        })
+        
+        return {
+            "order_id": order["id"],
+            "amount": price,
+            "currency": "INR",
+            "key_id": os.environ.get("RAZORPAY_KEY_ID", "")
+        }
+    except Exception as e:
+        print(f"Razorpay error: {e}")
+        raise HTTPException(status_code=500, detail="Payment service error")
+
+@router.post("/contact-reveal/verify")
+async def verify_contact_reveal_payment(
+    request: Request,
+    order_id: str,
+    payment_id: str,
+    signature: str,
+    user: dict = Depends(get_current_user)
+):
+    """Verify Razorpay payment and reveal contact"""
+    import razorpay
+    import hmac
+    import hashlib
+    
+    db = request.app.state.db
+    
+    # Verify signature
+    try:
+        client = razorpay.Client(
+            auth=(
+                os.environ.get("RAZORPAY_KEY_ID", ""),
+                os.environ.get("RAZORPAY_KEY_SECRET", "")
+            )
+        )
+        
+        client.utility.verify_payment_signature({
+            "razorpay_order_id": order_id,
+            "razorpay_payment_id": payment_id,
+            "razorpay_signature": signature
+        })
+        
+        # Update reveal status
+        reveal = await db.agentapex_contact_reveals.find_one_and_update(
+            {"order_id": order_id, "user_id": user["id"]},
+            {"$set": {"status": "paid", "payment_id": payment_id, "paid_at": get_timestamp()}},
+            return_document=True
+        )
+        
+        if reveal:
+            # Get owner details
+            prop = await db.agentapex_properties.find_one({"id": reveal["property_id"]}, {"_id": 0})
+            if prop:
+                owner = await db.agentapex_users.find_one({"id": prop["user_id"]}, {"_id": 0})
+                return {
+                    "success": True,
+                    "owner_name": owner.get("name", "Property Owner"),
+                    "owner_phone": owner.get("phone")
+                }
+        
+        raise HTTPException(status_code=400, detail="Payment verification failed")
+    except Exception as e:
+        print(f"Payment verification error: {e}")
+        raise HTTPException(status_code=400, detail="Payment verification failed")
+
+@router.get("/contact-reveal/check/{property_id}")
+async def check_contact_reveal(
+    request: Request,
+    property_id: str,
+    user: dict = Depends(get_current_user)
+):
+    """Check if user has already revealed contact for a property"""
+    db = request.app.state.db
+    
+    reveal = await db.agentapex_contact_reveals.find_one({
+        "user_id": user["id"],
+        "property_id": property_id,
+        "status": "paid"
+    })
+    
+    if reveal:
+        prop = await db.agentapex_properties.find_one({"id": property_id}, {"_id": 0})
+        if prop:
+            owner = await db.agentapex_users.find_one({"id": prop["user_id"]}, {"_id": 0})
+            return {
+                "revealed": True,
+                "owner_name": owner.get("name", "Property Owner"),
+                "owner_phone": owner.get("phone")
+            }
+    
+    # Get pricing
+    settings = await db.agentapex_settings.find_one({"key": "contact_reveal"}, {"_id": 0})
+    price = settings.get("value", {}).get("contact_view_price", 10.0) if settings else 10.0
+    
+    return {
+        "revealed": False,
+        "price": price
     }

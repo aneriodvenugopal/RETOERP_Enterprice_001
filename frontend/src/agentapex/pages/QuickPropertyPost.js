@@ -27,7 +27,7 @@ const useDebounce = (value, delay) => {
 };
 
 const STEPS = [
-  { step: 0, question: "What type of property do you want to post?", field: "property_type", options: ["Land", "Plot"] },
+  { step: 0, question: "What type of property do you want to post?", field: "property_type", options: ["Plot", "Land"] },
   { step: 1, question: "What's the total price?", field: "price", type: "number", suffix: ["Lakhs", "Crore"] },
   { step: 2, question: "What's the property size?", field: "area", type: "number", suffix_land: ["Acres", "Guntas", "Hectare"], suffix_plot: ["Sq.Ft", "Sq.Yards"] },
   { step: 3, question: "Is the price negotiable?", field: "negotiable", options: ["Yes", "No"] },
@@ -504,8 +504,8 @@ const QuickPropertyPost = () => {
           setMessages(prev => [...prev, { text: STEPS[next].question, isUser: false }]); 
           setShowMap(true); 
           setStep(next); 
-        }, 600);
-      }, 400);
+        }, 300);
+      }, 200);
     } else {
       setTimeout(() => {
         setTyping(true);
@@ -513,8 +513,8 @@ const QuickPropertyPost = () => {
           setTyping(false); 
           setMessages(prev => [...prev, { text: STEPS[next].question, isUser: false }]); 
           setStep(next); 
-        }, 600);
-      }, 400);
+        }, 300);
+      }, 200);
     }
   };
 
@@ -683,16 +683,17 @@ const QuickPropertyPost = () => {
       {!done && !showMap && (
         <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 p-4 safe-bottom" style={{ maxWidth: '100vw' }}>
           {s.options ? (
-            <div className="flex gap-2 max-w-full">
+            <div className="flex gap-3 max-w-full">
               {s.options.map(o => (
-                <button 
+                <motion.button 
                   key={o} 
+                  whileTap={{ scale: 0.95 }}
                   onClick={() => send(o)} 
                   data-testid={`option-${o.toLowerCase()}`} 
-                  className="flex-1 py-3.5 bg-gray-100 hover:bg-gray-200 active:bg-gray-200 text-gray-900 rounded-xl font-semibold transition-colors text-sm"
+                  className="flex-1 py-4 bg-gray-100 active:bg-blue-100 text-gray-900 rounded-xl font-semibold text-base touch-manipulation"
                 >
                   {o}
-                </button>
+                </motion.button>
               ))}
             </div>
           ) : (
