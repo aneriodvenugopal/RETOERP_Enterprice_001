@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { 
   Home, Search, PlusSquare, Heart, User,
   Building2, MapPin, Users, TrendingUp, ChevronRight,
-  FileText, Clock
+  FileText, Clock, Bell
 } from 'lucide-react';
 
 // iOS-style stagger animation
@@ -141,13 +141,18 @@ const Dashboard = () => {
   const { user, api } = useAuth();
   const navigate = useNavigate();
   const [stats, setStats] = useState({ properties: 0, leads: 0, followups: 0, favorites: 0 });
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const response = await api().get('/stats');
-        setStats(response.data);
+        const [statsRes, notifRes] = await Promise.all([
+          api().get('/stats'),
+          api().get('/notifications/unread-count').catch(() => ({ data: { unread_count: 0 } }))
+        ]);
+        setStats(statsRes.data);
+        setUnreadNotifications(notifRes.data.unread_count || 0);
       } catch (error) {
         console.error('Error:', error);
       }
@@ -278,6 +283,19 @@ const Dashboard = () => {
           sublabel="Manage your contacts"
           onClick={() => navigate('/agentapex/followups')}
           badge={stats.followups > 0 ? stats.followups : null}
+        />
+        <MenuItem
+          icon={MapPin}
+          label="Interest Areas"
+          sublabel="Get alerts for new properties"
+          onClick={() => navigate('/agentapex/interest-areas')}
+        />
+        <MenuItem
+          icon={Bell}
+          label="Notifications"
+          sublabel="Property alerts & updates"
+          onClick={() => navigate('/agentapex/notifications')}
+          badge={unreadNotifications > 0 ? unreadNotifications : null}
         />
         <MenuItem
           icon={FileText}

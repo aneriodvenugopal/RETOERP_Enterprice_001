@@ -407,17 +407,18 @@ const MapSearch = () => {
                 </Marker>
               ))}
 
-              {listingMode === 'buy' && requirements.map((r, i) => (
+              {listingMode === 'buy' && requirements.filter(r => r.latitude && r.longitude).map((r) => (
                 <Marker 
                   key={r.id} 
-                  position={[mapCenter[0] + (Math.random() - 0.5) * 0.08, mapCenter[1] + (Math.random() - 0.5) * 0.08]} 
+                  position={[r.latitude, r.longitude]} 
                   icon={createBuyMarker()}
                 >
                   <Popup>
                     <div className="min-w-[160px]">
                       <p className="font-bold text-blue-600">₹{r.budget_min}-{r.budget_max} {r.budget_unit}</p>
-                      <p className="text-gray-600 text-sm">{r.property_type}</p>
+                      <p className="text-gray-600 text-sm">Looking for: {r.property_type}</p>
                       <p className="text-gray-400 text-xs">{r.location_preference}</p>
+                      <p className="text-xs text-gray-400 mt-1">Area: {r.area_min}-{r.area_max} {r.area_unit}</p>
                     </div>
                   </Popup>
                 </Marker>

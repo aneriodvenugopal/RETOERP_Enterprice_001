@@ -141,6 +141,8 @@ class RequirementCreate(BaseModel):
     area_unit: Optional[str] = None
     location_preference: str
     description: Optional[str] = None
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
 
 class Requirement(BaseModel):
     id: str
@@ -154,6 +156,8 @@ class Requirement(BaseModel):
     area_unit: Optional[str] = None
     location_preference: str
     description: Optional[str] = None
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
     status: str = "active"
     created_at: str
 
@@ -331,6 +335,13 @@ async def create_property(request: Request, data: PropertyCreate, user: dict = D
         "created_at": get_timestamp()
     }
     await db.agentapex_properties.insert_one(property_doc)
+    
+    # Notify users with matching interest areas
+    try:
+        await notify_interested_users(db, property_doc)
+    except Exception as e:
+        print(f"Error notifying users: {e}")
+    
     return property_doc
 
 @router.get("/properties", response_model=List[Property])
@@ -683,6 +694,8 @@ async def create_requirement(request: Request, data: RequirementCreate, user: di
         "area_unit": data.area_unit,
         "location_preference": data.location_preference,
         "description": data.description,
+        "latitude": data.latitude,
+        "longitude": data.longitude,
         "status": "active",
         "created_at": get_timestamp()
     }
@@ -1287,3 +1300,242 @@ async def check_contact_reveal(
         "revealed": False,
         "price": price
     }
+
+
+# ================== INTEREST AREAS (SAVED LOCATIONS) ROUTES ==================
+
+class InterestAreaCreate(BaseModel):
+    name: str
+    latitude: float
+    longitude: float
+    radius_km: float = 5.0
+    property_types: List[str] = ["Land", "Plot"]
+    min_price: Optional[float] = None
+    max_price: Optional[float] = None
+    notifications_enabled: bool = True
+
+class InterestArea(BaseModel):
+    id: str
+    user_id: str
+    name: str
+    latitude: float
+    longitude: float
+    radius_km: float
+    property_types: List[str]
+    min_price: Optional[float]
+    max_price: Optional[float]
+    notifications_enabled: bool
+    created_at: str
+
+@router.post("/interest-areas", response_model=InterestArea)
+async def create_interest_area(
+    request: Request,
+    data: InterestAreaCreate,
+    user: dict = Depends(get_current_user)
+):
+    """Create a new interest area for property alerts"""
+    db = request.app.state.db
+    
+    # Check limit (max 10 interest areas per user)
+    count = await db.agentapex_interest_areas.count_documents({"user_id": user["id"]})
+    if count >= 10:
+        raise HTTPException(status_code=400, detail="Maximum 10 interest areas allowed")
+    
+    area = {
+        "id": generate_id(),
+        "user_id": user["id"],
+        "name": data.name,
+        "latitude": data.latitude,
+        "longitude": data.longitude,
+        "radius_km": data.radius_km,
+        "property_types": data.property_types,
+        "min_price": data.min_price,
+        "max_price": data.max_price,
+        "notifications_enabled": data.notifications_enabled,
+        "created_at": get_timestamp()
+    }
+    await db.agentapex_interest_areas.insert_one(area)
+    return area
+
+@router.get("/interest-areas", response_model=List[InterestArea])
+async def get_interest_areas(
+    request: Request,
+    user: dict = Depends(get_current_user)
+):
+    """Get all interest areas for current user"""
+    db = request.app.state.db
+    areas = await db.agentapex_interest_areas.find(
+        {"user_id": user["id"]},
+        {"_id": 0}
+    ).sort("created_at", -1).to_list(20)
+    return areas
+
+@router.put("/interest-areas/{area_id}")
+async def update_interest_area(
+    request: Request,
+    area_id: str,
+    notifications_enabled: Optional[bool] = None,
+    radius_km: Optional[float] = None,
+    min_price: Optional[float] = None,
+    max_price: Optional[float] = None,
+    user: dict = Depends(get_current_user)
+):
+    """Update an interest area"""
+    db = request.app.state.db
+    update_data = {}
+    if notifications_enabled is not None:
+        update_data["notifications_enabled"] = notifications_enabled
+    if radius_km is not None:
+        update_data["radius_km"] = radius_km
+    if min_price is not None:
+        update_data["min_price"] = min_price
+    if max_price is not None:
+        update_data["max_price"] = max_price
+    
+    if not update_data:
+        raise HTTPException(status_code=400, detail="No update data provided")
+    
+    result = await db.agentapex_interest_areas.update_one(
+        {"id": area_id, "user_id": user["id"]},
+        {"$set": update_data}
+    )
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="Interest area not found")
+    return {"message": "Interest area updated"}
+
+@router.delete("/interest-areas/{area_id}")
+async def delete_interest_area(
+    request: Request,
+    area_id: str,
+    user: dict = Depends(get_current_user)
+):
+    """Delete an interest area"""
+    db = request.app.state.db
+    result = await db.agentapex_interest_areas.delete_one(
+        {"id": area_id, "user_id": user["id"]}
+    )
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Interest area not found")
+    return {"message": "Interest area deleted"}
+
+# ================== NOTIFICATIONS ROUTES ==================
+
+class Notification(BaseModel):
+    id: str
+    user_id: str
+    type: str  # new_property, price_drop, interest_match
+    title: str
+    message: str
+    property_id: Optional[str] = None
+    read: bool = False
+    created_at: str
+
+@router.get("/notifications", response_model=List[Notification])
+async def get_notifications(
+    request: Request,
+    limit: int = 20,
+    user: dict = Depends(get_current_user)
+):
+    """Get user notifications"""
+    db = request.app.state.db
+    notifications = await db.agentapex_notifications.find(
+        {"user_id": user["id"]},
+        {"_id": 0}
+    ).sort("created_at", -1).limit(limit).to_list(limit)
+    return notifications
+
+@router.get("/notifications/unread-count")
+async def get_unread_count(
+    request: Request,
+    user: dict = Depends(get_current_user)
+):
+    """Get unread notification count"""
+    db = request.app.state.db
+    count = await db.agentapex_notifications.count_documents({
+        "user_id": user["id"],
+        "read": False
+    })
+    return {"unread_count": count}
+
+@router.put("/notifications/{notification_id}/read")
+async def mark_notification_read(
+    request: Request,
+    notification_id: str,
+    user: dict = Depends(get_current_user)
+):
+    """Mark notification as read"""
+    db = request.app.state.db
+    await db.agentapex_notifications.update_one(
+        {"id": notification_id, "user_id": user["id"]},
+        {"$set": {"read": True}}
+    )
+    return {"message": "Notification marked as read"}
+
+@router.put("/notifications/mark-all-read")
+async def mark_all_notifications_read(
+    request: Request,
+    user: dict = Depends(get_current_user)
+):
+    """Mark all notifications as read"""
+    db = request.app.state.db
+    await db.agentapex_notifications.update_many(
+        {"user_id": user["id"], "read": False},
+        {"$set": {"read": True}}
+    )
+    return {"message": "All notifications marked as read"}
+
+# Helper function to create notifications for users when new property is added
+async def notify_interested_users(db, property_data: dict):
+    """Send notifications to users who have matching interest areas"""
+    import math
+    
+    prop_lat = property_data.get("latitude")
+    prop_lng = property_data.get("longitude")
+    prop_type = property_data.get("property_type")
+    prop_price = property_data.get("price", 0)
+    
+    if not prop_lat or not prop_lng:
+        return
+    
+    # Find all interest areas (excluding property owner)
+    interest_areas = await db.agentapex_interest_areas.find({
+        "user_id": {"$ne": property_data.get("user_id")},
+        "notifications_enabled": True
+    }, {"_id": 0}).to_list(1000)
+    
+    for area in interest_areas:
+        # Check if property is within radius
+        lat1, lon1 = math.radians(prop_lat), math.radians(prop_lng)
+        lat2, lon2 = math.radians(area["latitude"]), math.radians(area["longitude"])
+        
+        dlat = lat2 - lat1
+        dlon = lon2 - lon1
+        a = math.sin(dlat/2)**2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon/2)**2
+        c = 2 * math.asin(math.sqrt(a))
+        distance_km = 6371 * c
+        
+        if distance_km > area["radius_km"]:
+            continue
+        
+        # Check property type
+        if prop_type and area.get("property_types") and prop_type not in area["property_types"]:
+            continue
+        
+        # Check price range
+        if area.get("min_price") and prop_price < area["min_price"]:
+            continue
+        if area.get("max_price") and prop_price > area["max_price"]:
+            continue
+        
+        # Create notification
+        notification = {
+            "id": generate_id(),
+            "user_id": area["user_id"],
+            "type": "new_property",
+            "title": f"New {prop_type} in {area['name']}",
+            "message": f"₹{prop_price} {property_data.get('price_unit', 'Lakhs')} - {property_data.get('area', '')} {property_data.get('area_unit', '')}",
+            "property_id": property_data.get("id"),
+            "read": False,
+            "created_at": get_timestamp()
+        }
+        await db.agentapex_notifications.insert_one(notification)

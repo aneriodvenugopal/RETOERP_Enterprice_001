@@ -20,6 +20,8 @@ const Leads = lazy(() => import('./pages/Leads'));
 const Profile = lazy(() => import('./pages/Profile'));
 const PropertyDetail = lazy(() => import('./pages/PropertyDetail'));
 const DocumentManager = lazy(() => import('./pages/DocumentManager'));
+const InterestAreas = lazy(() => import('./pages/InterestAreas'));
+const Notifications = lazy(() => import('./pages/Notifications'));
 
 import './index.css';
 
@@ -250,6 +252,8 @@ const AnimatedRoutes = () => {
           <Route path="profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
           <Route path="property/:id" element={<ProtectedRoute><PropertyDetail /></ProtectedRoute>} />
           <Route path="property/:propertyId/documents" element={<ProtectedRoute><DocumentManager /></ProtectedRoute>} />
+          <Route path="interest-areas" element={<ProtectedRoute><InterestAreas /></ProtectedRoute>} />
+          <Route path="notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
           
           <Route path="*" element={<Navigate to="/agentapex" replace />} />
         </Routes>
