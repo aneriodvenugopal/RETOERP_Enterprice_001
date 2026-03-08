@@ -1098,6 +1098,8 @@ async def publish_content_as_seo(content_id: str, seo_slug: str):
             raise HTTPException(status_code=404, detail="Content not found")
         
         return {"success": True, "message": "Content marked as published", "seo_slug": seo_slug}
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -1121,6 +1123,8 @@ async def delete_youtube_content(content_id: str):
             raise HTTPException(status_code=404, detail="Content not found")
         
         return {"success": True, "message": "Content deleted"}
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

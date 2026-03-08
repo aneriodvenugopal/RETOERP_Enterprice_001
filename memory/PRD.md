@@ -89,7 +89,18 @@ Build a comprehensive Real Estate ERP (RealApex) SaaS platform for the Indian re
   - Language support: English, Hindi, Telugu, Hinglish
   - Emotional Intelligence toggle for storytelling hooks
   - Content history with Copy/View/Delete actions
+  - **Publish as SEO Article** feature with custom slug
   - FREE for users (uses Emergent LLM Key)
+- [x] **SEO Articles Pages (Mar 8, 2026)** (`/articles`)
+  - Public articles listing page with category filters
+  - Single article view with metadata, content, and share buttons
+  - Markdown-like rendering for headings, lists, paragraphs
+  - SEO meta tags (og:title, og:description, twitter:card)
+  - CTA sections promoting AgentApex
+- [x] **Follow-ups UI Polish (Mar 8, 2026)**
+  - Improved Add Note sheet with proper input styling
+  - Better date/time picker styling with rounded corners
+  - Gradient button with hover effects
 - [x] **AgentApex Admin Module** (`/admin/agentapex`) - SaaS admin management
   - Overview tab with user/property/lead/requirement stats
   - Users tab with search and table view
@@ -812,6 +823,7 @@ Build a comprehensive Real Estate ERP (RealApex) SaaS platform for the Indian re
 - **Tenant Admin (email)**: rajam@retoerp.com / 12345678
 
 ## Test Reports
+- `/app/test_reports/iteration_32.json` - SEO Articles & UI Polish (Mar 8, 2026) - 100% frontend, 83% backend (1 minor fix applied)
 - `/app/test_reports/iteration_31.json` - P0/P1/P2 Fixes: YouTube Content, Bank Accounts, Map Location (Mar 8, 2026) - 100% pass
 - `/app/test_reports/iteration_29.json` - Interest Areas & Notifications (Mar 8, 2026) - 100% pass, 10/10 pytest tests
 - `/app/test_reports/iteration_28.json` - AgentApex Enhancements (Mar 8, 2026) - 100% pass
