@@ -6,7 +6,7 @@ import { Drawer } from 'vaul';
 import { 
   ArrowLeft, Plus, Phone, MessageSquare, Calendar, User, 
   Clock, X, Check, ChevronRight, ThumbsUp, ThumbsDown, 
-  RefreshCw, Bell, StickyNote, MapPin
+  RefreshCw, Bell, StickyNote, MapPin, Contact, UserPlus
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -323,62 +323,102 @@ const FollowUps = () => {
       <Drawer.Root open={showAdd} onOpenChange={setShowAdd}>
         <Drawer.Portal>
           <Drawer.Overlay className="fixed inset-0 bg-black/50 z-[1001]" />
-          <Drawer.Content className="fixed bottom-0 left-0 right-0 bg-white rounded-t-2xl z-[1002] outline-none max-h-[90vh] overflow-y-auto">
-            <div className="p-4">
-              <div className="w-10 h-1 bg-gray-300 rounded-full mx-auto mb-6" />
+          <Drawer.Content className="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl z-[1002] outline-none max-h-[90vh] overflow-y-auto">
+            <div className="p-4 pb-8">
+              <div className="w-10 h-1 bg-gray-300 rounded-full mx-auto mb-4" />
               
-              <h2 className="text-xl font-bold text-gray-900 mb-6">New Contact</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-2">Add Contact</h2>
+              <p className="text-sm text-gray-500 mb-6">Add from phone or enter manually</p>
+              
+              {/* Import from Phone Contacts Button */}
+              {'contacts' in navigator && (
+                <button
+                  type="button"
+                  onClick={async () => {
+                    try {
+                      const props = ['name', 'tel'];
+                      const opts = { multiple: false };
+                      const contacts = await navigator.contacts.select(props, opts);
+                      if (contacts && contacts.length > 0) {
+                        const contact = contacts[0];
+                        setNewContact({
+                          ...newContact,
+                          contact_name: contact.name?.[0] || '',
+                          contact_phone: contact.tel?.[0]?.replace(/\D/g, '') || ''
+                        });
+                        toast.success('Contact imported!');
+                      }
+                    } catch (e) {
+                      console.error('Contact picker error:', e);
+                      toast.error('Could not access contacts');
+                    }
+                  }}
+                  className="w-full py-4 mb-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold rounded-2xl flex items-center justify-center gap-3 shadow-lg"
+                >
+                  <UserPlus className="w-5 h-5" />
+                  Import from Phone Contacts
+                </button>
+              )}
+              
+              <div className="relative mb-4">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-200"></div>
+                </div>
+                <div className="relative flex justify-center">
+                  <span className="px-4 bg-white text-sm text-gray-400">or enter manually</span>
+                </div>
+              </div>
               
               <form onSubmit={handleAddContact} className="space-y-4">
                 <div>
-                  <label className="text-sm text-gray-500 mb-1.5 block">Contact Name *</label>
+                  <label className="text-sm font-medium text-gray-700 mb-2 block">Contact Name *</label>
                   <input
                     type="text"
                     value={newContact.contact_name}
                     onChange={(e) => setNewContact({ ...newContact, contact_name: e.target.value })}
                     placeholder="Enter name"
-                    className="w-full"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl"
                     required
                     data-testid="input-name"
                   />
                 </div>
                 <div>
-                  <label className="text-sm text-gray-500 mb-1.5 block">Phone Number *</label>
+                  <label className="text-sm font-medium text-gray-700 mb-2 block">Phone Number *</label>
                   <input
                     type="tel"
                     value={newContact.contact_phone}
                     onChange={(e) => setNewContact({ ...newContact, contact_phone: e.target.value })}
                     placeholder="Enter phone"
-                    className="w-full"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl"
                     required
                     data-testid="input-phone"
                   />
                 </div>
                 <div>
-                  <label className="text-sm text-gray-500 mb-1.5 block">Location/Area</label>
+                  <label className="text-sm font-medium text-gray-700 mb-2 block">Location/Area</label>
                   <input
                     type="text"
                     value={newContact.location}
                     onChange={(e) => setNewContact({ ...newContact, location: e.target.value })}
                     placeholder="e.g., Banjara Hills, Hyderabad"
-                    className="w-full"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl"
                     data-testid="input-location"
                   />
                 </div>
                 <div>
-                  <label className="text-sm text-gray-500 mb-1.5 block">Initial Notes</label>
+                  <label className="text-sm font-medium text-gray-700 mb-2 block">Initial Notes</label>
                   <textarea
                     value={newContact.notes}
                     onChange={(e) => setNewContact({ ...newContact, notes: e.target.value })}
                     placeholder="Add notes about this contact..."
                     rows={2}
-                    className="w-full resize-none"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl resize-none"
                     data-testid="input-notes"
                   />
                 </div>
                 <button
                   type="submit"
-                  className="w-full py-3.5 bg-blue-500 text-white font-semibold rounded-xl mt-2"
+                  className="w-full py-4 bg-gray-900 text-white font-semibold rounded-xl"
                   data-testid="submit-contact-btn"
                 >
                   Add Contact

@@ -1,0 +1,554 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Drawer } from 'vaul';
+import { 
+  ArrowLeft, Pencil, Plus, Image, FileText, Youtube, 
+  Check, X, Loader2, MapPin, IndianRupee, Maximize,
+  Camera, Trash2, Upload
+} from 'lucide-react';
+import { toast } from 'sonner';
+
+const PropertyEdit = () => {
+  const navigate = useNavigate();
+  const { id } = useParams();
+  const { api } = useAuth();
+  const fileInputRef = useRef(null);
+  const docInputRef = useRef(null);
+  
+  const [property, setProperty] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  
+  // Edit states
+  const [editingField, setEditingField] = useState(null);
+  const [editValue, setEditValue] = useState('');
+  const [editSuffix, setEditSuffix] = useState('');
+  
+  // Add media states
+  const [showAddMedia, setShowAddMedia] = useState(false);
+  const [youtubeUrl, setYoutubeUrl] = useState('');
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadingDoc, setUploadingDoc] = useState(false);
+
+  useEffect(() => { fetchProperty(); }, [id]);
+
+  const fetchProperty = async () => {
+    try {
+      const res = await api().get(`/properties/${id}`);
+      setProperty(res.data);
+    } catch (e) { 
+      toast.error('Failed to load property');
+      navigate(-1);
+    }
+    setLoading(false);
+  };
+
+  const startEdit = (field, value, suffix = '') => {
+    setEditingField(field);
+    setEditValue(value?.toString() || '');
+    setEditSuffix(suffix);
+  };
+
+  const cancelEdit = () => {
+    setEditingField(null);
+    setEditValue('');
+    setEditSuffix('');
+  };
+
+  const saveEdit = async () => {
+    if (!editingField) return;
+    setSaving(true);
+    
+    try {
+      let updateData = {};
+      
+      if (editingField === 'price') {
+        updateData = { price: parseFloat(editValue), price_unit: editSuffix || property.price_unit };
+      } else if (editingField === 'area') {
+        updateData = { area: parseFloat(editValue), area_unit: editSuffix || property.area_unit };
+      } else if (editingField === 'property_type') {
+        updateData = { property_type: editValue };
+      } else if (editingField === 'negotiable') {
+        updateData = { negotiable: editValue === 'Yes' };
+      } else if (editingField === 'description') {
+        updateData = { description: editValue };
+      } else if (editingField === 'location') {
+        updateData = { location: editValue };
+      }
+      
+      await api().put(`/properties/${id}`, updateData);
+      setProperty(prev => ({ ...prev, ...updateData }));
+      toast.success('Updated!');
+      cancelEdit();
+    } catch (e) {
+      toast.error('Failed to update');
+    }
+    setSaving(false);
+  };
+
+  const handleImageUpload = async (e) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    
+    setUploadingImage(true);
+    const formData = new FormData();
+    
+    for (let i = 0; i < files.length; i++) {
+      formData.append('files', files[i]);
+    }
+    
+    try {
+      const res = await api().post(`/properties/${id}/images`, formData);
+      setProperty(prev => ({ 
+        ...prev, 
+        images: [...(prev.images || []), ...res.data.urls] 
+      }));
+      toast.success(`${files.length} image(s) added!`);
+    } catch (e) {
+      toast.error('Failed to upload images');
+    }
+    setUploadingImage(false);
+    setShowAddMedia(false);
+  };
+
+  const handleDocUpload = async (e) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    
+    setUploadingDoc(true);
+    const formData = new FormData();
+    
+    for (let i = 0; i < files.length; i++) {
+      formData.append('files', files[i]);
+    }
+    formData.append('document_type', 'general');
+    
+    try {
+      const res = await api().post(`/properties/${id}/documents`, formData);
+      setProperty(prev => ({ 
+        ...prev, 
+        documents: [...(prev.documents || []), ...res.data.documents] 
+      }));
+      toast.success(`${files.length} document(s) added!`);
+    } catch (e) {
+      toast.error('Failed to upload documents');
+    }
+    setUploadingDoc(false);
+    setShowAddMedia(false);
+  };
+
+  const addYoutubeLink = async () => {
+    if (!youtubeUrl) return;
+    
+    // Validate YouTube URL
+    const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+/;
+    if (!youtubeRegex.test(youtubeUrl)) {
+      toast.error('Invalid YouTube URL');
+      return;
+    }
+    
+    try {
+      const videos = [...(property.youtube_videos || []), youtubeUrl];
+      await api().put(`/properties/${id}`, { youtube_videos: videos });
+      setProperty(prev => ({ ...prev, youtube_videos: videos }));
+      setYoutubeUrl('');
+      toast.success('YouTube link added!');
+      setShowAddMedia(false);
+    } catch (e) {
+      toast.error('Failed to add link');
+    }
+  };
+
+  const deleteImage = async (imageUrl, index) => {
+    try {
+      const newImages = property.images.filter((_, i) => i !== index);
+      await api().put(`/properties/${id}`, { images: newImages });
+      setProperty(prev => ({ ...prev, images: newImages }));
+      toast.success('Image removed');
+    } catch (e) {
+      toast.error('Failed to remove image');
+    }
+  };
+
+  const deleteVideo = async (index) => {
+    try {
+      const newVideos = property.youtube_videos.filter((_, i) => i !== index);
+      await api().put(`/properties/${id}`, { youtube_videos: newVideos });
+      setProperty(prev => ({ ...prev, youtube_videos: newVideos }));
+      toast.success('Video removed');
+    } catch (e) {
+      toast.error('Failed to remove video');
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
+      </div>
+    );
+  }
+
+  if (!property) return null;
+
+  return (
+    <div className="min-h-screen bg-gray-50 pb-24">
+      {/* Header */}
+      <header className="bg-white border-b border-gray-100 px-4 py-3 sticky top-0 z-50">
+        <div className="flex items-center gap-3">
+          <button onClick={() => navigate(-1)} className="w-10 h-10 flex items-center justify-center">
+            <ArrowLeft className="w-6 h-6 text-gray-900" />
+          </button>
+          <h1 className="text-lg font-semibold text-gray-900">Edit Property</h1>
+        </div>
+      </header>
+
+      <div className="p-4 space-y-4">
+        {/* Property Type */}
+        <EditableField
+          label="Property Type"
+          value={property.property_type}
+          isEditing={editingField === 'property_type'}
+          onEdit={() => startEdit('property_type', property.property_type)}
+          onCancel={cancelEdit}
+          onSave={saveEdit}
+          saving={saving}
+        >
+          <div className="flex gap-2 mt-2">
+            {['Land', 'Plot'].map(type => (
+              <button
+                key={type}
+                onClick={() => setEditValue(type)}
+                className={`flex-1 py-3 rounded-xl font-medium transition-all ${
+                  editValue === type ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-600'
+                }`}
+              >
+                {type}
+              </button>
+            ))}
+          </div>
+        </EditableField>
+
+        {/* Price */}
+        <EditableField
+          label="Price"
+          value={`₹${property.price} ${property.price_unit}`}
+          isEditing={editingField === 'price'}
+          onEdit={() => startEdit('price', property.price, property.price_unit)}
+          onCancel={cancelEdit}
+          onSave={saveEdit}
+          saving={saving}
+        >
+          <div className="flex gap-2 mt-2">
+            <input
+              type="number"
+              value={editValue}
+              onChange={(e) => setEditValue(e.target.value)}
+              className="flex-1 px-4 py-3 border border-gray-200 rounded-xl"
+              placeholder="Enter price"
+            />
+            <select
+              value={editSuffix}
+              onChange={(e) => setEditSuffix(e.target.value)}
+              className="px-4 py-3 border border-gray-200 rounded-xl bg-white"
+            >
+              <option value="Lakhs">Lakhs</option>
+              <option value="Crore">Crore</option>
+            </select>
+          </div>
+        </EditableField>
+
+        {/* Area */}
+        <EditableField
+          label="Area"
+          value={`${property.area} ${property.area_unit}`}
+          isEditing={editingField === 'area'}
+          onEdit={() => startEdit('area', property.area, property.area_unit)}
+          onCancel={cancelEdit}
+          onSave={saveEdit}
+          saving={saving}
+        >
+          <div className="flex gap-2 mt-2">
+            <input
+              type="number"
+              value={editValue}
+              onChange={(e) => setEditValue(e.target.value)}
+              className="flex-1 px-4 py-3 border border-gray-200 rounded-xl"
+              placeholder="Enter area"
+            />
+            <select
+              value={editSuffix}
+              onChange={(e) => setEditSuffix(e.target.value)}
+              className="px-4 py-3 border border-gray-200 rounded-xl bg-white"
+            >
+              {property.property_type === 'Land' ? (
+                <>
+                  <option value="Acres">Acres</option>
+                  <option value="Guntas">Guntas</option>
+                  <option value="Hectare">Hectare</option>
+                </>
+              ) : (
+                <>
+                  <option value="Sq.Ft">Sq.Ft</option>
+                  <option value="Sq.Yards">Sq.Yards</option>
+                </>
+              )}
+            </select>
+          </div>
+        </EditableField>
+
+        {/* Location */}
+        <EditableField
+          label="Location"
+          value={property.location}
+          isEditing={editingField === 'location'}
+          onEdit={() => startEdit('location', property.location)}
+          onCancel={cancelEdit}
+          onSave={saveEdit}
+          saving={saving}
+        >
+          <input
+            type="text"
+            value={editValue}
+            onChange={(e) => setEditValue(e.target.value)}
+            className="w-full px-4 py-3 border border-gray-200 rounded-xl mt-2"
+            placeholder="Enter location"
+          />
+        </EditableField>
+
+        {/* Negotiable */}
+        <EditableField
+          label="Negotiable"
+          value={property.negotiable ? 'Yes' : 'No'}
+          isEditing={editingField === 'negotiable'}
+          onEdit={() => startEdit('negotiable', property.negotiable ? 'Yes' : 'No')}
+          onCancel={cancelEdit}
+          onSave={saveEdit}
+          saving={saving}
+        >
+          <div className="flex gap-2 mt-2">
+            {['Yes', 'No'].map(opt => (
+              <button
+                key={opt}
+                onClick={() => setEditValue(opt)}
+                className={`flex-1 py-3 rounded-xl font-medium transition-all ${
+                  editValue === opt ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-600'
+                }`}
+              >
+                {opt}
+              </button>
+            ))}
+          </div>
+        </EditableField>
+
+        {/* Description */}
+        <EditableField
+          label="Description"
+          value={property.description || 'No description'}
+          isEditing={editingField === 'description'}
+          onEdit={() => startEdit('description', property.description || '')}
+          onCancel={cancelEdit}
+          onSave={saveEdit}
+          saving={saving}
+        >
+          <textarea
+            value={editValue}
+            onChange={(e) => setEditValue(e.target.value)}
+            className="w-full px-4 py-3 border border-gray-200 rounded-xl mt-2 resize-none"
+            rows={4}
+            placeholder="Enter description"
+          />
+        </EditableField>
+
+        {/* Images Section */}
+        <div className="bg-white rounded-2xl p-4 shadow-sm">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+              <Image className="w-5 h-5 text-blue-500" />
+              Photos ({property.images?.length || 0})
+            </h3>
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="p-2 bg-blue-50 text-blue-500 rounded-xl"
+            >
+              <Plus className="w-5 h-5" />
+            </button>
+          </div>
+          
+          {property.images?.length > 0 ? (
+            <div className="grid grid-cols-3 gap-2">
+              {property.images.map((img, i) => (
+                <div key={i} className="relative aspect-square rounded-xl overflow-hidden group">
+                  <img src={img} alt="" className="w-full h-full object-cover" />
+                  <button
+                    onClick={() => deleteImage(img, i)}
+                    className="absolute top-1 right-1 p-1.5 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-400 text-sm text-center py-4">No photos yet</p>
+          )}
+          
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={handleImageUpload}
+            className="hidden"
+          />
+        </div>
+
+        {/* Documents Section */}
+        <div className="bg-white rounded-2xl p-4 shadow-sm">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+              <FileText className="w-5 h-5 text-green-500" />
+              Documents ({property.documents?.length || 0})
+            </h3>
+            <button
+              onClick={() => docInputRef.current?.click()}
+              className="p-2 bg-green-50 text-green-500 rounded-xl"
+            >
+              <Plus className="w-5 h-5" />
+            </button>
+          </div>
+          
+          {property.documents?.length > 0 ? (
+            <div className="space-y-2">
+              {property.documents.map((doc, i) => (
+                <div key={i} className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                  <FileText className="w-5 h-5 text-gray-400" />
+                  <span className="flex-1 text-sm text-gray-700 truncate">{doc.name || `Document ${i+1}`}</span>
+                  <a href={doc.url} target="_blank" rel="noopener noreferrer" className="text-blue-500 text-sm">View</a>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-400 text-sm text-center py-4">No documents yet</p>
+          )}
+          
+          <input
+            ref={docInputRef}
+            type="file"
+            accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+            multiple
+            onChange={handleDocUpload}
+            className="hidden"
+          />
+        </div>
+
+        {/* YouTube Links Section */}
+        <div className="bg-white rounded-2xl p-4 shadow-sm">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+              <Youtube className="w-5 h-5 text-red-500" />
+              Videos ({property.youtube_videos?.length || 0})
+            </h3>
+            <button
+              onClick={() => setShowAddMedia(true)}
+              className="p-2 bg-red-50 text-red-500 rounded-xl"
+            >
+              <Plus className="w-5 h-5" />
+            </button>
+          </div>
+          
+          {property.youtube_videos?.length > 0 ? (
+            <div className="space-y-2">
+              {property.youtube_videos.map((url, i) => (
+                <div key={i} className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                  <Youtube className="w-5 h-5 text-red-500" />
+                  <span className="flex-1 text-sm text-gray-700 truncate">{url}</span>
+                  <button onClick={() => deleteVideo(i)} className="text-red-500">
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-400 text-sm text-center py-4">No videos yet</p>
+          )}
+        </div>
+      </div>
+
+      {/* Add YouTube Link Drawer */}
+      <Drawer.Root open={showAddMedia} onOpenChange={setShowAddMedia}>
+        <Drawer.Portal>
+          <Drawer.Overlay className="fixed inset-0 bg-black/50 z-[1001]" />
+          <Drawer.Content className="fixed bottom-0 left-0 right-0 bg-white rounded-t-2xl z-[1002] outline-none">
+            <div className="p-4 pb-8">
+              <div className="w-10 h-1 bg-gray-300 rounded-full mx-auto mb-6" />
+              
+              <h2 className="text-lg font-bold text-gray-900 mb-4">Add YouTube Video</h2>
+              
+              <input
+                type="url"
+                value={youtubeUrl}
+                onChange={(e) => setYoutubeUrl(e.target.value)}
+                placeholder="Paste YouTube URL here..."
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl mb-4"
+              />
+              
+              <button
+                onClick={addYoutubeLink}
+                disabled={!youtubeUrl}
+                className="w-full py-3.5 bg-red-500 text-white font-semibold rounded-xl disabled:opacity-50"
+              >
+                Add Video Link
+              </button>
+            </div>
+          </Drawer.Content>
+        </Drawer.Portal>
+      </Drawer.Root>
+
+      {/* Loading overlay */}
+      {(uploadingImage || uploadingDoc) && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[2000]">
+          <div className="bg-white rounded-2xl p-6 flex items-center gap-3">
+            <Loader2 className="w-6 h-6 animate-spin text-blue-500" />
+            <span>Uploading...</span>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Editable Field Component
+const EditableField = ({ label, value, isEditing, onEdit, onCancel, onSave, saving, children }) => {
+  return (
+    <div className="bg-white rounded-2xl p-4 shadow-sm">
+      <div className="flex items-center justify-between">
+        <span className="text-sm text-gray-500">{label}</span>
+        {!isEditing ? (
+          <button onClick={onEdit} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+            <Pencil className="w-4 h-4 text-gray-400" />
+          </button>
+        ) : (
+          <div className="flex gap-2">
+            <button onClick={onCancel} className="p-2 hover:bg-gray-100 rounded-lg">
+              <X className="w-4 h-4 text-gray-400" />
+            </button>
+            <button onClick={onSave} disabled={saving} className="p-2 bg-blue-500 text-white rounded-lg">
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+            </button>
+          </div>
+        )}
+      </div>
+      
+      {isEditing ? (
+        children
+      ) : (
+        <p className="text-gray-900 font-medium mt-1">{value}</p>
+      )}
+    </div>
+  );
+};
+
+export default PropertyEdit;

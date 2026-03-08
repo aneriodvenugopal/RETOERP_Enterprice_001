@@ -1109,7 +1109,7 @@ async def get_area_intelligence(
             if amenities["bus_stops"] > 0:
                 connectivity += f"• Bus Stops nearby: {amenities['bus_stops']}\n"
             if amenities["railway"] > 0:
-                connectivity += f"• Railway Station within 3km: Yes\n"
+                connectivity += "• Railway Station within 3km: Yes\n"
             else:
                 connectivity += "• Railway Station: Check for metro/local train connectivity\n"
             if amenities["bus_stops"] == 0:

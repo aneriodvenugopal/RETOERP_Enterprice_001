@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Drawer } from 'vaul';
 import { MapContainer, TileLayer, Marker, Circle, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import { 
   ArrowLeft, Plus, MapPin, Bell, BellOff, Trash2, 
-  ChevronRight, Navigation, Search, X, Sliders
+  Search, Navigation, Sliders, X
 } from 'lucide-react';
 import { toast } from 'sonner';
 import 'leaflet/dist/leaflet.css';
@@ -20,9 +20,9 @@ L.Icon.Default.mergeOptions({
 });
 
 const RADIUS_OPTIONS = [2, 5, 10, 20];
-const PROPERTY_TYPES = ['Land', 'Plot', 'House', 'Apartment', 'Commercial'];
+const PROPERTY_TYPES = ['Land', 'Plot'];
 
-// Custom hook for debounce
+// Debounce hook
 const useDebounce = (value, delay) => {
   const [debounced, setDebounced] = useState(value);
   useEffect(() => {
@@ -32,7 +32,7 @@ const useDebounce = (value, delay) => {
   return debounced;
 };
 
-// Map click handler component
+// Map click handler
 const MapClickHandler = ({ onLocationSelect }) => {
   useMapEvents({
     click: (e) => {
@@ -48,24 +48,22 @@ const InterestAreas = () => {
   const [areas, setAreas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showAdd, setShowAdd] = useState(false);
-  const [showEdit, setShowEdit] = useState(null);
   
-  // Add form state
-  const [newArea, setNewArea] = useState({
+  // Form state
+  const [formData, setFormData] = useState({
     name: '',
     latitude: null,
     longitude: null,
     radius_km: 5,
     property_types: ['Land', 'Plot'],
-    min_price: null,
-    max_price: null,
+    min_price: '',
+    max_price: '',
     notifications_enabled: true
   });
   
   // Search state
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
-  const [searchLoading, setSearchLoading] = useState(false);
   const debouncedSearch = useDebounce(searchQuery, 300);
 
   useEffect(() => { fetchAreas(); }, []);
@@ -87,7 +85,6 @@ const InterestAreas = () => {
   };
 
   const searchLocations = async (query) => {
-    setSearchLoading(true);
     try {
       const response = await fetch(
         `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=in&limit=5`,
@@ -101,12 +98,11 @@ const InterestAreas = () => {
         lon: parseFloat(r.lon)
       })));
     } catch (err) { console.error('Search error:', err); }
-    setSearchLoading(false);
   };
 
   const selectSearchResult = (result) => {
-    setNewArea({
-      ...newArea,
+    setFormData({
+      ...formData,
       name: result.name.split(',')[0],
       latitude: result.lat,
       longitude: result.lon
@@ -116,33 +112,44 @@ const InterestAreas = () => {
   };
 
   const handleMapClick = useCallback((location) => {
-    setNewArea(prev => ({
+    setFormData(prev => ({
       ...prev,
       latitude: location.lat,
       longitude: location.lng
     }));
   }, []);
 
+  const resetForm = () => {
+    setFormData({
+      name: '',
+      latitude: null,
+      longitude: null,
+      radius_km: 5,
+      property_types: ['Land', 'Plot'],
+      min_price: '',
+      max_price: '',
+      notifications_enabled: true
+    });
+    setSearchQuery('');
+    setSearchResults([]);
+  };
+
   const handleAddArea = async () => {
-    if (!newArea.name || !newArea.latitude || !newArea.longitude) {
+    if (!formData.name || !formData.latitude || !formData.longitude) {
       toast.error('Please select a location');
       return;
     }
     
     try {
-      const res = await api().post('/interest-areas', newArea);
+      const payload = {
+        ...formData,
+        min_price: formData.min_price ? Number(formData.min_price) : null,
+        max_price: formData.max_price ? Number(formData.max_price) : null
+      };
+      const res = await api().post('/interest-areas', payload);
       setAreas(prev => [res.data, ...prev]);
       setShowAdd(false);
-      setNewArea({
-        name: '',
-        latitude: null,
-        longitude: null,
-        radius_km: 5,
-        property_types: ['Land', 'Plot'],
-        min_price: null,
-        max_price: null,
-        notifications_enabled: true
-      });
+      resetForm();
       toast.success('Interest area saved!');
     } catch (e) {
       console.error(e);
@@ -156,7 +163,7 @@ const InterestAreas = () => {
       setAreas(prev => prev.map(a => 
         a.id === areaId ? { ...a, notifications_enabled: !enabled } : a
       ));
-      toast.success(enabled ? 'Notifications disabled' : 'Notifications enabled');
+      toast.success(enabled ? 'Notifications off' : 'Notifications on');
     } catch (e) { toast.error('Failed to update'); }
   };
 
@@ -170,7 +177,7 @@ const InterestAreas = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <header className="bg-white border-b border-gray-100 px-4 py-3 sticky top-0 z-50">
         <div className="flex items-center justify-between">
@@ -180,133 +187,145 @@ const InterestAreas = () => {
             </button>
             <div>
               <h1 className="text-lg font-semibold text-gray-900">Interest Areas</h1>
-              <p className="text-xs text-gray-500">Get alerts for new properties</p>
+              <p className="text-xs text-gray-500">{areas.length}/10 areas saved</p>
             </div>
           </div>
-          <button 
-            onClick={() => setShowAdd(true)}
-            data-testid="add-area-btn"
-            className="w-10 h-10 flex items-center justify-center"
-          >
-            <Plus className="w-6 h-6 text-blue-500" />
-          </button>
         </div>
       </header>
 
       {/* Content */}
-      <div className="p-4">
+      <div className="p-4 pb-24">
         {loading ? (
           <div className="space-y-3">
             {[...Array(3)].map((_, i) => (
-              <div key={i} className="h-24 bg-gray-100 rounded-xl skeleton" />
+              <div key={i} className="h-24 bg-white rounded-2xl skeleton" />
             ))}
-          </div>
-        ) : areas.length === 0 ? (
-          <div className="text-center py-16">
-            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <MapPin className="w-8 h-8 text-blue-500" />
-            </div>
-            <p className="text-gray-900 font-semibold">No interest areas yet</p>
-            <p className="text-gray-500 text-sm mt-1">Save locations to get property alerts</p>
-            <button 
-              onClick={() => setShowAdd(true)}
-              className="mt-6 px-8 py-3 bg-blue-500 text-white font-semibold rounded-xl"
-            >
-              Add Location
-            </button>
           </div>
         ) : (
           <div className="space-y-3">
+            {/* Saved Areas List */}
             {areas.map((area, i) => (
               <motion.div
                 key={area.id}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.03 }}
-                className="bg-white rounded-xl border border-gray-100 overflow-hidden"
+                className="bg-white rounded-2xl p-4 shadow-sm"
               >
-                <div className="p-4">
-                  <div className="flex items-start gap-3">
-                    <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <MapPin className="w-6 h-6 text-white" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between">
-                        <p className="font-semibold text-gray-900 truncate">{area.name}</p>
+                <div className="flex items-start gap-3">
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <MapPin className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between">
+                      <p className="font-semibold text-gray-900 truncate">{area.name}</p>
+                      <div className="flex items-center gap-1">
                         <button
                           onClick={() => toggleNotifications(area.id, area.notifications_enabled)}
-                          className={`p-2 rounded-lg ${area.notifications_enabled ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400'}`}
+                          className={`p-2 rounded-lg transition-colors ${
+                            area.notifications_enabled 
+                              ? 'bg-green-100 text-green-600' 
+                              : 'bg-gray-100 text-gray-400'
+                          }`}
                         >
                           {area.notifications_enabled ? <Bell className="w-4 h-4" /> : <BellOff className="w-4 h-4" />}
                         </button>
+                        <button
+                          onClick={() => deleteArea(area.id)}
+                          className="p-2 bg-red-50 text-red-500 rounded-lg"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
                       </div>
-                      <p className="text-sm text-gray-500 mt-1">
-                        {area.radius_km} km radius • {area.property_types.join(', ')}
-                      </p>
-                      {(area.min_price || area.max_price) && (
-                        <p className="text-xs text-gray-400 mt-0.5">
-                          Price: ₹{area.min_price || 0}L - ₹{area.max_price || '∞'}L
-                        </p>
-                      )}
                     </div>
-                  </div>
-                  
-                  <div className="flex items-center gap-2 mt-4">
-                    <button
-                      onClick={() => navigate(`/agentapex/search?lat=${area.latitude}&lng=${area.longitude}&radius=${area.radius_km}`)}
-                      className="flex-1 py-2.5 bg-gray-100 rounded-xl text-sm font-medium text-gray-700 flex items-center justify-center gap-1.5"
-                    >
-                      <Search className="w-4 h-4" /> View Properties
-                    </button>
-                    <button
-                      onClick={() => deleteArea(area.id)}
-                      className="p-2.5 bg-red-50 text-red-500 rounded-xl"
-                    >
-                      <Trash2 className="w-5 h-5" />
-                    </button>
+                    <p className="text-sm text-gray-500 mt-1">
+                      {area.radius_km} km • {area.property_types?.join(', ')}
+                    </p>
+                    {(area.min_price || area.max_price) && (
+                      <p className="text-xs text-gray-400 mt-0.5">
+                        ₹{area.min_price || 0}L - ₹{area.max_price || '∞'}L
+                      </p>
+                    )}
                   </div>
                 </div>
+                
+                <button
+                  onClick={() => navigate(`/agentapex/search?lat=${area.latitude}&lng=${area.longitude}&radius=${area.radius_km}`)}
+                  className="w-full mt-3 py-2.5 bg-gray-100 rounded-xl text-sm font-medium text-gray-700 flex items-center justify-center gap-1.5"
+                >
+                  <Search className="w-4 h-4" /> View Properties
+                </button>
               </motion.div>
             ))}
+            
+            {/* Empty state or Add more */}
+            {areas.length === 0 ? (
+              <div className="text-center py-12">
+                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <MapPin className="w-8 h-8 text-blue-500" />
+                </div>
+                <p className="text-gray-900 font-semibold">No interest areas yet</p>
+                <p className="text-gray-500 text-sm mt-1">Save locations to get property alerts</p>
+              </div>
+            ) : areas.length < 10 && (
+              <p className="text-center text-gray-400 text-sm py-2">
+                You can add {10 - areas.length} more area(s)
+              </p>
+            )}
           </div>
         )}
       </div>
 
+      {/* Floating Add Button */}
+      {areas.length < 10 && (
+        <button
+          onClick={() => setShowAdd(true)}
+          data-testid="add-area-btn"
+          className="fixed bottom-6 right-6 w-14 h-14 bg-blue-500 text-white rounded-full shadow-lg flex items-center justify-center z-40"
+        >
+          <Plus className="w-7 h-7" />
+        </button>
+      )}
+
       {/* Add Interest Area Sheet */}
-      <Drawer.Root open={showAdd} onOpenChange={setShowAdd}>
+      <Drawer.Root open={showAdd} onOpenChange={(open) => { setShowAdd(open); if (!open) resetForm(); }}>
         <Drawer.Portal>
           <Drawer.Overlay className="fixed inset-0 bg-black/50 z-[1001]" />
-          <Drawer.Content className="fixed bottom-0 left-0 right-0 bg-white rounded-t-2xl z-[1002] outline-none max-h-[95vh] overflow-y-auto">
+          <Drawer.Content className="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl z-[1002] outline-none max-h-[92vh] overflow-y-auto">
             <div className="p-4 pb-8">
-              <div className="w-10 h-1 bg-gray-300 rounded-full mx-auto mb-6" />
+              <div className="w-10 h-1 bg-gray-300 rounded-full mx-auto mb-4" />
               
-              <h2 className="text-xl font-bold text-gray-900 mb-2">Add Interest Area</h2>
-              <p className="text-sm text-gray-500 mb-6">Get notified when new properties are added here</p>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-bold text-gray-900">Add Interest Area</h2>
+                <button onClick={() => setShowAdd(false)} className="p-2">
+                  <X className="w-5 h-5 text-gray-400" />
+                </button>
+              </div>
               
               {/* Location Search */}
               <div className="mb-4">
-                <label className="text-sm text-gray-500 mb-1.5 block">Search Location</label>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">Search Location</label>
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search for area, city..."
-                    className="w-full pl-10"
+                    placeholder="Search area, city..."
+                    className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl"
                   />
                 </div>
                 
                 {/* Search Results */}
                 {searchResults.length > 0 && (
-                  <div className="mt-2 bg-white border border-gray-200 rounded-xl overflow-hidden shadow-lg">
+                  <div className="mt-2 bg-white border border-gray-200 rounded-xl overflow-hidden shadow-lg max-h-48 overflow-y-auto">
                     {searchResults.map(result => (
                       <button
                         key={result.id}
                         onClick={() => selectSearchResult(result)}
-                        className="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center gap-3 border-b border-gray-100 last:border-0"
+                        className="w-full px-4 py-3 text-left hover:bg-blue-50 flex items-center gap-3 border-b border-gray-100 last:border-0"
                       >
-                        <MapPin className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                        <MapPin className="w-4 h-4 text-blue-500 flex-shrink-0" />
                         <span className="text-sm text-gray-700 truncate">{result.name}</span>
                       </button>
                     ))}
@@ -315,57 +334,58 @@ const InterestAreas = () => {
               </div>
               
               {/* Map */}
-              <div className="h-48 rounded-xl overflow-hidden mb-4 border border-gray-200">
+              <div className="h-40 rounded-xl overflow-hidden mb-4 border border-gray-200">
                 <MapContainer
-                  center={newArea.latitude ? [newArea.latitude, newArea.longitude] : [17.385, 78.4867]}
-                  zoom={12}
+                  center={formData.latitude ? [formData.latitude, formData.longitude] : [17.385, 78.4867]}
+                  zoom={formData.latitude ? 13 : 10}
                   className="h-full w-full"
                   zoomControl={false}
+                  key={formData.latitude ? `${formData.latitude}-${formData.longitude}` : 'default'}
                 >
                   <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                   <MapClickHandler onLocationSelect={handleMapClick} />
-                  {newArea.latitude && (
+                  {formData.latitude && (
                     <>
-                      <Marker position={[newArea.latitude, newArea.longitude]} />
+                      <Marker position={[formData.latitude, formData.longitude]} />
                       <Circle
-                        center={[newArea.latitude, newArea.longitude]}
-                        radius={newArea.radius_km * 1000}
-                        pathOptions={{ color: '#3B82F6', fillColor: '#3B82F6', fillOpacity: 0.1 }}
+                        center={[formData.latitude, formData.longitude]}
+                        radius={formData.radius_km * 1000}
+                        pathOptions={{ color: '#3B82F6', fillColor: '#3B82F6', fillOpacity: 0.15 }}
                       />
                     </>
                   )}
                 </MapContainer>
               </div>
               
-              {newArea.latitude && (
-                <p className="text-sm text-green-600 mb-4 flex items-center gap-2">
-                  <Navigation className="w-4 h-4" />
-                  Location selected: {newArea.name || 'Custom location'}
-                </p>
+              {formData.latitude && (
+                <div className="flex items-center gap-2 mb-4 p-2 bg-green-50 rounded-xl">
+                  <Navigation className="w-4 h-4 text-green-600" />
+                  <span className="text-sm text-green-700">Location selected</span>
+                </div>
               )}
               
               {/* Area Name */}
               <div className="mb-4">
-                <label className="text-sm text-gray-500 mb-1.5 block">Area Name *</label>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">Area Name *</label>
                 <input
                   type="text"
-                  value={newArea.name}
-                  onChange={(e) => setNewArea({ ...newArea, name: e.target.value })}
-                  placeholder="e.g., Banjara Hills, Madhapur"
-                  className="w-full"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  placeholder="e.g., Madhapur, Banjara Hills"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl"
                 />
               </div>
               
               {/* Radius */}
               <div className="mb-4">
-                <label className="text-sm text-gray-500 mb-2 block">Search Radius</label>
-                <div className="flex gap-2">
+                <label className="text-sm font-medium text-gray-700 mb-2 block">Search Radius</label>
+                <div className="grid grid-cols-4 gap-2">
                   {RADIUS_OPTIONS.map(r => (
                     <button
                       key={r}
-                      onClick={() => setNewArea({ ...newArea, radius_km: r })}
-                      className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                        newArea.radius_km === r 
+                      onClick={() => setFormData({ ...formData, radius_km: r })}
+                      className={`py-3 rounded-xl text-sm font-semibold transition-all ${
+                        formData.radius_km === r 
                           ? 'bg-blue-500 text-white' 
                           : 'bg-gray-100 text-gray-600'
                       }`}
@@ -378,19 +398,19 @@ const InterestAreas = () => {
               
               {/* Property Types */}
               <div className="mb-4">
-                <label className="text-sm text-gray-500 mb-2 block">Property Types</label>
-                <div className="flex flex-wrap gap-2">
+                <label className="text-sm font-medium text-gray-700 mb-2 block">Property Types</label>
+                <div className="flex gap-2">
                   {PROPERTY_TYPES.map(type => (
                     <button
                       key={type}
                       onClick={() => {
-                        const types = newArea.property_types.includes(type)
-                          ? newArea.property_types.filter(t => t !== type)
-                          : [...newArea.property_types, type];
-                        setNewArea({ ...newArea, property_types: types });
+                        const types = formData.property_types.includes(type)
+                          ? formData.property_types.filter(t => t !== type)
+                          : [...formData.property_types, type];
+                        if (types.length > 0) setFormData({ ...formData, property_types: types });
                       }}
-                      className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
-                        newArea.property_types.includes(type)
+                      className={`flex-1 py-3 rounded-xl text-sm font-semibold transition-all ${
+                        formData.property_types.includes(type)
                           ? 'bg-blue-500 text-white'
                           : 'bg-gray-100 text-gray-600'
                       }`}
@@ -404,33 +424,34 @@ const InterestAreas = () => {
               {/* Price Range */}
               <div className="mb-6 grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-sm text-gray-500 mb-1.5 block">Min Price (Lakhs)</label>
+                  <label className="text-sm font-medium text-gray-700 mb-2 block">Min (Lakhs)</label>
                   <input
                     type="number"
-                    value={newArea.min_price || ''}
-                    onChange={(e) => setNewArea({ ...newArea, min_price: e.target.value ? Number(e.target.value) : null })}
+                    value={formData.min_price}
+                    onChange={(e) => setFormData({ ...formData, min_price: e.target.value })}
                     placeholder="0"
-                    className="w-full"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl"
                   />
                 </div>
                 <div>
-                  <label className="text-sm text-gray-500 mb-1.5 block">Max Price (Lakhs)</label>
+                  <label className="text-sm font-medium text-gray-700 mb-2 block">Max (Lakhs)</label>
                   <input
                     type="number"
-                    value={newArea.max_price || ''}
-                    onChange={(e) => setNewArea({ ...newArea, max_price: e.target.value ? Number(e.target.value) : null })}
+                    value={formData.max_price}
+                    onChange={(e) => setFormData({ ...formData, max_price: e.target.value })}
                     placeholder="No limit"
-                    className="w-full"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl"
                   />
                 </div>
               </div>
               
               <button
                 onClick={handleAddArea}
-                className="w-full py-3.5 bg-blue-500 text-white font-semibold rounded-xl flex items-center justify-center gap-2"
+                disabled={!formData.name || !formData.latitude}
+                className="w-full py-4 bg-blue-500 text-white font-semibold rounded-xl disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 <Bell className="w-5 h-5" />
-                Save & Enable Alerts
+                Save & Get Alerts
               </button>
             </div>
           </Drawer.Content>

@@ -21,39 +21,51 @@ const useDebounce = (value, delay) => {
 };
 
 // Property markers - larger and more visible
-const createSaleMarker = (price, priceUnit) => L.divIcon({
-  className: 'sale-marker',
-  html: `<div style="
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    min-width:60px;
-    height:28px;
-    padding:0 8px;
-    background:#FF9500;
-    border:2px solid white;
-    border-radius:14px;
-    box-shadow:0 2px 8px rgba(0,0,0,0.3);
-    font-size:11px;
-    font-weight:700;
-    color:white;
-    white-space:nowrap;
-  ">₹${price}${priceUnit === 'Crore' ? 'Cr' : 'L'}</div>`,
-  iconSize: [60, 28], iconAnchor: [30, 14], popupAnchor: [0, -14]
-});
+// Property markers with type icons
+const createSaleMarker = (price, priceUnit, propertyType) => {
+  const icon = propertyType === 'Land' ? '🌾' : propertyType === 'Plot' ? '📐' : '🏠';
+  return L.divIcon({
+    className: 'sale-marker',
+    html: `<div style="
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:4px;
+      min-width:70px;
+      height:32px;
+      padding:0 10px;
+      background:linear-gradient(135deg, #FF9500, #FF6B00);
+      border:2px solid white;
+      border-radius:16px;
+      box-shadow:0 3px 10px rgba(0,0,0,0.25);
+      font-size:12px;
+      font-weight:700;
+      color:white;
+      white-space:nowrap;
+    "><span style="font-size:14px">${icon}</span>₹${price}${priceUnit === 'Crore' ? 'Cr' : 'L'}</div>`,
+    iconSize: [70, 32], iconAnchor: [35, 16], popupAnchor: [0, -16]
+  });
+};
 
-const createBuyMarker = () => L.divIcon({
-  className: 'buy-marker',
-  html: `<div style="
-    width:24px;
-    height:24px;
-    background:#0095F6;
-    border:3px solid white;
-    border-radius:50%;
-    box-shadow:0 2px 8px rgba(0,0,0,0.3);
-  "></div>`,
-  iconSize: [24, 24], iconAnchor: [12, 12], popupAnchor: [0, -12]
-});
+const createBuyMarker = (propertyType) => {
+  const icon = propertyType === 'Land' ? '🌾' : propertyType === 'Plot' ? '📐' : '🔍';
+  return L.divIcon({
+    className: 'buy-marker',
+    html: `<div style="
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      width:36px;
+      height:36px;
+      background:linear-gradient(135deg, #0095F6, #0066CC);
+      border:3px solid white;
+      border-radius:50%;
+      box-shadow:0 3px 10px rgba(0,0,0,0.25);
+      font-size:16px;
+    ">${icon}</div>`,
+    iconSize: [36, 36], iconAnchor: [18, 18], popupAnchor: [0, -18]
+  });
+};
 
 const TYPES = ['All', 'Land', 'Plot', 'Apartment', 'House', 'Commercial'];
 const RADIUS_OPTIONS = [5, 10, 20, 50];
@@ -390,15 +402,18 @@ const MapSearch = () => {
               )}
               
               {listingMode === 'sell' && properties.map(p => (
-                <Marker key={p.id} position={[p.latitude, p.longitude]} icon={createSaleMarker(p.price, p.price_unit)}>
+                <Marker key={p.id} position={[p.latitude, p.longitude]} icon={createSaleMarker(p.price, p.price_unit, p.property_type)}>
                   <Popup>
-                    <div className="min-w-[160px]">
-                      <p className="font-bold text-amber-600">₹{p.price} {p.price_unit}</p>
-                      <p className="text-gray-600 text-sm">{p.property_type}</p>
-                      <p className="text-gray-400 text-xs">{p.area} {p.area_unit}</p>
+                    <div className="min-w-[180px]">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-lg">{p.property_type === 'Land' ? '🌾' : '📐'}</span>
+                        <span className="font-bold text-amber-600">₹{p.price} {p.price_unit}</span>
+                      </div>
+                      <p className="text-gray-600 text-sm font-medium">{p.property_type}</p>
+                      <p className="text-gray-400 text-xs">{p.area} {p.area_unit} • {p.location}</p>
                       <button 
                         onClick={() => navigate(`/agentapex/property/${p.id}`)} 
-                        className="mt-2 w-full py-2 bg-gray-900 text-white rounded-lg text-sm font-medium"
+                        className="mt-3 w-full py-2.5 bg-gray-900 text-white rounded-lg text-sm font-medium"
                       >
                         View Details
                       </button>
@@ -411,12 +426,16 @@ const MapSearch = () => {
                 <Marker 
                   key={r.id} 
                   position={[r.latitude, r.longitude]} 
-                  icon={createBuyMarker()}
+                  icon={createBuyMarker(r.property_type)}
                 >
                   <Popup>
-                    <div className="min-w-[160px]">
-                      <p className="font-bold text-blue-600">₹{r.budget_min}-{r.budget_max} {r.budget_unit}</p>
-                      <p className="text-gray-600 text-sm">Looking for: {r.property_type}</p>
+                    <div className="min-w-[180px]">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-lg">{r.property_type === 'Land' ? '🌾' : '📐'}</span>
+                        <span className="font-bold text-blue-600">Wanted</span>
+                      </div>
+                      <p className="text-gray-600 text-sm font-medium">{r.property_type}</p>
+                      <p className="text-gray-500 text-sm">Budget: ₹{r.budget_min}-{r.budget_max} {r.budget_unit}</p>
                       <p className="text-gray-400 text-xs">{r.location_preference}</p>
                       <p className="text-xs text-gray-400 mt-1">Area: {r.area_min}-{r.area_max} {r.area_unit}</p>
                     </div>

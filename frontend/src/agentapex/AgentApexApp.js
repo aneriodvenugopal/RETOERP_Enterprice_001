@@ -10,7 +10,7 @@ const LoginPage = lazy(() => import('./pages/LoginPage'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const QuickPropertyPost = lazy(() => import('./pages/QuickPropertyPost'));
 const VoicePropertyPost = lazy(() => import('./pages/VoicePropertyPost'));
-const QuickPropertyEdit = lazy(() => import('./pages/QuickPropertyEdit'));
+const QuickPropertyEdit = lazy(() => import('./pages/PropertyEdit'));
 const MapSearch = lazy(() => import('./pages/MapSearch'));
 const MyProperties = lazy(() => import('./pages/MyProperties'));
 const Favorites = lazy(() => import('./pages/Favorites'));
@@ -194,6 +194,27 @@ const PublicRoute = ({ children }) => {
 const SwipeBackHandler = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  
+  useEffect(() => {
+    // Set AgentApex specific PWA manifest
+    let manifestLink = document.querySelector('link[rel="manifest"]');
+    if (manifestLink) {
+      manifestLink.href = '/agentapex-manifest.json';
+    }
+    
+    // Set theme color
+    let themeColor = document.querySelector('meta[name="theme-color"]');
+    if (themeColor) {
+      themeColor.content = '#3B82F6';
+    }
+    
+    return () => {
+      // Restore default manifest when leaving AgentApex
+      if (manifestLink) {
+        manifestLink.href = '/manifest.json';
+      }
+    };
+  }, []);
   
   useEffect(() => {
     let startX = 0;
