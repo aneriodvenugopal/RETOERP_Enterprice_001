@@ -55,15 +55,20 @@ const createBuyMarker = (propertyType) => {
       display:flex;
       align-items:center;
       justify-content:center;
-      width:36px;
+      gap:4px;
+      min-width:80px;
       height:36px;
+      padding:0 12px;
       background:linear-gradient(135deg, #0095F6, #0066CC);
       border:3px solid white;
-      border-radius:50%;
-      box-shadow:0 3px 10px rgba(0,0,0,0.25);
-      font-size:16px;
-    ">${icon}</div>`,
-    iconSize: [36, 36], iconAnchor: [18, 18], popupAnchor: [0, -18]
+      border-radius:18px;
+      box-shadow:0 4px 12px rgba(0,149,246,0.4);
+      font-size:12px;
+      font-weight:700;
+      color:white;
+      white-space:nowrap;
+    "><span style="font-size:14px">${icon}</span>WANTED</div>`,
+    iconSize: [80, 36], iconAnchor: [40, 18], popupAnchor: [0, -18]
   });
 };
 
@@ -269,7 +274,14 @@ const MapSearch = () => {
             For Sale ({properties.length})
           </button>
           <button
-            onClick={() => setListingMode('buy')}
+            onClick={() => {
+              setListingMode('buy');
+              // Center map on first requirement if available
+              const reqsWithLocation = requirements.filter(r => r.latitude && r.longitude);
+              if (reqsWithLocation.length > 0) {
+                setSearchCenter([reqsWithLocation[0].latitude, reqsWithLocation[0].longitude]);
+              }
+            }}
             data-testid="mode-buy"
             className={`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all ${
               listingMode === 'buy' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
