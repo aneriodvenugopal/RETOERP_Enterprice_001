@@ -256,8 +256,8 @@ const DocumentManager = () => {
       <Drawer.Root open={showUpload} onOpenChange={setShowUpload}>
         <Drawer.Portal>
           <Drawer.Overlay className="fixed inset-0 bg-black/50 z-[1001]" />
-          <Drawer.Content className="fixed bottom-0 left-0 right-0 bg-white rounded-t-2xl z-[1002] max-h-[90vh] overflow-y-auto outline-none">
-            <div className="p-4">
+          <Drawer.Content className="fixed bottom-0 left-0 right-0 bg-white rounded-t-2xl z-[1002] max-h-[85vh] flex flex-col outline-none">
+            <div className="p-4 flex-1 overflow-y-auto">
               <div className="w-10 h-1 bg-gray-300 rounded-full mx-auto mb-6" />
               
               <h2 className="text-xl font-bold text-gray-900 mb-6">Upload Document</h2>
@@ -338,12 +338,14 @@ const DocumentManager = () => {
                   </button>
                 )}
               </div>
+            </div>
 
-              {/* Upload Button */}
+            {/* Sticky Footer with Upload Button */}
+            <div className="p-4 pt-2 border-t border-gray-100 bg-white">
               <button
                 onClick={handleUpload}
                 disabled={uploading || !selectedFile || !selectedType || !docName}
-                className="w-full py-3.5 bg-blue-500 disabled:bg-gray-200 text-white disabled:text-gray-400 font-semibold rounded-xl flex items-center justify-center gap-2"
+                className="w-full py-4 bg-blue-500 disabled:bg-gray-200 text-white disabled:text-gray-400 font-semibold rounded-xl flex items-center justify-center gap-2"
                 data-testid="confirm-upload-btn"
               >
                 {uploading ? (

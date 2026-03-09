@@ -142,3 +142,42 @@ code {
 .animate-slideUp {
     animation: slideUp 0.3s ease-out;
 }
+
+
+/* Leaflet marker styles - ensure visibility */
+.sale-marker,
+.buy-marker {
+    background: transparent !important;
+    border: none !important;
+}
+
+.sale-marker > div,
+.buy-marker > div {
+    cursor: pointer;
+    transition: transform 0.15s ease;
+}
+
+.sale-marker:hover > div,
+.buy-marker:hover > div {
+    transform: scale(1.1);
+}
+
+/* Fix Leaflet popup styling */
+.leaflet-popup-content-wrapper {
+    border-radius: 16px !important;
+    padding: 0 !important;
+}
+
+.leaflet-popup-content {
+    margin: 0 !important;
+    padding: 12px !important;
+}
+
+.leaflet-popup-tip {
+    background: white !important;
+}
+
+/* Ensure marker z-index */
+.leaflet-marker-pane {
+    z-index: 650 !important;
+}

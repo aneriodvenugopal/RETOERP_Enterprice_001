@@ -101,6 +101,16 @@ Build a comprehensive Real Estate ERP (RealApex) SaaS platform for the Indian re
   - Improved Add Note sheet with proper input styling
   - Better date/time picker styling with rounded corners
   - Gradient button with hover effects
+- [x] **UI Fixes - Sticky Buttons (Mar 9, 2026)**
+  - Interest Areas form: Sticky "Save & Get Alerts" button always visible at bottom
+  - Documents upload form: Sticky "Upload Document" button always visible
+  - Fixed drawer max-height from 90vh to 85vh for better mobile viewing
+  - Added Leaflet marker CSS for better visibility and hover effects
+- [x] **PWA Install Prompt (Mar 9, 2026)**
+  - Install banner shows on Dashboard for mobile users
+  - "Install" and "Later" options
+  - iOS detection with specific instructions ("Tap Share → Add to Home Screen")
+  - Auto-hides if already installed in standalone mode
 - [x] **AgentApex Admin Module** (`/admin/agentapex`) - SaaS admin management
   - Overview tab with user/property/lead/requirement stats
   - Users tab with search and table view

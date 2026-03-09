@@ -291,8 +291,8 @@ const InterestAreas = () => {
       <Drawer.Root open={showAdd} onOpenChange={(open) => { setShowAdd(open); if (!open) resetForm(); }}>
         <Drawer.Portal>
           <Drawer.Overlay className="fixed inset-0 bg-black/50 z-[1001]" />
-          <Drawer.Content className="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl z-[1002] outline-none max-h-[92vh] overflow-y-auto">
-            <div className="p-4 pb-8">
+          <Drawer.Content className="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl z-[1002] outline-none max-h-[85vh] flex flex-col">
+            <div className="p-4 flex-1 overflow-y-auto">
               <div className="w-10 h-1 bg-gray-300 rounded-full mx-auto mb-4" />
               
               <div className="flex items-center justify-between mb-4">
@@ -444,7 +444,10 @@ const InterestAreas = () => {
                   />
                 </div>
               </div>
-              
+            </div>
+            
+            {/* Sticky Footer with Button */}
+            <div className="p-4 pt-2 border-t border-gray-100 bg-white">
               <button
                 onClick={handleAddArea}
                 disabled={!formData.name || !formData.latitude}

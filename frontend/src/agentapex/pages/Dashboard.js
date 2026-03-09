@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { 
   Home, Search, PlusSquare, Heart, User,
   Building2, MapPin, Users, TrendingUp, ChevronRight,
-  FileText, Clock, Bell, Share2
+  FileText, Clock, Bell, Share2, Download
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -144,6 +144,49 @@ const Dashboard = () => {
   const [stats, setStats] = useState({ properties: 0, leads: 0, followups: 0, favorites: 0 });
   const [unreadNotifications, setUnreadNotifications] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [showInstallBanner, setShowInstallBanner] = useState(false);
+
+  // PWA Install prompt handler
+  useEffect(() => {
+    const handler = (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      // Show banner if not already installed
+      if (!window.matchMedia('(display-mode: standalone)').matches) {
+        setShowInstallBanner(true);
+      }
+    };
+    
+    window.addEventListener('beforeinstallprompt', handler);
+    
+    // Check if already in standalone mode
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+      setShowInstallBanner(false);
+    }
+    
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
+
+  const installApp = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        toast.success('App installed successfully!');
+        setShowInstallBanner(false);
+      }
+      setDeferredPrompt(null);
+    } else {
+      // iOS instructions
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+      if (isIOS) {
+        toast.info('Tap Share button → Add to Home Screen', { duration: 5000 });
+      } else {
+        toast.info('Use browser menu → Install App', { duration: 3000 });
+      }
+    }
+  };
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -187,6 +230,39 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
+      {/* PWA Install Banner */}
+      {showInstallBanner && (
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-3 flex items-center justify-between"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+              <Download className="w-5 h-5" />
+            </div>
+            <div>
+              <p className="font-semibold text-sm">Install AgentApex</p>
+              <p className="text-xs text-blue-100">Add to home screen for quick access</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={() => setShowInstallBanner(false)}
+              className="px-3 py-1.5 text-sm text-white/80"
+            >
+              Later
+            </button>
+            <button 
+              onClick={installApp}
+              className="px-4 py-1.5 bg-white text-blue-600 text-sm font-semibold rounded-lg"
+            >
+              Install
+            </button>
+          </div>
+        </motion.div>
+      )}
+
       {/* iOS-style Header with blur */}
       <motion.header 
         initial={{ opacity: 0, y: -20 }}
