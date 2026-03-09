@@ -274,14 +274,7 @@ const MapSearch = () => {
             For Sale ({properties.length})
           </button>
           <button
-            onClick={() => {
-              setListingMode('buy');
-              // Center map on first requirement if available
-              const reqsWithLocation = requirements.filter(r => r.latitude && r.longitude);
-              if (reqsWithLocation.length > 0) {
-                setSearchCenter([reqsWithLocation[0].latitude, reqsWithLocation[0].longitude]);
-              }
-            }}
+            onClick={() => setListingMode('buy')}
             data-testid="mode-buy"
             className={`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all ${
               listingMode === 'buy' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
@@ -433,20 +426,43 @@ const MapSearch = () => {
               {listingMode === 'sell' && properties.map(p => (
                 <Marker key={p.id} position={[p.latitude, p.longitude]} icon={createSaleMarker(p.price, p.price_unit, p.property_type)}>
                   <Popup>
-                    <div className="min-w-[200px] p-1">
-                      <div className="bg-gradient-to-r from-amber-500 to-orange-500 text-white px-3 py-2 rounded-t-lg">
-                        <div className="flex items-center gap-2">
-                          <span className="text-xl">{p.property_type === 'Land' ? '🌾' : '📐'}</span>
-                          <span className="font-bold text-lg">₹{p.price} {p.price_unit}</span>
-                        </div>
+                    <div style={{minWidth: '220px', padding: '0'}}>
+                      <div style={{
+                        background: 'linear-gradient(135deg, #f59e0b, #ea580c)',
+                        color: 'white',
+                        padding: '12px 16px',
+                        borderRadius: '12px 12px 0 0',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px'
+                      }}>
+                        <span style={{fontSize: '24px'}}>{p.property_type === 'Land' ? '🌾' : '📐'}</span>
+                        <span style={{fontWeight: '700', fontSize: '18px'}}>₹{p.price} {p.price_unit}</span>
                       </div>
-                      <div className="bg-white px-3 py-3 rounded-b-lg border border-t-0 border-gray-100">
-                        <p className="text-gray-900 font-semibold">{p.property_type}</p>
-                        <p className="text-gray-500 text-sm mt-1">{p.area} {p.area_unit}</p>
-                        <p className="text-gray-400 text-xs mt-1 truncate">{p.location}</p>
+                      <div style={{
+                        background: 'white',
+                        padding: '12px 16px',
+                        borderRadius: '0 0 12px 12px',
+                        border: '1px solid #e5e7eb',
+                        borderTop: 'none'
+                      }}>
+                        <p style={{margin: '0', fontWeight: '600', color: '#111827', fontSize: '15px'}}>{p.property_type}</p>
+                        <p style={{margin: '4px 0 0', color: '#6b7280', fontSize: '13px'}}>{p.area} {p.area_unit}</p>
+                        <p style={{margin: '4px 0 0', color: '#9ca3af', fontSize: '12px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>{p.location}</p>
                         <button 
                           onClick={() => navigate(`/agentapex/property/${p.id}`)} 
-                          className="mt-3 w-full py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-lg text-sm font-semibold shadow-md"
+                          style={{
+                            marginTop: '12px',
+                            width: '100%',
+                            padding: '10px',
+                            background: 'linear-gradient(135deg, #f59e0b, #ea580c)',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '8px',
+                            fontSize: '14px',
+                            fontWeight: '600',
+                            cursor: 'pointer'
+                          }}
                         >
                           View Details
                         </button>
@@ -463,18 +479,30 @@ const MapSearch = () => {
                   icon={createBuyMarker(r.property_type)}
                 >
                   <Popup>
-                    <div className="min-w-[200px] p-1">
-                      <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-3 py-2 rounded-t-lg">
-                        <div className="flex items-center gap-2">
-                          <span className="text-xl">{r.property_type === 'Land' ? '🌾' : '📐'}</span>
-                          <span className="font-bold text-lg">WANTED</span>
-                        </div>
+                    <div style={{minWidth: '220px', padding: '0'}}>
+                      <div style={{
+                        background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+                        color: 'white',
+                        padding: '12px 16px',
+                        borderRadius: '12px 12px 0 0',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px'
+                      }}>
+                        <span style={{fontSize: '24px'}}>{r.property_type === 'Land' ? '🌾' : '📐'}</span>
+                        <span style={{fontWeight: '700', fontSize: '18px'}}>WANTED</span>
                       </div>
-                      <div className="bg-white px-3 py-3 rounded-b-lg border border-t-0 border-gray-100">
-                        <p className="text-gray-900 font-semibold">{r.property_type}</p>
-                        <p className="text-blue-600 font-medium text-sm mt-1">Budget: ₹{r.budget_min}-{r.budget_max} {r.budget_unit}</p>
-                        <p className="text-gray-500 text-sm mt-1">Area: {r.area_min}-{r.area_max} {r.area_unit}</p>
-                        <p className="text-gray-400 text-xs mt-1 truncate">{r.location_preference}</p>
+                      <div style={{
+                        background: 'white',
+                        padding: '12px 16px',
+                        borderRadius: '0 0 12px 12px',
+                        border: '1px solid #e5e7eb',
+                        borderTop: 'none'
+                      }}>
+                        <p style={{margin: '0', fontWeight: '600', color: '#111827', fontSize: '15px'}}>{r.property_type}</p>
+                        <p style={{margin: '6px 0 0', color: '#2563eb', fontWeight: '500', fontSize: '14px'}}>Budget: ₹{r.budget_min}-{r.budget_max} {r.budget_unit}</p>
+                        <p style={{margin: '4px 0 0', color: '#6b7280', fontSize: '13px'}}>Area: {r.area_min}-{r.area_max} {r.area_unit}</p>
+                        <p style={{margin: '4px 0 0', color: '#9ca3af', fontSize: '12px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>{r.location_preference}</p>
                       </div>
                     </div>
                   </Popup>
