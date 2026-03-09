@@ -77,6 +77,7 @@ import EnhancedSaaSDashboard from "./pages/admin/EnhancedSaaSDashboard";
 import ArticleManagement from "./pages/admin/ArticleManagement";
 import PackageManagement from "./pages/admin/PackageManagement";
 import TenantManagement from "./pages/admin/TenantManagement";
+import TenantModuleManagement from "./pages/admin/TenantModuleManagement";
 import ChatManagement from "./pages/admin/ChatManagement";
 import IncomeLandsAdminDashboard from "./pages/admin/IncomeLandsAdminDashboard";
 import AgentApexAdminDashboard from "./pages/admin/AgentApexAdminDashboard";
@@ -879,6 +880,14 @@ function App() {
                 element={
                   <PrivateRoute>
                     <TenantManagement />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/admin/tenants/:tenantId/modules"
+                element={
+                  <PrivateRoute>
+                    <TenantModuleManagement />
                   </PrivateRoute>
                 }
               />

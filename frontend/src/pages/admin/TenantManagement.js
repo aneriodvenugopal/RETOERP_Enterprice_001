@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import apiInstance from '../../services/api';
 const api = apiInstance;
-import { Users, Plus, Edit2, Eye, ToggleLeft, ToggleRight, DollarSign, Filter, X, Building, Mail, Phone, Package } from 'lucide-react';
+import { Users, Plus, Edit2, Eye, ToggleLeft, ToggleRight, DollarSign, Filter, X, Building, Mail, Phone, Package, Settings2 } from 'lucide-react';
 
 function TenantManagement() {
   const navigate = useNavigate();
@@ -313,6 +313,13 @@ function TenantManagement() {
                             title="Toggle Status"
                           >
                             {tenant.status === 'active' ? <ToggleRight size={16} /> : <ToggleLeft size={16} />}
+                          </button>
+                          <button
+                            onClick={() => navigate(`/admin/tenants/${tenant.id}/modules`)}
+                            className="p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition"
+                            title="Manage Modules"
+                          >
+                            <Settings2 size={16} />
                           </button>
                         </div>
                       </td>

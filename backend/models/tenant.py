@@ -40,6 +40,20 @@ class Tenant(BaseModel):
     auto_renew: bool = Field(default=True, description="Automatic subscription renewal")
     credits: TenantCredits = Field(default_factory=TenantCredits)
     
+    # Module Permissions - List of enabled module IDs
+    enabled_modules: List[str] = Field(
+        default_factory=lambda: [
+            "dashboard", "projects", "leads", "bookings", "calendar",
+            "financials", "payments", "bank_accounts", "vendors", 
+            "document_locker", "site_visits", "booking_queue",
+            "customers", "resale_release", "emi_payments", "complaints",
+            "referral_wallet", "sms", "email", "ai_agents",
+            "festival_greetings", "commission_analytics", "payments_dashboard",
+            "billing", "settings", "staff"
+        ],
+        description="List of module IDs that tenant can access"
+    )
+    
     # Landing Page / Custom Domain fields
     custom_domain: Optional[str] = Field(None, description="Custom domain for tenant (e.g., abc.com)")
     subdomain: Optional[str] = Field(None, description="Subdomain slug (e.g., 'abc' for abc.realapex.in)")

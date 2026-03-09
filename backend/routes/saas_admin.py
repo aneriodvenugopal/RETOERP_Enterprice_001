@@ -12,7 +12,7 @@ def get_db(request: Request):
     return request.app.state.db
 
 async def require_saas_admin(request: Request):
-    """Verify user is SaaS admin (phone: 9948303060)"""
+    """Verify user is SaaS admin (phone: 9948303060) or has super_admin role"""
     user_payload = await get_current_user(request)
     
     # Get user from database
@@ -22,8 +22,11 @@ async def require_saas_admin(request: Request):
     if not user_doc:
         raise HTTPException(status_code=404, detail="User not found")
     
-    # Check if user is SaaS admin (9948303060)
-    if user_doc.get('phone') != '9948303060':
+    # Check if user is SaaS admin (9948303060) or has super_admin role
+    is_saas_admin_phone = user_doc.get('phone') == '9948303060'
+    is_super_admin = user_doc.get('role') == 'super_admin'
+    
+    if not (is_saas_admin_phone or is_super_admin):
         raise HTTPException(status_code=403, detail="Access denied. SaaS admin only.")
     
     return user_payload
@@ -612,4 +615,151 @@ async def get_tenant_hierarchy(
         "total_projects": len(projects),
         "total_properties": sum(p['property_count'] for p in projects),
         "total_staff": sum(p['staff_count'] for p in projects)
+    }
+
+
+
+# ============ MODULE PERMISSIONS ============
+
+# List of all available modules
+AVAILABLE_MODULES = [
+    {"id": "dashboard", "name": "Dashboard", "description": "Main dashboard overview", "category": "core"},
+    {"id": "projects", "name": "Projects", "description": "Project management", "category": "core"},
+    {"id": "leads", "name": "Leads/CRM", "description": "Lead management and CRM", "category": "sales"},
+    {"id": "bookings", "name": "Bookings", "description": "Property bookings", "category": "sales"},
+    {"id": "calendar", "name": "Calendar", "description": "Schedule and appointments", "category": "core"},
+    {"id": "financials", "name": "Financials", "description": "Financial reports", "category": "finance"},
+    {"id": "payments", "name": "Payments", "description": "Customer payments", "category": "finance"},
+    {"id": "bank_accounts", "name": "Bank Accounts", "description": "Bank account management", "category": "finance"},
+    {"id": "vendors", "name": "Vendors", "description": "Vendor management", "category": "finance"},
+    {"id": "document_locker", "name": "Document Locker", "description": "Document storage", "category": "tools"},
+    {"id": "site_visits", "name": "Site Visits", "description": "Site visit scheduling", "category": "sales"},
+    {"id": "booking_queue", "name": "Booking Queue", "description": "Booking waitlist", "category": "sales"},
+    {"id": "customers", "name": "Customers", "description": "Customer management", "category": "sales"},
+    {"id": "resale_release", "name": "Resale/Release", "description": "Property resale and release", "category": "sales"},
+    {"id": "emi_payments", "name": "EMI Payments", "description": "EMI payment tracking", "category": "finance"},
+    {"id": "complaints", "name": "Complaints", "description": "Complaint management", "category": "support"},
+    {"id": "referral_wallet", "name": "Referral & Wallet", "description": "Referral program and wallet", "category": "marketing"},
+    {"id": "sms", "name": "SMS", "description": "SMS management", "category": "communication"},
+    {"id": "email", "name": "Email", "description": "Email management", "category": "communication"},
+    {"id": "ai_agents", "name": "AI Agents", "description": "AI-powered tools", "category": "tools"},
+    {"id": "festival_greetings", "name": "Festival Greetings", "description": "Holiday greetings", "category": "marketing"},
+    {"id": "commission_analytics", "name": "Commission Analytics", "description": "Sales commission reports", "category": "finance"},
+    {"id": "payments_dashboard", "name": "Payments Dashboard", "description": "Payment analytics", "category": "finance"},
+    {"id": "billing", "name": "Billing", "description": "Subscription billing", "category": "core"},
+    {"id": "settings", "name": "Settings", "description": "Account settings", "category": "core"},
+    {"id": "staff", "name": "Staff Management", "description": "Team management", "category": "core"},
+]
+
+@router.get("/modules")
+async def get_available_modules(_: dict = Depends(require_saas_admin)):
+    """Get list of all available modules"""
+    return {
+        "success": True,
+        "modules": AVAILABLE_MODULES
+    }
+
+@router.get("/tenants/{tenant_id}/modules")
+async def get_tenant_modules(
+    tenant_id: str,
+    request: Request,
+    _: dict = Depends(require_saas_admin)
+):
+    """Get enabled modules for a tenant"""
+    db = get_db(request)
+    
+    tenant = await db.tenants.find_one({'id': tenant_id, 'deleted_at': None}, {"_id": 0})
+    if not tenant:
+        raise HTTPException(status_code=404, detail="Tenant not found")
+    
+    # Get enabled modules (default to all if not set)
+    enabled_modules = tenant.get('enabled_modules', [m['id'] for m in AVAILABLE_MODULES])
+    
+    return {
+        "success": True,
+        "tenant_id": tenant_id,
+        "tenant_name": tenant.get('company_name', tenant.get('name')),
+        "enabled_modules": enabled_modules,
+        "all_modules": AVAILABLE_MODULES
+    }
+
+@router.put("/tenants/{tenant_id}/modules")
+async def update_tenant_modules(
+    tenant_id: str,
+    request: Request,
+    _: dict = Depends(require_saas_admin)
+):
+    """Update enabled modules for a tenant"""
+    db = get_db(request)
+    
+    # Parse request body
+    body = await request.json()
+    enabled_modules = body.get('enabled_modules', [])
+    
+    # Validate module IDs
+    valid_module_ids = [m['id'] for m in AVAILABLE_MODULES]
+    for module_id in enabled_modules:
+        if module_id not in valid_module_ids:
+            raise HTTPException(status_code=400, detail=f"Invalid module ID: {module_id}")
+    
+    # Update tenant
+    result = await db.tenants.update_one(
+        {'id': tenant_id, 'deleted_at': None},
+        {'$set': {
+            'enabled_modules': enabled_modules,
+            'updated_at': datetime.now(timezone.utc)
+        }}
+    )
+    
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="Tenant not found or no changes made")
+    
+    return {
+        "success": True,
+        "message": "Modules updated successfully",
+        "enabled_modules": enabled_modules
+    }
+
+
+# ============ TENANT MODULE CHECK (For Frontend) ============
+
+@router.get("/my-modules")
+async def get_my_modules(request: Request):
+    """Get enabled modules for current user's tenant (public endpoint for tenants)"""
+    from middleware.auth import get_current_user
+    
+    try:
+        user_payload = await get_current_user(request)
+    except Exception:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    
+    db = get_db(request)
+    
+    # Get user
+    user = await db.users.find_one({'id': user_payload['user_id']}, {"_id": 0})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    tenant_id = user.get('tenant_id')
+    if not tenant_id:
+        # Return all modules for users without tenant (maybe super admin)
+        return {
+            "success": True,
+            "enabled_modules": [m['id'] for m in AVAILABLE_MODULES],
+            "is_admin": True
+        }
+    
+    # Get tenant
+    tenant = await db.tenants.find_one({'id': tenant_id, 'deleted_at': None}, {"_id": 0})
+    if not tenant:
+        raise HTTPException(status_code=404, detail="Tenant not found")
+    
+    # Get enabled modules (default to all if not set)
+    enabled_modules = tenant.get('enabled_modules', [m['id'] for m in AVAILABLE_MODULES])
+    
+    return {
+        "success": True,
+        "tenant_id": tenant_id,
+        "enabled_modules": enabled_modules,
+        "is_admin": False
     }

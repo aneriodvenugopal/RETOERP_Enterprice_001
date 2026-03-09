@@ -111,6 +111,13 @@ Build a comprehensive Real Estate ERP (RealApex) SaaS platform for the Indian re
   - "Install" and "Later" options
   - iOS detection with specific instructions ("Tap Share → Add to Home Screen")
   - Auto-hides if already installed in standalone mode
+- [x] **SaaS Admin Module Permissions (Mar 9, 2026)**
+  - Super admin can enable/disable modules for each tenant
+  - 26 modules organized by category (Core, Sales, Finance, Communication, Tools, Marketing, Support)
+  - Toggle switches for individual modules and bulk enable/disable per category
+  - Core modules (Dashboard, Settings) always enabled
+  - API endpoints: `/api/saas-admin/modules`, `/api/saas-admin/tenants/{id}/modules`, `/api/saas-admin/my-modules`
+  - Admin UI at `/admin/tenants/{id}/modules` with gear icon in tenant list
 - [x] **AgentApex Admin Module** (`/admin/agentapex`) - SaaS admin management
   - Overview tab with user/property/lead/requirement stats
   - Users tab with search and table view
