@@ -35,15 +35,10 @@ export const ModuleProvider = ({ children }) => {
       }
     } catch (err) {
       console.error('Failed to fetch modules:', err);
-      // Default to all modules on error (fail open for better UX)
+      // Default to essential modules on error
       setEnabledModules([
-        'dashboard', 'projects', 'leads', 'bookings', 'calendar',
-        'financials', 'payments', 'bank_accounts', 'vendors',
-        'document_locker', 'site_visits', 'booking_queue',
-        'customers', 'resale_release', 'emi_payments', 'complaints',
-        'referral_wallet', 'sms', 'email', 'ai_agents',
-        'festival_greetings', 'commission_analytics', 'payments_dashboard',
-        'billing', 'settings', 'staff'
+        'dashboard', 'projects', 'leads', 'bookings_sales',
+        'billing_subscription', 'users_staff'
       ]);
     } finally {
       setLoading(false);

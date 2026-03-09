@@ -12,7 +12,9 @@ const CATEGORY_ICONS = {
   communication: <MessageSquare className="w-4 h-4" />,
   tools: <FileText className="w-4 h-4" />,
   marketing: <BarChart3 className="w-4 h-4" />,
-  support: <MessageSquare className="w-4 h-4" />
+  support: <MessageSquare className="w-4 h-4" />,
+  settings: <Settings className="w-4 h-4" />,
+  categories: <Package className="w-4 h-4" />
 };
 
 const CATEGORY_COLORS = {
@@ -22,7 +24,9 @@ const CATEGORY_COLORS = {
   communication: 'bg-purple-100 text-purple-700 border-purple-200',
   tools: 'bg-gray-100 text-gray-700 border-gray-200',
   marketing: 'bg-pink-100 text-pink-700 border-pink-200',
-  support: 'bg-red-100 text-red-700 border-red-200'
+  support: 'bg-red-100 text-red-700 border-red-200',
+  settings: 'bg-indigo-100 text-indigo-700 border-indigo-200',
+  categories: 'bg-teal-100 text-teal-700 border-teal-200'
 };
 
 function TenantModuleManagement() {
@@ -227,7 +231,7 @@ function TenantModuleManagement() {
               <div className="bg-white border border-t-0 rounded-b-xl divide-y">
                 {modules.map(module => {
                   const isEnabled = enabledModules.includes(module.id);
-                  const isCore = module.id === 'dashboard' || module.id === 'settings';
+                  const isEssential = module.essential === true;
                   
                   return (
                     <div
@@ -238,11 +242,10 @@ function TenantModuleManagement() {
                     >
                       <div className="flex items-center gap-4">
                         <button
-                          onClick={() => !isCore && toggleModule(module.id)}
-                          disabled={isCore}
-                          className={`w-10 h-6 rounded-full transition-colors relative ${
+                          onClick={() => toggleModule(module.id)}
+                          className={`w-10 h-6 rounded-full transition-colors relative cursor-pointer ${
                             isEnabled ? 'bg-green-500' : 'bg-gray-300'
-                          } ${isCore ? 'cursor-not-allowed opacity-70' : 'cursor-pointer'}`}
+                          }`}
                         >
                           <span
                             className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${
@@ -253,9 +256,9 @@ function TenantModuleManagement() {
                         <div>
                           <p className={`font-medium ${isEnabled ? 'text-gray-900' : 'text-gray-500'}`}>
                             {module.name}
-                            {isCore && (
-                              <span className="ml-2 text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">
-                                Core
+                            {isEssential && (
+                              <span className="ml-2 text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded">
+                                Essential
                               </span>
                             )}
                           </p>

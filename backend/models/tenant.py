@@ -41,15 +41,15 @@ class Tenant(BaseModel):
     credits: TenantCredits = Field(default_factory=TenantCredits)
     
     # Module Permissions - List of enabled module IDs
+    # Default: Only essential modules for Indian real estate companies
     enabled_modules: List[str] = Field(
         default_factory=lambda: [
-            "dashboard", "projects", "leads", "bookings", "calendar",
-            "financials", "payments", "bank_accounts", "vendors", 
-            "document_locker", "site_visits", "booking_queue",
-            "customers", "resale_release", "emi_payments", "complaints",
-            "referral_wallet", "sms", "email", "ai_agents",
-            "festival_greetings", "commission_analytics", "payments_dashboard",
-            "billing", "settings", "staff"
+            "dashboard",           # Always needed
+            "projects",            # Core - manage properties
+            "leads",               # Core - track leads
+            "bookings_sales",      # Core - track sales
+            "billing_subscription", # Core - manage subscription
+            "users_staff",         # Core - manage team
         ],
         description="List of module IDs that tenant can access"
     )

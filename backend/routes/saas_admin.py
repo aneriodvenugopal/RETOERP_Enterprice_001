@@ -621,34 +621,51 @@ async def get_tenant_hierarchy(
 
 # ============ MODULE PERMISSIONS ============
 
-# List of all available modules
+# List of all available modules (matching Dashboard UI)
 AVAILABLE_MODULES = [
-    {"id": "dashboard", "name": "Dashboard", "description": "Main dashboard overview", "category": "core"},
-    {"id": "projects", "name": "Projects", "description": "Project management", "category": "core"},
-    {"id": "leads", "name": "Leads/CRM", "description": "Lead management and CRM", "category": "sales"},
-    {"id": "bookings", "name": "Bookings", "description": "Property bookings", "category": "sales"},
-    {"id": "calendar", "name": "Calendar", "description": "Schedule and appointments", "category": "core"},
-    {"id": "financials", "name": "Financials", "description": "Financial reports", "category": "finance"},
-    {"id": "payments", "name": "Payments", "description": "Customer payments", "category": "finance"},
-    {"id": "bank_accounts", "name": "Bank Accounts", "description": "Bank account management", "category": "finance"},
-    {"id": "vendors", "name": "Vendors", "description": "Vendor management", "category": "finance"},
-    {"id": "document_locker", "name": "Document Locker", "description": "Document storage", "category": "tools"},
-    {"id": "site_visits", "name": "Site Visits", "description": "Site visit scheduling", "category": "sales"},
-    {"id": "booking_queue", "name": "Booking Queue", "description": "Booking waitlist", "category": "sales"},
-    {"id": "customers", "name": "Customers", "description": "Customer management", "category": "sales"},
-    {"id": "resale_release", "name": "Resale/Release", "description": "Property resale and release", "category": "sales"},
-    {"id": "emi_payments", "name": "EMI Payments", "description": "EMI payment tracking", "category": "finance"},
-    {"id": "complaints", "name": "Complaints", "description": "Complaint management", "category": "support"},
-    {"id": "referral_wallet", "name": "Referral & Wallet", "description": "Referral program and wallet", "category": "marketing"},
-    {"id": "sms", "name": "SMS", "description": "SMS management", "category": "communication"},
-    {"id": "email", "name": "Email", "description": "Email management", "category": "communication"},
-    {"id": "ai_agents", "name": "AI Agents", "description": "AI-powered tools", "category": "tools"},
-    {"id": "festival_greetings", "name": "Festival Greetings", "description": "Holiday greetings", "category": "marketing"},
-    {"id": "commission_analytics", "name": "Commission Analytics", "description": "Sales commission reports", "category": "finance"},
-    {"id": "payments_dashboard", "name": "Payments Dashboard", "description": "Payment analytics", "category": "finance"},
-    {"id": "billing", "name": "Billing", "description": "Subscription billing", "category": "core"},
-    {"id": "settings", "name": "Settings", "description": "Account settings", "category": "core"},
-    {"id": "staff", "name": "Staff Management", "description": "Team management", "category": "core"},
+    # Main Modules
+    {"id": "dashboard", "name": "Dashboard", "description": "Main dashboard overview", "category": "core", "essential": True},
+    {"id": "projects", "name": "Projects", "description": "Manage your real estate projects", "category": "core", "essential": True},
+    {"id": "leads", "name": "Leads", "description": "Manage and track your leads", "category": "sales", "essential": True},
+    {"id": "bookings_sales", "name": "Bookings & Sales", "description": "Track bookings and payments", "category": "sales", "essential": True},
+    {"id": "reports_analytics", "name": "Reports & Analytics", "description": "View insights and reports", "category": "core", "essential": False},
+    
+    # Finance
+    {"id": "financial_management", "name": "Financial Management", "description": "Track payments and expenses", "category": "finance", "essential": False},
+    {"id": "payments_dashboard", "name": "Payments Dashboard", "description": "Track collections, overdue & targets", "category": "finance", "essential": False},
+    {"id": "commission_analytics", "name": "Commission Analytics", "description": "Track earnings, performance & payouts", "category": "finance", "essential": False},
+    {"id": "stripe_payments", "name": "Stripe Payments", "description": "Online payments & transaction history", "category": "finance", "essential": False},
+    
+    # Tools & Automation
+    {"id": "ai_agents", "name": "AI Agents", "description": "AI-powered assistants for your business", "category": "tools", "essential": False},
+    {"id": "sms_automation", "name": "SMS Automation", "description": "Automated SMS for leads & bookings", "category": "communication", "essential": False},
+    {"id": "email_management", "name": "Email Management", "description": "Send and track transactional emails", "category": "communication", "essential": False},
+    {"id": "billing_subscription", "name": "Billing & Subscription", "description": "Manage your plan and view invoices", "category": "core", "essential": True},
+    {"id": "block_locations", "name": "Block Locations", "description": "Configure GPS locations for property blocks", "category": "tools", "essential": False},
+    
+    # Settings & Management
+    {"id": "users_staff", "name": "Users & Staff", "description": "Manage team members and roles", "category": "settings", "essential": True},
+    {"id": "role_assignments", "name": "Role Assignments", "description": "Manage multi-role assignments & permissions", "category": "settings", "essential": False},
+    {"id": "bank_accounts", "name": "Bank Accounts", "description": "Project-wise banking & accounts", "category": "finance", "essential": False},
+    {"id": "vendors_management", "name": "Vendors Management", "description": "Manage vendors & payment transfers", "category": "finance", "essential": False},
+    {"id": "marketing_agents", "name": "Marketing Agents", "description": "Agents, commissions & payouts", "category": "sales", "essential": False},
+    {"id": "customer_portal", "name": "Customer Portal", "description": "View customer experience", "category": "sales", "essential": False},
+    
+    # Category Management
+    {"id": "master_categories", "name": "Master Categories", "description": "System-wide property categories", "category": "categories", "essential": False},
+    {"id": "master_subcategories", "name": "Master Subcategories", "description": "System-wide property subcategories", "category": "categories", "essential": False},
+    {"id": "tenant_categories", "name": "Tenant Categories", "description": "Your custom property categories", "category": "categories", "essential": False},
+    {"id": "tenant_subcategories", "name": "Tenant Subcategories", "description": "Your custom property subcategories", "category": "categories", "essential": False},
+]
+
+# Default enabled modules for new tenants (essential modules for Indian real estate)
+DEFAULT_ENABLED_MODULES = [
+    "dashboard",           # Always needed
+    "projects",            # Core - manage properties
+    "leads",               # Core - track leads
+    "bookings_sales",      # Core - track sales
+    "billing_subscription", # Core - manage subscription
+    "users_staff",         # Core - manage team
 ]
 
 @router.get("/modules")
@@ -672,8 +689,8 @@ async def get_tenant_modules(
     if not tenant:
         raise HTTPException(status_code=404, detail="Tenant not found")
     
-    # Get enabled modules (default to all if not set)
-    enabled_modules = tenant.get('enabled_modules', [m['id'] for m in AVAILABLE_MODULES])
+    # Get enabled modules (default to essential modules if not set)
+    enabled_modules = tenant.get('enabled_modules', DEFAULT_ENABLED_MODULES)
     
     return {
         "success": True,
@@ -754,8 +771,8 @@ async def get_my_modules(request: Request):
     if not tenant:
         raise HTTPException(status_code=404, detail="Tenant not found")
     
-    # Get enabled modules (default to all if not set)
-    enabled_modules = tenant.get('enabled_modules', [m['id'] for m in AVAILABLE_MODULES])
+    # Get enabled modules (default to essential modules if not set)
+    enabled_modules = tenant.get('enabled_modules', DEFAULT_ENABLED_MODULES)
     
     return {
         "success": True,
