@@ -146,35 +146,54 @@ code {
 
 /* Leaflet marker styles - ensure visibility */
 .sale-marker,
-.buy-marker {
+.buy-marker,
+.user-loc {
     background: transparent !important;
     border: none !important;
 }
 
 .sale-marker > div,
-.buy-marker > div {
+.buy-marker > div,
+.user-loc > div {
     cursor: pointer;
     transition: transform 0.15s ease;
 }
 
 .sale-marker:hover > div,
-.buy-marker:hover > div {
+.buy-marker:hover > div,
+.user-loc:hover > div {
     transform: scale(1.1);
 }
 
 /* Fix Leaflet popup styling */
 .leaflet-popup-content-wrapper {
-    border-radius: 16px !important;
+    border-radius: 12px !important;
     padding: 0 !important;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15) !important;
+    overflow: hidden !important;
 }
 
 .leaflet-popup-content {
     margin: 0 !important;
-    padding: 12px !important;
+    padding: 0 !important;
+    min-width: 200px !important;
+}
+
+.leaflet-popup-tip-container {
+    margin-top: -1px;
 }
 
 .leaflet-popup-tip {
     background: white !important;
+    box-shadow: none !important;
+}
+
+.leaflet-popup-close-button {
+    color: #666 !important;
+    font-size: 20px !important;
+    padding: 8px !important;
+    right: 4px !important;
+    top: 4px !important;
 }
 
 /* Ensure marker z-index */

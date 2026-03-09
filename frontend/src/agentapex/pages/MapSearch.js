@@ -397,10 +397,25 @@ const MapSearch = () => {
                 <>
                   <Marker position={[userLocation.latitude, userLocation.longitude]} icon={L.divIcon({
                     className: 'user-loc',
-                    html: '<div style="width:12px;height:12px;background:#0095F6;border:3px solid white;border-radius:50%;box-shadow:0 0 0 2px rgba(0,149,246,0.3)"></div>',
-                    iconSize: [12, 12], iconAnchor: [6, 6]
+                    html: `<div style="
+                      width:40px;
+                      height:40px;
+                      background:linear-gradient(135deg, #667eea, #764ba2);
+                      border:3px solid white;
+                      border-radius:50%;
+                      box-shadow:0 3px 10px rgba(102,126,234,0.4);
+                      display:flex;
+                      align-items:center;
+                      justify-content:center;
+                    ">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                      </svg>
+                    </div>`,
+                    iconSize: [40, 40], iconAnchor: [20, 20], popupAnchor: [0, -20]
                   })}>
-                    <Popup><span className="text-sm font-medium">You are here</span></Popup>
+                    <Popup><span className="text-sm font-medium">📍 You are here</span></Popup>
                   </Marker>
                   <Circle 
                     center={[userLocation.latitude, userLocation.longitude]} 
@@ -418,19 +433,24 @@ const MapSearch = () => {
               {listingMode === 'sell' && properties.map(p => (
                 <Marker key={p.id} position={[p.latitude, p.longitude]} icon={createSaleMarker(p.price, p.price_unit, p.property_type)}>
                   <Popup>
-                    <div className="min-w-[180px]">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-lg">{p.property_type === 'Land' ? '🌾' : '📐'}</span>
-                        <span className="font-bold text-amber-600">₹{p.price} {p.price_unit}</span>
+                    <div className="min-w-[200px] p-1">
+                      <div className="bg-gradient-to-r from-amber-500 to-orange-500 text-white px-3 py-2 rounded-t-lg">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xl">{p.property_type === 'Land' ? '🌾' : '📐'}</span>
+                          <span className="font-bold text-lg">₹{p.price} {p.price_unit}</span>
+                        </div>
                       </div>
-                      <p className="text-gray-600 text-sm font-medium">{p.property_type}</p>
-                      <p className="text-gray-400 text-xs">{p.area} {p.area_unit} • {p.location}</p>
-                      <button 
-                        onClick={() => navigate(`/agentapex/property/${p.id}`)} 
-                        className="mt-3 w-full py-2.5 bg-gray-900 text-white rounded-lg text-sm font-medium"
-                      >
-                        View Details
-                      </button>
+                      <div className="bg-white px-3 py-3 rounded-b-lg border border-t-0 border-gray-100">
+                        <p className="text-gray-900 font-semibold">{p.property_type}</p>
+                        <p className="text-gray-500 text-sm mt-1">{p.area} {p.area_unit}</p>
+                        <p className="text-gray-400 text-xs mt-1 truncate">{p.location}</p>
+                        <button 
+                          onClick={() => navigate(`/agentapex/property/${p.id}`)} 
+                          className="mt-3 w-full py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-lg text-sm font-semibold shadow-md"
+                        >
+                          View Details
+                        </button>
+                      </div>
                     </div>
                   </Popup>
                 </Marker>
@@ -443,15 +463,19 @@ const MapSearch = () => {
                   icon={createBuyMarker(r.property_type)}
                 >
                   <Popup>
-                    <div className="min-w-[180px]">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-lg">{r.property_type === 'Land' ? '🌾' : '📐'}</span>
-                        <span className="font-bold text-blue-600">Wanted</span>
+                    <div className="min-w-[200px] p-1">
+                      <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-3 py-2 rounded-t-lg">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xl">{r.property_type === 'Land' ? '🌾' : '📐'}</span>
+                          <span className="font-bold text-lg">WANTED</span>
+                        </div>
                       </div>
-                      <p className="text-gray-600 text-sm font-medium">{r.property_type}</p>
-                      <p className="text-gray-500 text-sm">Budget: ₹{r.budget_min}-{r.budget_max} {r.budget_unit}</p>
-                      <p className="text-gray-400 text-xs">{r.location_preference}</p>
-                      <p className="text-xs text-gray-400 mt-1">Area: {r.area_min}-{r.area_max} {r.area_unit}</p>
+                      <div className="bg-white px-3 py-3 rounded-b-lg border border-t-0 border-gray-100">
+                        <p className="text-gray-900 font-semibold">{r.property_type}</p>
+                        <p className="text-blue-600 font-medium text-sm mt-1">Budget: ₹{r.budget_min}-{r.budget_max} {r.budget_unit}</p>
+                        <p className="text-gray-500 text-sm mt-1">Area: {r.area_min}-{r.area_max} {r.area_unit}</p>
+                        <p className="text-gray-400 text-xs mt-1 truncate">{r.location_preference}</p>
+                      </div>
                     </div>
                   </Popup>
                 </Marker>
