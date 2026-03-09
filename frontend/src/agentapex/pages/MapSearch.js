@@ -151,6 +151,8 @@ const MapSearch = () => {
   const [maxPrice, setMaxPrice] = useState(500);
   const [radius, setRadius] = useState(10);
   const [searchCenter, setSearchCenter] = useState(null);
+  const [selectedProperty, setSelectedProperty] = useState(null);
+  const [selectedRequirement, setSelectedRequirement] = useState(null);
   
   const debouncedSearch = useDebounce(searchQuery, 300);
   
@@ -424,52 +426,17 @@ const MapSearch = () => {
               )}
               
               {listingMode === 'sell' && properties.map(p => (
-                <Marker key={p.id} position={[p.latitude, p.longitude]} icon={createSaleMarker(p.price, p.price_unit, p.property_type)}>
-                  <Popup>
-                    <div style={{minWidth: '220px', padding: '0'}}>
-                      <div style={{
-                        background: 'linear-gradient(135deg, #f59e0b, #ea580c)',
-                        color: 'white',
-                        padding: '12px 16px',
-                        borderRadius: '12px 12px 0 0',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px'
-                      }}>
-                        <span style={{fontSize: '24px'}}>{p.property_type === 'Land' ? '🌾' : '📐'}</span>
-                        <span style={{fontWeight: '700', fontSize: '18px'}}>₹{p.price} {p.price_unit}</span>
-                      </div>
-                      <div style={{
-                        background: 'white',
-                        padding: '12px 16px',
-                        borderRadius: '0 0 12px 12px',
-                        border: '1px solid #e5e7eb',
-                        borderTop: 'none'
-                      }}>
-                        <p style={{margin: '0', fontWeight: '600', color: '#111827', fontSize: '15px'}}>{p.property_type}</p>
-                        <p style={{margin: '4px 0 0', color: '#6b7280', fontSize: '13px'}}>{p.area} {p.area_unit}</p>
-                        <p style={{margin: '4px 0 0', color: '#9ca3af', fontSize: '12px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>{p.location}</p>
-                        <button 
-                          onClick={() => navigate(`/agentapex/property/${p.id}`)} 
-                          style={{
-                            marginTop: '12px',
-                            width: '100%',
-                            padding: '10px',
-                            background: 'linear-gradient(135deg, #f59e0b, #ea580c)',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '8px',
-                            fontSize: '14px',
-                            fontWeight: '600',
-                            cursor: 'pointer'
-                          }}
-                        >
-                          View Details
-                        </button>
-                      </div>
-                    </div>
-                  </Popup>
-                </Marker>
+                <Marker 
+                  key={p.id} 
+                  position={[p.latitude, p.longitude]} 
+                  icon={createSaleMarker(p.price, p.price_unit, p.property_type)}
+                  eventHandlers={{
+                    click: () => {
+                      setSelectedProperty(p);
+                      setSelectedRequirement(null);
+                    }
+                  }}
+                />
               ))}
 
               {listingMode === 'buy' && requirements.filter(r => r.latitude && r.longitude).map((r) => (
@@ -477,36 +444,13 @@ const MapSearch = () => {
                   key={r.id} 
                   position={[r.latitude, r.longitude]} 
                   icon={createBuyMarker(r.property_type)}
-                >
-                  <Popup>
-                    <div style={{minWidth: '220px', padding: '0'}}>
-                      <div style={{
-                        background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
-                        color: 'white',
-                        padding: '12px 16px',
-                        borderRadius: '12px 12px 0 0',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px'
-                      }}>
-                        <span style={{fontSize: '24px'}}>{r.property_type === 'Land' ? '🌾' : '📐'}</span>
-                        <span style={{fontWeight: '700', fontSize: '18px'}}>WANTED</span>
-                      </div>
-                      <div style={{
-                        background: 'white',
-                        padding: '12px 16px',
-                        borderRadius: '0 0 12px 12px',
-                        border: '1px solid #e5e7eb',
-                        borderTop: 'none'
-                      }}>
-                        <p style={{margin: '0', fontWeight: '600', color: '#111827', fontSize: '15px'}}>{r.property_type}</p>
-                        <p style={{margin: '6px 0 0', color: '#2563eb', fontWeight: '500', fontSize: '14px'}}>Budget: ₹{r.budget_min}-{r.budget_max} {r.budget_unit}</p>
-                        <p style={{margin: '4px 0 0', color: '#6b7280', fontSize: '13px'}}>Area: {r.area_min}-{r.area_max} {r.area_unit}</p>
-                        <p style={{margin: '4px 0 0', color: '#9ca3af', fontSize: '12px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>{r.location_preference}</p>
-                      </div>
-                    </div>
-                  </Popup>
-                </Marker>
+                  eventHandlers={{
+                    click: () => {
+                      setSelectedRequirement(r);
+                      setSelectedProperty(null);
+                    }
+                  }}
+                />
               ))}
             </MapContainer>
             
@@ -649,6 +593,115 @@ const MapSearch = () => {
           </Drawer.Content>
         </Drawer.Portal>
       </Drawer.Root>
+
+      {/* Property Details Bottom Sheet */}
+      <AnimatePresence>
+        {selectedProperty && (
+          <motion.div
+            initial={{ y: '100%' }}
+            animate={{ y: 0 }}
+            exit={{ y: '100%' }}
+            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+            className="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-2xl z-[1000] p-4 pb-8"
+          >
+            <div className="w-10 h-1 bg-gray-300 rounded-full mx-auto mb-4" />
+            <button 
+              onClick={() => setSelectedProperty(null)}
+              className="absolute top-4 right-4 w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center"
+            >
+              <X className="w-4 h-4" />
+            </button>
+            
+            <div className="flex items-start gap-4">
+              <div className="w-16 h-16 bg-gradient-to-br from-amber-400 to-orange-500 rounded-2xl flex items-center justify-center text-3xl">
+                {selectedProperty.property_type === 'Land' ? '🌾' : '📐'}
+              </div>
+              <div className="flex-1">
+                <p className="text-2xl font-bold text-gray-900">₹{selectedProperty.price} {selectedProperty.price_unit}</p>
+                <p className="text-gray-500 font-medium">{selectedProperty.property_type} • {selectedProperty.area} {selectedProperty.area_unit}</p>
+              </div>
+            </div>
+            
+            <div className="mt-4 p-3 bg-gray-50 rounded-xl">
+              <p className="text-sm text-gray-600 flex items-center gap-2">
+                <MapPin className="w-4 h-4 text-gray-400" />
+                {selectedProperty.location}
+              </p>
+            </div>
+            
+            <div className="mt-4 grid grid-cols-2 gap-3">
+              <button
+                onClick={() => {
+                  setSelectedProperty(null);
+                  navigate(`/agentapex/property/${selectedProperty.id}`);
+                }}
+                className="py-4 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-semibold rounded-xl shadow-lg"
+              >
+                View Details
+              </button>
+              <button
+                onClick={() => toggleFavorite(selectedProperty.id)}
+                className={`py-4 rounded-xl font-semibold flex items-center justify-center gap-2 ${
+                  favorites.has(selectedProperty.id) 
+                    ? 'bg-red-50 text-red-500 border border-red-200' 
+                    : 'bg-gray-100 text-gray-700'
+                }`}
+              >
+                <Heart className={`w-5 h-5 ${favorites.has(selectedProperty.id) ? 'fill-current' : ''}`} />
+                {favorites.has(selectedProperty.id) ? 'Saved' : 'Save'}
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Requirement Details Bottom Sheet */}
+      <AnimatePresence>
+        {selectedRequirement && (
+          <motion.div
+            initial={{ y: '100%' }}
+            animate={{ y: 0 }}
+            exit={{ y: '100%' }}
+            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+            className="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-2xl z-[1000] p-4 pb-8"
+          >
+            <div className="w-10 h-1 bg-gray-300 rounded-full mx-auto mb-4" />
+            <button 
+              onClick={() => setSelectedRequirement(null)}
+              className="absolute top-4 right-4 w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center"
+            >
+              <X className="w-4 h-4" />
+            </button>
+            
+            <div className="flex items-start gap-4">
+              <div className="w-16 h-16 bg-gradient-to-br from-blue-400 to-blue-600 rounded-2xl flex items-center justify-center text-3xl">
+                {selectedRequirement.property_type === 'Land' ? '🌾' : '📐'}
+              </div>
+              <div className="flex-1">
+                <p className="text-xl font-bold text-blue-600">WANTED</p>
+                <p className="text-gray-500 font-medium">{selectedRequirement.property_type}</p>
+              </div>
+            </div>
+            
+            <div className="mt-4 space-y-2">
+              <div className="p-3 bg-blue-50 rounded-xl">
+                <p className="text-xs text-blue-600 font-medium">Budget</p>
+                <p className="text-lg font-bold text-gray-900">₹{selectedRequirement.budget_min} - {selectedRequirement.budget_max} {selectedRequirement.budget_unit}</p>
+              </div>
+              <div className="p-3 bg-gray-50 rounded-xl">
+                <p className="text-xs text-gray-500 font-medium">Area Required</p>
+                <p className="text-gray-900 font-semibold">{selectedRequirement.area_min} - {selectedRequirement.area_max} {selectedRequirement.area_unit}</p>
+              </div>
+              <div className="p-3 bg-gray-50 rounded-xl">
+                <p className="text-xs text-gray-500 font-medium flex items-center gap-1">
+                  <MapPin className="w-3 h-3" /> Location
+                </p>
+                <p className="text-gray-700">{selectedRequirement.location_preference}</p>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

@@ -150,6 +150,7 @@ code {
 .user-loc {
     background: transparent !important;
     border: none !important;
+    pointer-events: auto !important;
 }
 
 .sale-marker > div,
@@ -157,12 +158,18 @@ code {
 .user-loc > div {
     cursor: pointer;
     transition: transform 0.15s ease;
+    pointer-events: auto !important;
 }
 
 .sale-marker:hover > div,
 .buy-marker:hover > div,
 .user-loc:hover > div {
     transform: scale(1.1);
+}
+
+/* Leaflet interactive fix */
+.leaflet-marker-icon {
+    pointer-events: auto !important;
 }
 
 /* Fix Leaflet popup styling */
