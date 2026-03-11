@@ -190,6 +190,19 @@ const PublicRoute = ({ children }) => {
   return <PageWrapper>{children}</PageWrapper>;
 };
 
+// Register AgentApex Service Worker for PWA
+const registerServiceWorker = () => {
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/agentapex-sw.js', { scope: '/agentapex' })
+      .then((registration) => {
+        console.log('[AgentApex] SW registered:', registration.scope);
+      })
+      .catch((error) => {
+        console.log('[AgentApex] SW registration failed:', error);
+      });
+  }
+};
+
 // Swipe-back gesture handler for iOS-like navigation
 const SwipeBackHandler = ({ children }) => {
   const navigate = useNavigate();
@@ -202,16 +215,28 @@ const SwipeBackHandler = ({ children }) => {
       manifestLink.href = '/agentapex-manifest.json';
     }
     
-    // Set theme color
+    // Set theme color for AgentApex (amber)
     let themeColor = document.querySelector('meta[name="theme-color"]');
     if (themeColor) {
-      themeColor.content = '#3B82F6';
+      themeColor.content = '#F59E0B';
     }
+    
+    // Add apple-touch-icon for iOS
+    let appleTouchIcon = document.querySelector('link[rel="apple-touch-icon"]');
+    if (appleTouchIcon) {
+      appleTouchIcon.href = '/agentapex-apple-touch-icon.png';
+    }
+    
+    // Register service worker
+    registerServiceWorker();
     
     return () => {
       // Restore default manifest when leaving AgentApex
       if (manifestLink) {
         manifestLink.href = '/manifest.json';
+      }
+      if (themeColor) {
+        themeColor.content = '#0ea5e9';
       }
     };
   }, []);
