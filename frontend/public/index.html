@@ -2,10 +2,16 @@
 <html lang="en">
     <head>
         <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
         <meta name="theme-color" content="#0ea5e9" />
         <meta name="description" content="RealApex - Infrastructure for Real Estate Operations. Manage projects, track leads, handle bookings, process EMI payments. RERA compliant." />
         <meta name="keywords" content="real estate ERP, property management, real estate CRM India, builder software, developer ERP, plot management, apartment booking, EMI tracking, RERA compliant, RealApex" />
+        
+        <!-- iOS PWA Support - CRITICAL for Add to Home Screen -->
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="AgentApex" />
+        <meta name="mobile-web-app-capable" content="yes" />
         
         <!-- Open Graph / Facebook -->
         <meta property="og:type" content="website" />
@@ -27,7 +33,10 @@
         
         <!-- PWA Icons -->
         <link rel="icon" href="%PUBLIC_URL%/realapex-logo.png" />
-        <link rel="apple-touch-icon" href="%PUBLIC_URL%/realapex-logo.png" />
+        <link rel="apple-touch-icon" href="%PUBLIC_URL%/agentapex-apple-touch-icon.png" />
+        <link rel="apple-touch-icon" sizes="180x180" href="%PUBLIC_URL%/agentapex-apple-touch-icon.png" />
+        <link rel="apple-touch-icon" sizes="152x152" href="%PUBLIC_URL%/agentapex-icon-192.png" />
+        <link rel="apple-touch-icon" sizes="120x120" href="%PUBLIC_URL%/agentapex-icon-192.png" />
         
         <!--
       manifest.json provides metadata used when your web app is installed on a
