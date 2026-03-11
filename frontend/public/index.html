@@ -3,25 +3,35 @@
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-        <meta name="theme-color" content="#0ea5e9" />
-        <meta name="description" content="RealApex - Infrastructure for Real Estate Operations. Manage projects, track leads, handle bookings, process EMI payments. RERA compliant." />
-        <meta name="keywords" content="real estate ERP, property management, real estate CRM India, builder software, developer ERP, plot management, apartment booking, EMI tracking, RERA compliant, RealApex" />
         
-        <!-- iOS PWA Support - CRITICAL for Add to Home Screen -->
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="RealApex" id="apple-title" />
-        <meta name="mobile-web-app-capable" content="yes" />
+        <!-- CRITICAL: Dynamically set manifest BEFORE Safari reads it -->
         <script>
-            // Set correct iOS title for AgentApex
             (function() {
-                if (window.location.pathname.startsWith('/agentapex')) {
-                    var appleTitle = document.getElementById('apple-title');
-                    if (appleTitle) appleTitle.content = 'AgentApex';
+                var isAgentApex = window.location.pathname.startsWith('/agentapex');
+                var manifestUrl = isAgentApex ? '/agentapex-manifest.json' : '/manifest.json';
+                var themeColor = isAgentApex ? '#F59E0B' : '#0ea5e9';
+                var appTitle = isAgentApex ? 'AgentApex' : 'RealApex';
+                var iconUrl = isAgentApex ? '/agentapex-apple-touch-icon.png' : '/realapex-logo.png';
+                
+                // Write manifest link immediately
+                document.write('<link rel="manifest" href="' + manifestUrl + '" />');
+                document.write('<meta name="theme-color" content="' + themeColor + '" />');
+                document.write('<meta name="apple-mobile-web-app-capable" content="yes" />');
+                document.write('<meta name="apple-mobile-web-app-status-bar-style" content="default" />');
+                document.write('<meta name="apple-mobile-web-app-title" content="' + appTitle + '" />');
+                document.write('<meta name="mobile-web-app-capable" content="yes" />');
+                document.write('<link rel="apple-touch-icon" href="' + iconUrl + '" />');
+                document.write('<link rel="apple-touch-icon" sizes="180x180" href="' + iconUrl + '" />');
+                
+                // Set page title
+                if (isAgentApex) {
                     document.title = 'AgentApex - Property Intelligence';
                 }
             })();
         </script>
+        
+        <meta name="description" content="RealApex - Infrastructure for Real Estate Operations. Manage projects, track leads, handle bookings, process EMI payments. RERA compliant." />
+        <meta name="keywords" content="real estate ERP, property management, real estate CRM India, builder software, developer ERP, plot management, apartment booking, EMI tracking, RERA compliant, RealApex" />
         
         <!-- Open Graph / Facebook -->
         <meta property="og:type" content="website" />
@@ -38,53 +48,8 @@
         <meta name="twitter:description" content="Infrastructure for Real Estate Operations. Manage projects, track leads, handle bookings." />
         <meta name="twitter:image" content="https://realapex.in/og-image.png" />
         
-        <!-- PWA Manifest - Dynamically set based on URL path -->
-        <link rel="manifest" href="/manifest.json" id="pwa-manifest" />
-        <script>
-            // Set correct manifest for AgentApex vs RealApex BEFORE page load
-            (function() {
-                var isAgentApex = window.location.pathname.startsWith('/agentapex');
-                var manifestLink = document.getElementById('pwa-manifest');
-                var themeColor = document.querySelector('meta[name="theme-color"]');
-                var appleTitle = document.querySelector('meta[name="apple-mobile-web-app-title"]');
-                
-                if (isAgentApex) {
-                    // AgentApex PWA settings
-                    manifestLink.href = '/agentapex-manifest.json';
-                    if (themeColor) themeColor.content = '#F59E0B';
-                    if (appleTitle) appleTitle.content = 'AgentApex';
-                } else {
-                    // RealApex PWA settings
-                    manifestLink.href = '/manifest.json';
-                    if (themeColor) themeColor.content = '#0ea5e9';
-                    if (appleTitle) appleTitle.content = 'RealApex';
-                }
-            })();
-        </script>
-        
-        <!-- PWA Icons -->
-        <link rel="icon" href="/realapex-logo.png" id="favicon" />
-        <link rel="apple-touch-icon" href="/realapex-logo.png" id="apple-touch-icon-default" />
-        <link rel="apple-touch-icon" sizes="180x180" href="/realapex-logo.png" id="apple-touch-icon-180" />
-        <link rel="apple-touch-icon" sizes="152x152" href="/realapex-logo.png" id="apple-touch-icon-152" />
-        <script>
-            // Set correct icons for AgentApex
-            (function() {
-                var isAgentApex = window.location.pathname.startsWith('/agentapex');
-                if (isAgentApex) {
-                    var icons = [
-                        {id: 'favicon', href: '/agentapex-icon-192.png'},
-                        {id: 'apple-touch-icon-default', href: '/agentapex-apple-touch-icon.png'},
-                        {id: 'apple-touch-icon-180', href: '/agentapex-apple-touch-icon.png'},
-                        {id: 'apple-touch-icon-152', href: '/agentapex-icon-192.png'}
-                    ];
-                    icons.forEach(function(icon) {
-                        var el = document.getElementById(icon.id);
-                        if (el) el.href = icon.href;
-                    });
-                }
-            })();
-        </script>
+        <!-- PWA Icons (fallback) -->
+        <link rel="icon" href="/realapex-logo.png" />
         
         <!--
       manifest.json provides metadata used when your web app is installed on a
