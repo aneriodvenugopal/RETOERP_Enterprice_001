@@ -138,9 +138,9 @@ async def create_satthenapalli_layout():
     
     print(f"\n🔗 ACCESS LINKS:")
     print(f"\nPublic Share Link (No Login Required):")
-    print(f"https://agent-tools-2.preview.emergentagent.com/public/layout/{project_id}")
+    print(f"https://lead-workflow-hub.preview.emergentagent.com/public/layout/{project_id}")
     print(f"\nAuthenticated View:")
-    print(f"https://agent-tools-2.preview.emergentagent.com/projects/{project_id}/layout")
+    print(f"https://lead-workflow-hub.preview.emergentagent.com/projects/{project_id}/layout")
     print(f"\n✨ The layout includes the full Satthenapalli SVG background with all plot overlays!")
     
     client.close()

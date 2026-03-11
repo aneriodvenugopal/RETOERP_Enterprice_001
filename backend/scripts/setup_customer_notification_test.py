@@ -161,9 +161,9 @@ async def setup_customer_test():
     print("      → '🏠 Resale Request from Ramesh Kumar'")
     
     print("\n🔗 URLs:")
-    print("   Login: https://agent-tools-2.preview.emergentagent.com/login")
-    print("   Properties: https://agent-tools-2.preview.emergentagent.com/properties")
-    print("   Customer Dashboard: https://agent-tools-2.preview.emergentagent.com/customer-dashboard")
+    print("   Login: https://lead-workflow-hub.preview.emergentagent.com/login")
+    print("   Properties: https://lead-workflow-hub.preview.emergentagent.com/properties")
+    print("   Customer Dashboard: https://lead-workflow-hub.preview.emergentagent.com/customer-dashboard")
     
     print("\n💡 TIP: Keep both browsers open side-by-side to see")
     print("   notifications appear in real-time (refreshes every 30 seconds)")

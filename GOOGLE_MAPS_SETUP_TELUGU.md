@@ -184,7 +184,7 @@
 
    **మొదటి referrer:**
    ```
-   https://agent-tools-2.preview.emergentagent.com/*
+   https://lead-workflow-hub.preview.emergentagent.com/*
    ```
    - Paste చేసి Enter నొక్కండి
 

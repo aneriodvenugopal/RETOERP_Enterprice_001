@@ -47,7 +47,7 @@
         tenantId: tenantId,
         position: position,
         primaryColor: primaryColor,
-        backendUrl: 'https://agent-tools-2.preview.emergentagent.com/api'
+        backendUrl: 'https://lead-workflow-hub.preview.emergentagent.com/api'
       };
       
       // Load chat widget bundle

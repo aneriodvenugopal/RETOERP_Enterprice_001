@@ -6,7 +6,7 @@ Test cases for RealApex Booking Bug Fixes:
 import pytest
 import requests
 
-BASE_URL = "https://agent-tools-2.preview.emergentagent.com"
+BASE_URL = "https://lead-workflow-hub.preview.emergentagent.com"
 
 # Test credentials
 TEST_EMAIL = "rajam@retoerp.com"
