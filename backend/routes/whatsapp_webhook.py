@@ -1,0 +1,508 @@
+"""
+WhatsApp Webhook Handler for Leonas BSP
+Handles incoming WhatsApp messages and triggers AI workflow
+"""
+
+from fastapi import APIRouter, Request, HTTPException, BackgroundTasks, Depends
+from pydantic import BaseModel, Field
+from typing import Optional, Dict, Any, List
+from datetime import datetime
+import uuid
+import os
+from dotenv import load_dotenv
+
+from middleware.auth import get_current_user
+from services.whatsapp_agentic.orchestrator import AIOrchestrator
+from services.whatsapp_agentic.leonas_client import leonas_client
+from services.whatsapp_agentic.state_machine import ConversationStateMachine, ConversationState
+
+load_dotenv()
+
+router = APIRouter(prefix="/whatsapp", tags=["WhatsApp AI"])
+
+
+def get_db(request: Request):
+    """Get database from app state"""
+    return request.app.state.db
+
+
+# ============ Pydantic Models ============
+
+class IncomingWebhookPayload(BaseModel):
+    """Leonas webhook payload structure"""
+    phone: Optional[str] = Field(None, alias="from")
+    message_id: Optional[str] = Field(None, alias="id")
+    text: Optional[Dict[str, str]] = None
+    body: Optional[str] = None
+    timestamp: Optional[str] = None
+    type: Optional[str] = "text"
+    
+    class Config:
+        populate_by_name = True
+
+
+class ManualMessageRequest(BaseModel):
+    """Request for sending manual message"""
+    phone: str
+    message: str
+    lead_id: Optional[str] = None
+
+
+class AgentTakeoverRequest(BaseModel):
+    """Request for agent to take over conversation"""
+    conversation_id: str
+    agent_id: Optional[str] = None
+
+
+# ============ Helper Functions ============
+
+def normalize_phone(phone: str) -> str:
+    """Normalize phone number"""
+    phone = ''.join(filter(str.isdigit, str(phone)))
+    if len(phone) == 10:
+        phone = f"91{phone}"
+    return phone
+
+
+async def identify_tenant(db, payload: Dict) -> Optional[str]:
+    """Identify tenant from webhook payload"""
+    to_number = payload.get("to", payload.get("waba_id", ""))
+    
+    if to_number:
+        mapping = await db.whatsapp_tenant_mapping.find_one(
+            {"whatsapp_number": normalize_phone(to_number)},
+            {"_id": 0}
+        )
+        if mapping:
+            return mapping["tenant_id"]
+    
+    # For development - use first active tenant
+    tenant = await db.tenants.find_one(
+        {"is_active": {"$ne": False}},
+        {"_id": 0, "id": 1}
+    )
+    return tenant.get("id") if tenant else None
+
+
+async def find_or_create_lead(db, tenant_id: str, phone: str) -> Dict:
+    """Find existing lead or create new one"""
+    phone = normalize_phone(phone)
+    
+    lead = await db.leads.find_one(
+        {
+            "tenant_id": tenant_id,
+            "$or": [
+                {"buyer_phone": phone},
+                {"buyer_phone": phone[-10:]},
+                {"buyer_phone": f"+{phone}"},
+                {"buyer_phone": f"+91{phone[-10:]}"}
+            ]
+        },
+        {"_id": 0}
+    )
+    
+    if lead:
+        return lead
+    
+    new_lead = {
+        "id": str(uuid.uuid4()),
+        "tenant_id": tenant_id,
+        "buyer_name": "",
+        "buyer_phone": phone,
+        "source": "whatsapp",
+        "status": "new",
+        "created_at": datetime.utcnow(),
+        "updated_at": datetime.utcnow()
+    }
+    
+    await db.leads.insert_one(new_lead)
+    return new_lead
+
+
+async def process_incoming_message(
+    db,
+    tenant_id: str,
+    lead_id: str,
+    phone: str,
+    message: str,
+    message_id: str
+):
+    """Background task to process incoming message"""
+    try:
+        orchestrator = AIOrchestrator(db)
+        
+        result = await orchestrator.process_message(
+            tenant_id=tenant_id,
+            lead_id=lead_id,
+            phone=phone,
+            message=message,
+            message_id=message_id
+        )
+        
+        if result.get("success") and result.get("response"):
+            send_result = await leonas_client.send_with_retry(
+                phone=phone,
+                message=result["response"]
+            )
+            
+            if not send_result.get("success"):
+                print(f"Failed to send WhatsApp response: {send_result.get('error')}")
+        
+        if result.get("human_followup_required"):
+            await notify_agent_for_followup(db, tenant_id, lead_id, result)
+        
+        print(f"Message processed: intent={result.get('intent')}, action={result.get('action')}")
+        
+    except Exception as e:
+        print(f"Error processing message: {e}")
+        import traceback
+        traceback.print_exc()
+
+
+async def notify_agent_for_followup(db, tenant_id: str, lead_id: str, result: Dict):
+    """Notify marketing agent about high-priority conversation"""
+    try:
+        lead = await db.leads.find_one(
+            {"tenant_id": tenant_id, "id": lead_id},
+            {"_id": 0}
+        )
+        
+        agent_id = lead.get("assigned_to") if lead else None
+        
+        if not agent_id:
+            agent = await db.users.find_one(
+                {"tenant_id": tenant_id, "role": {"$in": ["marketing_agent", "admin"]}},
+                {"_id": 0, "id": 1}
+            )
+            agent_id = agent.get("id") if agent else None
+        
+        if agent_id:
+            notification = {
+                "id": str(uuid.uuid4()),
+                "tenant_id": tenant_id,
+                "user_id": agent_id,
+                "type": "whatsapp_followup",
+                "title": "WhatsApp Follow-up Required",
+                "message": f"High-intent lead requires follow-up. Action: {result.get('action')}",
+                "data": {
+                    "lead_id": lead_id,
+                    "conversation_id": result.get("conversation_id"),
+                    "action": result.get("action")
+                },
+                "is_read": False,
+                "created_at": datetime.utcnow()
+            }
+            await db.notifications.insert_one(notification)
+            
+    except Exception as e:
+        print(f"Error notifying agent: {e}")
+
+
+# ============ Webhook Endpoints ============
+
+@router.post("/webhook")
+async def whatsapp_webhook(
+    request: Request,
+    background_tasks: BackgroundTasks
+):
+    """Webhook endpoint for Leonas WhatsApp BSP"""
+    db = get_db(request)
+    
+    try:
+        raw_payload = await request.json()
+        print(f"WhatsApp Webhook received: {raw_payload}")
+        
+        parsed = leonas_client.parse_webhook_payload(raw_payload)
+        
+        if parsed.get("error"):
+            return {"status": "error", "message": "Failed to parse payload"}
+        
+        phone = parsed.get("phone", "")
+        message_text = parsed.get("text", "")
+        message_id = parsed.get("message_id", "")
+        
+        if not phone or not message_text:
+            return {"status": "ok", "message": "Non-message webhook received"}
+        
+        phone = normalize_phone(phone)
+        tenant_id = await identify_tenant(db, raw_payload)
+        
+        if not tenant_id:
+            return {"status": "error", "message": "Tenant not identified"}
+        
+        lead = await find_or_create_lead(db, tenant_id, phone)
+        lead_id = lead["id"]
+        
+        background_tasks.add_task(
+            process_incoming_message,
+            db,
+            tenant_id,
+            lead_id,
+            phone,
+            message_text,
+            message_id
+        )
+        
+        return {
+            "status": "ok",
+            "message": "Message received and processing",
+            "lead_id": lead_id
+        }
+        
+    except Exception as e:
+        print(f"Webhook error: {e}")
+        return {"status": "error", "message": str(e)}
+
+
+@router.get("/webhook")
+async def whatsapp_webhook_verify(request: Request):
+    """Webhook verification endpoint"""
+    params = request.query_params
+    
+    verify_token = os.getenv("WHATSAPP_VERIFY_TOKEN", "realapex_whatsapp_verify")
+    
+    if params.get("hub.verify_token") == verify_token:
+        return int(params.get("hub.challenge", "0"))
+    
+    return {"status": "ok", "message": "WhatsApp webhook active"}
+
+
+# ============ API Endpoints ============
+
+@router.post("/send")
+async def send_whatsapp_message(
+    msg_request: ManualMessageRequest,
+    request: Request,
+    current_user: dict = Depends(get_current_user)
+):
+    """Send manual WhatsApp message"""
+    db = get_db(request)
+    tenant_id = current_user.get("tenant_id")
+    
+    if not tenant_id:
+        raise HTTPException(status_code=403, detail="Tenant not identified")
+    
+    result = await leonas_client.send_text_message(
+        phone=msg_request.phone,
+        message=msg_request.message,
+        tenant_id=tenant_id
+    )
+    
+    if result.get("success"):
+        conversation = await db.whatsapp_conversations.find_one(
+            {"tenant_id": tenant_id, "phone": normalize_phone(msg_request.phone)},
+            {"_id": 0}
+        )
+        
+        if conversation:
+            message_doc = {
+                "id": str(uuid.uuid4()),
+                "conversation_id": conversation["id"],
+                "tenant_id": tenant_id,
+                "lead_id": msg_request.lead_id,
+                "role": "assistant",
+                "content": msg_request.message,
+                "sent_by": current_user.get("id"),
+                "sent_by_name": current_user.get("name", "Agent"),
+                "is_manual": True,
+                "external_message_id": result.get("message_id"),
+                "timestamp": datetime.utcnow(),
+                "created_at": datetime.utcnow()
+            }
+            await db.whatsapp_messages.insert_one(message_doc)
+    
+    return {
+        "success": result.get("success", False),
+        "message_id": result.get("message_id"),
+        "error": result.get("error")
+    }
+
+
+@router.post("/agent-takeover")
+async def agent_takeover(
+    takeover_request: AgentTakeoverRequest,
+    request: Request,
+    current_user: dict = Depends(get_current_user)
+):
+    """Agent takes over conversation from AI"""
+    db = get_db(request)
+    tenant_id = current_user.get("tenant_id")
+    agent_id = takeover_request.agent_id or current_user.get("id")
+    
+    state_machine = ConversationStateMachine(db)
+    
+    await state_machine.enable_human_handoff(
+        conversation_id=takeover_request.conversation_id,
+        agent_id=agent_id,
+        reason="agent_takeover"
+    )
+    
+    await db.whatsapp_messages.insert_one({
+        "id": str(uuid.uuid4()),
+        "conversation_id": takeover_request.conversation_id,
+        "tenant_id": tenant_id,
+        "role": "system",
+        "content": f"Agent {current_user.get('name', 'Unknown')} took over the conversation",
+        "timestamp": datetime.utcnow(),
+        "created_at": datetime.utcnow()
+    })
+    
+    return {"success": True, "message": "Agent takeover successful"}
+
+
+@router.post("/resume-ai/{conversation_id}")
+async def resume_ai_conversation(
+    conversation_id: str,
+    request: Request,
+    current_user: dict = Depends(get_current_user)
+):
+    """Resume AI handling for a conversation"""
+    db = get_db(request)
+    
+    state_machine = ConversationStateMachine(db)
+    await state_machine.resume_ai(conversation_id)
+    
+    return {"success": True, "message": "AI resumed for conversation"}
+
+
+@router.get("/conversations")
+async def get_conversations(
+    request: Request,
+    current_user: dict = Depends(get_current_user),
+    status: Optional[str] = None,
+    state: Optional[str] = None,
+    ai_enabled: Optional[bool] = None,
+    limit: int = 50,
+    skip: int = 0
+):
+    """Get WhatsApp conversations for tenant"""
+    db = get_db(request)
+    tenant_id = current_user.get("tenant_id")
+    
+    query = {"tenant_id": tenant_id}
+    
+    if status:
+        query["status"] = status
+    if state:
+        query["state"] = state
+    if ai_enabled is not None:
+        query["ai_enabled"] = ai_enabled
+    
+    conversations = await db.whatsapp_conversations.find(
+        query,
+        {"_id": 0}
+    ).sort("updated_at", -1).skip(skip).limit(limit).to_list(limit)
+    
+    for conv in conversations:
+        lead = await db.leads.find_one(
+            {"tenant_id": tenant_id, "id": conv.get("lead_id")},
+            {"_id": 0, "buyer_name": 1, "buyer_phone": 1, "status": 1}
+        )
+        conv["lead"] = lead
+        
+        last_msg = await db.whatsapp_messages.find_one(
+            {"conversation_id": conv["id"]},
+            {"_id": 0, "content": 1, "role": 1, "timestamp": 1},
+            sort=[("timestamp", -1)]
+        )
+        conv["last_message"] = last_msg
+    
+    total = await db.whatsapp_conversations.count_documents(query)
+    
+    return {
+        "conversations": conversations,
+        "total": total,
+        "limit": limit,
+        "skip": skip
+    }
+
+
+@router.get("/conversations/{conversation_id}")
+async def get_conversation_detail(
+    conversation_id: str,
+    request: Request,
+    current_user: dict = Depends(get_current_user)
+):
+    """Get full conversation with messages"""
+    db = get_db(request)
+    tenant_id = current_user.get("tenant_id")
+    
+    orchestrator = AIOrchestrator(db)
+    conversation = await orchestrator.get_conversation_for_dashboard(
+        tenant_id=tenant_id,
+        conversation_id=conversation_id
+    )
+    
+    if not conversation:
+        raise HTTPException(status_code=404, detail="Conversation not found")
+    
+    return conversation
+
+
+@router.get("/conversations/lead/{lead_id}")
+async def get_conversation_by_lead(
+    lead_id: str,
+    request: Request,
+    current_user: dict = Depends(get_current_user)
+):
+    """Get conversation by lead ID"""
+    db = get_db(request)
+    tenant_id = current_user.get("tenant_id")
+    
+    orchestrator = AIOrchestrator(db)
+    conversation = await orchestrator.get_conversation_for_dashboard(
+        tenant_id=tenant_id,
+        lead_id=lead_id
+    )
+    
+    if not conversation:
+        return {"conversation": None, "message": "No WhatsApp conversation found for this lead"}
+    
+    return conversation
+
+
+@router.get("/stats")
+async def get_whatsapp_stats(
+    request: Request,
+    current_user: dict = Depends(get_current_user)
+):
+    """Get WhatsApp AI statistics"""
+    db = get_db(request)
+    tenant_id = current_user.get("tenant_id")
+    
+    total_conversations = await db.whatsapp_conversations.count_documents(
+        {"tenant_id": tenant_id}
+    )
+    
+    active_ai = await db.whatsapp_conversations.count_documents(
+        {"tenant_id": tenant_id, "ai_enabled": True, "status": "active"}
+    )
+    
+    human_handoff = await db.whatsapp_conversations.count_documents(
+        {"tenant_id": tenant_id, "ai_enabled": False, "status": "active"}
+    )
+    
+    pipeline = [
+        {"$match": {"tenant_id": tenant_id}},
+        {"$group": {"_id": "$state", "count": {"$sum": 1}}}
+    ]
+    state_dist = await db.whatsapp_conversations.aggregate(pipeline).to_list(20)
+    
+    from datetime import timedelta
+    today_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+    messages_today = await db.whatsapp_messages.count_documents(
+        {"tenant_id": tenant_id, "timestamp": {"$gte": today_start}}
+    )
+    
+    visits_via_wa = await db.site_visits.count_documents(
+        {"tenant_id": tenant_id, "source": "whatsapp_ai"}
+    )
+    
+    return {
+        "total_conversations": total_conversations,
+        "active_ai_conversations": active_ai,
+        "human_handoff_conversations": human_handoff,
+        "state_distribution": {item["_id"]: item["count"] for item in state_dist},
+        "messages_today": messages_today,
+        "site_visits_scheduled": visits_via_wa
+    }

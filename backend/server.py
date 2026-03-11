@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 import uuid
 
 # Import routes
-from routes import auth, tenants, currencies, categories, projects, properties, leads, bookings, commissions, analytics, notifications, users, scheduler, customer, layouts, layouts_library, in_app_notifications, referrals, translations, content, advisory, admin_content, share_referral, resale, saas_admin, chatbot, public_pages, marketplace, incomelands, incomelands_auth, google_auth, calendar_integration, workforce, project_dashboard, marketing_dashboard, payment_schemes, customer_payments, staff_hierarchy, commission_management, property_categories, currency_management, usage_tracking, coupons, bank_accounts, vendors, payment_transfer, articles, project_staff, role_assignments, roles, financial, ai_agents, sms, document_locker, festival_greetings, site_visits, booking_queue, customers_management, resale_release_mgmt, emi_payments, receipts, vendor_management, referral_wallet, complaints, commission_analytics, stripe_payments, stripe_webhook, email, subscriptions, certified_property, pdf, files, customer_portal, project_pricing, voters, payu, marketing_agents, push_notifications, tutorai, realapex_demos, agentapex
+from routes import auth, tenants, currencies, categories, projects, properties, leads, bookings, commissions, analytics, notifications, users, scheduler, customer, layouts, layouts_library, in_app_notifications, referrals, translations, content, advisory, admin_content, share_referral, resale, saas_admin, chatbot, public_pages, marketplace, incomelands, incomelands_auth, google_auth, calendar_integration, workforce, project_dashboard, marketing_dashboard, payment_schemes, customer_payments, staff_hierarchy, commission_management, property_categories, currency_management, usage_tracking, coupons, bank_accounts, vendors, payment_transfer, articles, project_staff, role_assignments, roles, financial, ai_agents, sms, document_locker, festival_greetings, site_visits, booking_queue, customers_management, resale_release_mgmt, emi_payments, receipts, vendor_management, referral_wallet, complaints, commission_analytics, stripe_payments, stripe_webhook, email, subscriptions, certified_property, pdf, files, customer_portal, project_pricing, voters, payu, marketing_agents, push_notifications, tutorai, realapex_demos, agentapex, whatsapp_webhook
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -192,11 +192,13 @@ api_router.include_router(voters.router)
 api_router.include_router(payu.router)
 api_router.include_router(marketing_agents.router)
 api_router.include_router(push_notifications.router)
-api_router.include_router(push_notifications.whatsapp_router)
+api_router.include_router(push_notifications.router)  # Push Notifications (whatsapp_router disabled, using new agentic system)
+# api_router.include_router(push_notifications.whatsapp_router)  # OLD - Disabled in favor of Agentic AI
 api_router.include_router(calendar_integration.router)  # Re-enabled for Site Visit sync
 api_router.include_router(tutorai.router)  # TutorAI Admin Tool
 api_router.include_router(realapex_demos.router)  # RealApex SaaS Demo Generator
 api_router.include_router(agentapex.router)  # AgentApex Mobile Property App
+api_router.include_router(whatsapp_webhook.router)  # WhatsApp Agentic AI Workflow (NEW)
 
 # PWA Install tracking
 @api_router.post("/analytics/pwa-install")
