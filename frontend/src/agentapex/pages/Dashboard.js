@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { 
   Home, Search, PlusSquare, Heart, User,
   Building2, MapPin, Users, TrendingUp, ChevronRight,
-  FileText, Clock, Bell, Share2, Download
+  FileText, Clock, Bell, Share2, Download, Smartphone
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -260,41 +260,71 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
-      {/* PWA Install Banner - Always visible until installed */}
+      {/* PWA Install Banner - iOS specific detailed instructions */}
       {showInstallBanner && !isStandalone && (
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 text-white px-4 py-4"
+          className="bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 text-white"
         >
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
-                <Download className="w-6 h-6" />
-              </div>
-              <div>
-                <p className="font-bold text-base">📲 Install AgentApex</p>
-                <p className="text-xs text-orange-100 mt-0.5">
-                  {isIOS ? 'Tap Share → Add to Home Screen' : 'Get quick access from home screen'}
-                </p>
+          {isIOS ? (
+            // iOS detailed step-by-step instructions
+            <div className="px-4 py-4">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Smartphone className="w-5 h-5" />
+                    <p className="font-bold text-base">Install AgentApex on iPhone</p>
+                  </div>
+                  <div className="space-y-2 text-sm">
+                    <p className="flex items-center gap-2">
+                      <span className="w-6 h-6 bg-white/30 rounded-full flex items-center justify-center text-xs font-bold">1</span>
+                      <span>Tap <Share2 className="inline w-4 h-4 mx-1" /> <strong>Share</strong> (bottom of Safari)</span>
+                    </p>
+                    <p className="flex items-center gap-2">
+                      <span className="w-6 h-6 bg-white/30 rounded-full flex items-center justify-center text-xs font-bold">2</span>
+                      <span>Scroll down, tap <strong>"Add to Home Screen"</strong></span>
+                    </p>
+                    <p className="flex items-center gap-2">
+                      <span className="w-6 h-6 bg-white/30 rounded-full flex items-center justify-center text-xs font-bold">3</span>
+                      <span>Tap <strong>Add</strong> (top right) → Done! 🎉</span>
+                    </p>
+                  </div>
+                </div>
+                <button 
+                  onClick={dismissBanner}
+                  className="p-2 text-white/80 text-xl"
+                >
+                  ✕
+                </button>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <button 
-                onClick={dismissBanner}
-                className="px-3 py-2 text-sm text-white/70 hover:text-white"
-              >
-                ✕
-              </button>
-              <motion.button 
-                whileTap={{ scale: 0.95 }}
-                onClick={installApp}
-                className="px-5 py-2.5 bg-white text-orange-600 text-sm font-bold rounded-xl shadow-lg"
-              >
-                {isIOS ? 'How to Install' : 'Install Now'}
-              </motion.button>
+          ) : (
+            // Android/Desktop simple banner
+            <div className="px-4 py-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
+                    <Download className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <p className="font-bold text-base">📲 Install AgentApex</p>
+                    <p className="text-xs text-orange-100 mt-0.5">Get quick access from home screen</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button onClick={dismissBanner} className="px-3 py-2 text-sm text-white/70">✕</button>
+                  <motion.button 
+                    whileTap={{ scale: 0.95 }}
+                    onClick={installApp}
+                    className="px-5 py-2.5 bg-white text-orange-600 text-sm font-bold rounded-xl shadow-lg"
+                  >
+                    Install Now
+                  </motion.button>
+                </div>
+              </div>
             </div>
-          </div>
+          )}
         </motion.div>
       )}
 

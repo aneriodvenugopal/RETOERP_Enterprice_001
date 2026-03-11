@@ -132,41 +132,68 @@ const LoginPage = () => {
 
   return (
     <div className="login-page-container">
-      {/* Install Banner at top */}
+      {/* iOS Install Instructions Banner - More detailed for iPhone users */}
       {showInstallBanner && (
         <motion.div 
           initial={{ opacity: 0, y: -50 }}
           animate={{ opacity: 1, y: 0 }}
-          className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-amber-500 to-orange-500 text-white px-4 py-3 shadow-lg"
+          className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg"
         >
-          <div className="flex items-center justify-between max-w-md mx-auto">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
-                <Download className="w-5 h-5" />
-              </div>
-              <div>
-                <p className="font-bold text-sm">📲 Install AgentApex</p>
-                <p className="text-xs text-orange-100">
-                  {isIOS ? 'Tap Share → Add to Home' : 'Add to your home screen'}
-                </p>
+          {isIOS ? (
+            // iOS-specific detailed instructions
+            <div className="px-4 py-4">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <p className="font-bold text-base mb-2">📲 Install AgentApex App</p>
+                  <div className="space-y-1.5 text-sm">
+                    <p className="flex items-center gap-2">
+                      <span className="w-5 h-5 bg-white/30 rounded-full flex items-center justify-center text-xs font-bold">1</span>
+                      <span>Tap <Share2 className="inline w-4 h-4 mx-1" /> <strong>Share</strong> button below</span>
+                    </p>
+                    <p className="flex items-center gap-2">
+                      <span className="w-5 h-5 bg-white/30 rounded-full flex items-center justify-center text-xs font-bold">2</span>
+                      <span>Scroll & tap <strong>"Add to Home Screen"</strong></span>
+                    </p>
+                    <p className="flex items-center gap-2">
+                      <span className="w-5 h-5 bg-white/30 rounded-full flex items-center justify-center text-xs font-bold">3</span>
+                      <span>Tap <strong>Add</strong> → Done! 🎉</span>
+                    </p>
+                  </div>
+                </div>
+                <button onClick={dismissBanner} className="p-2 text-white/70 text-xl">✕</button>
               </div>
             </div>
-            <div className="flex items-center gap-1">
-              <button onClick={dismissBanner} className="p-2 text-white/70">✕</button>
-              <motion.button 
-                whileTap={{ scale: 0.95 }}
-                onClick={installApp}
-                className="px-4 py-2 bg-white text-orange-600 text-sm font-bold rounded-xl"
-              >
-                Install
-              </motion.button>
+          ) : (
+            // Android/Desktop banner
+            <div className="px-4 py-3">
+              <div className="flex items-center justify-between max-w-md mx-auto">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                    <Download className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <p className="font-bold text-sm">📲 Install AgentApex</p>
+                    <p className="text-xs text-orange-100">Add to your home screen</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1">
+                  <button onClick={dismissBanner} className="p-2 text-white/70">✕</button>
+                  <motion.button 
+                    whileTap={{ scale: 0.95 }}
+                    onClick={installApp}
+                    className="px-4 py-2 bg-white text-orange-600 text-sm font-bold rounded-xl"
+                  >
+                    Install
+                  </motion.button>
+                </div>
+              </div>
             </div>
-          </div>
+          )}
         </motion.div>
       )}
 
       {/* Main Content - Fixed position to prevent keyboard push */}
-      <div className={`login-content ${keyboardVisible ? 'keyboard-open' : ''} ${showInstallBanner ? 'pt-16' : ''}`}>
+      <div className={`login-content ${keyboardVisible ? 'keyboard-open' : ''} ${showInstallBanner ? (isIOS ? 'pt-28' : 'pt-16') : ''}`}>
         {/* Logo - Hide when keyboard is open */}
         {!keyboardVisible && (
           <motion.div
