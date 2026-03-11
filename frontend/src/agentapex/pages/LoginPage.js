@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { motion } from 'framer-motion';
-import { Building2 } from 'lucide-react';
+import { Building2, Download, Share2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 const LoginPage = () => {
   const { sendOtp, verifyOtp } = useAuth();
@@ -12,6 +13,63 @@ const LoginPage = () => {
   const [error, setError] = useState('');
   const [demoOtp, setDemoOtp] = useState('');
   const [keyboardVisible, setKeyboardVisible] = useState(false);
+  const [showInstallBanner, setShowInstallBanner] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [isIOS, setIsIOS] = useState(false);
+
+  // Check if can show install prompt
+  useEffect(() => {
+    const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    const standalone = window.matchMedia('(display-mode: standalone)').matches || 
+                       window.navigator.standalone === true;
+    
+    setIsIOS(iOS);
+    
+    // Show banner if not in standalone mode
+    if (!standalone) {
+      const dismissed = localStorage.getItem('agentapex_login_install_dismissed');
+      if (!dismissed) {
+        setShowInstallBanner(true);
+      }
+    }
+    
+    // Listen for beforeinstallprompt
+    const handler = (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setShowInstallBanner(true);
+    };
+    window.addEventListener('beforeinstallprompt', handler);
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
+
+  const installApp = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        toast.success('App installed! Check your home screen.');
+        setShowInstallBanner(false);
+      }
+      setDeferredPrompt(null);
+    } else if (isIOS) {
+      toast.info(
+        <div className="text-left">
+          <p className="font-semibold mb-1">📱 Install on iPhone:</p>
+          <p>1. Tap <Share2 className="inline w-4 h-4" /> Share button below</p>
+          <p>2. Tap <strong>"Add to Home Screen"</strong></p>
+        </div>,
+        { duration: 8000 }
+      );
+    } else {
+      toast.info('Click the Install icon in your browser address bar', { duration: 5000 });
+    }
+  };
+
+  const dismissBanner = () => {
+    setShowInstallBanner(false);
+    localStorage.setItem('agentapex_login_install_dismissed', 'true');
+  };
 
   // Handle iOS keyboard - prevent content push
   useEffect(() => {
@@ -74,8 +132,41 @@ const LoginPage = () => {
 
   return (
     <div className="login-page-container">
+      {/* Install Banner at top */}
+      {showInstallBanner && (
+        <motion.div 
+          initial={{ opacity: 0, y: -50 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-amber-500 to-orange-500 text-white px-4 py-3 shadow-lg"
+        >
+          <div className="flex items-center justify-between max-w-md mx-auto">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                <Download className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="font-bold text-sm">📲 Install AgentApex</p>
+                <p className="text-xs text-orange-100">
+                  {isIOS ? 'Tap Share → Add to Home' : 'Add to your home screen'}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-1">
+              <button onClick={dismissBanner} className="p-2 text-white/70">✕</button>
+              <motion.button 
+                whileTap={{ scale: 0.95 }}
+                onClick={installApp}
+                className="px-4 py-2 bg-white text-orange-600 text-sm font-bold rounded-xl"
+              >
+                Install
+              </motion.button>
+            </div>
+          </div>
+        </motion.div>
+      )}
+
       {/* Main Content - Fixed position to prevent keyboard push */}
-      <div className={`login-content ${keyboardVisible ? 'keyboard-open' : ''}`}>
+      <div className={`login-content ${keyboardVisible ? 'keyboard-open' : ''} ${showInstallBanner ? 'pt-16' : ''}`}>
         {/* Logo - Hide when keyboard is open */}
         {!keyboardVisible && (
           <motion.div

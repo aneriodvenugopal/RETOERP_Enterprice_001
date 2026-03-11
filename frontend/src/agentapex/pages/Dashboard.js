@@ -146,46 +146,76 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [showInstallBanner, setShowInstallBanner] = useState(false);
+  const [isIOS, setIsIOS] = useState(false);
+  const [isStandalone, setIsStandalone] = useState(false);
 
-  // PWA Install prompt handler
+  // Check platform and standalone mode
+  useEffect(() => {
+    const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    const standalone = window.matchMedia('(display-mode: standalone)').matches || 
+                       window.navigator.standalone === true;
+    
+    setIsIOS(iOS);
+    setIsStandalone(standalone);
+    
+    // Show banner if not installed and not dismissed in last 24 hours
+    const dismissed = localStorage.getItem('agentapex_install_dismissed');
+    const dismissedTime = dismissed ? parseInt(dismissed) : 0;
+    const oneDayAgo = Date.now() - (24 * 60 * 60 * 1000);
+    
+    if (!standalone && dismissedTime < oneDayAgo) {
+      setShowInstallBanner(true);
+    }
+  }, []);
+
+  // PWA Install prompt handler (Android/Chrome)
   useEffect(() => {
     const handler = (e) => {
       e.preventDefault();
       setDeferredPrompt(e);
-      // Show banner if not already installed
-      if (!window.matchMedia('(display-mode: standalone)').matches) {
-        setShowInstallBanner(true);
-      }
+      setShowInstallBanner(true);
     };
     
     window.addEventListener('beforeinstallprompt', handler);
-    
-    // Check if already in standalone mode
-    if (window.matchMedia('(display-mode: standalone)').matches) {
-      setShowInstallBanner(false);
-    }
-    
     return () => window.removeEventListener('beforeinstallprompt', handler);
   }, []);
 
   const installApp = async () => {
     if (deferredPrompt) {
+      // Chrome/Android - use native prompt
       deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
       if (outcome === 'accepted') {
-        toast.success('App installed successfully!');
+        toast.success('App installed! Check your home screen.');
         setShowInstallBanner(false);
+        localStorage.setItem('agentapex_install_dismissed', Date.now().toString());
       }
       setDeferredPrompt(null);
+    } else if (isIOS) {
+      // iOS - show instructions
+      toast.info(
+        <div className="text-left">
+          <p className="font-semibold mb-1">Install on iPhone:</p>
+          <p>1. Tap the <strong>Share</strong> button ↗️</p>
+          <p>2. Scroll down & tap <strong>"Add to Home Screen"</strong></p>
+        </div>,
+        { duration: 8000 }
+      );
     } else {
-      // iOS instructions
-      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-      if (isIOS) {
-        toast.info('Tap Share button → Add to Home Screen', { duration: 5000 });
-      } else {
-        toast.info('Use browser menu → Install App', { duration: 3000 });
-      }
+      // Desktop Chrome - click address bar install button
+      toast.info(
+        <div className="text-left">
+          <p className="font-semibold mb-1">Install AgentApex:</p>
+          <p>Click the <strong>Install</strong> icon in the address bar ↑</p>
+        </div>,
+        { duration: 5000 }
+      );
     }
+  };
+
+  const dismissBanner = () => {
+    setShowInstallBanner(false);
+    localStorage.setItem('agentapex_install_dismissed', Date.now().toString());
   };
 
   useEffect(() => {
@@ -230,35 +260,40 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
-      {/* PWA Install Banner */}
-      {showInstallBanner && (
+      {/* PWA Install Banner - Always visible until installed */}
+      {showInstallBanner && !isStandalone && (
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-3 flex items-center justify-between"
+          className="bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 text-white px-4 py-4"
         >
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
-              <Download className="w-5 h-5" />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
+                <Download className="w-6 h-6" />
+              </div>
+              <div>
+                <p className="font-bold text-base">📲 Install AgentApex</p>
+                <p className="text-xs text-orange-100 mt-0.5">
+                  {isIOS ? 'Tap Share → Add to Home Screen' : 'Get quick access from home screen'}
+                </p>
+              </div>
             </div>
-            <div>
-              <p className="font-semibold text-sm">Install AgentApex</p>
-              <p className="text-xs text-blue-100">Add to home screen for quick access</p>
+            <div className="flex items-center gap-2">
+              <button 
+                onClick={dismissBanner}
+                className="px-3 py-2 text-sm text-white/70 hover:text-white"
+              >
+                ✕
+              </button>
+              <motion.button 
+                whileTap={{ scale: 0.95 }}
+                onClick={installApp}
+                className="px-5 py-2.5 bg-white text-orange-600 text-sm font-bold rounded-xl shadow-lg"
+              >
+                {isIOS ? 'How to Install' : 'Install Now'}
+              </motion.button>
             </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <button 
-              onClick={() => setShowInstallBanner(false)}
-              className="px-3 py-1.5 text-sm text-white/80"
-            >
-              Later
-            </button>
-            <button 
-              onClick={installApp}
-              className="px-4 py-1.5 bg-white text-blue-600 text-sm font-semibold rounded-lg"
-            >
-              Install
-            </button>
           </div>
         </motion.div>
       )}
