@@ -184,7 +184,7 @@
 
    **మొదటి referrer:**
    ```
-   https://lead-workflow-hub.preview.emergentagent.com/*
+   https://realai-whatsapp.preview.emergentagent.com/*
    ```
    - Paste చేసి Enter నొక్కండి
 

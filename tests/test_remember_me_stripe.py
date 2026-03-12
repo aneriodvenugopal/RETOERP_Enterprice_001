@@ -286,7 +286,7 @@ class TestStripeCheckoutSession:
             json={
                 "package_id": "custom",
                 "custom_amount": 1000,  # 1000 INR
-                "origin_url": "https://lead-workflow-hub.preview.emergentagent.com",
+                "origin_url": "https://realai-whatsapp.preview.emergentagent.com",
                 "description": "Test payment for automated testing"
             }
         )
@@ -316,7 +316,7 @@ class TestStripeCheckoutSession:
             headers=self.headers,
             json={
                 "package_id": "booking_token",
-                "origin_url": "https://lead-workflow-hub.preview.emergentagent.com",
+                "origin_url": "https://realai-whatsapp.preview.emergentagent.com",
                 "description": "Booking token payment"
             }
         )
@@ -336,7 +336,7 @@ class TestStripeCheckoutSession:
             json={
                 "package_id": "custom",
                 "custom_amount": 1000,
-                "origin_url": "https://lead-workflow-hub.preview.emergentagent.com"
+                "origin_url": "https://realai-whatsapp.preview.emergentagent.com"
             }
         )
         

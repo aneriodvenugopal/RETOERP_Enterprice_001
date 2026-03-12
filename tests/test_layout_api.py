@@ -6,7 +6,7 @@ import pytest
 import requests
 import os
 
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://lead-workflow-hub.preview.emergentagent.com')
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://realai-whatsapp.preview.emergentagent.com')
 TEST_PROJECT_ID = "23dde7ab-0d13-45cc-8886-bcceb3d9d35e"
 
 # Test credentials

@@ -506,3 +506,229 @@ async def get_whatsapp_stats(
         "messages_today": messages_today,
         "site_visits_scheduled": visits_via_wa
     }
+
+
+# ============ TEST/SIMULATOR ENDPOINTS ============
+
+@router.post("/simulate")
+async def simulate_whatsapp_message(
+    request: Request,
+    phone: str,
+    message: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    SIMULATOR: Test AI workflow without real WhatsApp
+    
+    Use this to test all 7 AI agents:
+    - Send: "Hi" → Greeting Agent
+    - Send: "My budget is 50 lakhs" → Qualification Agent  
+    - Send: "Show available plots" → Inventory Agent
+    - Send: "I want to visit" → Site Visit Agent
+    - Send: "I want to book" → Booking Agent
+    - Send: "Payment options?" → Payment Agent
+    - Send: "What amenities?" → Knowledge Agent
+    """
+    db = get_db(request)
+    tenant_id = current_user.get("tenant_id")
+    
+    if not tenant_id:
+        raise HTTPException(status_code=403, detail="Tenant not identified")
+    
+    # Normalize phone
+    phone = normalize_phone(phone)
+    
+    # Find or create lead
+    lead = await find_or_create_lead(db, tenant_id, phone)
+    lead_id = lead["id"]
+    
+    # Process message through AI orchestrator
+    orchestrator = AIOrchestrator(db)
+    
+    result = await orchestrator.process_message(
+        tenant_id=tenant_id,
+        lead_id=lead_id,
+        phone=phone,
+        message=message,
+        message_id=f"sim_{uuid.uuid4().hex[:8]}"
+    )
+    
+    return {
+        "success": result.get("success", False),
+        "input_message": message,
+        "ai_response": result.get("response"),
+        "intent_detected": result.get("intent"),
+        "conversation_state": result.get("next_state"),
+        "conversation_id": result.get("conversation_id"),
+        "action_taken": result.get("action"),
+        "metadata": result.get("metadata", {}),
+        "human_followup_required": result.get("human_followup_required", False)
+    }
+
+
+@router.get("/simulate/test-all-agents")
+async def test_all_agents(
+    request: Request,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Test all 7 AI agents with sample messages
+    Returns example responses from each agent
+    """
+    db = get_db(request)
+    tenant_id = current_user.get("tenant_id")
+    
+    if not tenant_id:
+        raise HTTPException(status_code=403, detail="Tenant not identified")
+    
+    test_phone = f"91999900{uuid.uuid4().hex[:4]}"
+    
+    test_cases = [
+        {"agent": "GreetingAgent", "message": "Hi, good morning!", "expected_intent": "greeting"},
+        {"agent": "QualificationAgent", "message": "My budget is 50 lakhs, looking for plot in Hyderabad", "expected_intent": "qualification"},
+        {"agent": "InventoryAgent", "message": "Show me available plots", "expected_intent": "availability_check"},
+        {"agent": "KnowledgeAgent", "message": "What amenities are available in your project?", "expected_intent": "general_question"},
+        {"agent": "SiteVisitAgent", "message": "I want to schedule a site visit tomorrow", "expected_intent": "site_visit_request"},
+        {"agent": "BookingAgent", "message": "I want to book plot A12", "expected_intent": "booking_interest"},
+        {"agent": "PaymentAgent", "message": "What are the payment options and EMI plans?", "expected_intent": "payment_question"},
+    ]
+    
+    results = []
+    orchestrator = AIOrchestrator(db)
+    
+    for i, test in enumerate(test_cases):
+        # Create unique phone for each test
+        test_phone_unique = f"919999{str(i).zfill(6)}"
+        
+        # Find or create lead
+        lead = await find_or_create_lead(db, tenant_id, test_phone_unique)
+        
+        try:
+            result = await orchestrator.process_message(
+                tenant_id=tenant_id,
+                lead_id=lead["id"],
+                phone=test_phone_unique,
+                message=test["message"],
+                message_id=f"test_{i}"
+            )
+            
+            results.append({
+                "test_number": i + 1,
+                "agent": test["agent"],
+                "input_message": test["message"],
+                "expected_intent": test["expected_intent"],
+                "actual_intent": result.get("intent"),
+                "ai_response": result.get("response", "")[:500],  # Truncate
+                "conversation_state": result.get("next_state"),
+                "success": result.get("success", False)
+            })
+        except Exception as e:
+            results.append({
+                "test_number": i + 1,
+                "agent": test["agent"],
+                "input_message": test["message"],
+                "error": str(e),
+                "success": False
+            })
+    
+    return {
+        "total_tests": len(test_cases),
+        "results": results,
+        "note": "Each test creates a new conversation to show fresh agent responses"
+    }
+
+
+@router.delete("/simulate/cleanup")
+async def cleanup_test_conversations(
+    request: Request,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Cleanup test conversations (phone numbers starting with 919999)
+    """
+    db = get_db(request)
+    tenant_id = current_user.get("tenant_id")
+    
+    # Delete test conversations
+    conv_result = await db.whatsapp_conversations.delete_many({
+        "tenant_id": tenant_id,
+        "phone": {"$regex": "^919999"}
+    })
+    
+    # Delete test messages
+    msg_result = await db.whatsapp_messages.delete_many({
+        "tenant_id": tenant_id,
+        "external_message_id": {"$regex": "^(sim_|test_)"}
+    })
+    
+    # Delete test leads
+    lead_result = await db.leads.delete_many({
+        "tenant_id": tenant_id,
+        "buyer_phone": {"$regex": "^919999"},
+        "source": "whatsapp"
+    })
+    
+    return {
+        "conversations_deleted": conv_result.deleted_count,
+        "messages_deleted": msg_result.deleted_count,
+        "leads_deleted": lead_result.deleted_count
+    }
+
+
+@router.get("/agents-info")
+async def get_agents_info():
+    """
+    Get information about all 7 AI agents
+    """
+    return {
+        "agents": [
+            {
+                "name": "GreetingAgent",
+                "purpose": "Welcome new users and detect language (Telugu/Hindi/English)",
+                "triggers": ["hi", "hello", "good morning", "నమస్కారం", "नमस्ते"],
+                "example_response": "Hello! Welcome to [Company]. I'm your property assistant. How may I help you today?"
+            },
+            {
+                "name": "QualificationAgent", 
+                "purpose": "Collect customer information: budget, property type, location, timeline",
+                "triggers": ["budget", "lakhs", "crore", "looking for", "interested in"],
+                "example_response": "That's great! What's your preferred location? And are you looking for a plot, flat, or villa?"
+            },
+            {
+                "name": "InventoryAgent",
+                "purpose": "Show real-time plot availability from database",
+                "triggers": ["available", "show plots", "options", "what do you have"],
+                "example_response": "We have 5 plots available:\n• Plot #A12: 267 sqft, East facing, ₹45L\n• Plot #B05: 320 sqft, North, ₹52L"
+            },
+            {
+                "name": "KnowledgeAgent",
+                "purpose": "Answer questions about projects, amenities, location using RAG",
+                "triggers": ["amenities", "features", "location", "RERA", "about project"],
+                "example_response": "Our Green Valley project offers: Club house, Swimming pool, 24/7 Security, Children's park. RERA: AP12345678"
+            },
+            {
+                "name": "SiteVisitAgent",
+                "purpose": "Schedule site visits and create calendar entries",
+                "triggers": ["visit", "see property", "come there", "schedule", "appointment"],
+                "example_response": "I'd be happy to schedule a visit! Available slots:\n• Tomorrow 10 AM\n• Saturday 3 PM\nWhich works for you?"
+            },
+            {
+                "name": "BookingAgent",
+                "purpose": "Handle booking interest and add to booking queue",
+                "triggers": ["book", "reserve", "take", "finalize", "want this plot"],
+                "example_response": "Excellent choice! To reserve Plot #A12, a token amount of ₹50,000 is required. Our sales team will contact you for the paperwork."
+            },
+            {
+                "name": "PaymentAgent",
+                "purpose": "Answer payment queries and generate payment links",
+                "triggers": ["payment", "EMI", "installment", "pay", "token amount"],
+                "example_response": "Payment options:\n• Full payment: 5% discount\n• 50-50: 50% now, 50% on registration\n• EMI: 12-24 months available"
+            }
+        ],
+        "conversation_states": [
+            "new_lead", "greeting", "qualification", "project_discussion",
+            "site_visit_offer", "site_visit_scheduled", "post_visit_followup",
+            "booking_discussion", "payment_pending", "booked", "human_handoff"
+        ],
+        "supported_languages": ["English", "Telugu", "Hindi"]
+    }

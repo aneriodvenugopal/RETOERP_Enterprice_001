@@ -85,6 +85,7 @@ import MasterCategoryManagement from "./pages/admin/MasterCategoryManagement";
 import TenantCategoryManagement from "./pages/admin/TenantCategoryManagement";
 import TutorAIAdmin from "./pages/TutorAIAdmin";
 import RealApexDemos from "./pages/RealApexDemos";
+import WhatsAppSimulator from "./pages/WhatsAppSimulator";
 
 // Settings Pages
 import RoleAssignments from "./pages/settings/RoleAssignments";
@@ -1024,6 +1025,16 @@ function App() {
                 element={
                   <PrivateRoute>
                     <WorkforceManagement />
+                  </PrivateRoute>
+                }
+              />
+              
+              {/* WhatsApp AI Simulator - Test all 7 agents */}
+              <Route
+                path="/whatsapp-simulator"
+                element={
+                  <PrivateRoute>
+                    <WhatsAppSimulator />
                   </PrivateRoute>
                 }
               />
