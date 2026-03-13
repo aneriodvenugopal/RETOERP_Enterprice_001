@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useGeoLocation } from '../context/LocationContext';
+import { HelpButton } from '../components/DemoGuide';
 import { MapContainer, TileLayer, Marker, Popup, Circle, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -269,6 +270,8 @@ const MapSearch = () => {
               {searchCenter ? 'Custom location' : 'Search location...'}
             </span>
           </div>
+          
+          <HelpButton screen="map" />
           
           <button 
             onClick={() => setShowFilters(true)} 

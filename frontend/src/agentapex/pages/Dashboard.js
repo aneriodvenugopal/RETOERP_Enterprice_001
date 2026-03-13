@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useDemoGuide, HelpButton } from '../components/DemoGuide';
 import { motion } from 'framer-motion';
 import { 
   Home, Search, PlusSquare, Heart, User,
@@ -141,6 +142,7 @@ const MenuItem = ({ icon: Icon, label, sublabel, onClick, badge }) => (
 const Dashboard = () => {
   const { user, api } = useAuth();
   const navigate = useNavigate();
+  const { startDemo, hasSeenDemo } = useDemoGuide();
   const [stats, setStats] = useState({ properties: 0, leads: 0, followups: 0, favorites: 0 });
   const [unreadNotifications, setUnreadNotifications] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -148,6 +150,17 @@ const Dashboard = () => {
   const [showInstallBanner, setShowInstallBanner] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
   const [isStandalone, setIsStandalone] = useState(false);
+
+  // Auto-show demo for new users
+  useEffect(() => {
+    if (!hasSeenDemo('dashboard')) {
+      // Show demo after a brief delay
+      const timer = setTimeout(() => {
+        startDemo('dashboard');
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, []);
 
   // Check platform and standalone mode
   useEffect(() => {
@@ -347,9 +360,12 @@ const Dashboard = () => {
               <h1 className="text-lg font-bold text-gray-900">AgentApex</h1>
             </div>
           </motion.div>
-          <div className="text-right">
-            <p className="text-xs text-gray-500">Welcome back</p>
-            <p className="text-sm font-semibold text-gray-900">{user?.name || user?.phone}</p>
+          <div className="flex items-center gap-3">
+            <HelpButton screen="dashboard" />
+            <div className="text-right">
+              <p className="text-xs text-gray-500">Welcome back</p>
+              <p className="text-sm font-semibold text-gray-900">{user?.name || user?.phone}</p>
+            </div>
           </div>
         </div>
       </motion.header>

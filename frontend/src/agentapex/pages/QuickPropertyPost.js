@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useGeoLocation } from '../context/LocationContext';
+import { HelpButton } from '../components/DemoGuide';
 import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -646,6 +647,7 @@ const QuickPropertyPost = () => {
               <ArrowLeft className="w-6 h-6 text-gray-900" />
             </button>
             <h1 className="text-xl font-bold text-gray-900 flex-1">Post Property</h1>
+            <HelpButton screen="post" />
             <button onClick={() => navigate('/agentapex/post/voice')}
               className="w-10 h-10 flex items-center justify-center bg-red-50 rounded-full">
               <Mic className="w-5 h-5 text-red-500" />

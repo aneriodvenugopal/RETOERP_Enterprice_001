@@ -2,6 +2,7 @@ import React, { Suspense, lazy, useEffect } from 'react';
 import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { LocationProvider } from './context/LocationContext';
+import { DemoGuideProvider } from './components/DemoGuide';
 import { Toaster } from 'sonner';
 import { AnimatePresence, motion } from 'framer-motion';
 
@@ -321,28 +322,30 @@ function AgentApexApp() {
     <ErrorBoundary>
       <AuthProvider>
         <LocationProvider>
-          <div className="agentapex-app">
-            <Suspense fallback={<LoadingSpinner />}>
-              <AnimatedRoutes />
-            </Suspense>
-            <Toaster 
-              position="top-center"
-              expand={false}
-              richColors
-              toastOptions={{
-                style: {
-                  background: 'rgba(38, 38, 38, 0.95)',
-                  backdropFilter: 'blur(10px)',
-                  color: '#FFFFFF',
-                  borderRadius: '14px',
-                  fontSize: '14px',
-                  padding: '14px 18px',
-                  boxShadow: '0 4px 20px rgba(0,0,0,0.15)'
-                },
-                duration: 2500
-              }}
-            />
-          </div>
+          <DemoGuideProvider>
+            <div className="agentapex-app">
+              <Suspense fallback={<LoadingSpinner />}>
+                <AnimatedRoutes />
+              </Suspense>
+              <Toaster 
+                position="top-center"
+                expand={false}
+                richColors
+                toastOptions={{
+                  style: {
+                    background: 'rgba(38, 38, 38, 0.95)',
+                    backdropFilter: 'blur(10px)',
+                    color: '#FFFFFF',
+                    borderRadius: '14px',
+                    fontSize: '14px',
+                    padding: '14px 18px',
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.15)'
+                  },
+                  duration: 2500
+                }}
+              />
+            </div>
+          </DemoGuideProvider>
         </LocationProvider>
       </AuthProvider>
     </ErrorBoundary>
