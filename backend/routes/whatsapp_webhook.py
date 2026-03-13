@@ -675,6 +675,53 @@ async def cleanup_test_conversations(
     }
 
 
+@router.post("/simulate/reset/{phone}")
+async def reset_conversation_for_phone(
+    phone: str,
+    request: Request,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Reset conversation for a specific phone number - re-enables AI
+    Use this when conversation is stuck in human_handoff mode
+    """
+    db = get_db(request)
+    tenant_id = current_user.get("tenant_id")
+    
+    phone = normalize_phone(phone)
+    
+    # Find and reset the conversation
+    result = await db.whatsapp_conversations.update_one(
+        {
+            "tenant_id": tenant_id,
+            "phone": phone
+        },
+        {
+            "$set": {
+                "ai_enabled": True,
+                "state": "new_lead",
+                "human_assigned": None,
+                "handoff_reason": None,
+                "updated_at": datetime.utcnow()
+            }
+        }
+    )
+    
+    if result.modified_count > 0:
+        return {
+            "success": True,
+            "message": f"Conversation reset for {phone}. AI is now active."
+        }
+    else:
+        # No existing conversation, that's fine
+        return {
+            "success": True,
+            "message": f"No existing conversation found for {phone}. Fresh conversation will be created."
+        }
+
+
+
+
 @router.get("/agents-info")
 async def get_agents_info():
     """

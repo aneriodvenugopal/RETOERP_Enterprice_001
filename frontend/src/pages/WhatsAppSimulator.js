@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { Send, MessageSquare, Bot, User, Trash2, RefreshCw, ChevronDown, Info, Loader2, Phone, Languages } from 'lucide-react';
+import { Send, MessageSquare, Bot, User, Trash2, RefreshCw, ChevronDown, Info, Loader2, Phone, Languages, RotateCcw } from 'lucide-react';
 import { toast } from 'sonner';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
@@ -84,11 +84,25 @@ const WhatsAppSimulator = () => {
 
       const data = await response.json();
 
-      if (data.success || data.ai_response) {
+      // Handle human handoff active state
+      if (data.action_taken === 'human_handoff_active' || data.action === 'human_handoff_active') {
+        const systemMessage = {
+          id: Date.now() + 1,
+          role: 'system',
+          content: '⚠️ AI is paused for this conversation (Human Handoff Active). Click "Reset Conversation" to start fresh testing.',
+          timestamp: new Date().toISOString(),
+          metadata: {
+            action: data.action_taken || data.action,
+            state: 'human_handoff'
+          }
+        };
+        setConversation(prev => [...prev, systemMessage]);
+        toast.warning('Conversation is with human agent. Reset to test AI again.');
+      } else if (data.success || data.ai_response) {
         const aiMessage = {
           id: Date.now() + 1,
           role: 'assistant',
-          content: data.ai_response || 'Processing...',
+          content: data.ai_response || 'AI is processing your request...',
           timestamp: new Date().toISOString(),
           metadata: {
             intent: data.intent_detected,
@@ -167,6 +181,28 @@ const WhatsAppSimulator = () => {
     }
   };
 
+  const resetConversation = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/whatsapp/simulate/reset/${phone}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        toast.success(data.message);
+        setConversation([]);
+      } else {
+        toast.error('Failed to reset conversation');
+      }
+    } catch (error) {
+      console.error('Error resetting conversation:', error);
+      toast.error('Failed to reset conversation');
+    }
+  };
+
   const handleKeyPress = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -236,6 +272,14 @@ const WhatsAppSimulator = () => {
                   data-testid="phone-input"
                 />
               </div>
+              <button
+                onClick={resetConversation}
+                className="w-full mt-3 px-3 py-2 bg-yellow-600 hover:bg-yellow-700 rounded-lg flex items-center justify-center gap-2 text-sm transition-colors"
+                data-testid="reset-conversation-btn"
+              >
+                <RotateCcw className="w-4 h-4" />
+                Reset Conversation (Re-enable AI)
+              </button>
             </div>
 
             {/* Quick Test Messages */}
