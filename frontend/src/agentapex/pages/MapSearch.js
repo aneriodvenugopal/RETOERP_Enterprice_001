@@ -184,12 +184,24 @@ const MapSearch = () => {
         mainText: r.address?.village || r.address?.suburb || r.address?.town || r.address?.city || r.name || r.display_name.split(',')[0],
         secondaryText: [r.address?.state_district, r.address?.state].filter(Boolean).join(', '),
         lat: parseFloat(r.lat),
-        lon: parseFloat(r.lon)
+        lon: parseFloat(r.lon),
+        query: query // Store query for highlighting
       })));
     } catch (err) {
       console.error('Search error:', err);
     }
     setSearchLoading(false);
+  };
+
+  // Highlight matching text helper
+  const highlightMatch = (text, query) => {
+    if (!query || !text) return text;
+    const parts = text.split(new RegExp(`(${query})`, 'gi'));
+    return parts.map((part, i) => 
+      part.toLowerCase() === query.toLowerCase() 
+        ? <strong key={i} className="text-gray-900 font-bold">{part}</strong>
+        : part
+    );
   };
 
   const selectLocation = (result) => {
@@ -331,7 +343,7 @@ const MapSearch = () => {
                     <button
                       key={result.id}
                       onClick={() => selectLocation(result)}
-                      className={`w-full px-4 py-4 flex items-start gap-4 text-left hover:bg-blue-50 ${
+                      className={`w-full px-4 py-4 flex items-start gap-4 text-left hover:bg-blue-50 active:bg-blue-100 ${
                         idx !== searchResults.length - 1 ? 'border-b border-gray-100' : ''
                       }`}
                     >
@@ -339,8 +351,10 @@ const MapSearch = () => {
                         <MapPin className="w-6 h-6 text-blue-500" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-lg font-bold text-gray-900">{result.mainText || result.name.split(',')[0]}</p>
-                        <p className="text-base text-gray-500 mt-0.5">{result.secondaryText || result.name.split(',').slice(1, 3).join(',')}</p>
+                        <p className="text-lg text-gray-600">
+                          {highlightMatch(result.mainText, searchQuery)}
+                        </p>
+                        <p className="text-base text-gray-400 mt-0.5">{result.secondaryText}</p>
                       </div>
                     </button>
                   ))}
