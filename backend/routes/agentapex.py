@@ -780,62 +780,70 @@ async def get_file(request: Request, file_id: str):
 async def add_document(
     request: Request,
     property_id: str,
-    doc_type: str = Form(...),
-    doc_name: str = Form(...),
-    file: UploadFile = File(...),
+    files: List[UploadFile] = File(...),
+    document_type: str = Form("general"),
     user: dict = Depends(get_current_user)
 ):
+    """Upload multiple documents to a property"""
     db = request.app.state.db
     prop = await db.agentapex_properties.find_one({"id": property_id, "user_id": user["id"]})
     if not prop:
         raise HTTPException(status_code=404, detail="Property not found or unauthorized")
     
     allowed_extensions = {'.pdf', '.jpg', '.jpeg', '.png', '.doc', '.docx'}
-    file_ext = Path(file.filename).suffix.lower()
+    max_size = 10 * 1024 * 1024  # 10MB per file
+    uploaded_docs = []
     
-    if file_ext not in allowed_extensions:
-        raise HTTPException(status_code=400, detail="File type not allowed")
+    for file in files:
+        file_ext = Path(file.filename).suffix.lower()
+        
+        if file_ext not in allowed_extensions:
+            continue  # Skip invalid files
+        
+        contents = await file.read()
+        if len(contents) > max_size:
+            continue  # Skip files that are too large
+        
+        file_id = generate_id()
+        filename = f"{file_id}{file_ext}"
+        file_path = UPLOAD_DIR / filename
+        
+        with open(file_path, "wb") as f:
+            f.write(contents)
+        
+        file_doc = {
+            "id": file_id,
+            "user_id": user["id"],
+            "property_id": property_id,
+            "original_name": file.filename,
+            "stored_name": filename,
+            "file_type": file_ext,
+            "size": len(contents),
+            "created_at": get_timestamp()
+        }
+        await db.agentapex_files.insert_one(file_doc)
+        
+        doc = {
+            "id": generate_id(),
+            "file_id": file_id,
+            "type": document_type,
+            "name": file.filename,
+            "original_filename": file.filename,
+            "url": f"/api/agentapex/files/{file_id}",
+            "size": len(contents),
+            "uploaded_at": get_timestamp()
+        }
+        
+        await db.agentapex_properties.update_one(
+            {"id": property_id},
+            {"$push": {"documents": doc}}
+        )
+        uploaded_docs.append(doc)
     
-    contents = await file.read()
-    max_size = 10 * 1024 * 1024
-    if len(contents) > max_size:
-        raise HTTPException(status_code=400, detail="File size exceeds 10MB limit")
+    if not uploaded_docs:
+        raise HTTPException(status_code=400, detail="No valid documents to upload")
     
-    file_id = generate_id()
-    filename = f"{file_id}{file_ext}"
-    file_path = UPLOAD_DIR / filename
-    
-    with open(file_path, "wb") as f:
-        f.write(contents)
-    
-    file_doc = {
-        "id": file_id,
-        "user_id": user["id"],
-        "property_id": property_id,
-        "original_name": file.filename,
-        "stored_name": filename,
-        "file_type": file_ext,
-        "size": len(contents),
-        "created_at": get_timestamp()
-    }
-    await db.agentapex_files.insert_one(file_doc)
-    
-    doc = {
-        "id": generate_id(),
-        "file_id": file_id,
-        "type": doc_type,
-        "name": doc_name,
-        "original_filename": file.filename,
-        "url": f"/api/agentapex/files/{file_id}",
-        "size": len(contents),
-        "uploaded_at": get_timestamp()
-    }
-    
-    await db.agentapex_properties.update_one(
-        {"id": property_id},
-        {"$push": {"documents": doc}}
-    )
-    return {"message": "Document added", "document": doc}
+    return {"message": f"{len(uploaded_docs)} document(s) added", "documents": uploaded_docs}
 
 @router.delete("/properties/{property_id}/documents/{doc_id}")
 async def delete_document(request: Request, property_id: str, doc_id: str, user: dict = Depends(get_current_user)):
