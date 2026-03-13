@@ -160,9 +160,9 @@ const MapSearch = () => {
   const DEFAULT_CENTER = [17.385, 78.4867];
   const mapCenter = searchCenter || (userLocation ? [userLocation.latitude, userLocation.longitude] : DEFAULT_CENTER);
 
-  // Location search with Nominatim
+  // Location search with Nominatim - start from 2 chars
   useEffect(() => {
-    if (debouncedSearch.length >= 3) {
+    if (debouncedSearch.length >= 2) {
       searchLocations(debouncedSearch);
     } else {
       setSearchResults([]);
@@ -172,14 +172,17 @@ const MapSearch = () => {
   const searchLocations = async (query) => {
     setSearchLoading(true);
     try {
+      // Use Nominatim with better parameters for India
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=in&limit=5`,
-        { headers: { 'Accept': 'application/json' } }
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}, India&limit=8&addressdetails=1&countrycodes=in`,
+        { headers: { 'Accept': 'application/json', 'User-Agent': 'RealApex/1.0' } }
       );
       const data = await response.json();
       setSearchResults(data.map(r => ({
         id: r.place_id,
         name: r.display_name,
+        mainText: r.address?.village || r.address?.suburb || r.address?.town || r.address?.city || r.name || r.display_name.split(',')[0],
+        secondaryText: [r.address?.state_district, r.address?.state].filter(Boolean).join(', '),
         lat: parseFloat(r.lat),
         lon: parseFloat(r.lon)
       })));
@@ -298,59 +301,86 @@ const MapSearch = () => {
           >
             <div className="p-4 border-b">
               <div className="flex items-center gap-3">
-                <button onClick={() => { setShowSearch(false); setSearchQuery(''); setSearchResults([]); }} className="w-10 h-10 flex items-center justify-center">
+                <button onClick={() => { setShowSearch(false); setSearchQuery(''); setSearchResults([]); }} className="w-12 h-12 flex items-center justify-center rounded-xl bg-gray-100">
                   <ArrowLeft className="w-6 h-6" />
                 </button>
-                <div className="flex-1 flex items-center gap-2 bg-gray-100 rounded-full px-4 py-2.5">
-                  <Search className="w-5 h-5 text-gray-400" />
+                <div className="flex-1 flex items-center gap-3 bg-gray-100 rounded-2xl px-4 py-3">
+                  <Search className="w-6 h-6 text-gray-400" />
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search city, area, landmark..."
-                    className="flex-1 bg-transparent border-none outline-none text-sm"
+                    placeholder="Search village, area, city..."
+                    className="flex-1 bg-transparent border-none outline-none text-lg"
                     autoFocus
                   />
-                  {searchLoading && <Loader2 className="w-4 h-4 text-gray-400 animate-spin" />}
+                  {searchLoading && <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />}
+                  {searchQuery && !searchLoading && (
+                    <button onClick={() => setSearchQuery('')}>
+                      <X className="w-5 h-5 text-gray-400" />
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
             
             <div className="flex-1 overflow-y-auto">
               {searchResults.length > 0 ? (
-                <div className="divide-y">
-                  {searchResults.map((result) => (
+                <div>
+                  {searchResults.map((result, idx) => (
                     <button
                       key={result.id}
                       onClick={() => selectLocation(result)}
-                      className="w-full px-4 py-4 flex items-start gap-3 text-left hover:bg-gray-50"
+                      className={`w-full px-4 py-4 flex items-start gap-4 text-left hover:bg-blue-50 ${
+                        idx !== searchResults.length - 1 ? 'border-b border-gray-100' : ''
+                      }`}
                     >
-                      <MapPin className="w-5 h-5 text-gray-400 mt-0.5 shrink-0" />
+                      <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
+                        <MapPin className="w-6 h-6 text-blue-500" />
+                      </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 truncate">{result.name.split(',')[0]}</p>
-                        <p className="text-xs text-gray-500 truncate">{result.name.split(',').slice(1).join(',')}</p>
+                        <p className="text-lg font-bold text-gray-900">{result.mainText || result.name.split(',')[0]}</p>
+                        <p className="text-base text-gray-500 mt-0.5">{result.secondaryText || result.name.split(',').slice(1, 3).join(',')}</p>
                       </div>
                     </button>
                   ))}
                 </div>
-              ) : searchQuery.length >= 3 && !searchLoading ? (
+              ) : searchQuery.length >= 2 && !searchLoading ? (
                 <div className="p-8 text-center">
-                  <p className="text-gray-500">No locations found</p>
+                  <MapPin className="w-12 h-12 text-gray-200 mx-auto mb-4" />
+                  <p className="text-lg text-gray-500">No locations found</p>
+                  <p className="text-base text-gray-400 mt-1">Try different spelling</p>
                 </div>
               ) : (
-                <div className="p-4">
-                  <p className="text-sm text-gray-500 mb-4">Popular searches</p>
-                  <div className="flex flex-wrap gap-2">
-                    {['Hyderabad', 'Bangalore', 'Mumbai', 'Chennai', 'Pune'].map(city => (
+                <div className="p-6">
+                  <p className="text-base font-bold text-gray-700 mb-4">Popular Areas</p>
+                  <div className="flex flex-wrap gap-3">
+                    {['Hyderabad', 'Bangalore', 'Mumbai', 'Chennai', 'Vijayawada', 'Guntur', 'Tirupati', 'Warangal'].map(city => (
                       <button
                         key={city}
                         onClick={() => setSearchQuery(city)}
-                        className="px-4 py-2 bg-gray-100 rounded-full text-sm text-gray-700"
+                        className="px-5 py-3 bg-gray-100 rounded-full text-base font-medium text-gray-700"
                       >
                         {city}
                       </button>
                     ))}
                   </div>
+                  
+                  <button
+                    onClick={() => {
+                      if (userLocation) {
+                        setSearchCenter([userLocation.latitude, userLocation.longitude]);
+                        setShowSearch(false);
+                        toast.success('Using your current location');
+                      } else {
+                        requestLocation();
+                      }
+                    }}
+                    className="w-full mt-6 py-4 bg-blue-500 text-white rounded-2xl flex items-center justify-center gap-3 text-lg font-bold"
+                  >
+                    <Crosshair className="w-6 h-6" />
+                    Use My Location
+                  </button>
                 </div>
               )}
             </div>
