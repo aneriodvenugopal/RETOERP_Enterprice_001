@@ -9,6 +9,31 @@ Additionally, the AgentApex mobile app requires continuous UI/UX improvements fo
 
 ## Completed Features
 
+### March 14, 2026
+
+#### 1. RealApex Public Layout View - Bug Fixes ✅
+- **Plot Data Enrichment**: Backend API now enriches plot data with property-level details (videos, images, location)
+- **Video URL Support**: Added support for single `video_url` and `youtube_url` fields in addition to arrays
+- **Mobile Responsive Modal**: Fixed property details popup to be responsive on small screens
+  - Tabs now horizontally scrollable
+  - Proper padding and font sizes for mobile
+  - Max-width constrained with viewport percentage
+- **Fixed typo**: `playingVideoIndexIndex` → `playingVideoIndex`
+- **Removed duplicate route**: Cleaned up duplicate `/public/projects/{project_id}/layout` endpoint
+
+#### 2. AgentApex - Multiple Document Upload UI ✅
+- Improved "My Properties → Edit" document upload UI
+- Clear "Add Documents" button with upload icon
+- "Click here to upload" prompt in empty state
+- File type hints (PDF, DOC, DOCX, JPG, PNG)
+- Loading state during upload
+- Same improvements for Photos section
+
+#### 3. Demo Guide Recurring Bug Fix ✅
+- Fixed issue where demo guide was showing on every visit
+- Now uses direct localStorage check instead of context function
+- Added proper dependency to useEffect
+
 ### December 13, 2025
 
 #### 1. Demo/Onboarding Guide for AgentApex ✅

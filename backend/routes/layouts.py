@@ -20,14 +20,88 @@ async def get_public_layout(project_id: str, request: Request):
         'deleted_at': None
     }, {'_id': 0})
     
-    # Get project details (limited info for public)
+    # Get project details - include all public-relevant fields including location data
     project = await db.projects.find_one(
         {'id': project_id, 'deleted_at': None},
-        {'_id': 0, 'id': 1, 'name': 1, 'location': 1, 'city': 1, 'state': 1, 'description': 1}
+        {
+            '_id': 0, 
+            'id': 1, 
+            'name': 1, 
+            'location': 1, 
+            'city': 1, 
+            'state': 1, 
+            'description': 1,
+            'latitude': 1,
+            'longitude': 1,
+            'google_maps_url': 1,
+            'landmarks': 1,
+            'property_images': 1,
+            'images': 1,
+            'gallery': 1,
+            'property_videos': 1,
+            'videos': 1,
+            'video_url': 1,
+            'youtube_url': 1,
+            'amenities': 1,
+            'features': 1
+        }
     )
     
     if not layout or not project:
         raise HTTPException(status_code=404, detail="Layout not found")
+    
+    # Enrich plot data with property details from properties collection
+    if layout.get('plots'):
+        enriched_plots = []
+        for plot in layout['plots']:
+            # Try to find matching property by plot_id or display_name
+            property_data = await db.properties.find_one({
+                'project_id': project_id,
+                '$or': [
+                    {'layout_plot_id': plot.get('id')},
+                    {'property_number': plot.get('display_name')},
+                    {'plot_number': plot.get('display_name')}
+                ],
+                'deleted_at': None
+            }, {'_id': 0})
+            
+            if property_data:
+                # Merge property data into plot - property data takes precedence for media
+                enriched_plot = {**plot}
+                # Add media fields from property if they exist
+                if property_data.get('property_images') or property_data.get('images'):
+                    enriched_plot['property_images'] = property_data.get('property_images') or property_data.get('images', [])
+                if property_data.get('property_videos') or property_data.get('videos'):
+                    enriched_plot['property_videos'] = property_data.get('property_videos') or property_data.get('videos', [])
+                if property_data.get('video_url'):
+                    enriched_plot['video_url'] = property_data.get('video_url')
+                if property_data.get('youtube_url'):
+                    enriched_plot['youtube_url'] = property_data.get('youtube_url')
+                # Add location data if present
+                if property_data.get('latitude'):
+                    enriched_plot['latitude'] = property_data.get('latitude')
+                if property_data.get('longitude'):
+                    enriched_plot['longitude'] = property_data.get('longitude')
+                if property_data.get('google_maps_url'):
+                    enriched_plot['google_maps_url'] = property_data.get('google_maps_url')
+                # Update status from property if available
+                if property_data.get('status'):
+                    enriched_plot['status'] = property_data.get('status')
+                # Add other useful fields
+                if property_data.get('amenities'):
+                    enriched_plot['amenities'] = property_data.get('amenities')
+                if property_data.get('facing'):
+                    enriched_plot['facing'] = property_data.get('facing')
+                if property_data.get('area'):
+                    enriched_plot['area'] = property_data.get('area')
+                if property_data.get('price'):
+                    enriched_plot['price'] = property_data.get('price')
+                    
+                enriched_plots.append(enriched_plot)
+            else:
+                enriched_plots.append(plot)
+        
+        layout['plots'] = enriched_plots
     
     return {
         'success': True,
@@ -143,35 +217,6 @@ async def get_project_layout(project_id: str, request: Request):
     # Return success response with layout (can be None if not found)
     return {
         'success': True,
-        'layout': layout,
-        'project': project
-    }
-
-@router.get("/public/projects/{project_id}/layout")
-async def get_public_project_layout(project_id: str, request: Request):
-    """Get layout for a project (public access - no auth required)"""
-    db = get_db(request)
-    
-    # Get layout
-    layout = await db.project_layouts.find_one({
-        'project_id': project_id,
-        'deleted_at': None
-    }, {'_id': 0})
-    
-    if not layout:
-        raise HTTPException(status_code=404, detail="Layout not found")
-    
-    # Get project details (basic info only)
-    project = await db.projects.find_one(
-        {'id': project_id, 'deleted_at': None},
-        {'_id': 0, 'id': 1, 'name': 1, 'location': 1, 'description': 1, 'total_units': 1}
-    )
-    
-    # Remove sensitive tenant information
-    if 'tenant_id' in layout:
-        del layout['tenant_id']
-    
-    return {
         'layout': layout,
         'project': project
     }

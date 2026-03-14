@@ -151,16 +151,21 @@ const Dashboard = () => {
   const [isIOS, setIsIOS] = useState(false);
   const [isStandalone, setIsStandalone] = useState(false);
 
-  // Auto-show demo for new users
+  // Auto-show demo for new users - only on first visit
   useEffect(() => {
-    if (!hasSeenDemo('dashboard')) {
+    // Check if user has seen the demo using direct localStorage check
+    // This ensures we don't depend on context re-renders
+    const seenDemos = JSON.parse(localStorage.getItem('agentapex_seen_demos') || '{}');
+    const hasSeen = seenDemos['dashboard'] === true;
+    
+    if (!hasSeen) {
       // Show demo after a brief delay
       const timer = setTimeout(() => {
         startDemo('dashboard');
       }, 1000);
       return () => clearTimeout(timer);
     }
-  }, []);
+  }, [startDemo]);
 
   // Check platform and standalone mode
   useEffect(() => {

@@ -371,9 +371,15 @@ const PropertyEdit = () => {
             </h3>
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="p-2 bg-blue-50 text-blue-500 rounded-xl"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-xl text-sm font-medium hover:bg-blue-100 transition-colors"
+              disabled={uploadingImage}
             >
-              <Plus className="w-5 h-5" />
+              {uploadingImage ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Camera className="w-4 h-4" />
+              )}
+              <span>{uploadingImage ? 'Uploading...' : 'Add Photos'}</span>
             </button>
           </div>
           
@@ -392,7 +398,16 @@ const PropertyEdit = () => {
               ))}
             </div>
           ) : (
-            <p className="text-gray-400 text-sm text-center py-4">No photos yet</p>
+            <div className="text-center py-6 border-2 border-dashed border-gray-200 rounded-xl">
+              <Camera className="w-10 h-10 mx-auto text-gray-300 mb-2" />
+              <p className="text-gray-400 text-sm">No photos yet</p>
+              <button 
+                onClick={() => fileInputRef.current?.click()}
+                className="mt-2 text-blue-500 text-sm font-medium"
+              >
+                Click here to upload
+              </button>
+            </div>
           )}
           
           <input
@@ -414,11 +429,21 @@ const PropertyEdit = () => {
             </h3>
             <button
               onClick={() => docInputRef.current?.click()}
-              className="p-2 bg-green-50 text-green-500 rounded-xl"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-green-50 text-green-600 rounded-xl text-sm font-medium hover:bg-green-100 transition-colors"
+              disabled={uploadingDoc}
             >
-              <Plus className="w-5 h-5" />
+              {uploadingDoc ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Upload className="w-4 h-4" />
+              )}
+              <span>{uploadingDoc ? 'Uploading...' : 'Add Documents'}</span>
             </button>
           </div>
+          
+          <p className="text-xs text-gray-500 mb-3">
+            Supported: PDF, DOC, DOCX, JPG, PNG (Max 10 files at once)
+          </p>
           
           {property.documents?.length > 0 ? (
             <div className="space-y-2">
@@ -431,7 +456,16 @@ const PropertyEdit = () => {
               ))}
             </div>
           ) : (
-            <p className="text-gray-400 text-sm text-center py-4">No documents yet</p>
+            <div className="text-center py-6 border-2 border-dashed border-gray-200 rounded-xl">
+              <FileText className="w-10 h-10 mx-auto text-gray-300 mb-2" />
+              <p className="text-gray-400 text-sm">No documents yet</p>
+              <button 
+                onClick={() => docInputRef.current?.click()}
+                className="mt-2 text-green-500 text-sm font-medium"
+              >
+                Click here to upload
+              </button>
+            </div>
           )}
           
           <input

@@ -28,7 +28,7 @@ const PublicLayoutView = () => {
   const [isFullScreen, setIsFullScreen] = useState(true);
   const [activeTab, setActiveTab] = useState('details');
   const [svgDimensions, setSvgDimensions] = useState({ width: 1200, height: 800 });
-  const [playingVideoIndexIndex, setPlayingVideoIndexIndex] = useState(null); // For video player
+  const [playingVideoIndex, setPlayingVideoIndex] = useState(null); // For video player
   const containerRef = useRef(null);
   
   // Interest form state
@@ -446,17 +446,17 @@ const PublicLayoutView = () => {
         </div>
       </div>
 
-      {/* Plot Details Modal */}
+      {/* Plot Details Modal - Mobile Responsive */}
       <Dialog open={showPlotModal} onOpenChange={setShowPlotModal}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-hidden p-0 bg-white">
+        <DialogContent className="w-[95vw] max-w-3xl max-h-[90vh] overflow-hidden p-0 bg-white sm:w-full"  style={{ maxWidth: 'min(95vw, 48rem)' }}>
           {selectedPlot && (
             <>
-              {/* Modal Header */}
-              <div className="bg-gradient-to-r from-cyan-600 to-blue-700 text-white p-6">
-                <div className="flex items-center justify-between">
+              {/* Modal Header - Mobile Responsive */}
+              <div className="bg-gradient-to-r from-cyan-600 to-blue-700 text-white p-4 sm:p-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                   <div>
-                    <h2 className="text-2xl font-bold">{selectedPlot.display_name}</h2>
-                    <p className="text-cyan-100">{project?.name}</p>
+                    <h2 className="text-xl sm:text-2xl font-bold">{selectedPlot.display_name}</h2>
+                    <p className="text-cyan-100 text-sm sm:text-base">{project?.name}</p>
                   </div>
                   <div className="flex items-center gap-3">
                     {getStatusBadge(selectedPlot.status)}
@@ -464,70 +464,70 @@ const PublicLayoutView = () => {
                 </div>
               </div>
 
-              {/* Tabs */}
+              {/* Tabs - Mobile Responsive with horizontal scroll */}
               <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1">
-                <TabsList className="w-full justify-start border-b rounded-none h-auto p-0 bg-gray-50">
-                  <TabsTrigger value="details" className="py-3 px-6 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-cyan-600 data-[state=active]:text-cyan-600">
-                    <FileText className="w-4 h-4 mr-2" />
+                <TabsList className="w-full justify-start border-b rounded-none h-auto p-0 bg-gray-50 overflow-x-auto flex-nowrap">
+                  <TabsTrigger value="details" className="py-2 sm:py-3 px-3 sm:px-6 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-cyan-600 data-[state=active]:text-cyan-600 whitespace-nowrap text-xs sm:text-sm">
+                    <FileText className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                     Details
                   </TabsTrigger>
-                  <TabsTrigger value="gallery" className="py-3 px-6 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-cyan-600 data-[state=active]:text-cyan-600">
-                    <ImageIcon className="w-4 h-4 mr-2" />
+                  <TabsTrigger value="gallery" className="py-2 sm:py-3 px-3 sm:px-6 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-cyan-600 data-[state=active]:text-cyan-600 whitespace-nowrap text-xs sm:text-sm">
+                    <ImageIcon className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                     Gallery
                   </TabsTrigger>
-                  <TabsTrigger value="videos" className="py-3 px-6 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-cyan-600 data-[state=active]:text-cyan-600">
-                    <Video className="w-4 h-4 mr-2" />
+                  <TabsTrigger value="videos" className="py-2 sm:py-3 px-3 sm:px-6 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-cyan-600 data-[state=active]:text-cyan-600 whitespace-nowrap text-xs sm:text-sm">
+                    <Video className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                     Videos
                   </TabsTrigger>
-                  <TabsTrigger value="location" className="py-3 px-6 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-cyan-600 data-[state=active]:text-cyan-600">
-                    <Map className="w-4 h-4 mr-2" />
+                  <TabsTrigger value="location" className="py-2 sm:py-3 px-3 sm:px-6 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-cyan-600 data-[state=active]:text-cyan-600 whitespace-nowrap text-xs sm:text-sm">
+                    <Map className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                     Location
                   </TabsTrigger>
-                  <TabsTrigger value="interest" className="py-3 px-6 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-cyan-600 data-[state=active]:text-cyan-600">
-                    <Heart className="w-4 h-4 mr-2" />
-                    Show Interest
+                  <TabsTrigger value="interest" className="py-2 sm:py-3 px-3 sm:px-6 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-cyan-600 data-[state=active]:text-cyan-600 whitespace-nowrap text-xs sm:text-sm">
+                    <Heart className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                    Interest
                   </TabsTrigger>
                   {selectedPlot.status === 'available' && (
-                    <TabsTrigger value="booking" className="py-3 px-6 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-cyan-600 data-[state=active]:text-cyan-600">
-                      <CreditCard className="w-4 h-4 mr-2" />
-                      Book Property
+                    <TabsTrigger value="booking" className="py-2 sm:py-3 px-3 sm:px-6 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-cyan-600 data-[state=active]:text-cyan-600 whitespace-nowrap text-xs sm:text-sm">
+                      <CreditCard className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                      Book
                     </TabsTrigger>
                   )}
                 </TabsList>
 
-                <div className="p-6 max-h-[50vh] overflow-y-auto">
-                  {/* Details Tab */}
+                <div className="p-4 sm:p-6 max-h-[50vh] overflow-y-auto">
+                  {/* Details Tab - Mobile Responsive */}
                   <TabsContent value="details" className="mt-0">
-                    <div className="grid grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                       <div className="space-y-4">
-                        <h3 className="font-semibold text-gray-900 border-b pb-2">Property Information</h3>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="p-3 bg-gray-50 rounded-lg">
+                        <h3 className="font-semibold text-gray-900 border-b pb-2 text-sm sm:text-base">Property Information</h3>
+                        <div className="grid grid-cols-2 gap-2 sm:gap-4">
+                          <div className="p-2 sm:p-3 bg-gray-50 rounded-lg">
                             <p className="text-xs text-gray-500">Plot Number</p>
-                            <p className="font-bold text-lg">{selectedPlot.display_name}</p>
+                            <p className="font-bold text-base sm:text-lg">{selectedPlot.display_name}</p>
                           </div>
-                          <div className="p-3 bg-gray-50 rounded-lg">
+                          <div className="p-2 sm:p-3 bg-gray-50 rounded-lg">
                             <p className="text-xs text-gray-500">Block</p>
-                            <p className="font-bold text-lg">{selectedPlot.block || 'A'}</p>
+                            <p className="font-bold text-base sm:text-lg">{selectedPlot.block || 'A'}</p>
                           </div>
-                          <div className="p-3 bg-gray-50 rounded-lg">
+                          <div className="p-2 sm:p-3 bg-gray-50 rounded-lg">
                             <p className="text-xs text-gray-500">Area</p>
-                            <p className="font-bold text-lg">{selectedPlot.area || 'N/A'} <span className="text-sm font-normal">{selectedPlot.unit || 'sq.yard'}</span></p>
+                            <p className="font-bold text-base sm:text-lg">{selectedPlot.area || 'N/A'} <span className="text-xs sm:text-sm font-normal">{selectedPlot.unit || 'sq.yard'}</span></p>
                           </div>
-                          <div className="p-3 bg-gray-50 rounded-lg">
+                          <div className="p-2 sm:p-3 bg-gray-50 rounded-lg">
                             <p className="text-xs text-gray-500">Facing</p>
-                            <p className="font-bold text-lg">{selectedPlot.facing || 'East'}</p>
+                            <p className="font-bold text-base sm:text-lg">{selectedPlot.facing || 'East'}</p>
                           </div>
                         </div>
                       </div>
                       
                       <div className="space-y-4">
-                        <h3 className="font-semibold text-gray-900 border-b pb-2">Pricing</h3>
-                        <div className="p-6 bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl border border-green-200">
-                          <p className="text-sm text-green-700 mb-1">Total Price</p>
-                          <p className="text-3xl font-bold text-green-700">{formatPrice(selectedPlot.price)}</p>
+                        <h3 className="font-semibold text-gray-900 border-b pb-2 text-sm sm:text-base">Pricing</h3>
+                        <div className="p-4 sm:p-6 bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl border border-green-200">
+                          <p className="text-xs sm:text-sm text-green-700 mb-1">Total Price</p>
+                          <p className="text-2xl sm:text-3xl font-bold text-green-700">{formatPrice(selectedPlot.price)}</p>
                           {selectedPlot.area && selectedPlot.price > 0 && (
-                            <p className="text-sm text-green-600 mt-2">
+                            <p className="text-xs sm:text-sm text-green-600 mt-2">
                               ₹{Math.round(selectedPlot.price / selectedPlot.area).toLocaleString()} per {selectedPlot.unit || 'sq.yard'}
                             </p>
                           )}
@@ -535,10 +535,10 @@ const PublicLayoutView = () => {
                         
                         {selectedPlot.status === 'available' && (
                           <Button 
-                            className="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 h-12 text-lg"
+                            className="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 h-10 sm:h-12 text-sm sm:text-lg"
                             onClick={() => setActiveTab('booking')}
                           >
-                            <CreditCard className="w-5 h-5 mr-2" />
+                            <CreditCard className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                             Book Now
                           </Button>
                         )}
@@ -671,7 +671,16 @@ const PublicLayoutView = () => {
                   {/* Videos Tab - Improved UI with thumbnails */}
                   <TabsContent value="videos" className="mt-0">
                     {(() => {
-                      const videos = selectedPlot.property_videos || selectedPlot.videos || [];
+                      // Collect videos from multiple sources
+                      let videos = selectedPlot.property_videos || selectedPlot.videos || [];
+                      
+                      // Also check for single video_url or youtube_url fields
+                      if (selectedPlot.video_url && !videos.some(v => (typeof v === 'string' ? v : v?.url) === selectedPlot.video_url)) {
+                        videos = [...videos, { url: selectedPlot.video_url }];
+                      }
+                      if (selectedPlot.youtube_url && !videos.some(v => (typeof v === 'string' ? v : v?.url) === selectedPlot.youtube_url)) {
+                        videos = [...videos, { url: selectedPlot.youtube_url }];
+                      }
                       
                       // Filter valid videos
                       const validVideos = videos.filter(v => {
@@ -727,11 +736,11 @@ const PublicLayoutView = () => {
                         
                         {/* Video thumbnails grid */}
                         <div>
-                          <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                          <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2 text-sm sm:text-base">
                             <Video className="w-4 h-4" />
                             Videos ({validVideos.length})
                           </h4>
-                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
                             {validVideos.map((video, idx) => {
                               const videoUrl = typeof video === 'string' ? video : (video?.url || '');
                               const youtubeId = video?.youtube_id || getYouTubeId(videoUrl);
@@ -759,14 +768,14 @@ const PublicLayoutView = () => {
                                   />
                                 ) : (
                                   <div className="w-full h-full bg-gray-800 flex items-center justify-center">
-                                    <Video className="w-8 h-8 text-gray-500" />
+                                    <Video className="w-6 h-6 sm:w-8 sm:h-8 text-gray-500" />
                                   </div>
                                 )}
                                 
                                 {/* Play button overlay */}
                                 <div className="absolute inset-0 bg-black/30 group-hover:bg-black/50 transition-colors flex items-center justify-center">
-                                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isPlaying ? 'bg-blue-500' : 'bg-red-600'} shadow-lg`}>
-                                    <Play className="w-5 h-5 text-white ml-0.5" fill="white" />
+                                  <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center ${isPlaying ? 'bg-blue-500' : 'bg-red-600'} shadow-lg`}>
+                                    <Play className="w-4 h-4 sm:w-5 sm:h-5 text-white ml-0.5" fill="white" />
                                   </div>
                                 </div>
                                 
@@ -781,10 +790,10 @@ const PublicLayoutView = () => {
                         </div>
                       </div>
                     ) : (
-                      <div className="text-center py-12">
-                        <Video className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-                        <h3 className="text-lg font-semibold text-gray-700 mb-2">No Videos Available</h3>
-                        <p className="text-gray-500">Property videos will be added soon</p>
+                      <div className="text-center py-8 sm:py-12">
+                        <Video className="w-12 h-12 sm:w-16 sm:h-16 mx-auto text-gray-300 mb-4" />
+                        <h3 className="text-base sm:text-lg font-semibold text-gray-700 mb-2">No Videos Available</h3>
+                        <p className="text-gray-500 text-sm">Property videos will be added soon</p>
                       </div>
                     );
                     })()}
