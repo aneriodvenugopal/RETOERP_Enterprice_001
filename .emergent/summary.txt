@@ -1,160 +1,189 @@
 <analysis>**original_problem_statement:**
-The user, acting as a senior AI backend architect, has provided a detailed 10-section development prompt to build a production-ready, multi-tenant Agentic AI workflow for their Realapex platform. The goal is to create an AI-powered WhatsApp real estate sales assistant that can handle customer inquiries, check property availability, schedule site visits, and assist with bookings.
+The user, a senior AI backend architect, wants to build a production-ready, multi-tenant Agentic AI workflow for their Realapex platform. This involves creating an AI-powered WhatsApp real estate sales assistant that handles inquiries, checks availability, schedules visits, and assists with bookings using a suite of specialized AI agents and a RAG system.
 
-This follows a discovery phase where the user interrogated the system's capabilities across WhatsApp integration, existing automation, knowledge storage, AI models, multi-tenancy, and scalability.
+Additionally, the user has requested significant UI/UX improvements to the  PWA to make it more user-friendly, especially for non-technical users. This includes redesigning key forms into conversational interfaces, improving map search functionality, and adding an in-app onboarding guide.
 
-Before this, the user also requested to turn the existing  web app into a proper mobile PWA, which involved fixing several iOS-specific bugs related to PWA installation and routing.
+Most recently, the user reported critical bugs on the main  public-facing website, where property details updated in the admin panel are not being displayed correctly on the live site, along with image upload failures and mobile responsiveness issues.
 
 **PRODUCT REQUIREMENTS:**
--   **Agentic AI Workflow**: A fully autonomous WhatsApp bot that acts as a real estate sales assistant. It must handle the entire customer journey from initial inquiry to booking interest.
--   **AI Agents**: The system must be composed of specialized agents (Greeting, Qualification, Inventory, Knowledge, Site Visit, Booking, Payment).
--   **AI Orchestrator**: A central service to manage intent detection, agent selection, and workflow coordination.
--   **RAG (Retrieval-Augmented Generation)**: The AI must use a RAG system to retrieve real-time data from the database (projects, plots, etc.) to generate accurate, non-hallucinated responses.
--   **Conversation State Machine**: The system must track the conversation's progress through various states (e.g., , , ).
--   **Human Handoff**: The AI must be able to pause and notify a human agent for intervention when a lead is highly qualified or requests human assistance.
--   **Multi-language Support**: The AI must communicate in English, Telugu, and Hindi.
--   **Security**: Strict tenant isolation must be maintained at all levels.
--   **PWA for AgentApex**: The  part of the site should function as a standalone, installable mobile app on both Android and iOS, separate from the main RealApex PWA.
+-   **Agentic AI Workflow**: An autonomous WhatsApp bot for the entire sales funnel.
+-   **AI Agents & Orchestrator**: Specialized agents (Greeting, Qualification, etc.) managed by a central orchestrator.
+-   **RAG System**: AI must use real-time data from the database to provide accurate responses.
+-   **Conversation State Machine**: Track the conversation's progress through defined states.
+-   **Human Handoff**: A mechanism for human agents to take over conversations.
+-   **AgentApex PWA UI/UX Overhaul**:
+    -   Redesign Post Property and Post Requirement forms to be intuitive and conversational.
+    -   Implement a Google Maps-like location search with autocomplete.
+    -   Add an in-app wallet/points system for viewing lead contact details.
+    -   Create an interactive, step-by-step demo guide for new users.
+-   **RealApex Site Bug Fixes**: Ensure data consistency between the admin panel and the public property pages, fix image uploads, and resolve mobile UI bugs.
 
 **User's preferred language**:
-The user communicates in a mix of English and Telugu. You **MUST** provide all technical plans, architectural explanations, and business-focused discussions in **Telugu**. Code, file names, and direct technical output should remain in English.
+The user communicates in a mix of English and Telugu. You **MUST** provide all high-level plans, architectural discussions, and summaries in **Telugu**. Code, file names, and direct technical output should remain in English.
 
 **what currently exists?**
--   A stable multi-tenant FastAPI backend and React frontend.
--   A new, dedicated directory  has been created with a modular structure for the AI workflow, including stubs for the orchestrator, agents, state manager, and database layer.
--   The core WhatsApp webhook handler () is implemented and successfully tested. It can receive messages, create new leads, and trigger the initial AI orchestrator logic.
--   A conflict with a pre-existing webhook route was identified and resolved by disabling the old route in .
--   The PWA for the  app is now fully functional for both Android and iOS after fixing several bugs, including a complex issue where a dynamic manifest loader had to be implemented in  to ensure iOS devices load the correct PWA.
--   The system has access to multiple LLMs (GPT-5, Claude Sonnet 4) via an .
+-   A FastAPI backend and React frontend.
+-   The foundational backend for the Agentic AI workflow exists in , including a working webhook () and a simulator endpoint ().
+-   A fully functional frontend WhatsApp Simulator page () has been built, allowing for testing of the AI conversation flow. A Reset Conversation feature is implemented to handle stuck states.
+-   The  PWA has received major UI/UX upgrades:
+    -   The Post Property form is now a step-by-step, WhatsApp-style chat interface.
+    -   The Post Requirement form has an improved layout with inputs grouped logically (e.g., Min/Max on one row).
+    -   The Map Search features Google-style autocomplete with bolded matching text.
+    -   An in-app wallet system is integrated into the map, debiting points to view contact details.
+    -   A multi-screen, context-aware Demo Guide has been added for onboarding new users.
+    -   The backend API for property document uploads now supports multiple files.
 
 **Last working item**:
--   **Last item agent was working**: The user requested an easy way to test the Agentic AI workflow without connecting a live WhatsApp number. The agent proposed creating a simple simulator/test page and was just beginning to implement it.
+-   **Last item agent was working**: The user reported three critical bugs on the main  public-facing website concerning a specific property layout page. The agent had just started the investigation by identifying the relevant frontend and backend files.
+    1.  Plot details (video, location) updated in the admin panel are not showing on the frontend.
+    2.  Gallery images are failing to upload or display.
+    3.  The property details popup is not responsive on small mobile screens.
 -   **Status**: NOT STARTED
 -   **Agent Testing Done**: N
--   **Which testing method agent to use?**: Frontend testing agent to verify the simulator page UI and functionality once built. The agent can then use this page to send test messages.
+-   **Which testing method agent to use?**: Use the screenshot tool to verify the UI and data on the public  site after fixing the bugs.
 -   **User Testing Done**: N
 
 **All Pending/In progress Issue list**:
--   **Issue 1: AI Workflow Testing Capability (P0)**
-    -   **Description**: The user cannot test the extensive AI workflow that has been partially built. A simple simulator page is required to send fake messages and see the AI's responses and state changes.
-    -   **Attempted fixes**: The agent was about to start creating a test page when the session ended.
+-   **Issue 1: RealApex Public Site Bugs (P0)**
+    -   **Description**: Data and images for properties are not syncing from the admin backend to the public frontend, and the property info popup is broken on mobile. This makes the core product unusable for end-customers.
     -   **Next debug checklist**:
-        1.  Create a new frontend component (e.g., ).
-        2.  Add a route for it in .
-        3.  Create a backend endpoint (e.g., ) that mimics the Leonas webhook payload and calls the  orchestrator function.
-        4.  The frontend page should have an input for the message, a send button, and a display area for the conversation history.
-    -   **Why fix this issue and what will be achieved with the fix?**: This will unblock the user and allow for iterative testing and validation of all 7 AI agents as they are being developed, without relying on the live WhatsApp integration.
+        1.  Inspect  and  to see how plot data is fetched and rendered.
+        2.  Verify the backend API endpoint () is returning the correct data, including video URLs and gallery image paths.
+        3.  Fix the CSS in the property popup component to ensure it is responsive.
+        4.  Investigate the image upload functionality in the admin panel and the corresponding backend API to find the point of failure.
+    -   **Why fix this issue and what will be achieved with the fix?**: This will restore core functionality to the main user-facing website, allowing customers to view property details correctly.
     -   **Status**: NOT STARTED
     -   **Is recurring issue?**: N
-    -   **Should Test**: frontend after fix.
+    -   **Should Test**: frontend
     -   **Blocked on other issue**: None.
 
+-   **Issue 2: AgentApex - Multiple Document Upload UI Fix (P1)**
+    -   **Description**: While the backend was fixed to accept multiple documents, the user reports the frontend UI in My Properties - Another Document button or that the file input allows multiple selections and updates the UI correctly after each upload.
+    -   **Why fix this issue and what will be achieved with the fix?**: Allows agents to upload all necessary legal and marketing documents for a property.
+    -   **Status**: NOT STARTED
+    -   **Is recurring issue?**: Y
+    -   **Should Test**: frontend
+
+-   **Issue 3: Agentic AI - Invalid WhatsApp API Key (P1 - BLOCKED)**
+    -   **Description**: The  in the environment () is invalid, causing Authentication failed errors when the AI tries to send a message.
+    -   **Next debug checklist**: This is blocked on the user. The agent must ask the user to log into their Leonas dashboard () and provide the correct, active API key.
+    -   **Why fix this issue and what will be achieved with the fix?**: This will enable the AI workflow to send messages to actual WhatsApp users.
+    -   **Status**: BLOCKED
+    -   **Is recurring issue?**: N
+    -   **Should Test**: backend
+
+-   **Issue 4: AgentApex - Demo Guide Re-showing Bug (P2)**
+    -   **Description**: The user has repeatedly mentioned that the help guide popup appears on every visit, not just the first time. The  logic to prevent this seems faulty.
+    -   **Next debug checklist**:
+        1.  Review the  hook in .
+        2.  Verify that  is being called correctly.
+        3.  Check the logic that reads this value in  in  and other pages.
+    -   **Why fix this issue and what will be achieved with the fix?**: Improves user experience by not showing the onboarding guide to experienced users on every visit.
+    -   **Status**: NOT STARTED
+    -   **Is recurring issue?**: Y
+    -   **Should Test**: frontend
+
 **In progress Task List**:
--   **Task 1: Implement Full Agentic AI Workflow (P0)**
-    -   **Where to resume**: The foundational webhook is done. The next step is to fully implement the logic inside the files created in .
-        -   Flesh out the  in  to handle intent routing.
-        -   Implement the individual agents (, , , etc.) in  with their specific logic.
-        -   Build the RAG system in  to fetch context from MongoDB collections (, ).
-        -   Implement the  in  using the correct API endpoint and credentials structure identified from the user's document.
-    -   **What will be achieved with this?**: This will complete the core user request for an autonomous real estate sales assistant.
+-   **Task 1: Implement Full Agentic AI Workflow Logic (P1)**
+    -   **Where to resume**: The simulator and webhook are ready. The next step is to flesh out the agent logic in .
+    -   **What will be achieved with this?**: Complete the core user request by making the AI agents (Qualification, Inventory, Site Visit, etc.) fully functional beyond simple greetings. Implement the RAG system in  to pull live project/plot data.
     -   **Status**: IN PROGRESS
-    -   **Should Test**: both after fix.
-    -   **Blocked on something**: Requires the user to provide the  from their Leonas dashboard for the final outbound messaging part.
+    -   **Should Test**: backend
+    -   **Blocked on something**: Full end-to-end testing is blocked by the invalid WhatsApp API key and the missing .
 
 **Upcoming and Future Tasks**
 -   **Upcoming Tasks**:
-    -   **P0: Obtain and Configure Full WhatsApp Credentials**: Get the  from the user and add it to  along with the already-provided .
-    -   **P1: Build Frontend Agent Dashboard**: Create a UI where human agents can view the AI-led conversations in real-time and take over when needed.
-    -   **P1: Apply Module Permissions to Frontend UI**: The backend for SaaS module permissions is complete. The frontend navigation (, etc.) needs to be updated to use the  hook to conditionally render UI elements.
+    -   **P1: Obtain and Configure Full WhatsApp Credentials**: Get the  from the user.
+    -   **P2: Build Frontend Agent Dashboard**: Create a UI for human agents to monitor and take over AI conversations.
+    -   **P2: Apply Module Permissions to Frontend UI**: Use the  hook to conditionally render UI elements based on tenant permissions.
 -   **Future Tasks**:
-    -   **Address Scalability Concerns**: Migrate conversation state from the current in-memory dictionary to Redis and replace FastAPI's  with a robust task queue like Celery to make the system production-ready.
-    -   **Integrate AI features**: Add Whisper for voice notes processing.
-    -   **Complete Google Calendar Sync**: Implement the planned site visit synchronization.
-    -   **Resolve API Route Conflict**: Address the long-standing prefix conflict between  and .
+    -   **Scalability**: Migrate conversation state to Redis and background tasks to Celery.
+    -   **AI Features**: Integrate Whisper for voice note processing.
+    -   **Integrations**: Implement Google Calendar sync for site visits.
+    -   **API Refactor**: Resolve the route prefix conflict between  and .
 
 **Completed work in this session**
--   **Agentic AI Workflow Foundation**:
-    -   Created a complete, modular directory structure under .
-    -   Implemented the  endpoint.
-    -   Successfully tested the inbound message flow: a  request correctly creates a lead, a conversation, detects intent, and generates an AI response.
-    -   Resolved a major API route conflict between the new webhook and an old one.
--   **PWA Functionality for AgentApex**:
-    -   Successfully implemented a fully functional PWA for  that is installable on both iOS and Android.
-    -   Fixed a critical iOS bug by creating a dynamic manifest loader in  to serve the correct PWA manifest and icons based on the URL path.
-    -   Added and fixed a persistent, cross-platform Add to Home Screen banner.
--   **System Discovery & Analysis**:
-    -   Conducted a comprehensive 10-step analysis of the entire system, answering the user's questions about architecture, AI capabilities, data models, and scalability, providing a solid foundation for the new development.
-    -   Analyzed the user-provided Leonas API documentation to determine the correct credentials and API endpoints.
+-   **WhatsApp AI Simulator**: Built a complete frontend page () to test the AI workflow, including a Reset Conversation feature.
+-   **AgentApex UI/UX Overhaul**:
+    -   Redesigned Post Property into a WhatsApp-style chat wizard ().
+    -   Redesigned Post Requirement with a more compact and user-friendly layout.
+    -   Improved Map Search with Google-style autocomplete, added local city suggestions, and enhanced the UI.
+    -   Improved button styling across the Post Property flow to make them look more interactive.
+-   **AgentApex Wallet System**: Implemented a points-based wallet in the header, with backend APIs to fetch balance and deduct points for viewing contacts on the map.
+-   **AgentApex Demo Guide**: Created a comprehensive, multi-page, context-aware onboarding guide for new users that can be accessed anytime via a help icon.
+-   **Dashboard Enhancement**: Added a Total Requirements count to the AgentApex dashboard.
+-   **Backend Fix**: Modified the property document upload API to accept multiple files simultaneously.
 
 **Earlier issues found/mentioned but not fixed**
--   **Scalability Limitations**: The agent's analysis revealed that the system is not scalable due to using an in-memory dictionary for conversation state and FastAPI's basic  for background jobs. This needs to be addressed with Redis and Celery for production use.
+-   **Scalability Limitations**: The system uses an in-memory dictionary for conversation state and simple , which is not suitable for production. It needs migration to Redis and Celery.
 -   **API Route Prefix Conflict**: An unresolved conflict exists between  and .
 
 **Known issue recurrence from previous fork**
--   None.
+-   The bug where the Demo Guide shows up on every visit, despite attempts to fix it, is a recurring issue within this session.
 
 **Code Architecture**
 
 
 **Key Technical Concepts**
--   **Agentic AI Workflow**: A system composed of multiple, specialized AI agents coordinated by an orchestrator to complete a complex task.
--   **AI Orchestrator**: A central component that detects user intent and routes tasks to the appropriate AI agent.
--   **Conversation State Machine**: Tracking a conversation's lifecycle through predefined states (e.g., , , ).
--   **Dynamic PWA Manifest Loading**: Using an inline  script in  to serve different PWA manifests based on the URL path, solving a critical issue for multi-PWA sites on iOS Safari.
--   **WhatsApp Webhook Integration**: Handling incoming messages from a third-party Business Solution Provider (BSP) like Leonas.
+-   **Agentic AI Workflow & Simulator**: A system of coordinated AI agents with a dedicated frontend for testing.
+-   **Conversational UI/Wizard**: The step-by-step, chat-like interface implemented in  using React state to manage questions and progress.
+-   **In-App Wallet System**: A points-based economy where users spend points to unlock features (viewing contacts). Managed via backend APIs and frontend state.
+-   **Context-Aware Onboarding**: The  feature, which uses a React Context Provider and  to show tailored help guides for different pages and remembers if a user has seen them.
+-   **Dynamic Autocomplete**: The Google Maps-like search that fetches suggestions and highlights matching text as the user types.
 
 **key DB schema**
--   : Updated to include a  field (e.g., new_lead, qualification) to manage the conversation flow.
--   : Stores individual messages, linked by , with  (user or assistant).
+-   : A  field (Number) has been implicitly added to manage the user's balance for viewing contacts.
 
 **All files of reference**
--   **/app/backend/agentic_workflow/**: The entire new module for the AI system.
--   **/app/backend/routes/whatsapp_agent.py**: The new, active webhook endpoint.
--   **/app/frontend/public/index.html**: The critical file modified to enable separate PWAs for the main site and AgentApex on iOS.
--   **/app/frontend/src/agentapex/hooks/usePWAInstall.js**: The hook created to manage the Add to Home Screen banner.
--   **/app/backend/server.py**: Modified to manage webhook route conflicts.
+-   **/app/frontend/src/realapex/pages/projects/[id]/layout/index.js**: Relevant to the current highest-priority bug.
+-   **/app/frontend/src/agentapex/pages/QuickPropertyPost.js**: The new WhatsApp-style chat interface.
+-   **/app/frontend/src/agentapex/pages/MapSearch.js**: The file containing the improved map search and wallet integration.
+-   **/app/frontend/src/agentapex/components/DemoGuide/**: The new directory containing all demo/onboarding guide components.
+-   **/app/frontend/src/agentapex/hooks/useDemoGuide.js**: The hook containing the logic for the recurring demo guide bug.
+-   **/app/backend/routes/users.py**: The backend file where the new wallet API endpoints were added.
+-   **/app/backend/services/whatsapp_agentic/main.py**: The AI orchestrator, modified to include a conversation reset endpoint.
 
 **Critical Info for New Agent**
--   **Main Priority**: The user's primary goal is the completion of the Agentic AI workflow as defined in their detailed prompt.
--   **Testing First**: The user wants to test the workflow via a simulator page before it goes live. Your immediate next step should be to build this simple test harness.
--   **Awaiting User Input**: The final implementation of the WhatsApp sender () is blocked on the user providing their **** from the Leonas dashboard. You must ask for this.
--   **Language**: Remember to communicate all high-level plans and explanations in **Telugu**.
--   **Scalability**: Be aware of the identified scalability issues (in-memory state, no task queue). While the immediate task is to build the MVP, you should be prepared to discuss and implement a more robust architecture (Redis/Celery) for the production version.
+-   **Immediate Priority**: Your first task is to fix the three bugs on the main  site (Plot 70 data sync, gallery images, and mobile responsiveness). The user's business depends on this public-facing page working correctly.
+-   **User Blockers**: The full Agentic AI workflow is blocked. You must ask the user for a **valid Leonas API key** and their **** after you fix the  site issues. Do not proceed with live WhatsApp integration without these.
+-   **UI/UX is Key**: The user has a strong focus on simple, intuitive, and visually appealing UI. Pay close attention to their feedback on font sizes, button styles, and layout. When implementing UI, think about the wow, super easy app feeling the user wants to create.
+-   **Language Protocol**: Remember to communicate all high-level plans and explanations in **Telugu**.
 
 **documents and test reports created in this job**
--   User uploaded artifact:  (The agent analyzed this to understand the Leonas API).
+-   None.
 
 **Last 10 User Messages and any pending HUMAN messages**
-10. : Provides his WhatsApp business number details and asks the agent to start implementation. (Completed)
-9. : Confirms understanding and states that the full implementation will now begin. (Completed)
-8. : i will make it whatsapp number unlock soon, and also i will do two way verification later, now i have one question how agent will work can i test in application under agent account , some how i want to see how this chat will work guide me i want to see how it works, guide me links and account details of any agent or where i check this how 7 models working ? examples i want to see, if possible can i test these 7 models ? first tell me strategy (In Progress)
-7. : Understands the user wants to test the AI workflow before connecting the live WhatsApp. Proposes a testing strategy with a simulator endpoint and a frontend dashboard. (Completed)
-6. : implement which is easy to implement and test , guide me tell how to test (In Progress)
-5. : States they will create a simple test page that can be used for testing within 5 minutes. (Last action)
-4. :  missing from provided credentials. (Pending)
-3. :  missing from provided credentials. (Pending)
-2. :  (Completed)
-1. : asks to start implementation after providing business number details. (Completed)
+10. : Requests an interactive demo/onboarding guide for new AgentApex users. (Completed)
+9.  : Implements the full Demo Guide feature with Next/Skip buttons, progress bars, and help icons on each page. (Completed)
+8.  : Explains what Lead Counts mean and reports a new bug: multiple document uploads are not working in My Properties Edit. (In Progress - Backend Fixed, Frontend needs fix)
+7.  : Fixes the backend to accept multiple files for the document upload feature. (Completed)
+6.  : Reports a long list of UI/UX issues: fix My Requirements layout, ensure help guide shows only once, implement a wallet system on the map, fix multi-document upload again, and improve button UI in Post Property. (In Progress)
+5.  : Implements all requested UI fixes:  page layout, adds  count to dashboard, improves  button styles, and implements the full wallet system with backend APIs and frontend UI. (Completed)
+4.  : Reports the help guide is still showing up every time. (Recurring Issue)
+3.  : Reports critical bugs on the main  site: Plot 70 data not syncing, gallery images not uploading, and mobile responsiveness is broken. (Highest Priority - Not Started)
+2.  : Acknowledges the  site bugs and starts investigating the relevant files. (Last Action)
+1. : Generate the summary now. (Pending Human Message)
 
 **Project Health Check:**
--   **Broken**: No features are currently broken.
+-   **Broken**:
+    -   The public-facing  property detail page has data sync, image upload, and mobile responsiveness issues.
+    -   The My Properties Edit page in  doesn't have a clear UI for uploading multiple documents.
 -   **Mocked**:
-    -   The outbound messaging part of the Agentic AI workflow is mocked/incomplete pending full credential configuration ().
-    -   The RAG system and most of the specialized AI agents (, , etc.) are just stubs and not fully implemented.
+    -   Outbound messaging for the Agentic AI workflow is non-functional due to an invalid API key and missing .
 
 **3rd Party Integrations**
 -   **Anthropic Claude**: Used for AI response generation — uses Emergent LLM Key.
 -   **OpenAI GPT-5/4o**: Available for use in AI agents — uses Emergent LLM Key.
--   **Leonas IT Solutions**: The designated WhatsApp Business Solution Provider (BSP). Integration is in progress. Requires User API Key and Phone Number ID.
+-   **Leonas IT Solutions**: WhatsApp Business Solution Provider. Integration is in progress but **blocked** by an invalid API key.
 -   **Razorpay**: Existing integration for payments — requires User API Key.
 -   **PayU**: Existing LIVE integration for payments — uses production keys from .
 -   **Stripe**: Existing integration for payments — requires User API Key.
 
 **Testing status**
--   **Testing agent used after significant changes**: NO.
--   **Troubleshoot agent used after agent stuck in loop**: NO.
--   **Test files created**: None.
--   **Known regressions**: None.
+-   **Testing agent used after significant changes**: NO
+-   **Troubleshoot agent used after agent stuck in loop**: NO
+-   **Test files created**: []
+-   **Known regressions**: The bug where the Demo Guide shows on every visit appears to be a regression or was never fully fixed.
 
 **Credentials to test flow:**
 -   **Super Admin**:  / 
@@ -162,4 +191,4 @@ The user communicates in a mix of English and Telugu. You **MUST** provide all t
 -   **AgentApex User**: Phone , OTP .
 
 **What agent forgot to execute**
--   The agent has correctly prioritized the user's explicit new feature request (Agentic AI) over the pending task from the previous handoff (connecting the  to the UI). No tasks were forgotten.</analysis>
+-   The agent correctly prioritized the user's latest bug reports for the  site. However, the recurring issue with the Demo Guide popup needs a definitive fix, as the previous attempts were not successful. The frontend part of the multiple document upload feature also remains incomplete.</analysis>

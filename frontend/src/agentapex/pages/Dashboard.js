@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import { 
   Home, Search, PlusSquare, Heart, User,
   Building2, MapPin, Users, TrendingUp, ChevronRight,
-  FileText, Clock, Bell, Share2, Download, Smartphone
+  FileText, Clock, Bell, Share2, Download, Smartphone, ClipboardList
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -234,11 +234,15 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const [statsRes, notifRes] = await Promise.all([
+        const [statsRes, notifRes, reqRes] = await Promise.all([
           api().get('/stats'),
-          api().get('/notifications/unread-count').catch(() => ({ data: { unread_count: 0 } }))
+          api().get('/notifications/unread-count').catch(() => ({ data: { unread_count: 0 } })),
+          api().get('/requirements').catch(() => ({ data: [] }))
         ]);
-        setStats(statsRes.data);
+        setStats({
+          ...statsRes.data,
+          requirements: Array.isArray(reqRes.data) ? reqRes.data.length : 0
+        });
         setUnreadNotifications(notifRes.data.unread_count || 0);
       } catch (error) {
         console.error('Error:', error);
@@ -402,6 +406,16 @@ const Dashboard = () => {
             color="bg-blue-500"
             onClick={() => navigate('/agentapex/followups')}
           />
+          <StatCard
+            icon={ClipboardList}
+            label="Requirements"
+            value={loading ? '-' : (stats.requirements || 0)}
+            color="bg-purple-500"
+            onClick={() => navigate('/agentapex/requirements')}
+          />
+        </div>
+        
+        <div className="flex gap-3 mt-3">
           <StatCard
             icon={Heart}
             label="Saved"

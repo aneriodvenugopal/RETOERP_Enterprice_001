@@ -1656,3 +1656,152 @@ async def notify_interested_users(db, property_data: dict):
             "created_at": get_timestamp()
         }
         await db.agentapex_notifications.insert_one(notification)
+
+
+
+# ================== WALLET SYSTEM ==================
+
+@router.get("/wallet")
+async def get_wallet(request: Request, user: dict = Depends(get_current_user)):
+    """Get user's wallet info - starts with 200 points"""
+    db = request.app.state.db
+    
+    wallet = await db.agentapex_wallets.find_one({"user_id": user["id"]})
+    if not wallet:
+        # Create wallet with 200 points for new user
+        wallet = {
+            "id": generate_id(),
+            "user_id": user["id"],
+            "points": 200,
+            "total_earned": 200,
+            "total_spent": 0,
+            "created_at": get_timestamp(),
+            "updated_at": get_timestamp()
+        }
+        await db.agentapex_wallets.insert_one(wallet)
+    
+    return {
+        "points": wallet.get("points", 200),
+        "total_earned": wallet.get("total_earned", 200),
+        "total_spent": wallet.get("total_spent", 0)
+    }
+
+@router.get("/wallet/contacts")
+async def get_viewed_contacts(request: Request, user: dict = Depends(get_current_user)):
+    """Get list of contacts user has paid to view"""
+    db = request.app.state.db
+    
+    contacts = await db.agentapex_viewed_contacts.find(
+        {"viewer_id": user["id"]}
+    ).sort("viewed_at", -1).to_list(100)
+    
+    return [{
+        "id": c.get("id"),
+        "owner_id": c.get("owner_id"),
+        "owner_name": c.get("owner_name"),
+        "owner_phone": c.get("owner_phone"),
+        "property_type": c.get("property_type"),
+        "requirement_type": c.get("requirement_type"),
+        "item_id": c.get("item_id"),
+        "viewed_at": c.get("viewed_at")
+    } for c in contacts]
+
+@router.post("/wallet/view-contact")
+async def view_contact(
+    request: Request,
+    item_id: str = Form(...),
+    item_type: str = Form(...),  # "property" or "requirement"
+    user: dict = Depends(get_current_user)
+):
+    """Spend 10 points to view contact details. Free after 20 views or if already viewed."""
+    db = request.app.state.db
+    
+    # Check if already viewed
+    existing = await db.agentapex_viewed_contacts.find_one({
+        "viewer_id": user["id"],
+        "item_id": item_id
+    })
+    
+    if existing:
+        return {
+            "success": True,
+            "already_viewed": True,
+            "contact": {
+                "name": existing.get("owner_name"),
+                "phone": existing.get("owner_phone")
+            }
+        }
+    
+    # Get wallet
+    wallet = await db.agentapex_wallets.find_one({"user_id": user["id"]})
+    if not wallet:
+        wallet = {
+            "id": generate_id(),
+            "user_id": user["id"],
+            "points": 200,
+            "total_earned": 200,
+            "total_spent": 0,
+            "created_at": get_timestamp()
+        }
+        await db.agentapex_wallets.insert_one(wallet)
+    
+    # Count viewed contacts
+    viewed_count = await db.agentapex_viewed_contacts.count_documents({"viewer_id": user["id"]})
+    
+    # First 20 contacts are free (using wallet points), after that need payment
+    if viewed_count >= 20 and wallet.get("points", 0) < 10:
+        return {
+            "success": False,
+            "needs_payment": True,
+            "message": "You've used your free contacts. Add more points to continue.",
+            "viewed_count": viewed_count,
+            "points": wallet.get("points", 0)
+        }
+    
+    # Get contact details
+    if item_type == "property":
+        item = await db.agentapex_properties.find_one({"id": item_id})
+        if not item:
+            raise HTTPException(status_code=404, detail="Property not found")
+        owner = await db.agentapex_users.find_one({"id": item["user_id"]})
+    else:  # requirement
+        item = await db.agentapex_requirements.find_one({"id": item_id})
+        if not item:
+            raise HTTPException(status_code=404, detail="Requirement not found")
+        owner = await db.agentapex_users.find_one({"id": item["user_id"]})
+    
+    if not owner:
+        raise HTTPException(status_code=404, detail="Owner not found")
+    
+    # Deduct points
+    new_points = wallet.get("points", 200) - 10
+    await db.agentapex_wallets.update_one(
+        {"user_id": user["id"]},
+        {"$set": {"points": new_points, "total_spent": wallet.get("total_spent", 0) + 10, "updated_at": get_timestamp()}}
+    )
+    
+    # Save viewed contact
+    viewed_contact = {
+        "id": generate_id(),
+        "viewer_id": user["id"],
+        "owner_id": owner["id"],
+        "owner_name": owner.get("name", "User"),
+        "owner_phone": owner["phone"],
+        "item_id": item_id,
+        "item_type": item_type,
+        "property_type": item.get("property_type"),
+        "requirement_type": item.get("property_type"),
+        "viewed_at": get_timestamp()
+    }
+    await db.agentapex_viewed_contacts.insert_one(viewed_contact)
+    
+    return {
+        "success": True,
+        "contact": {
+            "name": owner.get("name", "User"),
+            "phone": owner["phone"]
+        },
+        "points_remaining": new_points,
+        "points_spent": 10,
+        "viewed_count": viewed_count + 1
+    }

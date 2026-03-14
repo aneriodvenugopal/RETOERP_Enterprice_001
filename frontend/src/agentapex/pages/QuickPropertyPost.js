@@ -678,15 +678,16 @@ const QuickPropertyPost = () => {
                       </div>
                     </div>
                     
-                    {/* Inline Buttons - immediately after question */}
+                    {/* Inline Buttons - immediately after question - BETTER UI */}
                     {showButtons && (
-                      <div className="flex flex-wrap gap-2 ml-2">
+                      <div className="flex flex-wrap gap-3 ml-2 mt-1">
                         {stepConfig.options.map(opt => (
                           <motion.button 
                             key={opt.value} 
-                            whileTap={{ scale: 0.95 }}
+                            whileTap={{ scale: 0.92 }}
+                            whileHover={{ scale: 1.02 }}
                             onClick={() => handleButtonClick(opt.value)}
-                            className="px-5 py-3 bg-white border-2 border-blue-500 text-blue-600 rounded-full font-semibold text-base hover:bg-blue-50 active:bg-blue-100"
+                            className="px-6 py-3.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-2xl font-bold text-base shadow-lg shadow-blue-500/30 active:shadow-md transition-all"
                           >
                             {opt.label}
                           </motion.button>

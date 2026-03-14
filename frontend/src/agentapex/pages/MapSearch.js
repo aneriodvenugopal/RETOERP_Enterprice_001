@@ -7,7 +7,7 @@ import { MapContainer, TileLayer, Marker, Popup, Circle, useMap } from 'react-le
 import L from 'leaflet';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Drawer } from 'vaul';
-import { ArrowLeft, SlidersHorizontal, MapPin, Grid3X3, X, Heart, Search, Loader2, Crosshair } from 'lucide-react';
+import { ArrowLeft, SlidersHorizontal, MapPin, Grid3X3, X, Heart, Search, Loader2, Crosshair, Wallet, Phone, Eye, CreditCard } from 'lucide-react';
 import { toast } from 'sonner';
 import 'leaflet/dist/leaflet.css';
 
@@ -155,6 +155,13 @@ const MapSearch = () => {
   const [selectedProperty, setSelectedProperty] = useState(null);
   const [selectedRequirement, setSelectedRequirement] = useState(null);
   
+  // Wallet state
+  const [wallet, setWallet] = useState({ points: 200 });
+  const [viewedContacts, setViewedContacts] = useState([]);
+  const [showContactModal, setShowContactModal] = useState(null); // { type, item }
+  const [viewingContact, setViewingContact] = useState(false);
+  const [contactDetails, setContactDetails] = useState(null);
+  
   const debouncedSearch = useDebounce(searchQuery, 300);
   
   // Default to Hyderabad if no user location
@@ -213,6 +220,20 @@ const MapSearch = () => {
     toast.success(`Showing properties near ${result.name.split(',')[0]}`);
   };
 
+  // Fetch wallet and viewed contacts
+  const fetchWallet = async () => {
+    try {
+      const [walletRes, contactsRes] = await Promise.all([
+        api().get('/wallet'),
+        api().get('/wallet/contacts')
+      ]);
+      setWallet(walletRes.data);
+      setViewedContacts(contactsRes.data);
+    } catch (e) { console.error('Wallet fetch error:', e); }
+  };
+
+  useEffect(() => { fetchWallet(); }, []);
+
   useEffect(() => { fetchData(); }, [selectedType, maxPrice, radius, searchCenter]);
 
   const fetchData = async () => {
@@ -249,13 +270,45 @@ const MapSearch = () => {
     } catch (e) { console.error(e); }
   };
 
+  // View contact with wallet system
+  const viewContact = async (itemId, itemType) => {
+    setViewingContact(true);
+    try {
+      const formData = new FormData();
+      formData.append('item_id', itemId);
+      formData.append('item_type', itemType);
+      
+      const res = await api().post('/wallet/view-contact', formData);
+      
+      if (res.data.success) {
+        setContactDetails(res.data.contact);
+        setWallet(prev => ({ ...prev, points: res.data.points_remaining || prev.points }));
+        if (!res.data.already_viewed) {
+          toast.success(`Contact unlocked! ${res.data.points_remaining} points remaining`);
+        }
+      } else if (res.data.needs_payment) {
+        toast.error('Add more points to view contacts');
+        setContactDetails(null);
+      }
+    } catch (e) {
+      console.error('View contact error:', e);
+      toast.error('Failed to get contact');
+    }
+    setViewingContact(false);
+  };
+
+  // Check if contact already viewed
+  const isContactViewed = (itemId) => {
+    return viewedContacts.some(c => c.item_id === itemId);
+  };
+
   const data = listingMode === 'sell' ? properties : requirements;
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
       {/* Header */}
       <header className="bg-white border-b border-gray-100 px-4 py-3 sticky top-0 z-50">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <button onClick={() => navigate(-1)} data-testid="back-btn" className="w-10 h-10 flex items-center justify-center shrink-0">
             <ArrowLeft className="w-6 h-6 text-gray-900" />
           </button>
@@ -263,12 +316,18 @@ const MapSearch = () => {
           {/* Search Bar */}
           <div 
             onClick={() => setShowSearch(true)}
-            className="flex-1 flex items-center gap-2 bg-gray-100 rounded-full px-4 py-2.5 cursor-pointer"
+            className="flex-1 flex items-center gap-2 bg-gray-100 rounded-full px-3 py-2 cursor-pointer"
           >
-            <Search className="w-5 h-5 text-gray-400" />
-            <span className="text-gray-500 text-sm">
-              {searchCenter ? 'Custom location' : 'Search location...'}
+            <Search className="w-4 h-4 text-gray-400" />
+            <span className="text-gray-500 text-sm truncate">
+              {searchCenter ? 'Custom location' : 'Search...'}
             </span>
+          </div>
+          
+          {/* Wallet Display */}
+          <div className="flex items-center gap-1 px-3 py-2 bg-amber-50 rounded-full">
+            <Wallet className="w-4 h-4 text-amber-600" />
+            <span className="text-sm font-bold text-amber-700">{wallet.points}</span>
           </div>
           
           <HelpButton screen="map" />
@@ -278,7 +337,7 @@ const MapSearch = () => {
             data-testid="filter-btn"
             className="w-10 h-10 flex items-center justify-center shrink-0"
           >
-            <SlidersHorizontal className="w-6 h-6 text-gray-900" />
+            <SlidersHorizontal className="w-5 h-5 text-gray-900" />
           </button>
         </div>
         
@@ -702,7 +761,7 @@ const MapSearch = () => {
         )}
       </AnimatePresence>
 
-      {/* Requirement Details Bottom Sheet */}
+      {/* Requirement Details Bottom Sheet - with Contact View */}
       <AnimatePresence>
         {selectedRequirement && (
           <motion.div
@@ -714,37 +773,78 @@ const MapSearch = () => {
           >
             <div className="w-10 h-1 bg-gray-300 rounded-full mx-auto mb-4" />
             <button 
-              onClick={() => setSelectedRequirement(null)}
+              onClick={() => { setSelectedRequirement(null); setContactDetails(null); }}
               className="absolute top-4 right-4 w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center"
             >
               <X className="w-4 h-4" />
             </button>
             
             <div className="flex items-start gap-4">
-              <div className="w-16 h-16 bg-gradient-to-br from-blue-400 to-blue-600 rounded-2xl flex items-center justify-center text-3xl">
+              <div className="w-14 h-14 bg-gradient-to-br from-blue-400 to-blue-600 rounded-2xl flex items-center justify-center text-2xl">
                 {selectedRequirement.property_type === 'Land' ? '🌾' : '📐'}
               </div>
               <div className="flex-1">
-                <p className="text-xl font-bold text-blue-600">WANTED</p>
-                <p className="text-gray-500 font-medium">{selectedRequirement.property_type}</p>
+                <p className="text-lg font-bold text-blue-600">BUYER WANTED</p>
+                <p className="text-sm text-gray-500">{selectedRequirement.property_type}</p>
               </div>
             </div>
             
-            <div className="mt-4 space-y-2">
+            <div className="mt-4 grid grid-cols-2 gap-2">
               <div className="p-3 bg-blue-50 rounded-xl">
-                <p className="text-xs text-blue-600 font-medium">Budget</p>
-                <p className="text-lg font-bold text-gray-900">₹{selectedRequirement.budget_min} - {selectedRequirement.budget_max} {selectedRequirement.budget_unit}</p>
+                <p className="text-xs text-blue-600">Budget</p>
+                <p className="text-base font-bold text-gray-900">₹{selectedRequirement.budget_min}-{selectedRequirement.budget_max} {selectedRequirement.budget_unit}</p>
               </div>
               <div className="p-3 bg-gray-50 rounded-xl">
-                <p className="text-xs text-gray-500 font-medium">Area Required</p>
-                <p className="text-gray-900 font-semibold">{selectedRequirement.area_min} - {selectedRequirement.area_max} {selectedRequirement.area_unit}</p>
+                <p className="text-xs text-gray-500">Area</p>
+                <p className="text-base font-bold text-gray-900">{selectedRequirement.area_min || '?'}-{selectedRequirement.area_max || '?'} {selectedRequirement.area_unit}</p>
               </div>
-              <div className="p-3 bg-gray-50 rounded-xl">
-                <p className="text-xs text-gray-500 font-medium flex items-center gap-1">
-                  <MapPin className="w-3 h-3" /> Location
-                </p>
-                <p className="text-gray-700">{selectedRequirement.location_preference}</p>
-              </div>
+            </div>
+            
+            <div className="mt-2 p-3 bg-gray-50 rounded-xl">
+              <p className="text-xs text-gray-500 flex items-center gap-1"><MapPin className="w-3 h-3" /> Location</p>
+              <p className="text-sm text-gray-700">{selectedRequirement.location_preference}</p>
+            </div>
+            
+            {/* Contact Section */}
+            <div className="mt-4 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl border border-green-200">
+              {contactDetails ? (
+                <div className="text-center">
+                  <p className="text-xs text-green-600 font-medium mb-2">BUYER CONTACT</p>
+                  <p className="text-lg font-bold text-gray-900">{contactDetails.name}</p>
+                  <a href={`tel:${contactDetails.phone}`} className="inline-flex items-center gap-2 mt-2 px-6 py-3 bg-green-500 text-white rounded-full font-bold">
+                    <Phone className="w-5 h-5" />
+                    {contactDetails.phone}
+                  </a>
+                </div>
+              ) : isContactViewed(selectedRequirement.id) ? (
+                <button
+                  onClick={() => viewContact(selectedRequirement.id, 'requirement')}
+                  disabled={viewingContact}
+                  className="w-full py-3 bg-green-500 text-white rounded-xl font-bold flex items-center justify-center gap-2"
+                >
+                  {viewingContact ? <Loader2 className="w-5 h-5 animate-spin" /> : <Eye className="w-5 h-5" />}
+                  View Contact (Already Paid)
+                </button>
+              ) : (
+                <button
+                  onClick={() => viewContact(selectedRequirement.id, 'requirement')}
+                  disabled={viewingContact}
+                  className="w-full py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-xl font-bold flex items-center justify-center gap-2"
+                >
+                  {viewingContact ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : (
+                    <>
+                      <Eye className="w-5 h-5" />
+                      View Contact (-10 pts)
+                    </>
+                  )}
+                </button>
+              )}
+              
+              <p className="text-xs text-center text-gray-500 mt-2">
+                Wallet: {wallet.points} points • {viewedContacts.length}/20 free contacts used
+              </p>
             </div>
           </motion.div>
         )}

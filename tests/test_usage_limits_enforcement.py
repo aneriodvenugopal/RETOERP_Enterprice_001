@@ -20,7 +20,7 @@ import uuid
 from datetime import datetime
 
 # Base URL from environment
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://realai-whatsapp.preview.emergentagent.com')
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://agentapex-ux-revamp.preview.emergentagent.com')
 
 # Test credentials
 TEST_PHONE = "9908290239"

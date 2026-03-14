@@ -184,7 +184,7 @@
 
    **మొదటి referrer:**
    ```
-   https://realai-whatsapp.preview.emergentagent.com/*
+   https://agentapex-ux-revamp.preview.emergentagent.com/*
    ```
    - Paste చేసి Enter నొక్కండి
 

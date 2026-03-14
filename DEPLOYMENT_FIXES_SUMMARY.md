@@ -2,7 +2,7 @@
 
 ## 1. ✅ FIXED: Backend URL (CRITICAL)
 **Problem:** Frontend .env pointing to emergent domain
-**Fixed:** Changed REACT_APP_BACKEND_URL from `https://realai-whatsapp.preview.emergentagent.com` to `https://retoerp.com`
+**Fixed:** Changed REACT_APP_BACKEND_URL from `https://agentapex-ux-revamp.preview.emergentagent.com` to `https://retoerp.com`
 **Impact:** This fixes PWA authentication redirects and removes emergent branding from URLs
 
 ## 2. TODO: Subscribe Button Mobile Responsiveness
