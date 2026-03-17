@@ -1,5 +1,5 @@
 """
-WhatsApp Webhook Handler for Leonas BSP
+WhatsApp Webhook Handler for Meta Cloud API
 Handles incoming WhatsApp messages and triggers AI workflow
 """
 
@@ -13,7 +13,7 @@ from dotenv import load_dotenv
 
 from middleware.auth import get_current_user
 from services.whatsapp_agentic.orchestrator import AIOrchestrator
-from services.whatsapp_agentic.leonas_client import leonas_client
+from services.whatsapp_agentic.meta_whatsapp_client import meta_whatsapp_client
 from services.whatsapp_agentic.state_machine import ConversationStateMachine, ConversationState
 
 load_dotenv()
@@ -140,7 +140,7 @@ async def process_incoming_message(
         )
         
         if result.get("success") and result.get("response"):
-            send_result = await leonas_client.send_with_retry(
+            send_result = await meta_whatsapp_client.send_with_retry(
                 phone=phone,
                 message=result["response"]
             )
@@ -205,14 +205,14 @@ async def whatsapp_webhook(
     request: Request,
     background_tasks: BackgroundTasks
 ):
-    """Webhook endpoint for Leonas WhatsApp BSP"""
+    """Webhook endpoint for Meta WhatsApp Cloud API"""
     db = get_db(request)
     
     try:
         raw_payload = await request.json()
         print(f"WhatsApp Webhook received: {raw_payload}")
         
-        parsed = leonas_client.parse_webhook_payload(raw_payload)
+        parsed = meta_whatsapp_client.parse_webhook_payload(raw_payload)
         
         if parsed.get("error"):
             return {"status": "error", "message": "Failed to parse payload"}
@@ -256,14 +256,21 @@ async def whatsapp_webhook(
 
 @router.get("/webhook")
 async def whatsapp_webhook_verify(request: Request):
-    """Webhook verification endpoint"""
+    """Webhook verification endpoint for Meta Cloud API"""
     params = request.query_params
     
-    verify_token = os.getenv("WHATSAPP_VERIFY_TOKEN", "realapex_whatsapp_verify")
+    # Meta sends hub.mode, hub.challenge, hub.verify_token
+    mode = params.get("hub.mode")
+    token = params.get("hub.verify_token")
+    challenge = params.get("hub.challenge")
     
-    if params.get("hub.verify_token") == verify_token:
-        return int(params.get("hub.challenge", "0"))
+    verify_token = os.getenv("META_WHATSAPP_VERIFY_TOKEN", os.getenv("WHATSAPP_VERIFY_TOKEN", "realapex_whatsapp_verify"))
     
+    if mode == "subscribe" and token == verify_token:
+        print("✅ Webhook verified successfully!")
+        return int(challenge) if challenge else 0
+    
+    # For non-verification requests, return OK
     return {"status": "ok", "message": "WhatsApp webhook active"}
 
 
@@ -282,7 +289,7 @@ async def send_whatsapp_message(
     if not tenant_id:
         raise HTTPException(status_code=403, detail="Tenant not identified")
     
-    result = await leonas_client.send_text_message(
+    result = await meta_whatsapp_client.send_text_message(
         phone=msg_request.phone,
         message=msg_request.message,
         tenant_id=tenant_id
@@ -581,8 +588,6 @@ async def test_all_agents(
     if not tenant_id:
         raise HTTPException(status_code=403, detail="Tenant not identified")
     
-    test_phone = f"91999900{uuid.uuid4().hex[:4]}"
-    
     test_cases = [
         {"agent": "GreetingAgent", "message": "Hi, good morning!", "expected_intent": "greeting"},
         {"agent": "QualificationAgent", "message": "My budget is 50 lakhs, looking for plot in Hyderabad", "expected_intent": "qualification"},
@@ -778,4 +783,108 @@ async def get_agents_info():
             "booking_discussion", "payment_pending", "booked", "human_handoff"
         ],
         "supported_languages": ["English", "Telugu", "Hindi"]
+    }
+
+
+
+
+# ============ DIRECT SEND ENDPOINTS (For Testing) ============
+
+class DirectSendRequest(BaseModel):
+    """Request for direct message sending"""
+    phone: str
+    message: str
+    message_type: str = "text"  # text, template
+
+
+@router.post("/send-direct")
+async def send_direct_message(
+    send_request: DirectSendRequest,
+    request: Request
+):
+    """
+    Send WhatsApp message directly (for testing)
+    No authentication required - use with caution
+    
+    Example:
+    POST /api/whatsapp/send-direct
+    {
+        "phone": "919948303060",
+        "message": "Hello from RealApex!"
+    }
+    """
+    try:
+        if send_request.message_type == "template":
+            # Send hello_world template
+            result = await meta_whatsapp_client.send_template_message(
+                phone=send_request.phone,
+                template_name="hello_world",
+                language="en_US"
+            )
+        else:
+            # Send text message
+            result = await meta_whatsapp_client.send_text_message(
+                phone=send_request.phone,
+                message=send_request.message
+            )
+        
+        return {
+            "success": result.get("success", False),
+            "message_id": result.get("message_id"),
+            "phone": send_request.phone,
+            "message": send_request.message,
+            "response": result.get("response"),
+            "error": result.get("error")
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "error": str(e)
+        }
+
+
+@router.get("/phone-info")
+async def get_phone_info():
+    """
+    Get registered WhatsApp phone number info
+    """
+    result = await meta_whatsapp_client.get_phone_number_info()
+    return result
+
+
+@router.get("/templates")
+async def get_available_templates():
+    """
+    Get all available message templates
+    """
+    result = await meta_whatsapp_client.get_templates()
+    return result
+
+
+@router.post("/send-template")
+async def send_template_message(
+    phone: str,
+    template_name: str = "hello_world",
+    language: str = "en_US"
+):
+    """
+    Send a template message
+    
+    Available templates:
+    - hello_world (en_US)
+    - sample_issue_resolution (en_US) - requires name parameter
+    - sample_shipping_confirmation (en_US) - requires days parameter
+    """
+    result = await meta_whatsapp_client.send_template_message(
+        phone=phone,
+        template_name=template_name,
+        language=language
+    )
+    return {
+        "success": result.get("success", False),
+        "message_id": result.get("message_id"),
+        "phone": phone,
+        "template": template_name,
+        "response": result.get("response"),
+        "error": result.get("error")
     }
