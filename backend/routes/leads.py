@@ -530,3 +530,315 @@ async def get_lead_stats(request: Request, tenant_id: Optional[str] = None, proj
         'conversion_rate': (converted_leads / total_leads * 100) if total_leads > 0 else 0,
         'status_breakdown': status_breakdown
     }
+
+
+
+# ============ PUBLIC LEAD API (No Auth Required) ============
+# For WhatsApp Automation Integration
+
+from pydantic import BaseModel
+from services.whatsapp_agentic.meta_whatsapp_client import meta_whatsapp_client
+import uuid
+
+
+class PublicLeadCreate(BaseModel):
+    """Public lead creation - minimal fields"""
+    phone: str
+    name: str
+    tenant_id: str  # Required to associate with correct tenant
+    source: Optional[str] = "whatsapp"  # whatsapp, website, manual
+    notes: Optional[str] = None
+    send_welcome_message: bool = True  # Auto-send WhatsApp welcome message
+
+
+class PublicLeadSearch(BaseModel):
+    """Public lead search"""
+    phone: str
+    tenant_id: str
+
+
+@router.post("/public/add", tags=["public"])
+async def public_add_lead(
+    lead_data: PublicLeadCreate,
+    request: Request
+):
+    """
+    PUBLIC API: Add a new lead and optionally send WhatsApp welcome message
+    
+    No authentication required - for WhatsApp automation integration
+    
+    Example:
+    POST /api/leads/public/add
+    {
+        "phone": "9949376620",
+        "name": "Gopal",
+        "tenant_id": "f18f7bd6-3a1f-472d-acf9-c2fb181787e7",
+        "send_welcome_message": true
+    }
+    """
+    db = get_db(request)
+    
+    # Normalize phone number
+    phone = ''.join(filter(str.isdigit, lead_data.phone))
+    if len(phone) == 10:
+        phone = f"91{phone}"
+    
+    # Check if lead already exists
+    existing = await db.leads.find_one({
+        'tenant_id': lead_data.tenant_id,
+        '$or': [
+            {'phone': phone},
+            {'phone': lead_data.phone},
+            {'phone': phone[-10:]}  # Last 10 digits
+        ],
+        'deleted_at': None
+    }, {"_id": 0})
+    
+    if existing:
+        # Lead exists - return existing data
+        return {
+            "success": True,
+            "message": "Lead already exists",
+            "lead": {
+                "id": existing.get('id'),
+                "name": existing.get('name'),
+                "phone": existing.get('phone'),
+                "created_at": existing.get('created_at')
+            },
+            "is_new": False,
+            "whatsapp_sent": False
+        }
+    
+    # Get tenant info for welcome message
+    tenant = await db.tenants.find_one(
+        {'id': lead_data.tenant_id, 'deleted_at': None},
+        {'_id': 0, 'id': 1, 'name': 1, 'company_name': 1}
+    )
+    
+    if not tenant:
+        raise HTTPException(status_code=404, detail="Tenant not found")
+    
+    # Create new lead
+    lead_id = str(uuid.uuid4())
+    now = datetime.now(timezone.utc)
+    
+    new_lead = {
+        'id': lead_id,
+        'tenant_id': lead_data.tenant_id,
+        'name': lead_data.name,
+        'phone': phone,
+        'source_id': None,
+        'status_id': None,
+        'notes': lead_data.notes or f"Added via {lead_data.source}",
+        'tags': [lead_data.source] if lead_data.source else [],
+        'is_active': True,
+        'is_converted': False,
+        'followup_count': 0,
+        'created_at': now,
+        'updated_at': now,
+        'deleted_at': None
+    }
+    
+    # Set default status
+    new_status = await db.master_categories.find_one({
+        'slug': 'new',
+        'type': 'lead_status',
+        'tenant_id': lead_data.tenant_id
+    }, {"_id": 0})
+    if new_status:
+        new_lead['status_id'] = new_status['id']
+    
+    await db.leads.insert_one(new_lead)
+    
+    # Send WhatsApp welcome message if enabled
+    whatsapp_result = None
+    if lead_data.send_welcome_message:
+        company_name = tenant.get('company_name') or tenant.get('name', 'RealApex')
+        welcome_message = f"""🏠 *Welcome to {company_name}!*
+
+Hi {lead_data.name}! 👋
+
+Thank you for your interest in our properties. 
+
+How can we help you today?
+
+1️⃣ Looking to *Buy* a property
+2️⃣ Want to *Sell* your property  
+3️⃣ Looking for *Rental* options
+4️⃣ Need *Investment* advice
+
+Just reply with the number or type your query!
+
+_Powered by RealApex_"""
+        
+        try:
+            whatsapp_result = await meta_whatsapp_client.send_text_message(
+                phone=phone,
+                message=welcome_message
+            )
+            print(f"📤 WhatsApp welcome sent to {phone}: {whatsapp_result.get('success')}")
+        except Exception as e:
+            print(f"⚠️ WhatsApp send failed: {e}")
+            whatsapp_result = {"success": False, "error": str(e)}
+    
+    return {
+        "success": True,
+        "message": "Lead created successfully",
+        "lead": {
+            "id": lead_id,
+            "name": lead_data.name,
+            "phone": phone,
+            "tenant_id": lead_data.tenant_id,
+            "created_at": now.isoformat()
+        },
+        "is_new": True,
+        "whatsapp_sent": whatsapp_result.get('success', False) if whatsapp_result else False,
+        "whatsapp_message_id": whatsapp_result.get('message_id') if whatsapp_result else None
+    }
+
+
+@router.get("/public/search/{tenant_id}/{phone}", tags=["public"])
+async def public_search_lead(
+    tenant_id: str,
+    phone: str,
+    request: Request
+):
+    """
+    PUBLIC API: Search for a lead by phone number
+    
+    No authentication required
+    
+    Example:
+    GET /api/leads/public/search/f18f7bd6-3a1f-472d-acf9-c2fb181787e7/9949376620
+    """
+    db = get_db(request)
+    
+    # Normalize phone
+    phone_normalized = ''.join(filter(str.isdigit, phone))
+    if len(phone_normalized) == 10:
+        phone_with_country = f"91{phone_normalized}"
+    else:
+        phone_with_country = phone_normalized
+    
+    # Search lead
+    lead = await db.leads.find_one({
+        'tenant_id': tenant_id,
+        '$or': [
+            {'phone': phone},
+            {'phone': phone_normalized},
+            {'phone': phone_with_country},
+            {'phone': {'$regex': f'{phone_normalized[-10:]}$'}}
+        ],
+        'deleted_at': None
+    }, {"_id": 0})
+    
+    if not lead:
+        return {
+            "success": False,
+            "message": "Lead not found",
+            "lead": None
+        }
+    
+    return {
+        "success": True,
+        "message": "Lead found",
+        "lead": {
+            "id": lead.get('id'),
+            "name": lead.get('name'),
+            "phone": lead.get('phone'),
+            "status_id": lead.get('status_id'),
+            "is_converted": lead.get('is_converted', False),
+            "created_at": lead.get('created_at'),
+            "notes": lead.get('notes')
+        }
+    }
+
+
+@router.post("/public/send-whatsapp", tags=["public"])
+async def public_send_whatsapp(
+    phone: str,
+    message: str,
+    tenant_id: Optional[str] = None,
+    request: Request = None
+):
+    """
+    PUBLIC API: Send WhatsApp message to any number
+    
+    No authentication required - for automation
+    
+    Example:
+    POST /api/leads/public/send-whatsapp?phone=9949376620&message=Hello!
+    """
+    # Normalize phone
+    phone_normalized = ''.join(filter(str.isdigit, phone))
+    if len(phone_normalized) == 10:
+        phone_normalized = f"91{phone_normalized}"
+    
+    try:
+        result = await meta_whatsapp_client.send_text_message(
+            phone=phone_normalized,
+            message=message
+        )
+        
+        return {
+            "success": result.get('success', False),
+            "phone": phone_normalized,
+            "message_id": result.get('message_id'),
+            "error": result.get('error')
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "phone": phone_normalized,
+            "error": str(e)
+        }
+
+
+@router.get("/public/tenant/{phone}", tags=["public"])
+async def get_tenant_by_phone(
+    phone: str,
+    request: Request
+):
+    """
+    PUBLIC API: Get tenant ID by admin phone number
+    
+    Useful when you know the agent's phone but need tenant_id
+    
+    Example:
+    GET /api/leads/public/tenant/9908290239
+    """
+    db = get_db(request)
+    
+    # Normalize phone
+    phone_normalized = ''.join(filter(str.isdigit, phone))
+    
+    # Find user by phone
+    user = await db.users.find_one({
+        '$or': [
+            {'phone': phone},
+            {'phone': phone_normalized},
+            {'phone': f"91{phone_normalized}" if len(phone_normalized) == 10 else phone_normalized}
+        ],
+        'deleted_at': None
+    }, {"_id": 0, 'tenant_id': 1, 'name': 1, 'phone': 1, 'role': 1})
+    
+    if not user:
+        return {
+            "success": False,
+            "message": "User not found",
+            "tenant_id": None
+        }
+    
+    # Get tenant info
+    tenant = await db.tenants.find_one(
+        {'id': user.get('tenant_id'), 'deleted_at': None},
+        {'_id': 0, 'id': 1, 'name': 1, 'company_name': 1}
+    )
+    
+    return {
+        "success": True,
+        "tenant_id": user.get('tenant_id'),
+        "tenant_name": tenant.get('company_name') or tenant.get('name') if tenant else None,
+        "user_name": user.get('name'),
+        "user_role": user.get('role')
+    }
