@@ -35,6 +35,17 @@ async def create_lead(
     
     # Create lead
     lead_data = lead_create.model_dump()
+    
+    # Set default status if not provided
+    if not lead_data.get('status_id'):
+        new_status = await db.master_categories.find_one({
+            'slug': 'new',
+            'type': 'lead_status',
+            'tenant_id': lead_create.tenant_id
+        }, {"_id": 0})
+        if new_status:
+            lead_data['status_id'] = new_status['id']
+    
     if lead_data.get('assigned_to'):
         lead_data['assigned_at'] = datetime.now(timezone.utc)
     
@@ -179,11 +190,22 @@ async def get_leads(
     
     leads = await db.leads.find(query, {"_id": 0}).sort('created_at', -1).skip(skip).limit(limit).to_list(limit)
     
-    # Process leads if needed
-    # for lead in leads:
-    #     deserialize_doc(lead)
+    # Normalize legacy field names for backward compatibility
+    normalized_leads = []
+    for lead in leads:
+        # Handle legacy buyer_name/buyer_phone fields
+        if not lead.get('name') and lead.get('buyer_name'):
+            lead['name'] = lead['buyer_name']
+        if not lead.get('phone') and lead.get('buyer_phone'):
+            lead['phone'] = lead['buyer_phone']
+        # Provide defaults if still missing
+        if not lead.get('name'):
+            lead['name'] = 'Unknown'
+        if not lead.get('phone'):
+            lead['phone'] = 'N/A'
+        normalized_leads.append(lead)
     
-    return [Lead(**l) for l in leads]
+    return [Lead(**l) for l in normalized_leads]
 
 @router.get("/{lead_id}", response_model=Lead)
 async def get_lead(lead_id: str, request: Request):

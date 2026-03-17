@@ -10,10 +10,14 @@ class Lead(BaseModel):
     tenant_id: str  # Reference to Tenant
     project_id: Optional[str] = None  # Reference to Project (interested in)
     
-    # Lead information
-    name: str
-    phone: str
+    # Lead information - Made optional for backward compatibility with old data
+    name: Optional[str] = None
+    phone: Optional[str] = None
     email: Optional[EmailStr] = None
+    
+    # Alternative fields that might be used in old data
+    buyer_name: Optional[str] = None  # Legacy field
+    buyer_phone: Optional[str] = None  # Legacy field
     
     # Lead details
     source_id: Optional[str] = None  # Reference to MasterCategory (lead_source)
@@ -56,11 +60,11 @@ class Lead(BaseModel):
 class LeadCreate(BaseModel):
     tenant_id: str
     project_id: Optional[str] = None
-    name: str
-    phone: str
+    name: str  # Required for new leads
+    phone: str  # Required for new leads
     email: Optional[EmailStr] = None
     source_id: Optional[str] = None
-    status_id: str
+    status_id: Optional[str] = None  # Made optional - will use default if not provided
     assigned_to: Optional[str] = None
     budget_min: Optional[float] = None
     budget_max: Optional[float] = None
