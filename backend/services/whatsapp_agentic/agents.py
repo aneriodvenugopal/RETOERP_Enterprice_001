@@ -132,32 +132,67 @@ Hindi: "नमस्ते! {company_name} में आपका स्वा�
 
 class QualificationAgent(BaseAgent):
     """
-    Collects customer qualification information
+    Collects customer qualification information with STRICT business rules
     """
     
-    SYSTEM_PROMPT = """You are a real estate qualification specialist.
-Your task is to naturally collect the following information through conversation:
-1. Budget range
-2. Preferred property type (plot/flat/villa)
-3. Preferred location/area
-4. Timeline for purchase
-5. Purpose (investment/self-use)
+    SYSTEM_PROMPT = """You are a business-specific sales assistant for real estate at {company_name}.
+
+STRICT RULES - FOLLOW EXACTLY:
+
+1. CONTEXT MEMORY (MANDATORY)
+- Always remember and use:
+  - User budget: {budget}
+  - Preferred location: {location}
+  - Property type: {property_type}
+  - Stage: {stage}
+- Once user mentions location, DO NOT suggest any other location unless user explicitly asks.
+
+2. PROJECT FILTERING (CRITICAL)
+- Only suggest projects that match:
+  - User preferred location
+  - User budget range
+- If no matching project available:
+  - Do NOT suggest random project
+  - Instead say: "Currently exact match available ledu, but similar options chupistanu"
+
+3. RESPONSE CONSISTENCY
+- All replies must align with previous conversation
+- Never change city, project, or context randomly
+
+4. SALES FLOW CONTROL
+- If user is in early stage → give info + ask questions
+- If user shows interest → guide + build trust
+- If user asks for site visit → trigger booking flow
+- If user asks about price negotiation → trigger human handover
+
+5. HANDOVER RULE
+- For: negotiation, legal/documents, final decision
+- Respond: "maa team nundi okaru connect avtharu"
+
+6. NO RANDOM GENERATION
+- Do NOT generate: random city names, unrelated projects, generic answers
+
+7. HUMAN-LIKE TONE
+- Use natural Telugu-English mix
+- Keep it simple, polite, and slightly persuasive
+
+8. PRIORITY ORDER
+- Accuracy > Smartness
+- Relevance > Creativity
+- Trust > Length
+
+OUTPUT STYLE:
+- Short, clear, conversational
+- 2–5 lines max
+- Always guide towards next step (visit / call / decision)
 
 Current customer information:
 {customer_info}
 
-Knowledge about available projects:
+Available projects in {location} (ONLY suggest from this list):
 {project_knowledge}
 
-Guidelines:
-- Ask ONE question at a time
-- Be conversational, not interrogative
-- If customer provides info, acknowledge and move to next question
-- Respond in the customer's language ({language})
-- Keep responses brief (2-3 sentences)
-- If customer asks about something else, answer and then gently return to qualification
-
-Output should be natural conversation, NOT a form or list.
+Respond in: {language}
 """
     
     QUALIFICATION_FIELDS = ["budget", "property_type", "preferred_location", "timeline", "purpose"]
@@ -183,16 +218,48 @@ Output should be natural conversation, NOT a form or list.
         if extracted:
             await self._update_lead(tenant_id, lead_id, extracted)
         
-        # Determine what's still missing
-        missing_fields = self._get_missing_fields(lead, extracted)
+        # Merge lead data with extracted
+        lead_data = lead or {}
+        if extracted:
+            lead_data = {**lead_data, **extracted}
         
-        customer_info = self._format_customer_info(lead, extracted)
+        # Determine what's still missing
+        missing_fields = self._get_missing_fields(lead_data, extracted)
+        
+        customer_info = self._format_customer_info(lead_data, extracted)
+        
+        # Get location-filtered projects
+        preferred_location = lead_data.get("preferred_location", "")
+        budget = lead_data.get("budget_max") or lead_data.get("budget", 0)
+        
         project_knowledge = context.get("project_knowledge", "No projects loaded")
         
+        # Get tenant/company name
+        tenant = await self.db.tenants.find_one(
+            {"id": tenant_id},
+            {"_id": 0, "company_name": 1, "name": 1}
+        )
+        company_name = tenant.get("company_name") or tenant.get("name", "our company") if tenant else "our company"
+        
+        # Determine stage
+        stage = "exploring"
+        conv_context = context.get("conversation_context", {})
+        if conv_context.get("site_visit_requested"):
+            stage = "site_visit"
+        elif conv_context.get("interested_projects"):
+            stage = "interested"
+        elif budget or preferred_location:
+            stage = "qualified"
+        
         system_prompt = self.SYSTEM_PROMPT.format(
+            company_name=company_name,
             customer_info=customer_info,
             project_knowledge=project_knowledge,
-            language=context.get("language", "english")
+            language=context.get("language", "english"),
+            budget=f"₹{budget:,.0f}" if budget else "Not specified",
+            location=preferred_location or "Not specified",
+            property_type=lead_data.get("property_type", "Not specified"),
+            stage=stage
         )
         
         user_prompt = f"""Customer message: {message}
@@ -201,7 +268,10 @@ Missing information we still need: {', '.join(missing_fields) if missing_fields 
 
 Generate a natural response that either:
 1. Acknowledges the information provided and asks about the next missing field
-2. Or if all info is collected, summarize and offer to show available properties"""
+2. Or if all info is collected, summarize and offer to show available properties
+3. If asking about price negotiation or documents, say "maa team nundi okaru connect avtharu"
+
+REMEMBER: Only suggest projects in {preferred_location or 'their preferred area'}. Do NOT mention random cities."""
         
         response = await self.generate_llm_response(
             system_prompt=system_prompt,
@@ -209,17 +279,33 @@ Generate a natural response that either:
             session_id=f"qualification_{lead_id}"
         )
         
+        # Check for handoff triggers
+        message_lower = message.lower()
+        handoff_keywords = ['negotiation', 'discount', 'reduce', 'documents', 'legal', 'final', 'deal']
+        should_handoff = any(kw in message_lower for kw in handoff_keywords)
+        
         # Determine next state
         next_state = "qualification"
-        if not missing_fields or len(missing_fields) <= 1:
+        context_update = {}
+        
+        if should_handoff:
+            next_state = "human_handoff"
+            context_update["handoff_reason"] = "negotiation_or_legal"
+        elif not missing_fields or len(missing_fields) <= 1:
             next_state = "project_discussion"
+        
+        if extracted.get("preferred_location"):
+            context_update["preferred_location"] = extracted["preferred_location"]
+        if extracted.get("budget"):
+            context_update["budget"] = extracted["budget"]
         
         return {
             "response": response,
             "extracted_info": extracted,
             "missing_fields": missing_fields,
             "action": "qualification_continued",
-            "next_state": next_state
+            "next_state": next_state,
+            "context_update": context_update if context_update else None
         }
     
     async def _extract_info(self, message: str, language: str) -> Dict[str, Any]:
@@ -826,23 +912,48 @@ Guidelines:
 
 class KnowledgeAgent(BaseAgent):
     """
-    Handles general project/property knowledge queries
+    Handles general project/property knowledge queries with STRICT business rules
     """
     
-    SYSTEM_PROMPT = """You are a knowledgeable real estate consultant.
-Your task is to answer customer questions about properties and projects.
+    SYSTEM_PROMPT = """You are a business-specific real estate consultant for {company_name}.
 
-Project Knowledge:
+STRICT RULES - FOLLOW EXACTLY:
+
+1. CONTEXT MEMORY (MANDATORY)
+- Always remember and use customer's:
+  - Budget: {budget}
+  - Preferred location: {location}
+  - Property type: {property_type}
+- Once user mentions location, DO NOT suggest any other location.
+
+2. PROJECT FILTERING (CRITICAL)
+- Only answer about projects that match user's preferred location
+- If question is about different city → say "Currently {location} projects meedha focus chesdam, akkada manchi options unnai"
+- If no matching project → "Currently exact match available ledu, but similar options chupistanu"
+
+3. NO RANDOM GENERATION
+- Do NOT generate: random city names, unrelated projects, generic answers
+- ONLY use data from: {project_knowledge}
+
+4. RESPONSE STYLE
+- Use natural Telugu-English mix
+- Keep it simple, polite, and slightly persuasive
+- Short, clear, conversational (2-5 lines max)
+- Always guide towards next step (visit / call / decision)
+
+5. HANDOVER RULE
+- For: negotiation, legal/documents, final decision
+- Say: "maa team nundi okaru connect avtharu"
+
+6. PRIORITY ORDER
+- Accuracy > Smartness
+- Relevance > Creativity
+- Trust > Length
+
+Project Knowledge (ONLY use this data):
 {project_knowledge}
 
-Guidelines:
-- Answer questions accurately using ONLY the provided information
-- If information is not available, say so politely
-- Don't make up facts or prices
-- Suggest relevant follow-up topics
-- Respond in {language}
-- Keep answers informative but concise
-- Always mention real data when available
+Respond in: {language}
 """
     
     async def process(
@@ -853,22 +964,53 @@ Guidelines:
         context: Dict[str, Any]
     ) -> Dict[str, Any]:
         
-        knowledge = context.get("knowledge", {})
         knowledge_text = context.get("formatted_knowledge", "No project information available")
         
+        # Get lead preferences
+        lead = await self.db.leads.find_one(
+            {"tenant_id": tenant_id, "id": lead_id},
+            {"_id": 0}
+        )
+        
+        # Get tenant/company name
+        tenant = await self.db.tenants.find_one(
+            {"id": tenant_id},
+            {"_id": 0, "company_name": 1, "name": 1}
+        )
+        company_name = tenant.get("company_name") or tenant.get("name", "our company") if tenant else "our company"
+        
+        # Extract preferences
+        budget = lead.get("budget_max") or lead.get("budget", 0) if lead else 0
+        location = lead.get("preferred_location", "") if lead else ""
+        property_type = lead.get("property_type", "") if lead else ""
+        
         system_prompt = self.SYSTEM_PROMPT.format(
+            company_name=company_name,
             project_knowledge=knowledge_text,
-            language=context.get("language", "english")
+            language=context.get("language", "english"),
+            budget=f"₹{budget:,.0f}" if budget else "Not specified",
+            location=location or "Not specified",
+            property_type=property_type or "Not specified"
         )
         
         response = await self.generate_llm_response(
             system_prompt=system_prompt,
-            user_message=f"Customer question: {message}",
+            user_message=f"Customer question: {message}\n\nRemember: Only suggest projects in '{location or 'their preferred area'}'. Do NOT mention random cities.",
             session_id=f"knowledge_{lead_id}"
         )
+        
+        # Check for handoff triggers
+        message_lower = message.lower()
+        handoff_keywords = ['negotiation', 'discount', 'reduce', 'documents', 'legal', 'final', 'deal', 'price kam']
+        should_handoff = any(kw in message_lower for kw in handoff_keywords)
+        
+        next_state = "project_discussion"
+        if should_handoff:
+            next_state = "human_handoff"
+            response = response + "\n\nmaa team nundi okaru connect avtharu - they'll help you with this."
         
         return {
             "response": response,
             "action": "question_answered",
-            "next_state": "project_discussion"
+            "next_state": next_state
         }
