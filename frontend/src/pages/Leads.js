@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { leadService, categoryService, projectService } from '../services';
 import { useAuth } from '../contexts/AuthContext';
@@ -9,11 +9,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Users, Phone, Mail, MapPin, Calendar, TrendingUp, Star, ExternalLink, X, Filter } from 'lucide-react';
+import { Plus, Users, Phone, Mail, MapPin, Calendar, TrendingUp, Star, ExternalLink, X, Filter, MessageCircle, Send, Bot, User } from 'lucide-react';
 import { toast } from 'sonner';
 import { Textarea } from '@/components/ui/textarea';
 import PageInfoModal from '../components/PageInfoModal';
 import ClickableStatCard from '../components/ClickableStatCard';
+
+const API_URL = process.env.REACT_APP_BACKEND_URL;
 
 const Leads = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -62,6 +64,23 @@ const Leads = () => {
     outcome: '',
     next_followup_date: '',
   });
+
+  // WhatsApp Chat State
+  const [showWhatsAppChat, setShowWhatsAppChat] = useState(false);
+  const [chatLead, setChatLead] = useState(null);
+  const [chatMessages, setChatMessages] = useState([]);
+  const [newMessage, setNewMessage] = useState('');
+  const [sendingMessage, setSendingMessage] = useState(false);
+  const chatEndRef = useRef(null);
+
+  // Quick reply templates
+  const quickReplies = [
+    "Hi! How can I help you today?",
+    "Thank you for your interest. Would you like to schedule a site visit?",
+    "I'll share property details with you shortly.",
+    "What is your budget range?",
+    "Are you looking to buy or invest?"
+  ];
 
   useEffect(() => {
     fetchLeads();
@@ -167,6 +186,78 @@ const Leads = () => {
       console.error('Failed to load projects:', error);
     }
   };
+
+  // WhatsApp Chat Functions
+  const openWhatsAppChat = (lead, e) => {
+    e.stopPropagation();
+    setChatLead(lead);
+    setShowWhatsAppChat(true);
+    // Load initial welcome message
+    setChatMessages([
+      {
+        id: 'system-1',
+        type: 'system',
+        text: `Chat started with ${lead.name} (${lead.phone})`,
+        timestamp: new Date().toISOString()
+      }
+    ]);
+  };
+
+  const sendWhatsAppMessage = async () => {
+    if (!newMessage.trim() || !chatLead) return;
+    
+    setSendingMessage(true);
+    const messageText = newMessage.trim();
+    setNewMessage('');
+    
+    // Add message to chat immediately (optimistic update)
+    const tempId = `temp-${Date.now()}`;
+    setChatMessages(prev => [...prev, {
+      id: tempId,
+      type: 'agent',
+      text: messageText,
+      timestamp: new Date().toISOString(),
+      status: 'sending'
+    }]);
+    
+    try {
+      const response = await fetch(`${API_URL}/api/leads/public/send-whatsapp?phone=${chatLead.phone}&message=${encodeURIComponent(messageText)}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      
+      const result = await response.json();
+      
+      // Update message status
+      setChatMessages(prev => prev.map(msg => 
+        msg.id === tempId 
+          ? { ...msg, status: result.success ? 'sent' : 'failed', message_id: result.message_id }
+          : msg
+      ));
+      
+      if (result.success) {
+        toast.success('Message sent to WhatsApp!');
+      } else {
+        toast.error(result.error || 'Failed to send message');
+      }
+    } catch (error) {
+      setChatMessages(prev => prev.map(msg => 
+        msg.id === tempId ? { ...msg, status: 'failed' } : msg
+      ));
+      toast.error('Failed to send message');
+    } finally {
+      setSendingMessage(false);
+    }
+  };
+
+  const sendQuickReply = (text) => {
+    setNewMessage(text);
+  };
+
+  // Scroll to bottom when new messages added
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [chatMessages]);
 
   const handleCreateLead = async (e) => {
     e.preventDefault();
@@ -578,7 +669,18 @@ const Leads = () => {
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-3">
+                    {/* WhatsApp Chat Button */}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="bg-green-50 border-green-200 text-green-700 hover:bg-green-100 hover:border-green-300 gap-1.5"
+                      onClick={(e) => openWhatsAppChat(lead, e)}
+                      data-testid={`whatsapp-btn-${lead.id}`}
+                    >
+                      <MessageCircle className="w-4 h-4" />
+                      <span className="hidden sm:inline">WhatsApp</span>
+                    </Button>
                     {lead.rating && (
                       <div className="flex gap-0.5">
                         {Array.from({ length: lead.rating }).map((_, i) => (
@@ -748,7 +850,97 @@ const Leads = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Page Info Modal */}
+      {/* WhatsApp Chat Modal */}
+      <Dialog open={showWhatsAppChat} onOpenChange={setShowWhatsAppChat}>
+        <DialogContent className="max-w-lg h-[80vh] flex flex-col p-0 gap-0">
+          {/* Chat Header */}
+          <div className="bg-gradient-to-r from-green-600 to-green-700 text-white p-4 rounded-t-lg">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center text-xl font-bold">
+                {chatLead?.name?.charAt(0)?.toUpperCase() || 'L'}
+              </div>
+              <div>
+                <h3 className="font-semibold text-lg">{chatLead?.name}</h3>
+                <p className="text-green-100 text-sm flex items-center gap-1">
+                  <Phone className="w-3 h-3" />
+                  {chatLead?.phone}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Chat Messages */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-[#e5ddd5]" style={{backgroundImage: 'url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAhGVYSWZNTQAqAAAACAAFARIAAwAAAAEAAQAAARoABQAAAAEAAABKARsABQAAAAEAAABSASgAAwAAAAEAAgAAh2kABAAAAAEAAABaAAAAAAAAAEgAAAABAAAASAAAAAEAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAMqADAAQAAAABAAAAMgAAAABfvA/wAAAACXBIWXMAAAsTAAALEwEAmpwYAAABWWlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iWE1QIENvcmUgNi4wLjAiPgogICA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPgogICAgICA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIgogICAgICAgICAgICB4bWxuczp0aWZmPSJodHRwOi8vbnMuYWRvYmUuY29tL3RpZmYvMS4wLyI+CiAgICAgICAgIDx0aWZmOk9yaWVudGF0aW9uPjE8L3RpZmY6T3JpZW50YXRpb24+CiAgICAgIDwvcmRmOkRlc2NyaXB0aW9uPgogICA8L3JkZjpSREY+CjwveDp4bXBtZXRhPgoZXuEHAAADFUlEQVRoBe2ZO0/jQBCAPyBKCh5FGl5C/AU4/gDlNdBR0VMhKOgQ/QPQoqShQlxDh7ih4g8gJIoUFDQk/AWaFDcxbDaz9nptr73j9Tm+xNqdnXl8M7u7E7TWUqHqe0AFABXACzLApKqCkIAKQJ2iArhBBrr6JQEVwAs6oKsgJKACeCL/L8hA/n8dVBESUAGcYH9tVUFIQAXwxA/kswGJ+reoYCRhB/9h0wL8e3VdXCZ8vVcP7AEVICxYQHAQKkB7EAIC+gCuCRUgLFhAcBAqQHsQAoL+ICvqoqJBQEAf4DVhB5q/R9fFZcLXe1mfYn9IvL8jkAAQEKqaEBCQdxAC+n9XNAgICNVBvqr/zR8r7EDj9yi7uEz4eq8e2APKAhKSCkICCPR+dhAC8n++UNGABICAzgp/k+0g+2Pt4jLh6z16YA+Ir/c8fXRRAZpLEhAQkHcQAvr+W9EgICAgl0gCwucw4eudeBAQEBASMILMz7WLy4Sv9+qBPaACeCIHxEkF6H8VIPLfioYCJOQaKYCAgIAQgPpPVTQgICB3EAJyT0lICAgI1UH2qv7NXSZ8vVcP7AH5er9K/y1JQEBAqGoCAjJPCAgJGKHqTxUNCAgICBVNSAjoWycoGgQExFsLCMj7dxVN+AchAaE6CEH8HyoaChBfbP4fCpCxg4QN/I9NLCoAHT8Q0E/hGhBwcaW1B1SAMB8hAc8gHEBe+i6g9gAfICz+/CkJKIAXNsD7c2khPSAgIA9QwD+f2L6+K+wBPUA/xPf7FCwQ0B3Eb/xQwPdL2MVlwtd7/NAe8AN6gJ4qf6LoXUHCFvYTf0hAQEDIwnW8QvQfXxAqgCdygJwTF9dJNfhYNAgI2Gd3EAI6N1Q0ICAg/g7ij/0dZH+sXVwmfL1HD+wBFcALCbhG8iEgJCCggPYL/wMBPeAfFPV/sLoAAAAASUVORK5CYII=")'}}>
+            {chatMessages.map((msg) => (
+              <div key={msg.id} className={`flex ${msg.type === 'agent' ? 'justify-end' : msg.type === 'system' ? 'justify-center' : 'justify-start'}`}>
+                {msg.type === 'system' ? (
+                  <div className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-xs">
+                    {msg.text}
+                  </div>
+                ) : msg.type === 'agent' ? (
+                  <div className="max-w-[80%] bg-[#dcf8c6] rounded-lg px-3 py-2 shadow-sm">
+                    <p className="text-gray-800 text-sm whitespace-pre-wrap">{msg.text}</p>
+                    <div className="flex items-center justify-end gap-1 mt-1">
+                      <span className="text-xs text-gray-500">
+                        {new Date(msg.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                      </span>
+                      {msg.status === 'sending' && <span className="text-xs text-gray-400">⏳</span>}
+                      {msg.status === 'sent' && <span className="text-xs text-green-600">✓✓</span>}
+                      {msg.status === 'failed' && <span className="text-xs text-red-500">❌</span>}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="max-w-[80%] bg-white rounded-lg px-3 py-2 shadow-sm">
+                    <div className="flex items-center gap-1 mb-1">
+                      <Bot className="w-3 h-3 text-blue-500" />
+                      <span className="text-xs text-blue-500 font-medium">Lead</span>
+                    </div>
+                    <p className="text-gray-800 text-sm whitespace-pre-wrap">{msg.text}</p>
+                    <span className="text-xs text-gray-500 block text-right mt-1">
+                      {new Date(msg.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                    </span>
+                  </div>
+                )}
+              </div>
+            ))}
+            <div ref={chatEndRef} />
+          </div>
+
+          {/* Quick Replies */}
+          <div className="px-3 py-2 bg-gray-100 border-t overflow-x-auto">
+            <div className="flex gap-2 pb-1">
+              {quickReplies.map((reply, i) => (
+                <button
+                  key={i}
+                  onClick={() => sendQuickReply(reply)}
+                  className="flex-shrink-0 px-3 py-1.5 bg-white border border-gray-200 rounded-full text-xs text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-colors"
+                >
+                  {reply.slice(0, 30)}{reply.length > 30 ? '...' : ''}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Message Input */}
+          <div className="p-3 bg-gray-100 border-t flex gap-2">
+            <Input
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              placeholder="Type a message..."
+              className="flex-1 bg-white"
+              onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && sendWhatsAppMessage()}
+            />
+            <Button 
+              onClick={sendWhatsAppMessage}
+              disabled={sendingMessage || !newMessage.trim()}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              <Send className="w-4 h-4" />
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <PageInfoModal
         title="Leads Management"
         description="Comprehensive CRM system for capturing, tracking, and nurturing leads through your sales pipeline. Manage follow-ups, track lead quality, and convert prospects into customers with intelligent workflow automation."
