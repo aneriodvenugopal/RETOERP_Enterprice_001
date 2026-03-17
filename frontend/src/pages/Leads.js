@@ -82,6 +82,33 @@ const Leads = () => {
     "Are you looking to buy or invest?"
   ];
 
+  // WhatsApp Templates (Approved)
+  const whatsappTemplates = [
+    {
+      id: 'hello_world',
+      name: 'Welcome Message',
+      description: 'Send welcome greeting to lead',
+      language: 'en_US',
+      hasParams: false
+    },
+    {
+      id: 'sample_issue_resolution',
+      name: 'Follow Up',
+      description: 'Check if issue was resolved',
+      language: 'en_US',
+      hasParams: true,
+      params: ['name']
+    },
+    {
+      id: 'sample_shipping_confirmation',
+      name: 'Update Notification',
+      description: 'Send delivery/update info',
+      language: 'en_US',
+      hasParams: true,
+      params: ['days']
+    }
+  ];
+
   useEffect(() => {
     fetchLeads();
     fetchStats();
@@ -252,6 +279,75 @@ const Leads = () => {
 
   const sendQuickReply = (text) => {
     setNewMessage(text);
+  };
+
+  // Send WhatsApp Template Message
+  const sendTemplateMessage = async (template) => {
+    if (!chatLead) return;
+    
+    setSendingMessage(true);
+    
+    // Add to chat
+    const tempId = `temp-${Date.now()}`;
+    setChatMessages(prev => [...prev, {
+      id: tempId,
+      type: 'agent',
+      text: `📋 Sending template: ${template.name}`,
+      timestamp: new Date().toISOString(),
+      status: 'sending',
+      isTemplate: true
+    }]);
+    
+    try {
+      // Build template payload
+      let templatePayload = {
+        phone: chatLead.phone,
+        template_name: template.id,
+        language: template.language
+      };
+      
+      // Add parameters if needed
+      if (template.hasParams && template.params) {
+        if (template.id === 'sample_issue_resolution') {
+          templatePayload.params = [chatLead.name || 'Customer'];
+        } else if (template.id === 'sample_shipping_confirmation') {
+          templatePayload.params = ['3-5'];
+        }
+      }
+      
+      const response = await fetch(`${API_URL}/api/whatsapp/send-template-live`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(templatePayload)
+      });
+      
+      const result = await response.json();
+      
+      setChatMessages(prev => prev.map(msg => 
+        msg.id === tempId 
+          ? { 
+              ...msg, 
+              status: result.success ? 'sent' : 'failed',
+              text: result.success 
+                ? `✅ Template "${template.name}" sent successfully!`
+                : `❌ Failed: ${result.error || 'Unknown error'}`
+            }
+          : msg
+      ));
+      
+      if (result.success) {
+        toast.success(`Template sent to ${chatLead.phone}!`);
+      } else {
+        toast.error(result.error || 'Failed to send template');
+      }
+    } catch (error) {
+      setChatMessages(prev => prev.map(msg => 
+        msg.id === tempId ? { ...msg, status: 'failed', text: `❌ Error: ${error.message}` } : msg
+      ));
+      toast.error('Failed to send template');
+    } finally {
+      setSendingMessage(false);
+    }
   };
 
   // Scroll to bottom when new messages added
@@ -904,6 +1000,23 @@ const Leads = () => {
               </div>
             ))}
             <div ref={chatEndRef} />
+          </div>
+
+          {/* Template Buttons */}
+          <div className="px-3 py-2 bg-green-50 border-t border-green-100">
+            <p className="text-xs text-green-700 font-medium mb-2">📋 Send WhatsApp Template (LIVE):</p>
+            <div className="flex gap-2 flex-wrap">
+              {whatsappTemplates.map((template) => (
+                <button
+                  key={template.id}
+                  onClick={() => sendTemplateMessage(template)}
+                  disabled={sendingMessage}
+                  className="px-3 py-1.5 bg-green-600 text-white rounded-lg text-xs font-medium hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {template.name}
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Quick Replies */}

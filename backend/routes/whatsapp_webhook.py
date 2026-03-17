@@ -888,3 +888,87 @@ async def send_template_message(
         "response": result.get("response"),
         "error": result.get("error")
     }
+
+
+
+class TemplateSendRequest(BaseModel):
+    """Request for sending template message"""
+    phone: str
+    template_name: str
+    language: str = "en_US"
+    params: Optional[List[str]] = None
+
+
+@router.post("/send-template-live")
+async def send_template_live(
+    request_data: TemplateSendRequest,
+    request: Request
+):
+    """
+    Send WhatsApp template message in LIVE mode
+    
+    This sends REAL messages to actual WhatsApp numbers.
+    
+    Available templates:
+    - hello_world (en_US) - No params
+    - sample_issue_resolution (en_US) - params: [name]
+    - sample_shipping_confirmation (en_US) - params: [days]
+    - sample_purchase_feedback (en_US) - params: [product]
+    - sample_happy_hour_announcement (en_US) - params: [venue, time]
+    
+    Example:
+    POST /api/whatsapp/send-template-live
+    {
+        "phone": "919949376620",
+        "template_name": "hello_world",
+        "language": "en_US"
+    }
+    """
+    # Normalize phone
+    phone = ''.join(filter(str.isdigit, request_data.phone))
+    if len(phone) == 10:
+        phone = f"91{phone}"
+    
+    try:
+        result = await meta_whatsapp_client.send_template_message(
+            phone=phone,
+            template_name=request_data.template_name,
+            template_params=request_data.params,
+            language=request_data.language
+        )
+        
+        return {
+            "success": result.get("success", False),
+            "message_id": result.get("message_id"),
+            "phone": phone,
+            "template": request_data.template_name,
+            "mode": "LIVE",
+            "response": result.get("response"),
+            "error": result.get("error") if not result.get("success") else None
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "phone": phone,
+            "template": request_data.template_name,
+            "error": str(e)
+        }
+
+
+@router.get("/status")
+async def get_whatsapp_status():
+    """
+    Get WhatsApp integration status
+    """
+    import os
+    mode = os.getenv("META_WHATSAPP_MODE", "TEST")
+    
+    phone_info = await meta_whatsapp_client.get_phone_number_info()
+    
+    return {
+        "mode": mode,
+        "phone_number_id": os.getenv("META_WHATSAPP_PHONE_NUMBER_ID"),
+        "waba_id": os.getenv("META_WHATSAPP_WABA_ID"),
+        "phone_info": phone_info.get("phone_info", {}),
+        "is_connected": phone_info.get("success", False)
+    }
