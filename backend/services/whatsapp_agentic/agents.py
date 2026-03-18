@@ -181,6 +181,20 @@ STRICT RULES - FOLLOW EXACTLY:
 - Relevance > Creativity
 - Trust > Length
 
+9. BUYING SIGNAL PRIORITY (CRITICAL)
+- If user asks about: price, present price, final price, EMI, investment returns
+- Treat as HIGH INTENT
+- RULES:
+  * Immediately provide clear, direct answer with actual numbers
+  * Do NOT ask more questions first
+  * After answering, guide to next step (site visit / call)
+- Example response format:
+  "Sir, {location} lo plots ₹25L nundi ₹50L varaku available unnayi
+  exact pricing plot size batti untundi
+  
+  meeru visit chesi chusthe best option suggest chestha
+  site visit arrange cheyala?"
+
 OUTPUT STYLE:
 - Short, clear, conversational
 - 2–5 lines max
@@ -196,6 +210,13 @@ Respond in: {language}
 """
     
     QUALIFICATION_FIELDS = ["budget", "property_type", "preferred_location", "timeline", "purpose"]
+    
+    # High intent keywords for buying signals
+    BUYING_SIGNAL_KEYWORDS = [
+        "price", "cost", "rate", "emi", "investment", "returns", "roi",
+        "how much", "kitna", "entha", "final price", "best price",
+        "discount", "offer", "budget"
+    ]
     
     async def process(
         self, 
@@ -266,10 +287,13 @@ Respond in: {language}
 
 Missing information we still need: {', '.join(missing_fields) if missing_fields else 'All information collected!'}
 
+{'⚠️ BUYING SIGNAL DETECTED - HIGH INTENT! Provide price/cost info IMMEDIATELY without asking questions first. After answering, guide to site visit.' if self._is_buying_signal(message) else ''}
+
 Generate a natural response that either:
-1. Acknowledges the information provided and asks about the next missing field
-2. Or if all info is collected, summarize and offer to show available properties
-3. If asking about price negotiation or documents, say "maa team nundi okaru connect avtharu"
+1. If BUYING SIGNAL: Give direct price answer first, then guide to site visit
+2. Acknowledges the information provided and asks about the next missing field
+3. Or if all info is collected, summarize and offer to show available properties
+4. If asking about price negotiation or documents, say "maa team nundi okaru connect avtharu"
 
 REMEMBER: Only suggest projects in {preferred_location or 'their preferred area'}. Do NOT mention random cities."""
         
@@ -412,6 +436,32 @@ REMEMBER: Only suggest projects in {preferred_location or 'their preferred area'
             parts.append(f"Timeline: {combined.get('purchase_timeline') or combined.get('timeline')}")
         
         return "\n".join(parts) if parts else "No information collected yet"
+    
+    def _is_buying_signal(self, message: str) -> bool:
+        """
+        Detect buying signals in customer message
+        HIGH INTENT indicators that need immediate response
+        """
+        message_lower = message.lower()
+        
+        buying_keywords = [
+            # Price related
+            'price', 'cost', 'rate', 'amount', 'value',
+            'how much', 'kitna', 'entha', 'ధర', 'कीमत',
+            'final price', 'best price', 'present price',
+            # EMI related
+            'emi', 'loan', 'finance', 'installment',
+            # Investment related
+            'investment', 'return', 'roi', 'appreciation',
+            'profit', 'growth', 'పెట్టుబడి', 'निवेश',
+            # Budget related  
+            'budget', 'afford', 'spend', 'बजट',
+            # Specific asks
+            'per sq', 'per yard', 'per foot', 'sqft rate',
+            'total cost', 'all inclusive'
+        ]
+        
+        return any(keyword in message_lower for keyword in buying_keywords)
 
 
 class InventoryAgent(BaseAgent):
@@ -950,11 +1000,32 @@ STRICT RULES - FOLLOW EXACTLY:
 - Relevance > Creativity
 - Trust > Length
 
+7. BUYING SIGNAL PRIORITY (CRITICAL)
+- If user asks about: price, cost, EMI, investment, returns
+- Treat as HIGH INTENT
+- RULES:
+  * Immediately provide clear, direct answer with actual numbers
+  * Do NOT ask more questions first
+  * After answering, guide to next step (site visit / call)
+- Example:
+  "Sir, {location} lo plots ₹25L nundi ₹50L varaku available unnayi
+  exact pricing plot size batti untundi
+  
+  meeru visit chesi chusthe best option suggest chestha
+  site visit arrange cheyala?"
+
 Project Knowledge (ONLY use this data):
 {project_knowledge}
 
 Respond in: {language}
 """
+    
+    # High intent keywords for buying signals
+    BUYING_SIGNAL_KEYWORDS = [
+        "price", "cost", "rate", "emi", "investment", "returns", "roi",
+        "how much", "kitna", "entha", "final price", "best price",
+        "discount", "offer", "budget", "per sq", "per yard"
+    ]
     
     async def process(
         self, 
@@ -995,7 +1066,11 @@ Respond in: {language}
         
         response = await self.generate_llm_response(
             system_prompt=system_prompt,
-            user_message=f"Customer question: {message}\n\nRemember: Only suggest projects in '{location or 'their preferred area'}'. Do NOT mention random cities.",
+            user_message=f"""Customer question: {message}
+
+{'⚠️ BUYING SIGNAL DETECTED - HIGH INTENT! Provide price/cost info IMMEDIATELY without asking questions first. Give specific numbers from project data. After answering, guide to site visit.' if self._is_buying_signal(message) else ''}
+
+Remember: Only suggest projects in '{location or 'their preferred area'}'. Do NOT mention random cities.""",
             session_id=f"knowledge_{lead_id}"
         )
         
@@ -1014,3 +1089,8 @@ Respond in: {language}
             "action": "question_answered",
             "next_state": next_state
         }
+    
+    def _is_buying_signal(self, message: str) -> bool:
+        """Detect buying signals in customer message"""
+        message_lower = message.lower()
+        return any(keyword in message_lower for keyword in self.BUYING_SIGNAL_KEYWORDS)
