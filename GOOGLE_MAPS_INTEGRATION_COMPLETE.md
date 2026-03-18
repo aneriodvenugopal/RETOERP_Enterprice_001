@@ -110,7 +110,7 @@ Go to **APIs & Services** → **Library** and enable:
 1. Under **Application restrictions**, select "HTTP referrers"
 2. Add your domain:
    ```
-   https://agentapex-ux-revamp.preview.emergentagent.com/*
+   https://realapex-agentic-ai.preview.emergentagent.com/*
    ```
 3. For production, add your production domain
 

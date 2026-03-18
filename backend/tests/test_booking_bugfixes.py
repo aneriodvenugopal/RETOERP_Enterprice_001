@@ -6,7 +6,7 @@ Test cases for RealApex Booking Bug Fixes:
 import pytest
 import requests
 
-BASE_URL = "https://agentapex-ux-revamp.preview.emergentagent.com"
+BASE_URL = "https://realapex-agentic-ai.preview.emergentagent.com"
 
 # Test credentials
 TEST_EMAIL = "rajam@retoerp.com"

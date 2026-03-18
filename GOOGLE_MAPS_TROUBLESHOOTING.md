@@ -39,7 +39,7 @@ Your API key needs to allow your domain.
 
 **Current Domain:**
 ```
-https://agentapex-ux-revamp.preview.emergentagent.com/*
+https://realapex-agentic-ai.preview.emergentagent.com/*
 ```
 
 **Action Required:**
@@ -48,7 +48,7 @@ https://agentapex-ux-revamp.preview.emergentagent.com/*
 3. Under "Application restrictions" → "HTTP referrers"
 4. Add these referrers:
    ```
-   https://agentapex-ux-revamp.preview.emergentagent.com/*
+   https://realapex-agentic-ai.preview.emergentagent.com/*
    https://*.emergentagent.com/*
    http://localhost:3000/*
    ```

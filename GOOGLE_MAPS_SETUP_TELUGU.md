@@ -184,7 +184,7 @@
 
    **మొదటి referrer:**
    ```
-   https://agentapex-ux-revamp.preview.emergentagent.com/*
+   https://realapex-agentic-ai.preview.emergentagent.com/*
    ```
    - Paste చేసి Enter నొక్కండి
 

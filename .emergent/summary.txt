@@ -1,101 +1,82 @@
 <analysis>**original_problem_statement:**
 The user, a senior AI backend architect, wants to build a production-ready, multi-tenant Agentic AI workflow for their Realapex platform. This involves creating an AI-powered WhatsApp real estate sales assistant that handles inquiries, checks availability, schedules visits, and assists with bookings using a suite of specialized AI agents and a RAG system.
 
-Additionally, the user has requested significant UI/UX improvements to the  PWA to make it more user-friendly, especially for non-technical users. This includes redesigning key forms into conversational interfaces, improving map search functionality, and adding an in-app onboarding guide.
-
-Most recently, the user reported critical bugs on the main  public-facing website, where property details updated in the admin panel are not being displayed correctly on the live site, along with image upload failures and mobile responsiveness issues.
+The user has also requested significant UI/UX improvements to the  PWA and reported critical bugs on the main  public-facing website. The latest request focuses on making the WhatsApp integration fully live, operational, and robust by implementing business-specific rules for the AI, adding features to the leads page, and ensuring system stability through proper session and token management.
 
 **PRODUCT REQUIREMENTS:**
--   **Agentic AI Workflow**: An autonomous WhatsApp bot for the entire sales funnel.
--   **AI Agents & Orchestrator**: Specialized agents (Greeting, Qualification, etc.) managed by a central orchestrator.
--   **RAG System**: AI must use real-time data from the database to provide accurate responses.
--   **Conversation State Machine**: Track the conversation's progress through defined states.
--   **Human Handoff**: A mechanism for human agents to take over conversations.
--   **AgentApex PWA UI/UX Overhaul**:
-    -   Redesign Post Property and Post Requirement forms to be intuitive and conversational.
-    -   Implement a Google Maps-like location search with autocomplete.
-    -   Add an in-app wallet/points system for viewing lead contact details.
-    -   Create an interactive, step-by-step demo guide for new users.
--   **RealApex Site Bug Fixes**: Ensure data consistency between the admin panel and the public property pages, fix image uploads, and resolve mobile UI bugs.
+-   **Agentic AI Workflow**: An autonomous WhatsApp bot for the entire sales funnel with strict business logic.
+-   **AI Agents & Orchestrator**: Specialized agents with specific rules for sales flow, handover, and response style.
+-   **RAG System**: AI must use real-time data from the database.
+-   **WhatsApp Session Management**: The system must handle WhatsApp's 24-hour rule with template fallbacks.
+-   **Leads Management UI**: The  page should display all leads correctly and include functionality to initiate WhatsApp chats and send template messages.
+-   **Public Lead API**: Unauthenticated endpoints are required to allow external systems (or agents) to add leads and trigger WhatsApp automations.
+-   **RealApex Site Bug Fixes**: Fix data sync, image upload, and mobile responsiveness issues on the public website.
 
 **User's preferred language**:
 The user communicates in a mix of English and Telugu. You **MUST** provide all high-level plans, architectural discussions, and summaries in **Telugu**. Code, file names, and direct technical output should remain in English.
 
 **what currently exists?**
--   A FastAPI backend and React frontend.
--   The foundational backend for the Agentic AI workflow exists in , including a working webhook () and a simulator endpoint ().
--   A fully functional frontend WhatsApp Simulator page () has been built, allowing for testing of the AI conversation flow. A Reset Conversation feature is implemented to handle stuck states.
--   The  PWA has received major UI/UX upgrades:
-    -   The Post Property form is now a step-by-step, WhatsApp-style chat interface.
-    -   The Post Requirement form has an improved layout with inputs grouped logically (e.g., Min/Max on one row).
-    -   The Map Search features Google-style autocomplete with bolded matching text.
-    -   An in-app wallet system is integrated into the map, debiting points to view contact details.
-    -   A multi-screen, context-aware Demo Guide has been added for onboarding new users.
-    -   The backend API for property document uploads now supports multiple files.
+-   The critical bugs on the public  site (data sync, mobile responsiveness) have been fixed.
+-   The WhatsApp integration has been migrated from Leonas to the official **Meta WhatsApp Cloud API** and is in **LIVE mode**.
+-   The backend now includes robust **WhatsApp 24-hour session management** with an automatic template fallback system to handle expired conversations.
+-   The AI agents in  have been heavily customized with **12 strict business rules** governing conversation flow, response length, location consistency, and buying signals.
+-   The leads loading bug on the   page has been fixed. The page now correctly loads and displays all leads.
+-   A **WhatsApp button** has been added to each lead row, opening a chat modal that allows sending pre-defined template messages in LIVE mode.
+-   **Public, unauthenticated API endpoints** have been created to allow adding a lead, which automatically triggers a welcome message via WhatsApp.
 
 **Last working item**:
--   **Last item agent was working**: The user reported three critical bugs on the main  public-facing website concerning a specific property layout page. The agent had just started the investigation by identifying the relevant frontend and backend files.
-    1.  Plot details (video, location) updated in the admin panel are not showing on the frontend.
-    2.  Gallery images are failing to upload or display.
-    3.  The property details popup is not responsive on small mobile screens.
--   **Status**: NOT STARTED
+-   **Last item agent was working**: The user reported that OTP sending and WhatsApp communications were failing. The agent investigated and discovered that the  had expired. The user provided a new, supposedly permanent, token. The agent's last action was to update the  file with this new token.
+-   **Status**: IN PROGRESS
 -   **Agent Testing Done**: N
--   **Which testing method agent to use?**: Use the screenshot tool to verify the UI and data on the public  site after fixing the bugs.
+-   **Which testing method agent to use?**: Use  to test the  and  endpoints to verify the new token is working.
 -   **User Testing Done**: N
 
 **All Pending/In progress Issue list**:
--   **Issue 1: RealApex Public Site Bugs (P0)**
-    -   **Description**: Data and images for properties are not syncing from the admin backend to the public frontend, and the property info popup is broken on mobile. This makes the core product unusable for end-customers.
+-   **Issue 1: WhatsApp Integration Stability (P0)**
+    -   **Description**: The  has expired multiple times, breaking all WhatsApp-related functionality, including OTPs and chat. The user has provided a new token they believe is permanent, but this manual process is unreliable for production.
+    -   **Attempted fixes**: The agent has been manually updating the token in the  file whenever it expires.
     -   **Next debug checklist**:
-        1.  Inspect  and  to see how plot data is fetched and rendered.
-        2.  Verify the backend API endpoint () is returning the correct data, including video URLs and gallery image paths.
-        3.  Fix the CSS in the property popup component to ensure it is responsive.
-        4.  Investigate the image upload functionality in the admin panel and the corresponding backend API to find the point of failure.
-    -   **Why fix this issue and what will be achieved with the fix?**: This will restore core functionality to the main user-facing website, allowing customers to view property details correctly.
-    -   **Status**: NOT STARTED
-    -   **Is recurring issue?**: N
-    -   **Should Test**: frontend
-    -   **Blocked on other issue**: None.
-
--   **Issue 2: AgentApex - Multiple Document Upload UI Fix (P1)**
-    -   **Description**: While the backend was fixed to accept multiple documents, the user reports the frontend UI in My Properties - Another Document button or that the file input allows multiple selections and updates the UI correctly after each upload.
-    -   **Why fix this issue and what will be achieved with the fix?**: Allows agents to upload all necessary legal and marketing documents for a property.
-    -   **Status**: NOT STARTED
+        1.  Verify that the new token provided by the user is working by calling an authenticated Meta API endpoint (e.g., ).
+        2.  Test the in-app functionality that failed: .
+        3.  Strongly advise the user to generate a proper, long-lived System User token from the Meta Business Suite to prevent this from recurring.
+    -   **Why fix this issue and what will be achieved with the fix?**: This is a critical blocker. Fixing it will restore all WhatsApp communication and user login functionality. A permanent fix will ensure system stability.
+    -   **Status**: IN PROGRESS
     -   **Is recurring issue?**: Y
-    -   **Should Test**: frontend
+    -   **Should Test frontend/backend/both after fix?**: backend
+    -   **Blocked on other issue**: None
 
--   **Issue 3: Agentic AI - Invalid WhatsApp API Key (P1 - BLOCKED)**
-    -   **Description**: The  in the environment () is invalid, causing Authentication failed errors when the AI tries to send a message.
-    -   **Next debug checklist**: This is blocked on the user. The agent must ask the user to log into their Leonas dashboard () and provide the correct, active API key.
-    -   **Why fix this issue and what will be achieved with the fix?**: This will enable the AI workflow to send messages to actual WhatsApp users.
-    -   **Status**: BLOCKED
+-   **Issue 2: Incorrect WhatsApp Templates (P1)**
+    -   **Description**: The user wants to use specific templates (, ) which are associated with WABA ID . However, the current active token only has access to WABA ID , which contains different, generic templates (, ).
+    -   **Attempted fixes**: The agent identified the mismatch by querying the templates endpoint. The system is currently using the available generic templates as a fallback.
+    -   **Next debug checklist**:
+        1.  Explain the WABA ID and template mismatch to the user.
+        2.  Ask the user to either:
+            a) Provide an access token that is linked to the correct WABA ID ().
+            b) Re-create the desired templates within the currently active WABA ID ().
+    -   **Why fix this issue and what will be achieved with the fix?**: This will allow the AI and agents to send professional, business-specific messages to leads instead of generic hello world messages.
+    -   **Status**: NOT STARTED
     -   **Is recurring issue?**: N
-    -   **Should Test**: backend
+    -   **Should Test frontend/backend/both after fix?**: backend
+    -   **Blocked on other issue**: Issue 1: WhatsApp Integration Stability
+
+-   **Issue 3: AgentApex - Multiple Document Upload UI Fix (P2)**
+    -   **Description**: The frontend UI for multiple document uploads was improved by changing an icon to a button with text.
+    -   **Status**: USER VERIFICATION PENDING
+    -   **Is recurring issue?**: Y
 
 -   **Issue 4: AgentApex - Demo Guide Re-showing Bug (P2)**
-    -   **Description**: The user has repeatedly mentioned that the help guide popup appears on every visit, not just the first time. The  logic to prevent this seems faulty.
-    -   **Next debug checklist**:
-        1.  Review the  hook in .
-        2.  Verify that  is being called correctly.
-        3.  Check the logic that reads this value in  in  and other pages.
-    -   **Why fix this issue and what will be achieved with the fix?**: Improves user experience by not showing the onboarding guide to experienced users on every visit.
-    -   **Status**: NOT STARTED
+    -   **Description**: A fix was implemented for the bug causing the demo guide to appear on every visit.
+    -   **Status**: USER VERIFICATION PENDING
     -   **Is recurring issue?**: Y
-    -   **Should Test**: frontend
 
 **In progress Task List**:
--   **Task 1: Implement Full Agentic AI Workflow Logic (P1)**
-    -   **Where to resume**: The simulator and webhook are ready. The next step is to flesh out the agent logic in .
-    -   **What will be achieved with this?**: Complete the core user request by making the AI agents (Qualification, Inventory, Site Visit, etc.) fully functional beyond simple greetings. Implement the RAG system in  to pull live project/plot data.
-    -   **Status**: IN PROGRESS
-    -   **Should Test**: backend
-    -   **Blocked on something**: Full end-to-end testing is blocked by the invalid WhatsApp API key and the missing .
+- None
 
 **Upcoming and Future Tasks**
 -   **Upcoming Tasks**:
-    -   **P1: Obtain and Configure Full WhatsApp Credentials**: Get the  from the user.
+    -   **P1: Implement Permanent WhatsApp Access Token**: Guide the user on creating and using a System User token from Meta Business Suite to avoid constant expiry.
+    -   **P1: Implement Full Agentic AI RAG Logic**: Flesh out the AI agents in  and  to pull live project/plot data based on user queries, completing the RAG system.
     -   **P2: Build Frontend Agent Dashboard**: Create a UI for human agents to monitor and take over AI conversations.
-    -   **P2: Apply Module Permissions to Frontend UI**: Use the  hook to conditionally render UI elements based on tenant permissions.
 -   **Future Tasks**:
     -   **Scalability**: Migrate conversation state to Redis and background tasks to Celery.
     -   **AI Features**: Integrate Whisper for voice note processing.
@@ -103,92 +84,111 @@ The user communicates in a mix of English and Telugu. You **MUST** provide all h
     -   **API Refactor**: Resolve the route prefix conflict between  and .
 
 **Completed work in this session**
--   **WhatsApp AI Simulator**: Built a complete frontend page () to test the AI workflow, including a Reset Conversation feature.
--   **AgentApex UI/UX Overhaul**:
-    -   Redesigned Post Property into a WhatsApp-style chat wizard ().
-    -   Redesigned Post Requirement with a more compact and user-friendly layout.
-    -   Improved Map Search with Google-style autocomplete, added local city suggestions, and enhanced the UI.
-    -   Improved button styling across the Post Property flow to make them look more interactive.
--   **AgentApex Wallet System**: Implemented a points-based wallet in the header, with backend APIs to fetch balance and deduct points for viewing contacts on the map.
--   **AgentApex Demo Guide**: Created a comprehensive, multi-page, context-aware onboarding guide for new users that can be accessed anytime via a help icon.
--   **Dashboard Enhancement**: Added a Total Requirements count to the AgentApex dashboard.
--   **Backend Fix**: Modified the property document upload API to accept multiple files simultaneously.
+-   **RealApex Public Site Bugs Fixed**:
+    -   Fixed plot data (video, location) not syncing to the public page.
+    -   Fixed the property details popup to be mobile-responsive.
+    -   Removed a duplicate backend route.
+-   **WhatsApp Integration Overhaul**:
+    -   Migrated from a third-party client to the official **Meta WhatsApp Cloud API**.
+    -   Switched the system to **LIVE mode**.
+    -   Implemented robust **24-hour session management** with automatic template fallbacks.
+-   **AI Agent Enhancement**:
+    -   Implemented **12 strict business rules** into the AI agents for context memory, location locking, response formatting, sales flow control, and buying signal detection.
+-   **Leads Page Feature Development**:
+    -   Fixed the Failed to load leads bug.
+    -   Added a WhatsApp button to each lead to open a chat modal.
+    -   The chat modal allows sending live template messages to leads.
+-   **Public Lead APIs Created**:
+    -   Built unauthenticated endpoints to add leads and trigger WhatsApp automations.
+-   **Initial WhatsApp Setup**:
+    -   Resolved the user's locked WhatsApp number by finding the correct PIN and registering their Test Number.
 
 **Earlier issues found/mentioned but not fixed**
--   **Scalability Limitations**: The system uses an in-memory dictionary for conversation state and simple , which is not suitable for production. It needs migration to Redis and Celery.
+-   **Scalability Limitations**: The system uses an in-memory dictionary for conversation state (partially fixed with MongoDB session tracking, but Celery/Redis would be better) and simple , which is not suitable for high-volume production.
 -   **API Route Prefix Conflict**: An unresolved conflict exists between  and .
 
 **Known issue recurrence from previous fork**
--   The bug where the Demo Guide shows up on every visit, despite attempts to fix it, is a recurring issue within this session.
+-   The Demo Guide shows on every visit bug had a fix attempted, but it is a known recurring issue and requires user verification.
+-   The Multiple Document Upload UI issue also had a fix attempted and requires user verification.
 
 **Code Architecture**
 
 
 **Key Technical Concepts**
--   **Agentic AI Workflow & Simulator**: A system of coordinated AI agents with a dedicated frontend for testing.
--   **Conversational UI/Wizard**: The step-by-step, chat-like interface implemented in  using React state to manage questions and progress.
--   **In-App Wallet System**: A points-based economy where users spend points to unlock features (viewing contacts). Managed via backend APIs and frontend state.
--   **Context-Aware Onboarding**: The  feature, which uses a React Context Provider and  to show tailored help guides for different pages and remembers if a user has seen them.
--   **Dynamic Autocomplete**: The Google Maps-like search that fetches suggestions and highlights matching text as the user types.
+-   **Meta WhatsApp Cloud API**: Direct integration for sending/receiving messages and templates.
+-   **WhatsApp 24-Hour Session Management**: A stateful system () using MongoDB to track user reply times and automatically fall back to template messages when a session expires.
+-   **AI Agent Prompt Engineering**: Heavily customized system prompts in  to enforce strict business logic, response style, and sales flows.
+-   **Public API for Automation**: Unauthenticated endpoints designed to allow external triggers for lead creation and communication.
+-   **Conversational UI**: The chat modal implemented in the  page for agent-to-lead communication.
 
 **key DB schema**
--   : A  field (Number) has been implicitly added to manage the user's balance for viewing contacts.
+-   : { : str, : str, : datetime } - New collection to track conversation windows.
+-   : The  and  fields were made optional to handle legacy data.
+
+**changes in tech stack**
+-   The WhatsApp integration method was changed from  to a custom-built  for the official Meta Cloud API.
 
 **All files of reference**
--   **/app/frontend/src/realapex/pages/projects/[id]/layout/index.js**: Relevant to the current highest-priority bug.
--   **/app/frontend/src/agentapex/pages/QuickPropertyPost.js**: The new WhatsApp-style chat interface.
--   **/app/frontend/src/agentapex/pages/MapSearch.js**: The file containing the improved map search and wallet integration.
--   **/app/frontend/src/agentapex/components/DemoGuide/**: The new directory containing all demo/onboarding guide components.
--   **/app/frontend/src/agentapex/hooks/useDemoGuide.js**: The hook containing the logic for the recurring demo guide bug.
--   **/app/backend/routes/users.py**: The backend file where the new wallet API endpoints were added.
--   **/app/backend/services/whatsapp_agentic/main.py**: The AI orchestrator, modified to include a conversation reset endpoint.
+-   **/app/backend/services/whatsapp_agentic/agents.py**: Contains all 12 business rules for the AI.
+-   **/app/backend/services/whatsapp_agentic/meta_whatsapp_client.py**: The new client for all Meta API interactions.
+-   **/app/backend/services/whatsapp_agentic/session_manager.py**: The logic for handling the 24-hour rule.
+-   **/app/backend/routes/leads.py**: Contains the fix for the lead loading bug and all new public API endpoints.
+-   **/app/frontend/src/pages/Leads.js**: Contains the UI for the WhatsApp button and the chat simulation modal.
+
+**Areas that need refactoring**:
+-   The manual process of updating the access token needs to be replaced with a proper, automated, long-lived token generation strategy (System User).
+
+**key api endpoints**
+-   : (Public) Adds a new lead and sends a welcome message.
+-   : (Public) Searches for a lead.
+-   : (Private) Sends a template message from the leads page modal.
+-   : (Private) Checks the connection status of the WhatsApp number.
+-   : (Private) Checks the 24-hour session status for a specific lead.
 
 **Critical Info for New Agent**
--   **Immediate Priority**: Your first task is to fix the three bugs on the main  site (Plot 70 data sync, gallery images, and mobile responsiveness). The user's business depends on this public-facing page working correctly.
--   **User Blockers**: The full Agentic AI workflow is blocked. You must ask the user for a **valid Leonas API key** and their **** after you fix the  site issues. Do not proceed with live WhatsApp integration without these.
--   **UI/UX is Key**: The user has a strong focus on simple, intuitive, and visually appealing UI. Pay close attention to their feedback on font sizes, button styles, and layout. When implementing UI, think about the wow, super easy app feeling the user wants to create.
+-   **Your immediate priority is to fix the expired access token.** The entire WhatsApp functionality is down. Use the new token provided by the user and verify it works. Then, strongly advise the user to generate a long-lived System User token to prevent this from happening again.
+-   **Communicate the Template Mismatch:** The user believes they have specific templates ready, but they are not in the active WhatsApp Business Account. You must clearly explain this discrepancy and provide the user with options to resolve it.
+-   **Adhere to the 12 AI Rules:** The user has provided very specific, strict rules for the AI's behavior. Do not deviate from them. All AI-related changes must respect these rules.
 -   **Language Protocol**: Remember to communicate all high-level plans and explanations in **Telugu**.
 
 **documents and test reports created in this job**
 -   None.
 
 **Last 10 User Messages and any pending HUMAN messages**
-10. : Requests an interactive demo/onboarding guide for new AgentApex users. (Completed)
-9.  : Implements the full Demo Guide feature with Next/Skip buttons, progress bars, and help icons on each page. (Completed)
-8.  : Explains what Lead Counts mean and reports a new bug: multiple document uploads are not working in My Properties Edit. (In Progress - Backend Fixed, Frontend needs fix)
-7.  : Fixes the backend to accept multiple files for the document upload feature. (Completed)
-6.  : Reports a long list of UI/UX issues: fix My Requirements layout, ensure help guide shows only once, implement a wallet system on the map, fix multi-document upload again, and improve button UI in Post Property. (In Progress)
-5.  : Implements all requested UI fixes:  page layout, adds  count to dashboard, improves  button styles, and implements the full wallet system with backend APIs and frontend UI. (Completed)
-4.  : Reports the help guide is still showing up every time. (Recurring Issue)
-3.  : Reports critical bugs on the main  site: Plot 70 data not syncing, gallery images not uploading, and mobile responsiveness is broken. (Highest Priority - Not Started)
-2.  : Acknowledges the  site bugs and starts investigating the relevant files. (Last Action)
-1. : Generate the summary now. (Pending Human Message)
+10. : Provides Rule #10 (Location Consistency). (Completed)
+9.  : Provides Rule #11 (Question Limit) & #12 (Message Length). (Completed)
+8.  : Reports failed to send otp. (In Progress)
+7.  : Starts investigating the OTP failure.
+6.  : Says whatsapp chat communication also have issues, fix all db connection or some other issues fix. (In Progress)
+5.  : Investigates and identifies the root cause: the Meta access token has expired.
+4.  : Provides a new, supposedly permanent access token. (Pending Action)
+3.  : Prepares to update the environment with the new token.
+2.  : Provides detailed explanation of WhatsApp's 24-hour session rule and instructs the agent to implement a robust session management system. (Completed)
+1.  : Asks for a cost breakdown for the service (WhatsApp API + Emergent Key). (Completed)
 
 **Project Health Check:**
 -   **Broken**:
-    -   The public-facing  property detail page has data sync, image upload, and mobile responsiveness issues.
-    -   The My Properties Edit page in  doesn't have a clear UI for uploading multiple documents.
+    -   **WhatsApp Communication**: All outbound messages (including OTPs) are failing due to an expired access token.
 -   **Mocked**:
-    -   Outbound messaging for the Agentic AI workflow is non-functional due to an invalid API key and missing .
+    -   **WhatsApp Templates**: The system is using generic hello_world templates instead of the business-specific ones the user requested because they are not available in the active WhatsApp account.
 
 **3rd Party Integrations**
--   **Anthropic Claude**: Used for AI response generation — uses Emergent LLM Key.
--   **OpenAI GPT-5/4o**: Available for use in AI agents — uses Emergent LLM Key.
--   **Leonas IT Solutions**: WhatsApp Business Solution Provider. Integration is in progress but **blocked** by an invalid API key.
--   **Razorpay**: Existing integration for payments — requires User API Key.
--   **PayU**: Existing LIVE integration for payments — uses production keys from .
--   **Stripe**: Existing integration for payments — requires User API Key.
+-   **Meta WhatsApp Cloud API**: Direct integration for live messaging. **Currently broken** due to an expired access token. Requires a permanent token for stability.
+-   **Anthropic Claude / OpenAI GPT-4o**: Used for AI response generation — uses Emergent LLM Key.
+-   **Razorpay / PayU / Stripe**: Existing payment integrations — requires User API Key.
 
 **Testing status**
 -   **Testing agent used after significant changes**: NO
 -   **Troubleshoot agent used after agent stuck in loop**: NO
 -   **Test files created**: []
--   **Known regressions**: The bug where the Demo Guide shows on every visit appears to be a regression or was never fully fixed.
+-   **Known regressions**: None in this session, but previous UI fixes for the Demo Guide and Document Upload are pending user verification.
 
 **Credentials to test flow:**
--   **Super Admin**:  / 
--   **Tenant Admin**:  / 
--   **AgentApex User**: Phone , OTP .
+-   **Tenant Admin**:  (OTP required)
+-   **Lead Contact (for testing)**: , 
+-   **Allowed Test Number**: 
 
 **What agent forgot to execute**
--   The agent correctly prioritized the user's latest bug reports for the  site. However, the recurring issue with the Demo Guide popup needs a definitive fix, as the previous attempts were not successful. The frontend part of the multiple document upload feature also remains incomplete.</analysis>
+-   The agent did not complete the  update that was started earlier in the session.
+-   The agent has not prompted the user to verify the fixes for the Demo Guide and Multiple Document Upload issues.
+-   After implementing a major feature like session management, no comprehensive test was run to simulate a 24-hour expiry and see if the template fallback works as expected.</analysis>

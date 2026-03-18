@@ -156,7 +156,7 @@
    - Name: RETOERP Calendar Integration
    - Authorized redirect URIs:
      ```
-     https://agentapex-ux-revamp.preview.emergentagent.com/api/auth/google/callback
+     https://realapex-agentic-ai.preview.emergentagent.com/api/auth/google/callback
      ```
    - Click **CREATE**
    - Copy **Client ID** and **Client Secret**
@@ -167,7 +167,7 @@ Edit `/app/backend/.env`:
 ```bash
 GOOGLE_CLIENT_ID=your_actual_client_id_here.apps.googleusercontent.com
 GOOGLE_CLIENT_SECRET=your_actual_client_secret_here
-GOOGLE_REDIRECT_URI=https://agentapex-ux-revamp.preview.emergentagent.com/api/auth/google/callback
+GOOGLE_REDIRECT_URI=https://realapex-agentic-ai.preview.emergentagent.com/api/auth/google/callback
 ```
 
 ### **Step 3: Restart Backend**
@@ -190,19 +190,19 @@ sudo supervisorctl restart backend
 
 ### 1. Test OAuth Flow:
 ```bash
-curl https://agentapex-ux-revamp.preview.emergentagent.com/api/auth/google/login
+curl https://realapex-agentic-ai.preview.emergentagent.com/api/auth/google/login
 ```
 This returns an authorization URL - open it in browser
 
 ### 2. Check Connection Status:
 ```bash
 curl -H "Authorization: Bearer YOUR_JWT_TOKEN" \
-  https://agentapex-ux-revamp.preview.emergentagent.com/api/auth/google/status
+  https://realapex-agentic-ai.preview.emergentagent.com/api/auth/google/status
 ```
 
 ### 3. Create Calendar Event:
 ```bash
-curl -X POST https://agentapex-ux-revamp.preview.emergentagent.com/api/calendar/create-event \
+curl -X POST https://realapex-agentic-ai.preview.emergentagent.com/api/calendar/create-event \
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -219,7 +219,7 @@ curl -X POST https://agentapex-ux-revamp.preview.emergentagent.com/api/calendar/
 ### 4. Get Today's Events:
 ```bash
 curl -H "Authorization: Bearer YOUR_JWT_TOKEN" \
-  "https://agentapex-ux-revamp.preview.emergentagent.com/api/calendar/events?view=today"
+  "https://realapex-agentic-ai.preview.emergentagent.com/api/calendar/events?view=today"
 ```
 
 ---
@@ -322,7 +322,7 @@ curl -H "Authorization: Bearer YOUR_JWT_TOKEN" \
 ### "Redirect URI mismatch"
 **Solution:** Add exact redirect URI in OAuth credentials:
 ```
-https://agentapex-ux-revamp.preview.emergentagent.com/api/auth/google/callback
+https://realapex-agentic-ai.preview.emergentagent.com/api/auth/google/callback
 ```
 
 ### "Token expired"
