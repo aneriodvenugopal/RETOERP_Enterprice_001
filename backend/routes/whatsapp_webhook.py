@@ -1,22 +1,31 @@
 """
 WhatsApp Webhook Handler for Meta Cloud API
 Handles incoming WhatsApp messages and triggers AI workflow
+
+Features:
+- 24-hour session management
+- Template fallback for expired sessions
+- Error handling and logging
 """
 
 from fastapi import APIRouter, Request, HTTPException, BackgroundTasks, Depends
 from pydantic import BaseModel, Field
 from typing import Optional, Dict, Any, List
-from datetime import datetime
+from datetime import datetime, timezone
 import uuid
 import os
+import logging
 from dotenv import load_dotenv
 
 from middleware.auth import get_current_user
 from services.whatsapp_agentic.orchestrator import AIOrchestrator
 from services.whatsapp_agentic.meta_whatsapp_client import meta_whatsapp_client
 from services.whatsapp_agentic.state_machine import ConversationStateMachine, ConversationState
+from services.whatsapp_agentic.session_manager import session_manager
 
 load_dotenv()
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/whatsapp", tags=["WhatsApp AI"])
 
@@ -127,8 +136,22 @@ async def process_incoming_message(
     message: str,
     message_id: str
 ):
-    """Background task to process incoming message"""
+    """Background task to process incoming message with session management"""
     try:
+        # Initialize session manager with db
+        session_manager.set_db(db)
+        meta_whatsapp_client.set_session_manager(session_manager, db)
+        
+        # UPDATE SESSION - Customer message opens/refreshes 24-hour window
+        session_status = await session_manager.update_session(
+            phone=phone,
+            tenant_id=tenant_id,
+            direction="inbound",
+            message_id=message_id
+        )
+        logger.info(f"📥 Session updated for {phone}: {session_status}")
+        
+        # Process with AI Orchestrator
         orchestrator = AIOrchestrator(db)
         
         result = await orchestrator.process_message(
@@ -139,22 +162,32 @@ async def process_incoming_message(
             message_id=message_id
         )
         
+        # Send response with session awareness
         if result.get("success") and result.get("response"):
-            send_result = await meta_whatsapp_client.send_with_retry(
+            send_result = await meta_whatsapp_client.send_text_message(
                 phone=phone,
-                message=result["response"]
+                message=result["response"],
+                tenant_id=tenant_id,
+                check_session=True,
+                fallback_to_template=True
             )
             
             if not send_result.get("success"):
-                print(f"Failed to send WhatsApp response: {send_result.get('error')}")
+                logger.error(f"❌ Failed to send WhatsApp response: {send_result.get('error')}")
+                
+                # If fallback was used, log it
+                if send_result.get("fallback_used"):
+                    logger.info(f"📋 Fallback template sent instead to {phone}")
+            else:
+                logger.info(f"✅ Response sent to {phone}")
         
         if result.get("human_followup_required"):
             await notify_agent_for_followup(db, tenant_id, lead_id, result)
         
-        print(f"Message processed: intent={result.get('intent')}, action={result.get('action')}")
+        logger.info(f"Message processed: intent={result.get('intent')}, action={result.get('action')}")
         
     except Exception as e:
-        print(f"Error processing message: {e}")
+        logger.error(f"❌ Error processing message: {e}")
         import traceback
         traceback.print_exc()
 
@@ -971,4 +1004,96 @@ async def get_whatsapp_status():
         "waba_id": os.getenv("META_WHATSAPP_WABA_ID"),
         "phone_info": phone_info.get("phone_info", {}),
         "is_connected": phone_info.get("success", False)
+    }
+
+
+
+@router.get("/session/{tenant_id}/{phone}")
+async def get_session_status(
+    tenant_id: str,
+    phone: str,
+    request: Request
+):
+    """
+    Get WhatsApp session status for a phone number
+    
+    Returns:
+    - status: active | expired | warning | no_session
+    - can_send_free_message: bool
+    - must_use_template: bool
+    - hours_remaining: float
+    - session_expires_at: datetime
+    """
+    db = get_db(request)
+    session_manager.set_db(db)
+    
+    status = await session_manager.check_session(phone, tenant_id)
+    return status
+
+
+@router.post("/session/reopen")
+async def reopen_session(
+    phone: str,
+    tenant_id: str,
+    request: Request
+):
+    """
+    Send template message to reopen expired session
+    
+    Use this when session has expired and you need to re-engage customer
+    """
+    db = get_db(request)
+    session_manager.set_db(db)
+    meta_whatsapp_client.set_session_manager(session_manager, db)
+    
+    # Check current session status
+    status = await session_manager.check_session(phone, tenant_id)
+    
+    if status.get("can_send_free_message"):
+        return {
+            "success": True,
+            "message": "Session is already active",
+            "session_status": status
+        }
+    
+    # Send template to reopen session
+    result = await meta_whatsapp_client.send_template_message(
+        phone=phone,
+        template_name="hello_world",
+        language="en_US"
+    )
+    
+    if result.get("success"):
+        await session_manager.mark_re_engaged(phone, tenant_id)
+        return {
+            "success": True,
+            "message": "Template sent to reopen session",
+            "message_id": result.get("message_id"),
+            "note": "Session will reopen when customer replies"
+        }
+    
+    return {
+        "success": False,
+        "error": result.get("error"),
+        "message": "Failed to send reopen template"
+    }
+
+
+@router.get("/sessions/expired")
+async def get_expired_sessions(
+    request: Request,
+    tenant_id: Optional[str] = None,
+    limit: int = 50
+):
+    """
+    Get list of expired sessions that need re-engagement
+    """
+    db = get_db(request)
+    session_manager.set_db(db)
+    
+    sessions = await session_manager.get_expired_sessions(tenant_id, limit)
+    
+    return {
+        "count": len(sessions),
+        "sessions": sessions
     }

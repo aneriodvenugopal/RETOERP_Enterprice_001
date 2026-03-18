@@ -2,22 +2,43 @@
 Meta WhatsApp Cloud API Client
 Official Meta Graph API for WhatsApp Business
 https://developers.facebook.com/docs/whatsapp/cloud-api
+
+Features:
+- 24-hour session management
+- Template fallback when session expires
+- Error handling with retry
+- Logging for debugging
 """
 
 import os
 import httpx
 import asyncio
+import logging
 from typing import Optional, Dict, Any, List
-from datetime import datetime
+from datetime import datetime, timezone
 from dotenv import load_dotenv
 import json
 
 load_dotenv()
 
+logger = logging.getLogger(__name__)
+
+# WhatsApp API Error Codes
+WHATSAPP_ERRORS = {
+    131047: "Session expired - use template message",
+    131051: "Message failed to send",
+    470: "Session window closed",
+    131026: "Message undeliverable",
+    132000: "Template parameter issue",
+    132001: "Template not found",
+    133005: "PIN mismatch"
+}
+
 
 class MetaWhatsAppClient:
     """
     Client for Meta WhatsApp Cloud API (Official)
+    With session management and error handling
     """
     
     def __init__(self):
@@ -26,6 +47,18 @@ class MetaWhatsAppClient:
         self.phone_number_id = os.getenv("META_WHATSAPP_PHONE_NUMBER_ID", "")
         self.waba_id = os.getenv("META_WHATSAPP_WABA_ID", "")
         self.timeout = 30
+        self._session_manager = None
+        self._db = None
+        
+        # Fallback template for expired sessions
+        self.fallback_template = os.getenv("WHATSAPP_FALLBACK_TEMPLATE", "hello_world")
+    
+    def set_session_manager(self, session_manager, db):
+        """Set session manager and database for session tracking"""
+        self._session_manager = session_manager
+        self._db = db
+        if session_manager:
+            session_manager.set_db(db)
         
     def _get_headers(self) -> Dict[str, str]:
         """Get API headers with Bearer token"""
@@ -38,14 +71,47 @@ class MetaWhatsAppClient:
         self, 
         phone: str, 
         message: str,
-        tenant_id: Optional[str] = None
+        tenant_id: Optional[str] = None,
+        check_session: bool = True,
+        fallback_to_template: bool = True
     ) -> Dict[str, Any]:
         """
         Send a text message via WhatsApp Cloud API
         
+        IMPORTANT: Checks 24-hour session window first.
+        If session expired, falls back to template message.
+        
+        Args:
+            phone: Recipient phone number
+            message: Message text
+            tenant_id: Tenant ID for session tracking
+            check_session: Whether to check session before sending
+            fallback_to_template: Whether to fallback to template if session expired
+        
         Endpoint: POST /{phone_number_id}/messages
         """
         phone = self._normalize_phone(phone)
+        
+        # Check session status if enabled
+        if check_session and self._session_manager and tenant_id:
+            session_status = await self._session_manager.check_session(phone, tenant_id)
+            
+            if session_status.get("must_use_template"):
+                logger.warning(f"🔴 Session expired for {phone} - falling back to template")
+                
+                if fallback_to_template:
+                    # Send template instead of free message
+                    return await self._send_session_reopen_template(phone, message, tenant_id)
+                else:
+                    return {
+                        "success": False,
+                        "error": "session_expired",
+                        "message": "24-hour session window expired. Template message required.",
+                        "session_status": session_status
+                    }
+            
+            elif session_status.get("status") == "warning":
+                logger.info(f"🟡 Session warning for {phone} - {session_status.get('hours_remaining', 0):.1f}h remaining")
         
         payload = {
             "messaging_product": "whatsapp",
@@ -68,16 +134,42 @@ class MetaWhatsAppClient:
                 
                 result = response.json() if response.status_code in [200, 201] else {}
                 
-                print(f"📤 WhatsApp Send Response: {response.status_code} - {result}")
+                logger.info(f"📤 WhatsApp Send Response: {response.status_code} - {result}")
                 
                 if response.status_code not in [200, 201]:
                     error_data = response.json() if response.text else {}
+                    error_code = error_data.get("error", {}).get("code")
+                    error_msg = error_data.get("error", {}).get("message", "Unknown error")
+                    
+                    # Log specific error
+                    if error_code in WHATSAPP_ERRORS:
+                        logger.error(f"❌ WhatsApp Error {error_code}: {WHATSAPP_ERRORS[error_code]}")
+                    else:
+                        logger.error(f"❌ WhatsApp Error: {error_msg}")
+                    
+                    # Check if session-related error
+                    if error_code in [131047, 470]:
+                        logger.warning(f"🔴 Session expired error for {phone}")
+                        if fallback_to_template:
+                            return await self._send_session_reopen_template(phone, message, tenant_id)
+                    
                     return {
                         "success": False,
                         "status_code": response.status_code,
-                        "error": error_data.get("error", {}).get("message", "Unknown error"),
+                        "error_code": error_code,
+                        "error": error_msg,
                         "response": error_data
                     }
+                
+                # Update session with outbound message
+                if self._session_manager and tenant_id:
+                    message_id = result.get("messages", [{}])[0].get("id") if result.get("messages") else None
+                    await self._session_manager.update_session(
+                        phone=phone,
+                        tenant_id=tenant_id,
+                        direction="outbound",
+                        message_id=message_id
+                    )
                 
                 return {
                     "success": True,
@@ -88,11 +180,50 @@ class MetaWhatsAppClient:
                 }
                 
         except httpx.TimeoutException:
-            print(f"⚠️ WhatsApp timeout sending to {phone}")
+            logger.error(f"⚠️ WhatsApp timeout sending to {phone}")
             return {"success": False, "error": "timeout", "message": "Request timed out"}
         except Exception as e:
-            print(f"❌ WhatsApp error: {e}")
+            logger.error(f"❌ WhatsApp exception: {e}")
             return {"success": False, "error": "exception", "message": str(e)}
+    
+    async def _send_session_reopen_template(
+        self,
+        phone: str,
+        original_message: str,
+        tenant_id: str
+    ) -> Dict[str, Any]:
+        """
+        Send template message to reopen expired session
+        """
+        logger.info(f"📋 Sending session reopen template to {phone}")
+        
+        # Send hello_world or follow-up template
+        result = await self.send_template_message(
+            phone=phone,
+            template_name=self.fallback_template,
+            language="en_US"
+        )
+        
+        if result.get("success"):
+            # Mark as re-engaged
+            if self._session_manager and tenant_id:
+                await self._session_manager.mark_re_engaged(phone, tenant_id)
+            
+            return {
+                "success": True,
+                "fallback_used": True,
+                "original_message_stored": True,
+                "message_id": result.get("message_id"),
+                "note": "Session expired. Template sent to reopen conversation. Original message will be sent after customer replies.",
+                "original_message": original_message[:100] + "..." if len(original_message) > 100 else original_message
+            }
+        
+        return {
+            "success": False,
+            "fallback_used": True,
+            "error": result.get("error"),
+            "message": "Failed to send template fallback"
+        }
     
     async def send_template_message(
         self,
