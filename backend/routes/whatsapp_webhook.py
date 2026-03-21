@@ -728,34 +728,23 @@ async def reset_conversation_for_phone(
     
     phone = normalize_phone(phone)
     
-    # Find and reset the conversation
-    result = await db.whatsapp_conversations.update_one(
-        {
-            "tenant_id": tenant_id,
-            "phone": phone
-        },
-        {
-            "$set": {
-                "ai_enabled": True,
-                "state": "new_lead",
-                "human_assigned": None,
-                "handoff_reason": None,
-                "updated_at": datetime.utcnow()
-            }
-        }
-    )
+    # Delete the conversation completely so a fresh one is created
+    delete_result = await db.whatsapp_conversations.delete_many({
+        "tenant_id": tenant_id,
+        "phone": phone
+    })
     
-    if result.modified_count > 0:
-        return {
-            "success": True,
-            "message": f"Conversation reset for {phone}. AI is now active."
-        }
-    else:
-        # No existing conversation, that's fine
-        return {
-            "success": True,
-            "message": f"No existing conversation found for {phone}. Fresh conversation will be created."
-        }
+    # Also delete related messages for clean slate
+    await db.whatsapp_messages.delete_many({
+        "tenant_id": tenant_id,
+        "phone": phone
+    })
+    
+    return {
+        "success": True,
+        "message": f"Conversation reset for {phone}. {delete_result.deleted_count} conversation(s) deleted. Fresh AI conversation will start.",
+        "deleted_count": delete_result.deleted_count
+    }
 
 
 
