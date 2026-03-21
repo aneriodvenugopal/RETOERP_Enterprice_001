@@ -590,7 +590,8 @@ async def simulate_whatsapp_message(
         lead_id=lead_id,
         phone=phone,
         message=message,
-        message_id=f"sim_{uuid.uuid4().hex[:8]}"
+        message_id=f"sim_{uuid.uuid4().hex[:8]}",
+        source="simulator"  # Mark as simulator for testing
     )
     
     return {

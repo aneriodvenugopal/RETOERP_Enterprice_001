@@ -203,6 +203,10 @@ class ConversationStateMachine:
             }
         }
         
+        # If transitioning to human_handoff, DO NOT disable AI
+        # Only explicit enable_human_handoff() call should disable AI
+        # This allows testing conversation flow without getting stuck
+        
         # Add context updates if provided
         if context_update:
             for key, value in context_update.items():

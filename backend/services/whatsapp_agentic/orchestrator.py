@@ -100,7 +100,8 @@ If unclear, respond with "general_question".
         lead_id: str,
         phone: str,
         message: str,
-        message_id: Optional[str] = None
+        message_id: Optional[str] = None,
+        source: str = "whatsapp"
     ) -> Dict[str, Any]:
         """
         Main entry point for processing incoming WhatsApp messages
@@ -111,6 +112,7 @@ If unclear, respond with "general_question".
             phone: Customer phone number
             message: Message text
             message_id: External message ID
+            source: Message source (whatsapp, simulator)
             
         Returns:
             Dict with response and metadata
@@ -120,6 +122,9 @@ If unclear, respond with "general_question".
             conversation = await self.state_machine.get_or_create_conversation(
                 tenant_id, lead_id, phone
             )
+            
+            # Mark source for auto-handoff decisions
+            conversation["source"] = source
             
             conversation_id = conversation["id"]
             current_state = ConversationState(conversation["state"])
@@ -401,6 +406,13 @@ If unclear, respond with "general_question".
         conversation: Dict
     ) -> bool:
         """Check if we should auto-trigger human handoff"""
+        
+        # For simulator testing, disable auto handoff
+        # This allows full conversation flow testing
+        # In production, enable this by checking for simulator flag
+        is_simulator = conversation.get("source") == "simulator"
+        if is_simulator:
+            return False
         
         # Handoff for complaints
         if intent == CustomerIntent.COMPLAINT:
