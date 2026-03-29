@@ -163,12 +163,26 @@ const MapSearch = () => {
   const [contactDetails, setContactDetails] = useState(null);
   
   const debouncedSearch = useDebounce(searchQuery, 300);
+  const autocompleteServiceRef = React.useRef(null);
+  const placesServiceRef = React.useRef(null);
   
   // Default to Hyderabad if no user location
   const DEFAULT_CENTER = [17.385, 78.4867];
   const mapCenter = searchCenter || (userLocation ? [userLocation.latitude, userLocation.longitude] : DEFAULT_CENTER);
 
-  // Location search with Nominatim - start from 2 chars
+  // Initialize Google Places services
+  useEffect(() => {
+    if (window.google && window.google.maps && window.google.maps.places) {
+      autocompleteServiceRef.current = new window.google.maps.places.AutocompleteService();
+      const mapDiv = document.createElement('div');
+      mapDiv.style.display = 'none';
+      document.body.appendChild(mapDiv);
+      const map = new window.google.maps.Map(mapDiv);
+      placesServiceRef.current = new window.google.maps.places.PlacesService(map);
+    }
+  }, []);
+
+  // Location search with Google Places - start from 2 chars
   useEffect(() => {
     if (debouncedSearch.length >= 2) {
       searchLocations(debouncedSearch);
@@ -178,27 +192,54 @@ const MapSearch = () => {
   }, [debouncedSearch]);
 
   const searchLocations = async (query) => {
-    setSearchLoading(true);
-    try {
-      // Use Nominatim with better parameters for India
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}, India&limit=8&addressdetails=1&countrycodes=in`,
-        { headers: { 'Accept': 'application/json', 'User-Agent': 'RealApex/1.0' } }
-      );
-      const data = await response.json();
-      setSearchResults(data.map(r => ({
-        id: r.place_id,
-        name: r.display_name,
-        mainText: r.address?.village || r.address?.suburb || r.address?.town || r.address?.city || r.name || r.display_name.split(',')[0],
-        secondaryText: [r.address?.state_district, r.address?.state].filter(Boolean).join(', '),
-        lat: parseFloat(r.lat),
-        lon: parseFloat(r.lon),
-        query: query // Store query for highlighting
-      })));
-    } catch (err) {
-      console.error('Search error:', err);
+    if (!autocompleteServiceRef.current) {
+      // Fallback to Nominatim if Google not available
+      setSearchLoading(true);
+      try {
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}, India&limit=8&addressdetails=1&countrycodes=in`,
+          { headers: { 'Accept': 'application/json', 'User-Agent': 'RealApex/1.0' } }
+        );
+        const data = await response.json();
+        setSearchResults(data.map(r => ({
+          id: r.place_id,
+          name: r.display_name,
+          mainText: r.address?.village || r.address?.suburb || r.address?.town || r.address?.city || r.name || r.display_name.split(',')[0],
+          secondaryText: [r.address?.state_district, r.address?.state].filter(Boolean).join(', '),
+          lat: parseFloat(r.lat),
+          lon: parseFloat(r.lon),
+          query: query
+        })));
+      } catch (err) {
+        console.error('Search error:', err);
+      }
+      setSearchLoading(false);
+      return;
     }
-    setSearchLoading(false);
+
+    setSearchLoading(true);
+    autocompleteServiceRef.current.getPlacePredictions(
+      {
+        input: query,
+        componentRestrictions: { country: 'in' },
+        types: ['geocode', 'establishment']
+      },
+      (predictions, status) => {
+        if (status === window.google.maps.places.PlacesServiceStatus.OK && predictions) {
+          setSearchResults(predictions.map(p => ({
+            id: p.place_id,
+            place_id: p.place_id,
+            name: p.description,
+            mainText: p.structured_formatting?.main_text || p.description.split(',')[0],
+            secondaryText: p.structured_formatting?.secondary_text || p.description.split(',').slice(1).join(','),
+            query: query
+          })));
+        } else {
+          setSearchResults([]);
+        }
+        setSearchLoading(false);
+      }
+    );
   };
 
   // Highlight matching text helper
@@ -213,11 +254,33 @@ const MapSearch = () => {
   };
 
   const selectLocation = (result) => {
-    setSearchCenter([result.lat, result.lon]);
-    setShowSearch(false);
-    setSearchQuery('');
-    setSearchResults([]);
-    toast.success(`Showing properties near ${result.name.split(',')[0]}`);
+    // If Google Places result, get details to get lat/lng
+    if (result.place_id && placesServiceRef.current) {
+      placesServiceRef.current.getDetails(
+        {
+          placeId: result.place_id,
+          fields: ['geometry', 'formatted_address']
+        },
+        (place, status) => {
+          if (status === window.google.maps.places.PlacesServiceStatus.OK && place) {
+            const lat = place.geometry.location.lat();
+            const lng = place.geometry.location.lng();
+            setSearchCenter([lat, lng]);
+            setShowSearch(false);
+            setSearchQuery('');
+            setSearchResults([]);
+            toast.success(`Showing properties near ${result.mainText}`);
+          }
+        }
+      );
+    } else if (result.lat && result.lon) {
+      // Nominatim result with lat/lon
+      setSearchCenter([result.lat, result.lon]);
+      setShowSearch(false);
+      setSearchQuery('');
+      setSearchResults([]);
+      toast.success(`Showing properties near ${result.name.split(',')[0]}`);
+    }
   };
 
   // Fetch wallet and viewed contacts

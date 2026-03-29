@@ -119,20 +119,33 @@ const HighlightText = ({ text, query }) => {
   );
 };
 
-// Google-style Location Search Component
+// Google-style Location Search Component with Google Places Autocomplete
 const GoogleStyleLocationSearch = ({ onSelect, onClose }) => {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const inputRef = useRef(null);
-  const debouncedQuery = useDebounce(query, 200);
+  const autocompleteServiceRef = useRef(null);
+  const placesServiceRef = useRef(null);
+  const debouncedQuery = useDebounce(query, 300);
 
   useEffect(() => {
     inputRef.current?.focus();
+    
+    // Initialize Google Places services
+    if (window.google && window.google.maps && window.google.maps.places) {
+      autocompleteServiceRef.current = new window.google.maps.places.AutocompleteService();
+      // Create a hidden div for PlacesService
+      const mapDiv = document.createElement('div');
+      mapDiv.style.display = 'none';
+      document.body.appendChild(mapDiv);
+      const map = new window.google.maps.Map(mapDiv);
+      placesServiceRef.current = new window.google.maps.places.PlacesService(map);
+    }
   }, []);
 
   useEffect(() => {
-    if (debouncedQuery.length >= 2) {
+    if (debouncedQuery.length >= 2 && autocompleteServiceRef.current) {
       searchLocations(debouncedQuery);
     } else {
       setResults([]);
@@ -140,35 +153,90 @@ const GoogleStyleLocationSearch = ({ onSelect, onClose }) => {
   }, [debouncedQuery]);
 
   const searchLocations = async (searchQuery) => {
+    if (!autocompleteServiceRef.current) {
+      console.error('Google Places not initialized');
+      return;
+    }
+    
     setLoading(true);
     try {
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}, India&limit=8&addressdetails=1&countrycodes=in`,
-        { headers: { 'Accept': 'application/json', 'User-Agent': 'RealApex/1.0' } }
+      autocompleteServiceRef.current.getPlacePredictions(
+        {
+          input: searchQuery,
+          componentRestrictions: { country: 'in' },
+          types: ['geocode', 'establishment']
+        },
+        (predictions, status) => {
+          if (status === window.google.maps.places.PlacesServiceStatus.OK && predictions) {
+            setResults(predictions.map(p => ({
+              id: p.place_id,
+              place_id: p.place_id,
+              mainText: p.structured_formatting?.main_text || p.description.split(',')[0],
+              secondaryText: p.structured_formatting?.secondary_text || p.description.split(',').slice(1).join(','),
+              fullAddress: p.description
+            })));
+          } else {
+            setResults([]);
+          }
+          setLoading(false);
+        }
       );
-      const data = await response.json();
-      
-      setResults(data.map(r => {
-        const mainText = r.address?.village || r.address?.suburb || r.address?.town || 
-                        r.address?.city || r.name || r.display_name.split(',')[0];
-        const secondaryText = [r.address?.state_district, r.address?.state].filter(Boolean).join(', ');
-        
-        return {
-          id: r.place_id,
-          mainText,
-          secondaryText,
-          fullAddress: r.display_name,
-          lat: parseFloat(r.lat),
-          lon: parseFloat(r.lon),
-          city: r.address?.city || r.address?.town || r.address?.village || '',
-          state: r.address?.state || '',
-          postal_code: r.address?.postcode || ''
-        };
-      }));
     } catch (err) {
       console.error('Search error:', err);
+      setLoading(false);
     }
-    setLoading(false);
+  };
+
+  const handleSelectPlace = async (result) => {
+    if (!placesServiceRef.current) {
+      // Fallback if PlacesService not available
+      onSelect({
+        ...result,
+        lat: 17.385044,
+        lon: 78.486671,
+        city: '',
+        state: ''
+      });
+      return;
+    }
+
+    setLoading(true);
+    placesServiceRef.current.getDetails(
+      {
+        placeId: result.place_id,
+        fields: ['geometry', 'formatted_address', 'address_components', 'name']
+      },
+      (place, status) => {
+        if (status === window.google.maps.places.PlacesServiceStatus.OK && place) {
+          const lat = place.geometry.location.lat();
+          const lng = place.geometry.location.lng();
+          
+          // Extract city and state from address components
+          let city = '', state = '', postal_code = '';
+          place.address_components?.forEach(comp => {
+            if (comp.types.includes('locality')) city = comp.long_name;
+            if (comp.types.includes('administrative_area_level_1')) state = comp.long_name;
+            if (comp.types.includes('postal_code')) postal_code = comp.long_name;
+          });
+
+          onSelect({
+            id: result.place_id,
+            place_id: result.place_id,
+            mainText: result.mainText,
+            secondaryText: result.secondaryText,
+            fullAddress: place.formatted_address,
+            lat: lat,
+            lon: lng,
+            city: city,
+            state: state,
+            postal_code: postal_code
+          });
+        } else {
+          toast.error('Could not get place details');
+        }
+        setLoading(false);
+      }
+    );
   };
 
   return (
@@ -202,7 +270,7 @@ const GoogleStyleLocationSearch = ({ onSelect, onClose }) => {
             {results.map((result, idx) => (
               <button
                 key={result.id}
-                onClick={() => onSelect(result)}
+                onClick={() => handleSelectPlace(result)}
                 className={`w-full px-4 py-4 flex items-start gap-4 text-left hover:bg-blue-50 active:bg-blue-100 ${
                   idx !== results.length - 1 ? 'border-b border-gray-100' : ''
                 }`}

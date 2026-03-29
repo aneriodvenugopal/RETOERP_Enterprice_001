@@ -14,6 +14,52 @@ from emergentintegrations.llm.chat import LlmChat, UserMessage
 
 load_dotenv()
 
+# Manchi Rojulu / Auspicious Dates for Property Registration (2025-2026)
+AUSPICIOUS_DATES = {
+    "2025": {
+        "March": ["3", "4", "5", "7", "14", "17", "20", "21", "23", "26", "27", "28", "30"],
+        "April": ["3", "4", "6", "10", "11", "14", "17", "18", "20", "21", "24", "27", "28"],
+        "May": ["1", "4", "5", "8", "9", "11", "12", "15", "18", "19", "22", "23", "25", "26", "29"],
+        "June": ["1", "2", "5", "8", "9", "12", "15", "16", "19", "22", "23", "26", "29", "30"],
+        "July": ["3", "6", "7", "10", "13", "14", "17", "20", "21", "24", "27", "28", "31"],
+        "August": ["3", "4", "7", "10", "11", "14", "17", "18", "21", "24", "25", "28", "31"],
+        "September": ["1", "4", "7", "8", "11", "14", "15", "18", "21", "22", "25", "28", "29"],
+        "October": ["2", "5", "6", "9", "12", "13", "16", "19", "20", "23", "26", "27", "30"],
+        "November": ["2", "3", "6", "9", "10", "13", "16", "17", "20", "23", "24", "27", "30"],
+        "December": ["1", "4", "7", "8", "11", "14", "15", "18", "21", "22", "25", "28", "29"]
+    },
+    "2026": {
+        "January": ["1", "4", "5", "8", "11", "12", "15", "18", "19", "22", "25", "26", "29"],
+        "February": ["1", "2", "5", "8", "9", "12", "15", "16", "19", "22", "23", "26"],
+        "March": ["1", "2", "5", "8", "9", "12", "15", "16", "19", "22", "23", "26", "29", "30"]
+    }
+}
+
+def get_auspicious_dates_text() -> str:
+    """Generate formatted auspicious dates text for AI"""
+    current_date = datetime.now()
+    current_month = current_date.strftime("%B")
+    current_year = str(current_date.year)
+    
+    text = "📅 MANCHI ROJULU (Auspicious Dates for Property Registration):\n\n"
+    
+    # Current month
+    if current_year in AUSPICIOUS_DATES and current_month in AUSPICIOUS_DATES[current_year]:
+        dates = AUSPICIOUS_DATES[current_year][current_month]
+        text += f"🗓️ {current_month} {current_year}: {', '.join(dates)}\n\n"
+    
+    # Next 2 months
+    for i in range(1, 3):
+        future_date = current_date + timedelta(days=30*i)
+        future_month = future_date.strftime("%B")
+        future_year = str(future_date.year)
+        
+        if future_year in AUSPICIOUS_DATES and future_month in AUSPICIOUS_DATES[future_year]:
+            dates = AUSPICIOUS_DATES[future_year][future_month]
+            text += f"🗓️ {future_month} {future_year}: {', '.join(dates)}\n"
+    
+    return text
+
 
 class BaseAgent(ABC):
     """Base class for all AI agents"""
@@ -248,6 +294,12 @@ You are NOT a chatbot. You are a SALES ENGINE.
 Every message should move customer closer to: VISIT → BOOKING → PAYMENT
 
 ═══════════════════════════════════════════════════════════════
+                    MANCHI ROJULU (AUSPICIOUS DATES)
+═══════════════════════════════════════════════════════════════
+When customer asks about registration dates, muhurtham, or good dates:
+{auspicious_dates}
+
+═══════════════════════════════════════════════════════════════
 
 Current customer info:
 {customer_info}
@@ -329,7 +381,8 @@ Respond in: {language}
             budget=f"₹{budget:,.0f}" if budget else "Not specified",
             location=preferred_location or "Not specified",
             property_type=lead_data.get("property_type", "Not specified"),
-            stage=stage
+            stage=stage,
+            auspicious_dates=get_auspicious_dates_text()
         )
         
         user_prompt = f"""Customer message: {message}
