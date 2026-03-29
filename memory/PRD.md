@@ -84,6 +84,26 @@ Additionally, the AgentApex mobile app requires continuous UI/UX improvements fo
 - **Blocker**: Leonas API key authentication failing (`realai-whatsapp` key invalid)
 - **Requires**: User to provide correct API key from Leonas dashboard (https://wapp.leonas.in/)
 
+### P1: Property Search - Lat/Lng Radius Filtering
+- **Status**: NOT STARTED
+- **What**: Update `GET /api/properties` to filter by lat/lng radius (20km default)
+- **Blocked on**: Google Places integration (now complete)
+
+---
+
+## Completed Features (Continued)
+
+### March 29, 2026
+
+#### Google Places Autocomplete Integration Fix ✅
+- Fixed Google Places autocomplete on 4 pages: `/agentapex/search`, `/agentapex/interest-areas`, `/agentapex/requirements`, `/agentapex/property-edit`
+- **Root cause**: Manual Google Places initialization ran once on mount without retry. If API loaded after component mount, autocomplete never worked.
+- **Fix**: Replaced manual initialization with reusable `useGooglePlacesAutocomplete` hook (polling-based init, 20 retries at 500ms)
+- **Safety timeout**: Added 2-second timeout for `getPlacePredictions` callback (prevents infinite spinner when API key is domain-restricted)
+- **Smart fallback**: If Google Places returns empty (timeout/error), automatically falls back to Nominatim (OpenStreetMap)
+- **India restricted**: All searches use `componentRestrictions: { country: 'in' }` and `types: ['geocode']`
+- **Tested**: All 4 pages pass - autocomplete dropdown appears, location selection works, lat/lng set correctly
+
 ---
 
 ## Backlog / Future Tasks
