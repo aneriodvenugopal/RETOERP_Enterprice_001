@@ -181,18 +181,23 @@ const MapSearch = () => {
 
   const searchLocations = async (query) => {
     setSearchLoading(true);
-    
-    if (googlePlacesReady) {
-      // Use Google Places
-      const results = await googleSearch(query);
-      setSearchResults(results.map(r => ({
-        ...r,
-        name: r.fullDescription,
-        query: query
-      })));
-    } else {
-      // Fallback to Nominatim
-      try {
+    try {
+      let results = [];
+      
+      // Try Google Places first
+      if (googlePlacesReady) {
+        results = await googleSearch(query);
+      }
+      
+      // If Google returned results, use them
+      if (results.length > 0) {
+        setSearchResults(results.map(r => ({
+          ...r,
+          name: r.fullDescription,
+          query: query
+        })));
+      } else {
+        // Fallback to Nominatim
         const response = await fetch(
           `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}, India&limit=8&addressdetails=1&countrycodes=in`,
           { headers: { 'Accept': 'application/json', 'User-Agent': 'RealApex/1.0' } }
@@ -207,11 +212,12 @@ const MapSearch = () => {
           lon: parseFloat(r.lon),
           query: query
         })));
-      } catch (err) {
-        console.error('Search error:', err);
       }
+    } catch (err) {
+      console.error('Search error:', err);
+    } finally {
+      setSearchLoading(false);
     }
-    setSearchLoading(false);
   };
 
   // Highlight matching text helper

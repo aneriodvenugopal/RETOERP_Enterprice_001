@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useGooglePlacesAutocomplete } from '../components/GooglePlacesAutocomplete';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Plus, ClipboardList, MapPin, Search, X, Loader2, Check, Home, Building2, Trees, Store, Compass } from 'lucide-react';
 import { toast } from 'sonner';
@@ -53,22 +54,9 @@ const Requirements = () => {
   const [showSearchResults, setShowSearchResults] = useState(false);
   const searchInputRef = useRef(null);
   const debouncedSearch = useDebounce(searchQuery, 300);
-  const autocompleteServiceRef = React.useRef(null);
-  const placesServiceRef = React.useRef(null);
+  const { isReady: googlePlacesReady, search: googleSearch, getPlaceDetails } = useGooglePlacesAutocomplete();
 
   useEffect(() => { fetchRequirements(); }, []);
-
-  // Initialize Google Places
-  useEffect(() => {
-    if (window.google && window.google.maps && window.google.maps.places) {
-      autocompleteServiceRef.current = new window.google.maps.places.AutocompleteService();
-      const mapDiv = document.createElement('div');
-      mapDiv.style.display = 'none';
-      document.body.appendChild(mapDiv);
-      const map = new window.google.maps.Map(mapDiv);
-      placesServiceRef.current = new window.google.maps.places.PlacesService(map);
-    }
-  }, []);
 
   useEffect(() => {
     if (debouncedSearch.length >= 2) {
@@ -87,10 +75,27 @@ const Requirements = () => {
   };
 
   const searchLocations = async (query) => {
-    if (!autocompleteServiceRef.current) {
-      // Fallback to Nominatim
-      setSearchLoading(true);
-      try {
+    setSearchLoading(true);
+    try {
+      let results = [];
+      
+      // Try Google Places first
+      if (googlePlacesReady) {
+        results = await googleSearch(query);
+      }
+      
+      // If Google returned results, use them
+      if (results.length > 0) {
+        setSearchResults(results.map(r => ({
+          id: r.place_id,
+          place_id: r.place_id,
+          name: r.fullDescription,
+          mainText: r.mainText,
+          secondaryText: r.secondaryText
+        })));
+        setShowSearchResults(true);
+      } else {
+        // Fallback to Nominatim
         const response = await fetch(
           `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}, India&limit=6&addressdetails=1&countrycodes=in`,
           { headers: { 'Accept': 'application/json', 'User-Agent': 'RealApex/1.0' } }
@@ -105,61 +110,36 @@ const Requirements = () => {
           lon: parseFloat(r.lon)
         })));
         setShowSearchResults(true);
-      } catch (err) {
-        console.error('Search error:', err);
       }
+    } catch (err) {
+      console.error('Location search error:', err);
+    } finally {
       setSearchLoading(false);
-      return;
     }
-
-    setSearchLoading(true);
-    autocompleteServiceRef.current.getPlacePredictions(
-      {
-        input: query,
-        componentRestrictions: { country: 'in' },
-        types: ['geocode', 'establishment']
-      },
-      (predictions, status) => {
-        if (status === window.google.maps.places.PlacesServiceStatus.OK && predictions) {
-          setSearchResults(predictions.map(p => ({
-            id: p.place_id,
-            place_id: p.place_id,
-            name: p.description,
-            mainText: p.structured_formatting?.main_text || p.description.split(',')[0],
-            secondaryText: p.structured_formatting?.secondary_text || p.description.split(',').slice(1).join(',')
-          })));
-          setShowSearchResults(true);
-        } else {
-          setSearchResults([]);
-        }
-        setSearchLoading(false);
-      }
-    );
   };
 
-  const selectLocation = (result) => {
-    if (result.place_id && placesServiceRef.current) {
-      placesServiceRef.current.getDetails(
-        { placeId: result.place_id, fields: ['geometry', 'formatted_address'] },
-        (place, status) => {
-          if (status === window.google.maps.places.PlacesServiceStatus.OK && place) {
-            setForm({
-              ...form,
-              location_preference: result.mainText || place.formatted_address.split(',')[0],
-              latitude: place.geometry.location.lat(),
-              longitude: place.geometry.location.lng()
-            });
-            setSearchQuery('');
-            setSearchResults([]);
-            setShowSearchResults(false);
-            toast.success('Location selected!');
-          }
-        }
-      );
+  const selectLocation = async (result) => {
+    if (result.place_id && googlePlacesReady) {
+      try {
+        const details = await getPlaceDetails(result.place_id);
+        setForm({
+          ...form,
+          location_preference: result.mainText || details.formatted_address?.split(',')[0],
+          latitude: details.latitude,
+          longitude: details.longitude
+        });
+        setSearchQuery('');
+        setSearchResults([]);
+        setShowSearchResults(false);
+        toast.success('Location selected!');
+      } catch (err) {
+        console.error('Error getting place details:', err);
+        toast.error('Failed to get location details');
+      }
     } else {
       setForm({
         ...form,
-        location_preference: result.mainText || result.name.split(',')[0],
+        location_preference: result.mainText || result.name?.split(',')[0],
         latitude: result.lat,
         longitude: result.lon
       });

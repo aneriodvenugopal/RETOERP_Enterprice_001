@@ -59,8 +59,11 @@ export const GooglePlacesAutocomplete = ({
   const containerRef = useRef(null);
   const debouncedQuery = useDebounce(query, 300);
 
-  // Initialize Google Places
+  // Initialize Google Places with robust polling
   useEffect(() => {
+    let attempts = 0;
+    let intervalId = null;
+
     const initGooglePlaces = () => {
       if (window.google && window.google.maps && window.google.maps.places) {
         autocompleteServiceRef.current = new window.google.maps.places.AutocompleteService();
@@ -74,20 +77,26 @@ export const GooglePlacesAutocomplete = ({
           zoom: 10
         });
         placesServiceRef.current = new window.google.maps.places.PlacesService(map);
+        if (intervalId) clearInterval(intervalId);
         return true;
       }
       return false;
     };
 
     if (!initGooglePlaces()) {
-      // Retry after a short delay if Google not loaded yet
-      const timeout = setTimeout(initGooglePlaces, 1000);
-      return () => clearTimeout(timeout);
+      intervalId = setInterval(() => {
+        attempts++;
+        if (initGooglePlaces() || attempts >= 20) {
+          clearInterval(intervalId);
+        }
+      }, 500);
     }
 
     if (mode === 'fullscreen') {
       inputRef.current?.focus();
     }
+
+    return () => { if (intervalId) clearInterval(intervalId); };
   }, [mode]);
 
   // Search when query changes
@@ -121,6 +130,13 @@ export const GooglePlacesAutocomplete = ({
     }
 
     setLoading(true);
+    
+    // Safety timeout if callback never fires (domain restriction)
+    const safetyTimeout = setTimeout(() => {
+      setLoading(false);
+      setResults([]);
+    }, 2000);
+
     autocompleteServiceRef.current.getPlacePredictions(
       {
         input: searchQuery,
@@ -128,6 +144,7 @@ export const GooglePlacesAutocomplete = ({
         types: ['geocode']
       },
       (predictions, status) => {
+        clearTimeout(safetyTimeout);
         if (status === window.google.maps.places.PlacesServiceStatus.OK && predictions) {
           setResults(predictions.map(p => ({
             place_id: p.place_id,
@@ -347,6 +364,9 @@ export const useGooglePlacesAutocomplete = () => {
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
+    let attempts = 0;
+    let intervalId = null;
+
     const init = () => {
       if (window.google && window.google.maps && window.google.maps.places) {
         autocompleteServiceRef.current = new window.google.maps.places.AutocompleteService();
@@ -359,15 +379,22 @@ export const useGooglePlacesAutocomplete = () => {
         });
         placesServiceRef.current = new window.google.maps.places.PlacesService(map);
         setIsReady(true);
+        if (intervalId) clearInterval(intervalId);
         return true;
       }
       return false;
     };
 
     if (!init()) {
-      const timeout = setTimeout(init, 1000);
-      return () => clearTimeout(timeout);
+      intervalId = setInterval(() => {
+        attempts++;
+        if (init() || attempts >= 20) {
+          clearInterval(intervalId);
+        }
+      }, 500);
     }
+
+    return () => { if (intervalId) clearInterval(intervalId); };
   }, []);
 
   const search = useCallback((query) => {
@@ -377,6 +404,9 @@ export const useGooglePlacesAutocomplete = () => {
         return;
       }
 
+      // Safety timeout - resolve empty if callback never fires
+      const timeout = setTimeout(() => resolve([]), 2000);
+
       autocompleteServiceRef.current.getPlacePredictions(
         {
           input: query,
@@ -384,6 +414,7 @@ export const useGooglePlacesAutocomplete = () => {
           types: ['geocode']
         },
         (predictions, status) => {
+          clearTimeout(timeout);
           if (status === window.google.maps.places.PlacesServiceStatus.OK && predictions) {
             resolve(predictions.map(p => ({
               place_id: p.place_id,
