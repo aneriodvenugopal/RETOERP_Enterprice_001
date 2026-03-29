@@ -121,15 +121,30 @@ const HighlightText = ({ text, query }) => {
 };
 
 // Location Picker with Map - Inline in chat
-const LocationPickerInline = ({ onSelect, initialPosition, onSearchClick }) => {
+const LocationPickerInline = ({ onPositionChange, initialPosition, onSearchClick }) => {
   const [pos, setPos] = useState(initialPosition);
-  const [loading, setLoading] = useState(false);
   const [gettingLocation, setGettingLocation] = useState(false);
   
   const MapClick = () => { 
-    useMapEvents({ click: (e) => setPos([e.latlng.lat, e.latlng.lng]) }); 
+    useMapEvents({ click: (e) => {
+      const newPos = [e.latlng.lat, e.latlng.lng];
+      setPos(newPos);
+      onPositionChange(newPos);
+    }}); 
     return null; 
   };
+
+  // Notify parent of initial position
+  useEffect(() => {
+    if (pos) onPositionChange(pos);
+  }, []);
+
+  // Update when initialPosition changes (e.g., from search)
+  useEffect(() => {
+    if (initialPosition && (initialPosition[0] !== pos[0] || initialPosition[1] !== pos[1])) {
+      setPos(initialPosition);
+    }
+  }, [initialPosition]);
 
   const getCurrentLocation = async () => {
     setGettingLocation(true);
@@ -139,73 +154,14 @@ const LocationPickerInline = ({ onSelect, initialPosition, onSearchClick }) => {
           enableHighAccuracy: true, timeout: 20000, maximumAge: 0
         });
       });
-      setPos([position.coords.latitude, position.coords.longitude]);
+      const newPos = [position.coords.latitude, position.coords.longitude];
+      setPos(newPos);
+      onPositionChange(newPos);
       toast.success('Location updated!');
     } catch (err) {
       toast.error('Could not get location');
     }
     setGettingLocation(false);
-  };
-
-  const confirm = async () => {
-    if (!pos || !pos[0] || !pos[1]) {
-      toast.error('Please select a location');
-      return;
-    }
-    setLoading(true);
-    
-    let locationData = {
-      latitude: pos[0], longitude: pos[1],
-      address: `${pos[0].toFixed(4)}, ${pos[1].toFixed(4)}`,
-      city: '', state: '', postal_code: ''
-    };
-    
-    try {
-      // Use Google Geocoding API for reverse geocoding
-      if (window.google && window.google.maps) {
-        const geocoder = new window.google.maps.Geocoder();
-        await new Promise((resolve) => {
-          geocoder.geocode({ location: { lat: pos[0], lng: pos[1] } }, (results, status) => {
-            if (status === 'OK' && results[0]) {
-              let city = '', state = '', postal_code = '';
-              results[0].address_components?.forEach(comp => {
-                if (comp.types.includes('locality')) city = comp.long_name;
-                if (comp.types.includes('administrative_area_level_1')) state = comp.long_name;
-                if (comp.types.includes('postal_code')) postal_code = comp.long_name;
-              });
-              locationData = {
-                latitude: pos[0], longitude: pos[1],
-                address: results[0].formatted_address,
-                city, state, postal_code
-              };
-            }
-            resolve();
-          });
-        });
-      } else {
-        // Fallback to Nominatim
-        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${pos[0]}&lon=${pos[1]}&accept-language=en`);
-        if (res.ok) {
-          const data = await res.json();
-          if (data?.display_name) {
-            locationData = {
-              latitude: pos[0], longitude: pos[1],
-              address: data.display_name,
-              city: data.address?.city || data.address?.town || data.address?.village || '',
-              state: data.address?.state || '',
-              postal_code: data.address?.postcode || ''
-            };
-          }
-        }
-      }
-    } catch (err) { console.log('Reverse geocode failed:', err); }
-    
-    setLoading(false);
-    onSelect(locationData);
-  };
-
-  const updatePosition = (newPos) => {
-    setPos(newPos);
   };
 
   return (
@@ -240,17 +196,6 @@ const LocationPickerInline = ({ onSelect, initialPosition, onSearchClick }) => {
           )}
         </button>
       </div>
-
-      {/* Confirm Button - Clear and prominent */}
-      <button 
-        onClick={confirm} 
-        disabled={loading}
-        className="w-full py-4 bg-blue-500 text-white font-bold rounded-xl text-lg flex items-center justify-center gap-2"
-      >
-        {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : (
-          <><MapPin className="w-5 h-5" /> Confirm This Location</>
-        )}
-      </button>
     </div>
   );
 };
@@ -440,19 +385,11 @@ const QuickPropertyPost = () => {
   };
 
   const handleLocationSelect = (loc) => {
-    const shortAddress = loc.address.split(',').slice(0, 2).join(',');
-    addAnswer(`📍 ${shortAddress}`);
-    
-    setData(prev => ({ 
-      ...prev, 
-      location: loc.address, 
-      latitude: loc.latitude, 
-      longitude: loc.longitude,
-      city: loc.city,
-      state: loc.state,
-      postal_code: loc.postal_code
-    }));
-    setDone(true);
+    // No longer used - location is tracked via mapPosition
+  };
+
+  const handlePositionChange = (pos) => {
+    setMapPosition(pos);
   };
 
   const handleSearchSelect = (result) => {
@@ -474,6 +411,60 @@ const QuickPropertyPost = () => {
 
   const finalize = async () => {
     setLoading(true);
+    
+    // Reverse geocode if we have map position but no location text
+    let locationData = {
+      location: data.location || '',
+      latitude: data.latitude || (mapPosition ? mapPosition[0] : 0),
+      longitude: data.longitude || (mapPosition ? mapPosition[1] : 0),
+      city: data.city || '',
+      state: data.state || '',
+      postal_code: data.postal_code || '',
+      place_id: data.place_id || ''
+    };
+
+    const lat = locationData.latitude;
+    const lng = locationData.longitude;
+
+    if (lat && lng && !locationData.location) {
+      try {
+        if (window.google && window.google.maps) {
+          const geocoder = new window.google.maps.Geocoder();
+          await new Promise((resolve) => {
+            const timeout = setTimeout(resolve, 3000);
+            geocoder.geocode({ location: { lat, lng } }, (results, status) => {
+              clearTimeout(timeout);
+              if (status === 'OK' && results[0]) {
+                results[0].address_components?.forEach(comp => {
+                  if (comp.types.includes('locality')) locationData.city = comp.long_name;
+                  if (comp.types.includes('administrative_area_level_1')) locationData.state = comp.long_name;
+                  if (comp.types.includes('postal_code')) locationData.postal_code = comp.long_name;
+                });
+                locationData.location = results[0].formatted_address;
+              }
+              resolve();
+            });
+          });
+        }
+        
+        if (!locationData.location) {
+          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=en`);
+          if (res.ok) {
+            const geoData = await res.json();
+            if (geoData?.display_name) {
+              locationData.location = geoData.display_name;
+              locationData.city = geoData.address?.city || geoData.address?.town || geoData.address?.village || '';
+              locationData.state = geoData.address?.state || '';
+              locationData.postal_code = geoData.address?.postcode || '';
+            }
+          }
+        }
+      } catch (err) {
+        console.log('Reverse geocode failed:', err);
+        locationData.location = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+      }
+    }
+
     try {
       const [price, priceUnit] = (data.price || '0 Lakhs').split(' ');
       const [area, ...areaUnitArr] = (data.area || '0 Sq.Ft').split(' ');
@@ -484,14 +475,14 @@ const QuickPropertyPost = () => {
         price_unit: priceUnit || 'Lakhs',
         area: parseFloat(area) || 0,
         area_unit: areaUnitArr.join(' ') || 'Sq.Ft',
-        location: data.location || '',
-        location_text: data.location?.split(',')[0] || '',
-        place_id: data.place_id || '',
-        city: data.city,
-        state: data.state,
-        postal_code: data.postal_code,
-        latitude: data.latitude || 0,
-        longitude: data.longitude || 0,
+        location: locationData.location,
+        location_text: locationData.location?.split(',')[0] || '',
+        place_id: locationData.place_id,
+        city: locationData.city,
+        state: locationData.state,
+        postal_code: locationData.postal_code,
+        latitude: locationData.latitude || 0,
+        longitude: locationData.longitude || 0,
         negotiable: data.negotiable === 'Yes',
         facing: data.facing || '',
         is_corner: data.is_corner === 'Yes'
@@ -656,9 +647,21 @@ const QuickPropertyPost = () => {
                       <div className="ml-2">
                         <LocationPickerInline 
                           initialPosition={getInitialPosition()} 
-                          onSelect={handleLocationSelect}
+                          onPositionChange={handlePositionChange}
                           onSearchClick={() => setShowSearch(true)}
                         />
+                        
+                        {/* POST PROPERTY button directly below map */}
+                        <button 
+                          onClick={finalize} 
+                          disabled={loading}
+                          data-testid="post-property-btn"
+                          className="w-full mt-4 py-5 bg-green-500 hover:bg-green-600 text-white font-bold rounded-2xl text-xl flex items-center justify-center gap-2 shadow-lg shadow-green-500/30"
+                        >
+                          {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : (
+                            <><CheckCircle2 className="w-6 h-6" /> POST PROPERTY</>
+                          )}
+                        </button>
                       </div>
                     )}
                   </motion.div>
@@ -689,33 +692,6 @@ const QuickPropertyPost = () => {
             )}
           </AnimatePresence>
           
-          {/* Final Post Property Button - Very Clear */}
-          {done && (
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95 }} 
-              animate={{ opacity: 1, scale: 1 }} 
-              className="mt-6 bg-green-50 border-2 border-green-200 rounded-2xl p-6 text-center"
-            >
-              <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Check className="w-8 h-8 text-white" />
-              </div>
-              <p className="text-xl font-bold text-gray-900 mb-2">All Details Complete!</p>
-              <p className="text-base text-gray-600 mb-1">
-                <strong>{data.property_type}</strong> • ₹{data.price} • {data.area}
-              </p>
-              {data.facing && <p className="text-sm text-gray-500 mb-4">Facing: {data.facing} {data.is_corner === 'Yes' ? '• Corner' : ''}</p>}
-              
-              <button 
-                onClick={finalize} 
-                disabled={loading}
-                className="w-full py-5 bg-green-500 hover:bg-green-600 text-white font-bold rounded-2xl text-xl flex items-center justify-center gap-2 shadow-lg"
-              >
-                {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : (
-                  <><CheckCircle2 className="w-6 h-6" /> POST PROPERTY</>
-                )}
-              </button>
-            </motion.div>
-          )}
           
           <div ref={endRef} />
         </div>
