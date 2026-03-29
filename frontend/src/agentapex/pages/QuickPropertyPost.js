@@ -354,17 +354,41 @@ const LocationPickerInline = ({ onSelect, initialPosition, onSearchClick }) => {
     };
     
     try {
-      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${pos[0]}&lon=${pos[1]}&accept-language=en`);
-      if (res.ok) {
-        const data = await res.json();
-        if (data?.display_name) {
-          locationData = {
-            latitude: pos[0], longitude: pos[1],
-            address: data.display_name,
-            city: data.address?.city || data.address?.town || data.address?.village || '',
-            state: data.address?.state || '',
-            postal_code: data.address?.postcode || ''
-          };
+      // Use Google Geocoding API for reverse geocoding
+      if (window.google && window.google.maps) {
+        const geocoder = new window.google.maps.Geocoder();
+        await new Promise((resolve) => {
+          geocoder.geocode({ location: { lat: pos[0], lng: pos[1] } }, (results, status) => {
+            if (status === 'OK' && results[0]) {
+              let city = '', state = '', postal_code = '';
+              results[0].address_components?.forEach(comp => {
+                if (comp.types.includes('locality')) city = comp.long_name;
+                if (comp.types.includes('administrative_area_level_1')) state = comp.long_name;
+                if (comp.types.includes('postal_code')) postal_code = comp.long_name;
+              });
+              locationData = {
+                latitude: pos[0], longitude: pos[1],
+                address: results[0].formatted_address,
+                city, state, postal_code
+              };
+            }
+            resolve();
+          });
+        });
+      } else {
+        // Fallback to Nominatim
+        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${pos[0]}&lon=${pos[1]}&accept-language=en`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data?.display_name) {
+            locationData = {
+              latitude: pos[0], longitude: pos[1],
+              address: data.display_name,
+              city: data.address?.city || data.address?.town || data.address?.village || '',
+              state: data.address?.state || '',
+              postal_code: data.address?.postcode || ''
+            };
+          }
         }
       }
     } catch (err) { console.log('Reverse geocode failed:', err); }

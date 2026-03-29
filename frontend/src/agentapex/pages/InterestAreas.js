@@ -65,11 +65,25 @@ const InterestAreas = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const debouncedSearch = useDebounce(searchQuery, 300);
+  const autocompleteServiceRef = React.useRef(null);
+  const placesServiceRef = React.useRef(null);
 
   useEffect(() => { fetchAreas(); }, []);
 
+  // Initialize Google Places
   useEffect(() => {
-    if (debouncedSearch.length >= 3) {
+    if (window.google && window.google.maps && window.google.maps.places) {
+      autocompleteServiceRef.current = new window.google.maps.places.AutocompleteService();
+      const mapDiv = document.createElement('div');
+      mapDiv.style.display = 'none';
+      document.body.appendChild(mapDiv);
+      const map = new window.google.maps.Map(mapDiv);
+      placesServiceRef.current = new window.google.maps.places.PlacesService(map);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (debouncedSearch.length >= 2) {
       searchLocations(debouncedSearch);
     } else {
       setSearchResults([]);
@@ -85,30 +99,73 @@ const InterestAreas = () => {
   };
 
   const searchLocations = async (query) => {
-    try {
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=in&limit=5`,
-        { headers: { 'Accept': 'application/json' } }
-      );
-      const data = await response.json();
-      setSearchResults(data.map(r => ({
-        id: r.place_id,
-        name: r.display_name,
-        lat: parseFloat(r.lat),
-        lon: parseFloat(r.lon)
-      })));
-    } catch (err) { console.error('Search error:', err); }
+    if (!autocompleteServiceRef.current) {
+      // Fallback to Nominatim
+      try {
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=in&limit=5`,
+          { headers: { 'Accept': 'application/json' } }
+        );
+        const data = await response.json();
+        setSearchResults(data.map(r => ({
+          id: r.place_id,
+          name: r.display_name,
+          mainText: r.display_name.split(',')[0],
+          lat: parseFloat(r.lat),
+          lon: parseFloat(r.lon)
+        })));
+      } catch (err) { console.error('Search error:', err); }
+      return;
+    }
+
+    autocompleteServiceRef.current.getPlacePredictions(
+      {
+        input: query,
+        componentRestrictions: { country: 'in' },
+        types: ['geocode', 'establishment']
+      },
+      (predictions, status) => {
+        if (status === window.google.maps.places.PlacesServiceStatus.OK && predictions) {
+          setSearchResults(predictions.map(p => ({
+            id: p.place_id,
+            place_id: p.place_id,
+            name: p.description,
+            mainText: p.structured_formatting?.main_text || p.description.split(',')[0]
+          })));
+        } else {
+          setSearchResults([]);
+        }
+      }
+    );
   };
 
   const selectSearchResult = (result) => {
-    setFormData({
-      ...formData,
-      name: result.name.split(',')[0],
-      latitude: result.lat,
-      longitude: result.lon
-    });
-    setSearchQuery('');
-    setSearchResults([]);
+    if (result.place_id && placesServiceRef.current) {
+      placesServiceRef.current.getDetails(
+        { placeId: result.place_id, fields: ['geometry', 'formatted_address'] },
+        (place, status) => {
+          if (status === window.google.maps.places.PlacesServiceStatus.OK && place) {
+            setFormData({
+              ...formData,
+              name: result.mainText || place.formatted_address.split(',')[0],
+              latitude: place.geometry.location.lat(),
+              longitude: place.geometry.location.lng()
+            });
+            setSearchQuery('');
+            setSearchResults([]);
+          }
+        }
+      );
+    } else {
+      setFormData({
+        ...formData,
+        name: result.mainText || result.name.split(',')[0],
+        latitude: result.lat,
+        longitude: result.lon
+      });
+      setSearchQuery('');
+      setSearchResults([]);
+    }
   };
 
   const handleMapClick = useCallback((location) => {

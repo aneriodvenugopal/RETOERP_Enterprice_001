@@ -167,18 +167,43 @@ const VoicePropertyPost = () => {
     const confirm = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${pos[0]}&lon=${pos[1]}`);
-        const data = await res.json();
-        onSelect({ 
-          latitude: pos[0], 
-          longitude: pos[1], 
-          address: data.display_name,
-          city: data.address?.city || data.address?.town
-        });
+        // Use Google Geocoding API for reverse geocoding
+        if (window.google && window.google.maps) {
+          const geocoder = new window.google.maps.Geocoder();
+          geocoder.geocode({ location: { lat: pos[0], lng: pos[1] } }, (results, status) => {
+            if (status === 'OK' && results[0]) {
+              // Extract city from address components
+              let city = '';
+              results[0].address_components?.forEach(comp => {
+                if (comp.types.includes('locality')) city = comp.long_name;
+              });
+              onSelect({ 
+                latitude: pos[0], 
+                longitude: pos[1], 
+                address: results[0].formatted_address,
+                city: city
+              });
+            } else {
+              onSelect({ latitude: pos[0], longitude: pos[1], address: `${pos[0].toFixed(4)}, ${pos[1].toFixed(4)}` });
+            }
+            setLoading(false);
+          });
+        } else {
+          // Fallback to Nominatim
+          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${pos[0]}&lon=${pos[1]}`);
+          const data = await res.json();
+          onSelect({ 
+            latitude: pos[0], 
+            longitude: pos[1], 
+            address: data.display_name,
+            city: data.address?.city || data.address?.town
+          });
+          setLoading(false);
+        }
       } catch { 
         onSelect({ latitude: pos[0], longitude: pos[1], address: `${pos[0].toFixed(4)}, ${pos[1].toFixed(4)}` }); 
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     return (

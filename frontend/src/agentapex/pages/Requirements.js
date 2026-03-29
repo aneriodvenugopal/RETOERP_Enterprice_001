@@ -53,8 +53,22 @@ const Requirements = () => {
   const [showSearchResults, setShowSearchResults] = useState(false);
   const searchInputRef = useRef(null);
   const debouncedSearch = useDebounce(searchQuery, 300);
+  const autocompleteServiceRef = React.useRef(null);
+  const placesServiceRef = React.useRef(null);
 
   useEffect(() => { fetchRequirements(); }, []);
+
+  // Initialize Google Places
+  useEffect(() => {
+    if (window.google && window.google.maps && window.google.maps.places) {
+      autocompleteServiceRef.current = new window.google.maps.places.AutocompleteService();
+      const mapDiv = document.createElement('div');
+      mapDiv.style.display = 'none';
+      document.body.appendChild(mapDiv);
+      const map = new window.google.maps.Map(mapDiv);
+      placesServiceRef.current = new window.google.maps.places.PlacesService(map);
+    }
+  }, []);
 
   useEffect(() => {
     if (debouncedSearch.length >= 2) {
@@ -73,39 +87,87 @@ const Requirements = () => {
   };
 
   const searchLocations = async (query) => {
-    setSearchLoading(true);
-    try {
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}, India&limit=6&addressdetails=1&countrycodes=in`,
-        { headers: { 'Accept': 'application/json', 'User-Agent': 'RealApex/1.0' } }
-      );
-      const data = await response.json();
-      setSearchResults(data.map(r => ({
-        id: r.place_id,
-        name: r.display_name,
-        mainText: r.address?.village || r.address?.suburb || r.address?.town || r.address?.city || r.name || r.display_name.split(',')[0],
-        secondaryText: [r.address?.state_district, r.address?.state].filter(Boolean).join(', '),
-        lat: parseFloat(r.lat),
-        lon: parseFloat(r.lon)
-      })));
-      setShowSearchResults(true);
-    } catch (err) {
-      console.error('Search error:', err);
+    if (!autocompleteServiceRef.current) {
+      // Fallback to Nominatim
+      setSearchLoading(true);
+      try {
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}, India&limit=6&addressdetails=1&countrycodes=in`,
+          { headers: { 'Accept': 'application/json', 'User-Agent': 'RealApex/1.0' } }
+        );
+        const data = await response.json();
+        setSearchResults(data.map(r => ({
+          id: r.place_id,
+          name: r.display_name,
+          mainText: r.address?.village || r.address?.suburb || r.address?.town || r.address?.city || r.name || r.display_name.split(',')[0],
+          secondaryText: [r.address?.state_district, r.address?.state].filter(Boolean).join(', '),
+          lat: parseFloat(r.lat),
+          lon: parseFloat(r.lon)
+        })));
+        setShowSearchResults(true);
+      } catch (err) {
+        console.error('Search error:', err);
+      }
+      setSearchLoading(false);
+      return;
     }
-    setSearchLoading(false);
+
+    setSearchLoading(true);
+    autocompleteServiceRef.current.getPlacePredictions(
+      {
+        input: query,
+        componentRestrictions: { country: 'in' },
+        types: ['geocode', 'establishment']
+      },
+      (predictions, status) => {
+        if (status === window.google.maps.places.PlacesServiceStatus.OK && predictions) {
+          setSearchResults(predictions.map(p => ({
+            id: p.place_id,
+            place_id: p.place_id,
+            name: p.description,
+            mainText: p.structured_formatting?.main_text || p.description.split(',')[0],
+            secondaryText: p.structured_formatting?.secondary_text || p.description.split(',').slice(1).join(',')
+          })));
+          setShowSearchResults(true);
+        } else {
+          setSearchResults([]);
+        }
+        setSearchLoading(false);
+      }
+    );
   };
 
   const selectLocation = (result) => {
-    setForm({
-      ...form,
-      location_preference: result.mainText || result.name.split(',')[0],
-      latitude: result.lat,
-      longitude: result.lon
-    });
-    setSearchQuery('');
-    setSearchResults([]);
-    setShowSearchResults(false);
-    toast.success('Location selected!');
+    if (result.place_id && placesServiceRef.current) {
+      placesServiceRef.current.getDetails(
+        { placeId: result.place_id, fields: ['geometry', 'formatted_address'] },
+        (place, status) => {
+          if (status === window.google.maps.places.PlacesServiceStatus.OK && place) {
+            setForm({
+              ...form,
+              location_preference: result.mainText || place.formatted_address.split(',')[0],
+              latitude: place.geometry.location.lat(),
+              longitude: place.geometry.location.lng()
+            });
+            setSearchQuery('');
+            setSearchResults([]);
+            setShowSearchResults(false);
+            toast.success('Location selected!');
+          }
+        }
+      );
+    } else {
+      setForm({
+        ...form,
+        location_preference: result.mainText || result.name.split(',')[0],
+        latitude: result.lat,
+        longitude: result.lon
+      });
+      setSearchQuery('');
+      setSearchResults([]);
+      setShowSearchResults(false);
+      toast.success('Location selected!');
+    }
   };
 
   const handleAdd = async (e) => {
