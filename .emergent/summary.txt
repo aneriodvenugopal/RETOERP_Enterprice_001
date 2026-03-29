@@ -1,194 +1,131 @@
 <analysis>**original_problem_statement:**
-The user, a senior AI backend architect, wants to build a production-ready, multi-tenant Agentic AI workflow for their Realapex platform. This involves creating an AI-powered WhatsApp real estate sales assistant that handles inquiries, checks availability, schedules visits, and assists with bookings using a suite of specialized AI agents and a RAG system.
+The user (a senior AI backend architect) is building a production-ready, multi-tenant Agentic AI workflow for their Realapex platform. This includes an AI-powered WhatsApp real estate sales assistant acting under strict business rules (Sales Engine v2.0). The application also requires UI/UX enhancements on the AgentApex PWA, specifically replacing existing location search components (OpenStreetMap/Nominatim) with the Google Places Autocomplete API to ensure exact map marker placement based on lat/lng coordinates.
 
-The user has also requested significant UI/UX improvements to the  PWA and reported critical bugs on the main  public-facing website. The latest request focuses on making the WhatsApp integration fully live, operational, and robust by implementing business-specific rules for the AI, adding features to the leads page, and ensuring system stability through proper session and token management.
+**User's preferred language**: Telugu (You MUST automatically detect the user's primary language from their messages inside the trajectory tag and INSTRUCT next agent to respond in the user's preferred language only. Provide high-level plans, summaries, and explanations in Telugu, while keeping code, technical file names, and direct API responses in English).
 
-**PRODUCT REQUIREMENTS:**
--   **Agentic AI Workflow**: An autonomous WhatsApp bot for the entire sales funnel with strict business logic.
--   **AI Agents & Orchestrator**: Specialized agents with specific rules for sales flow, handover, and response style.
--   **RAG System**: AI must use real-time data from the database.
--   **WhatsApp Session Management**: The system must handle WhatsApp's 24-hour rule with template fallbacks.
--   **Leads Management UI**: The  page should display all leads correctly and include functionality to initiate WhatsApp chats and send template messages.
--   **Public Lead API**: Unauthenticated endpoints are required to allow external systems (or agents) to add leads and trigger WhatsApp automations.
--   **RealApex Site Bug Fixes**: Fix data sync, image upload, and mobile responsiveness issues on the public website.
-
-**User's preferred language**:
-The user communicates in a mix of English and Telugu. You **MUST** provide all high-level plans, architectural discussions, and summaries in **Telugu**. Code, file names, and direct technical output should remain in English.
-
-**what currently exists?**
--   The critical bugs on the public  site (data sync, mobile responsiveness) have been fixed.
--   The WhatsApp integration has been migrated from Leonas to the official **Meta WhatsApp Cloud API** and is in **LIVE mode**.
--   The backend now includes robust **WhatsApp 24-hour session management** with an automatic template fallback system to handle expired conversations.
--   The AI agents in  have been heavily customized with **12 strict business rules** governing conversation flow, response length, location consistency, and buying signals.
--   The leads loading bug on the   page has been fixed. The page now correctly loads and displays all leads.
--   A **WhatsApp button** has been added to each lead row, opening a chat modal that allows sending pre-defined template messages in LIVE mode.
--   **Public, unauthenticated API endpoints** have been created to allow adding a lead, which automatically triggers a welcome message via WhatsApp.
+**what currently exists?** 
+- A WhatsApp bot integrated with Meta Cloud API running on a temporary Test Number () due to a BSP conflict on the production number.
+- AI Agents powered by a newly implemented 16-rule Sales Engine v2.0 focused on pushing for site visits, tracking buying signals, and limiting message length.
+- An updated WhatsApp Simulator that correctly resets conversations and ignores auto-human-handoff rules during testing.
+- A reusable  component, integrated across most of AgentApex, replacing old Nominatim logic.
 
 **Last working item**:
--   **Last item agent was working**: The user reported that OTP sending and WhatsApp communications were failing. The agent investigated and discovered that the  had expired. The user provided a new, supposedly permanent, token. The agent's last action was to update the  file with this new token.
--   **Status**: IN PROGRESS
--   **Agent Testing Done**: N
--   **Which testing method agent to use?**: Use  to test the  and  endpoints to verify the new token is working.
--   **User Testing Done**: N
+- **Last item agent was working**: The agent generated an  query and is currently waiting for the user's response. Prior to this, in the previous fork, the agent was mid-way through replacing the location text input with the new Google Places component in  and needed to update the property search filtering logic.
+- **Status**: BLOCKED (Waiting for user response to )
+- **Agent Testing Done**: N
+- **Which testing method agent to use?**: Frontend testing agent / screenshot tool for UI; Backend curl for distance API.
+- **User Testing Done**: N
 
 **All Pending/In progress Issue list**:
--   **Issue 1: WhatsApp Integration Stability (P0)**
-    -   **Description**: The  has expired multiple times, breaking all WhatsApp-related functionality, including OTPs and chat. The user has provided a new token they believe is permanent, but this manual process is unreliable for production.
-    -   **Attempted fixes**: The agent has been manually updating the token in the  file whenever it expires.
-    -   **Next debug checklist**:
-        1.  Verify that the new token provided by the user is working by calling an authenticated Meta API endpoint (e.g., ).
-        2.  Test the in-app functionality that failed: .
-        3.  Strongly advise the user to generate a proper, long-lived System User token from the Meta Business Suite to prevent this from recurring.
-    -   **Why fix this issue and what will be achieved with the fix?**: This is a critical blocker. Fixing it will restore all WhatsApp communication and user login functionality. A permanent fix will ensure system stability.
-    -   **Status**: IN PROGRESS
-    -   **Is recurring issue?**: Y
-    -   **Should Test frontend/backend/both after fix?**: backend
-    -   **Blocked on other issue**: None
+- **Issue 1: Complete Google Places Integration (P0)**
+  - **Attempted fixes**: Replaced Nominatim with Google Places in multiple files but was interrupted while working on .
+  - **Next debug checklist**: 
+    1. Await the user's response to the pending  query.
+    2. Finish updating  to utilize the new  hook/component (It may currently be in a broken/incomplete state).
+    3. Verify , , ,  are correctly captured and passed to the backend on edit/save.
+    4. Ensure autocomplete restricts results to India () and .
+    5. Remove any remaining instances of the old custom location search logic.
+  - **Why fix this issue and what will be achieved with the fix?**: Standardizes location input to behave exactly like Google Maps, ensuring accurate map marker placement via lat/lng instead of address string matching.
+  - **Status**: IN PROGRESS
+  - **Is recurring issue?**: N
+  - **Should Test frontend/backend/both after fix?**: Frontend
+  - **Blocked on other issue**: None
 
--   **Issue 2: Incorrect WhatsApp Templates (P1)**
-    -   **Description**: The user wants to use specific templates (, ) which are associated with WABA ID . However, the current active token only has access to WABA ID , which contains different, generic templates (, ).
-    -   **Attempted fixes**: The agent identified the mismatch by querying the templates endpoint. The system is currently using the available generic templates as a fallback.
-    -   **Next debug checklist**:
-        1.  Explain the WABA ID and template mismatch to the user.
-        2.  Ask the user to either:
-            a) Provide an access token that is linked to the correct WABA ID ().
-            b) Re-create the desired templates within the currently active WABA ID ().
-    -   **Why fix this issue and what will be achieved with the fix?**: This will allow the AI and agents to send professional, business-specific messages to leads instead of generic hello world messages.
-    -   **Status**: NOT STARTED
-    -   **Is recurring issue?**: N
-    -   **Should Test frontend/backend/both after fix?**: backend
-    -   **Blocked on other issue**: Issue 1: WhatsApp Integration Stability
-
--   **Issue 3: AgentApex - Multiple Document Upload UI Fix (P2)**
-    -   **Description**: The frontend UI for multiple document uploads was improved by changing an icon to a button with text.
-    -   **Status**: USER VERIFICATION PENDING
-    -   **Is recurring issue?**: Y
-
--   **Issue 4: AgentApex - Demo Guide Re-showing Bug (P2)**
-    -   **Description**: A fix was implemented for the bug causing the demo guide to appear on every visit.
-    -   **Status**: USER VERIFICATION PENDING
-    -   **Is recurring issue?**: Y
+- **Issue 2: WhatsApp Production Number Migration (P1)**
+  - **Attempted fixes**: Agent tried multiple Meta tokens but discovered the production number () is locked to a 3rd party BSP (). 
+  - **Next debug checklist**: Await user confirmation that Leonas released the number. Once released, update  with the new permanent token and verify connectivity. Do NOT attempt to generate new tokens until confirmed.
+  - **Why fix this issue and what will be achieved with the fix?**: Moves the AI from a test environment to production live.
+  - **Status**: BLOCKED
+  - **Is recurring issue?**: Y (Token/BSP conflicts)
+  - **Should Test frontend/backend/both after fix?**: Backend
+  - **Blocked on other issue**: Waiting on 3rd party (Leonas) to release the number.
 
 **In progress Task List**:
-- None
+- **Task 1: Update Property Search Filtering (P1)**
+  - **Where to resume**: Modify  and the backend property search API ().
+  - **What will be achieved with this?**: If a location is selected in the search field, filter properties within a radius (e.g., 20km) using latitude/longitude distance calculations instead of text matching.
+  - **Status**: NOT STARTED
+  - **Should Test frontend/backend/both after fix?**: Both
+  - **Blocked on something**: Completion of Google Places Autocomplete frontend integration ().
 
 **Upcoming and Future Tasks**
--   **Upcoming Tasks**:
-    -   **P1: Implement Permanent WhatsApp Access Token**: Guide the user on creating and using a System User token from Meta Business Suite to avoid constant expiry.
-    -   **P1: Implement Full Agentic AI RAG Logic**: Flesh out the AI agents in  and  to pull live project/plot data based on user queries, completing the RAG system.
-    -   **P2: Build Frontend Agent Dashboard**: Create a UI for human agents to monitor and take over AI conversations.
--   **Future Tasks**:
-    -   **Scalability**: Migrate conversation state to Redis and background tasks to Celery.
-    -   **AI Features**: Integrate Whisper for voice note processing.
-    -   **Integrations**: Implement Google Calendar sync for site visits.
-    -   **API Refactor**: Resolve the route prefix conflict between  and .
+- **P2: Build Frontend Agent Dashboard**: Create a UI for human agents to monitor and take over AI conversations.
+- **P2: Scalability Refactor**: Migrate conversation state tracking to Redis and background tasks to Celery.
+- **P2: API Refactor**: Resolve the route prefix conflict between  and .
 
 **Completed work in this session**
--   **RealApex Public Site Bugs Fixed**:
-    -   Fixed plot data (video, location) not syncing to the public page.
-    -   Fixed the property details popup to be mobile-responsive.
-    -   Removed a duplicate backend route.
--   **WhatsApp Integration Overhaul**:
-    -   Migrated from a third-party client to the official **Meta WhatsApp Cloud API**.
-    -   Switched the system to **LIVE mode**.
-    -   Implemented robust **24-hour session management** with automatic template fallbacks.
--   **AI Agent Enhancement**:
-    -   Implemented **12 strict business rules** into the AI agents for context memory, location locking, response formatting, sales flow control, and buying signal detection.
--   **Leads Page Feature Development**:
-    -   Fixed the Failed to load leads bug.
-    -   Added a WhatsApp button to each lead to open a chat modal.
-    -   The chat modal allows sending live template messages to leads.
--   **Public Lead APIs Created**:
-    -   Built unauthenticated endpoints to add leads and trigger WhatsApp automations.
--   **Initial WhatsApp Setup**:
-    -   Resolved the user's locked WhatsApp number by finding the correct PIN and registering their Test Number.
+- No code changes were made in this specific session as the agent immediately utilized the  tool.
+- *(From previous session)*: Upgraded AI logic to Sales Engine v2.0 (16 rules).
+- *(From previous session)*: Created  component and replaced Nominatim in , , , , , and .
 
 **Earlier issues found/mentioned but not fixed**
--   **Scalability Limitations**: The system uses an in-memory dictionary for conversation state (partially fixed with MongoDB session tracking, but Celery/Redis would be better) and simple , which is not suitable for high-volume production.
--   **API Route Prefix Conflict**: An unresolved conflict exists between  and .
+- **Issue 1**: AgentApex - Multiple Document Upload UI Fix (USER VERIFICATION PENDING)
+- **Issue 2**: AgentApex - Demo Guide Re-showing Bug (USER VERIFICATION PENDING)
 
 **Known issue recurrence from previous fork**
--   The Demo Guide shows on every visit bug had a fix attempted, but it is a known recurring issue and requires user verification.
--   The Multiple Document Upload UI issue also had a fix attempted and requires user verification.
+- **Issue recurrence in previous fork**: Meta WhatsApp API Token Expiration & Asset Assignment errors.
+- **Recurrence count**: 5+
+- **Status**: BLOCKED (Working via Test Token until Pinbot BSP releases the number).
 
 **Code Architecture**
 
 
 **Key Technical Concepts**
--   **Meta WhatsApp Cloud API**: Direct integration for sending/receiving messages and templates.
--   **WhatsApp 24-Hour Session Management**: A stateful system () using MongoDB to track user reply times and automatically fall back to template messages when a session expires.
--   **AI Agent Prompt Engineering**: Heavily customized system prompts in  to enforce strict business logic, response style, and sales flows.
--   **Public API for Automation**: Unauthenticated endpoints designed to allow external triggers for lead creation and communication.
--   **Conversational UI**: The chat modal implemented in the  page for agent-to-lead communication.
+- **Meta WhatsApp Cloud API**: Stateful conversational engine.
+- **Google Maps JavaScript API (Places & Geocoding)**: For autosuggest and lat/lng extraction.
+- **RAG & AI Rules Engine**: Customized prompt engineering mimicking a real-estate sales closer.
 
 **key DB schema**
--   : { : str, : str, : datetime } - New collection to track conversation windows.
--   : The  and  fields were made optional to handle legacy data.
+- : { , , , ,  }
+- : Must strictly store , ,  (float),  (float). Map markers rely on these coordinates.
 
 **changes in tech stack**
--   The WhatsApp integration method was changed from  to a custom-built  for the official Meta Cloud API.
+- Deprecated OpenStreetMap (Nominatim) in favor of Google Maps JS API (Places Autocomplete).
 
 **All files of reference**
--   **/app/backend/services/whatsapp_agentic/agents.py**: Contains all 12 business rules for the AI.
--   **/app/backend/services/whatsapp_agentic/meta_whatsapp_client.py**: The new client for all Meta API interactions.
--   **/app/backend/services/whatsapp_agentic/session_manager.py**: The logic for handling the 24-hour rule.
--   **/app/backend/routes/leads.py**: Contains the fix for the lead loading bug and all new public API endpoints.
--   **/app/frontend/src/pages/Leads.js**: Contains the UI for the WhatsApp button and the chat simulation modal.
+-  
+-  (Currently being edited / mid-edit).
+-  (Contains the 16 Sales Rules v2.0).
 
 **Areas that need refactoring**:
--   The manual process of updating the access token needs to be replaced with a proper, automated, long-lived token generation strategy (System User).
+- Remove any leftover code relating to  and  endpoints across the frontend once the new component is fully active.
 
 **key api endpoints**
--   : (Public) Adds a new lead and sends a welcome message.
--   : (Public) Searches for a lead.
--   : (Private) Sends a template message from the leads page modal.
--   : (Private) Checks the connection status of the WhatsApp number.
--   : (Private) Checks the 24-hour session status for a specific lead.
+- : Deletes conversation history for simulator testing.
+- : Search endpoint needs to be updated to support lat/lng radius filtering.
 
 **Critical Info for New Agent**
--   **Your immediate priority is to fix the expired access token.** The entire WhatsApp functionality is down. Use the new token provided by the user and verify it works. Then, strongly advise the user to generate a long-lived System User token to prevent this from happening again.
--   **Communicate the Template Mismatch:** The user believes they have specific templates ready, but they are not in the active WhatsApp Business Account. You must clearly explain this discrepancy and provide the user with options to resolve it.
--   **Adhere to the 12 AI Rules:** The user has provided very specific, strict rules for the AI's behavior. Do not deviate from them. All AI-related changes must respect these rules.
--   **Language Protocol**: Remember to communicate all high-level plans and explanations in **Telugu**.
+- **Language**: Speak **Telugu** for all conversational and planning responses with the user.
+- **Pending Human Input**: Your immediate first step should be reading the user's response to the  prompt that was just issued.
+- **Google Maps implementation**: Ensure that everywhere  is used, the maps are restricted to India (), the types are , and map markers are placed via /—NEVER by address text.
+- **Broken File Alert**:  may have syntax errors as it was left mid-edit in the previous fork. Check it immediately before running frontend tests.
 
 **documents and test reports created in this job**
--   None.
+- None
 
 **Last 10 User Messages and any pending HUMAN messages**
-10. : Provides Rule #10 (Location Consistency). (Completed)
-9.  : Provides Rule #11 (Question Limit) & #12 (Message Length). (Completed)
-8.  : Reports failed to send otp. (In Progress)
-7.  : Starts investigating the OTP failure.
-6.  : Says whatsapp chat communication also have issues, fix all db connection or some other issues fix. (In Progress)
-5.  : Investigates and identifies the root cause: the Meta access token has expired.
-4.  : Provides a new, supposedly permanent access token. (Pending Action)
-3.  : Prepares to update the environment with the new token.
-2.  : Provides detailed explanation of WhatsApp's 24-hour session rule and instructs the agent to implement a robust session management system. (Completed)
-1.  : Asks for a cost breakdown for the service (WhatsApp API + Emergent Key). (Completed)
+- *Agent*: Sent  prompt to gather instructions/approval for finishing the Google Places integration.
+- *User*: **PENDING RESPONSE TO  TOOL**. (Read this message first upon starting).
 
 **Project Health Check:**
--   **Broken**:
-    -   **WhatsApp Communication**: All outbound messages (including OTPs) are failing due to an expired access token.
--   **Mocked**:
-    -   **WhatsApp Templates**: The system is using generic hello_world templates instead of the business-specific ones the user requested because they are not available in the active WhatsApp account.
+- Broken:  is currently mid-edit and may contain syntax errors or incomplete hook replacements.
+- Mocked: WhatsApp production messaging (Using Test Number).
 
 **3rd Party Integrations**
--   **Meta WhatsApp Cloud API**: Direct integration for live messaging. **Currently broken** due to an expired access token. Requires a permanent token for stability.
--   **Anthropic Claude / OpenAI GPT-4o**: Used for AI response generation — uses Emergent LLM Key.
--   **Razorpay / PayU / Stripe**: Existing payment integrations — requires User API Key.
+- Google Maps JavaScript / Places / Geocoding APIs — requires User API Key (Already added to ).
+- Meta WhatsApp Cloud API — requires User API Key.
+- OpenAI / Claude (Agentic LLMs) — uses Emergent LLM Key.
 
 **Testing status**
--   **Testing agent used after significant changes**: NO
--   **Troubleshoot agent used after agent stuck in loop**: NO
--   **Test files created**: []
--   **Known regressions**: None in this session, but previous UI fixes for the Demo Guide and Document Upload are pending user verification.
+- Testing agent used after significant changes: NO
+- Troubleshoot agent used after agent stuck in loop: NO
+- Test files created: []
+- Known regressions:  needs to be verified as it was interrupted mid-edit.
 
 **Credentials to test flow:**
--   **Tenant Admin**:  (OTP required)
--   **Lead Contact (for testing)**: , 
--   **Allowed Test Number**: 
+- Tenant Admin:  (Check backend logs for OTP).
+- WhatsApp Test Number: 
 
 **What agent forgot to execute**
--   The agent did not complete the  update that was started earlier in the session.
--   The agent has not prompted the user to verify the fixes for the Demo Guide and Multiple Document Upload issues.
--   After implementing a major feature like session management, no comprehensive test was run to simulate a 24-hour expiry and see if the template fallback works as expected.</analysis>
+- The agent started refactoring multiple frontend files for Google Places but did not call the  to verify if the maps are actually rendering and markers are placed correctly based on coordinates.
+- The backend distance-based radius filtering (Task 1) was completely untouched despite user instructions.</analysis>

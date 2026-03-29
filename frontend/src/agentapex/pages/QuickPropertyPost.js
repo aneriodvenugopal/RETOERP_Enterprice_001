@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useGeoLocation } from '../context/LocationContext';
 import { HelpButton } from '../components/DemoGuide';
+import { GooglePlacesAutocomplete } from '../components/GooglePlacesAutocomplete';
 import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -116,200 +117,6 @@ const HighlightText = ({ text, query }) => {
         )
       )}
     </span>
-  );
-};
-
-// Google-style Location Search Component with Google Places Autocomplete
-const GoogleStyleLocationSearch = ({ onSelect, onClose }) => {
-  const [query, setQuery] = useState('');
-  const [results, setResults] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const inputRef = useRef(null);
-  const autocompleteServiceRef = useRef(null);
-  const placesServiceRef = useRef(null);
-  const debouncedQuery = useDebounce(query, 300);
-
-  useEffect(() => {
-    inputRef.current?.focus();
-    
-    // Initialize Google Places services
-    if (window.google && window.google.maps && window.google.maps.places) {
-      autocompleteServiceRef.current = new window.google.maps.places.AutocompleteService();
-      // Create a hidden div for PlacesService
-      const mapDiv = document.createElement('div');
-      mapDiv.style.display = 'none';
-      document.body.appendChild(mapDiv);
-      const map = new window.google.maps.Map(mapDiv);
-      placesServiceRef.current = new window.google.maps.places.PlacesService(map);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (debouncedQuery.length >= 2 && autocompleteServiceRef.current) {
-      searchLocations(debouncedQuery);
-    } else {
-      setResults([]);
-    }
-  }, [debouncedQuery]);
-
-  const searchLocations = async (searchQuery) => {
-    if (!autocompleteServiceRef.current) {
-      console.error('Google Places not initialized');
-      return;
-    }
-    
-    setLoading(true);
-    try {
-      autocompleteServiceRef.current.getPlacePredictions(
-        {
-          input: searchQuery,
-          componentRestrictions: { country: 'in' },
-          types: ['geocode', 'establishment']
-        },
-        (predictions, status) => {
-          if (status === window.google.maps.places.PlacesServiceStatus.OK && predictions) {
-            setResults(predictions.map(p => ({
-              id: p.place_id,
-              place_id: p.place_id,
-              mainText: p.structured_formatting?.main_text || p.description.split(',')[0],
-              secondaryText: p.structured_formatting?.secondary_text || p.description.split(',').slice(1).join(','),
-              fullAddress: p.description
-            })));
-          } else {
-            setResults([]);
-          }
-          setLoading(false);
-        }
-      );
-    } catch (err) {
-      console.error('Search error:', err);
-      setLoading(false);
-    }
-  };
-
-  const handleSelectPlace = async (result) => {
-    if (!placesServiceRef.current) {
-      // Fallback if PlacesService not available
-      onSelect({
-        ...result,
-        lat: 17.385044,
-        lon: 78.486671,
-        city: '',
-        state: ''
-      });
-      return;
-    }
-
-    setLoading(true);
-    placesServiceRef.current.getDetails(
-      {
-        placeId: result.place_id,
-        fields: ['geometry', 'formatted_address', 'address_components', 'name']
-      },
-      (place, status) => {
-        if (status === window.google.maps.places.PlacesServiceStatus.OK && place) {
-          const lat = place.geometry.location.lat();
-          const lng = place.geometry.location.lng();
-          
-          // Extract city and state from address components
-          let city = '', state = '', postal_code = '';
-          place.address_components?.forEach(comp => {
-            if (comp.types.includes('locality')) city = comp.long_name;
-            if (comp.types.includes('administrative_area_level_1')) state = comp.long_name;
-            if (comp.types.includes('postal_code')) postal_code = comp.long_name;
-          });
-
-          onSelect({
-            id: result.place_id,
-            place_id: result.place_id,
-            mainText: result.mainText,
-            secondaryText: result.secondaryText,
-            fullAddress: place.formatted_address,
-            lat: lat,
-            lon: lng,
-            city: city,
-            state: state,
-            postal_code: postal_code
-          });
-        } else {
-          toast.error('Could not get place details');
-        }
-        setLoading(false);
-      }
-    );
-  };
-
-  return (
-    <div className="fixed inset-0 bg-white z-[2000] flex flex-col">
-      <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-100">
-        <button onClick={onClose} className="w-12 h-12 flex items-center justify-center rounded-full hover:bg-gray-100">
-          <ArrowLeft className="w-6 h-6 text-gray-700" />
-        </button>
-        <div className="flex-1 flex items-center bg-gray-100 rounded-full px-4 py-3">
-          <Search className="w-5 h-5 text-gray-400 mr-3 flex-shrink-0" />
-          <input
-            ref={inputRef}
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search village, area, city..."
-            className="flex-1 bg-transparent border-none outline-none text-lg"
-          />
-          {loading && <Loader2 className="w-5 h-5 text-blue-500 animate-spin ml-2" />}
-          {query && !loading && (
-            <button onClick={() => setQuery('')} className="ml-2">
-              <X className="w-5 h-5 text-gray-400" />
-            </button>
-          )}
-        </div>
-      </div>
-      
-      <div className="flex-1 overflow-y-auto">
-        {results.length > 0 ? (
-          <div>
-            {results.map((result, idx) => (
-              <button
-                key={result.id}
-                onClick={() => handleSelectPlace(result)}
-                className={`w-full px-4 py-4 flex items-start gap-4 text-left hover:bg-blue-50 active:bg-blue-100 ${
-                  idx !== results.length - 1 ? 'border-b border-gray-100' : ''
-                }`}
-              >
-                <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                  <MapPin className="w-5 h-5 text-blue-500" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-lg text-gray-600">
-                    <HighlightText text={result.mainText} query={query} />
-                  </p>
-                  <p className="text-base text-gray-400 mt-0.5">{result.secondaryText}</p>
-                </div>
-              </button>
-            ))}
-          </div>
-        ) : query.length >= 2 && !loading ? (
-          <div className="p-8 text-center">
-            <MapPin className="w-12 h-12 text-gray-200 mx-auto mb-4" />
-            <p className="text-lg text-gray-500">No locations found</p>
-          </div>
-        ) : (
-          <div className="p-6">
-            <p className="text-base font-semibold text-gray-600 mb-4">Popular Areas</p>
-            <div className="flex flex-wrap gap-3">
-              {['Hyderabad', 'Vijayawada', 'Guntur', 'Tirupati', 'Warangal', 'Bangalore', 'Chennai'].map(city => (
-                <button
-                  key={city}
-                  onClick={() => setQuery(city)}
-                  className="px-5 py-3 bg-gray-100 rounded-full text-base font-medium text-gray-700"
-                >
-                  {city}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
   );
 };
 
@@ -650,8 +457,19 @@ const QuickPropertyPost = () => {
 
   const handleSearchSelect = (result) => {
     setShowSearch(false);
-    setMapPosition([result.lat, result.lon]);
-    toast.success(`Set to ${result.mainText}`);
+    // Use Google Places result format
+    setMapPosition([result.latitude, result.longitude]);
+    setData(prev => ({
+      ...prev,
+      location: result.formatted_address || result.location_text,
+      place_id: result.place_id,
+      latitude: result.latitude,
+      longitude: result.longitude,
+      city: result.city,
+      state: result.state,
+      postal_code: result.postal_code
+    }));
+    toast.success(`Set to ${result.location_text}`);
   };
 
   const finalize = async () => {
@@ -667,6 +485,8 @@ const QuickPropertyPost = () => {
         area: parseFloat(area) || 0,
         area_unit: areaUnitArr.join(' ') || 'Sq.Ft',
         location: data.location || '',
+        location_text: data.location?.split(',')[0] || '',
+        place_id: data.place_id || '',
         city: data.city,
         state: data.state,
         postal_code: data.postal_code,
@@ -725,9 +545,11 @@ const QuickPropertyPost = () => {
       )}
       
       {showSearch && (
-        <GoogleStyleLocationSearch 
+        <GooglePlacesAutocomplete
+          mode="fullscreen"
           onSelect={handleSearchSelect}
           onClose={() => setShowSearch(false)}
+          placeholder="Search village, area, city..."
         />
       )}
       

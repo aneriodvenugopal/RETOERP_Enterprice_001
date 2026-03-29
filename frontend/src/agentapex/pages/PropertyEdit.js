@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { GooglePlacesAutocomplete } from '../components/GooglePlacesAutocomplete';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Drawer } from 'vaul';
 import { 
@@ -31,6 +32,7 @@ const PropertyEdit = () => {
   const [youtubeUrl, setYoutubeUrl] = useState('');
   const [uploadingImage, setUploadingImage] = useState(false);
   const [uploadingDoc, setUploadingDoc] = useState(false);
+  const [showLocationSearch, setShowLocationSearch] = useState(false);
 
   useEffect(() => { fetchProperty(); }, [id]);
 
@@ -299,24 +301,62 @@ const PropertyEdit = () => {
           </div>
         </EditableField>
 
-        {/* Location */}
+        {/* Location - With Google Places Search */}
         <EditableField
           label="Location"
           value={property.location}
           isEditing={editingField === 'location'}
-          onEdit={() => startEdit('location', property.location)}
+          onEdit={() => setShowLocationSearch(true)}
           onCancel={cancelEdit}
           onSave={saveEdit}
           saving={saving}
         >
-          <input
-            type="text"
-            value={editValue}
-            onChange={(e) => setEditValue(e.target.value)}
-            className="w-full px-4 py-3 border border-gray-200 rounded-xl mt-2"
-            placeholder="Enter location"
-          />
+          <div className="mt-2">
+            <button
+              onClick={() => setShowLocationSearch(true)}
+              className="w-full px-4 py-3 border border-gray-200 rounded-xl text-left text-gray-600 flex items-center gap-2"
+            >
+              <MapPin className="w-5 h-5 text-gray-400" />
+              {editValue || 'Search for location...'}
+            </button>
+          </div>
         </EditableField>
+        
+        {/* Google Places Location Search */}
+        {showLocationSearch && (
+          <GooglePlacesAutocomplete
+            mode="fullscreen"
+            placeholder="Search village, area, city..."
+            initialValue={property.location?.split(',')[0] || ''}
+            onSelect={async (location) => {
+              setSaving(true);
+              try {
+                await api().put(`/properties/${id}`, {
+                  location: location.formatted_address,
+                  location_text: location.location_text,
+                  place_id: location.place_id,
+                  latitude: location.latitude,
+                  longitude: location.longitude,
+                  city: location.city,
+                  state: location.state
+                });
+                setProperty(prev => ({
+                  ...prev,
+                  location: location.formatted_address,
+                  latitude: location.latitude,
+                  longitude: location.longitude
+                }));
+                toast.success('Location updated');
+              } catch (err) {
+                toast.error('Failed to update location');
+              }
+              setSaving(false);
+              setShowLocationSearch(false);
+              setEditingField(null);
+            }}
+            onClose={() => setShowLocationSearch(false)}
+          />
+        )}
 
         {/* Negotiable */}
         <EditableField

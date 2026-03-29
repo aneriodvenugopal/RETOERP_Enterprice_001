@@ -11,7 +11,7 @@ import os
 import uuid
 from datetime import datetime, timedelta
 
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://realapex-agentic-ai.preview.emergentagent.com')
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://whatsapp-agent-v2.preview.emergentagent.com')
 
 
 class TestAuth:
