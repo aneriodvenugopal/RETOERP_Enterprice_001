@@ -113,6 +113,27 @@ Additionally, the AgentApex mobile app requires continuous UI/UX improvements fo
 - **India restricted**: All searches use `componentRestrictions: { country: 'in' }` and `types: ['geocode']`
 - **Tested**: All 4 pages pass - autocomplete dropdown appears, location selection works, lat/lng set correctly
 
+
+### March 31, 2026
+
+#### Property Image Upload Fix ✅
+- Fixed: Upload response returns both `url` and `file_url` (frontend was reading undefined `data.url`)
+- Frontend uses `data.url || data.file_url` for robustness
+- Added: **Emergent Object Storage** - images persist across pod redeployments
+- Upload saves to object storage + local disk; serve checks local first then object storage
+
+#### Layout View Location Fix ✅
+- PublicLayoutView uses `selectedPlot?.latitude` first, falls back to `project?.latitude`
+- Map embed and direction buttons use correct per-plot coordinates
+
+#### AI Location & Link Sharing ✅
+- Knowledge retriever includes location, city, state, lat/lng, Google Maps links per plot
+- AI shares layout links, project links, plot status summary, and Google Maps directions
+
+#### Confirm This Location Button Removed ✅
+- Removed confusing "Confirm This Location" from Post Property page
+- Only green "POST PROPERTY" button remains (handles reverse geocode + posting in one click)
+
 ---
 
 ## Backlog / Future Tasks
