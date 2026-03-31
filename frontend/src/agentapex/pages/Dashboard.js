@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import { 
   Home, Search, PlusSquare, Heart, User,
   Building2, MapPin, Users, TrendingUp, ChevronRight,
-  FileText, Clock, Bell, Share2, Download, Smartphone, ClipboardList
+  FileText, Clock, Bell, Share2, Download, Smartphone, ClipboardList, Hash
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -469,6 +469,12 @@ const Dashboard = () => {
           label="Map Search"
           sublabel="Find properties near you"
           onClick={() => navigate('/agentapex/search')}
+        />
+        <MenuItem
+          icon={Hash}
+          label="Search by Property ID"
+          sublabel="Enter AX-P-10001 to find property"
+          onClick={() => navigate('/agentapex/search-property')}
         />
         <MenuItem
           icon={Building2}

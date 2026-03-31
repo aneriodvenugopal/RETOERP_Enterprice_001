@@ -74,6 +74,7 @@ class PropertyCreate(BaseModel):
 class Property(BaseModel):
     id: str
     user_id: str
+    property_id: Optional[str] = None
     property_type: str
     title: Optional[str] = None
     price: float
@@ -91,6 +92,7 @@ class Property(BaseModel):
     description: Optional[str] = None
     images: List[str]
     documents: List[dict] = []
+    cover_image_index: int = 0
     status: str = "active"
     views: int = 0
     created_at: str
@@ -184,6 +186,34 @@ def get_timestamp():
 
 def generate_otp():
     return ''.join(random.choices(string.digits, k=6))
+
+# Property type code mapping for Property ID
+PROPERTY_TYPE_CODES = {
+    "Plot": "P", "Land": "P",
+    "Villa": "V",
+    "Apartment": "A", "Flat": "A",
+    "Commercial": "C", "Shop": "C", "Office": "C",
+    "Farm": "F", "Farm Land": "F", "Farmland": "F", "Agricultural": "F",
+    "House": "H", "Independent House": "H",
+}
+
+async def generate_property_id(db, property_type: str) -> str:
+    """Generate unique property ID like AX-P-10001"""
+    type_code = PROPERTY_TYPE_CODES.get(property_type, "P")
+    counter = await db.agentapex_counters.find_one_and_update(
+        {"_id": "property_id_counter"},
+        {"$inc": {"seq": 1}},
+        upsert=True,
+        return_document=True
+    )
+    seq = counter.get("seq", 10001)
+    if seq < 10001:
+        await db.agentapex_counters.update_one(
+            {"_id": "property_id_counter"},
+            {"$set": {"seq": 10001}}
+        )
+        seq = 10001
+    return f"AX-{type_code}-{seq}"
 
 def create_token(user_id: str, phone: str):
     payload = {
@@ -372,9 +402,11 @@ async def upload_profile_image(
 @router.post("/properties", response_model=Property)
 async def create_property(request: Request, data: PropertyCreate, user: dict = Depends(get_current_user)):
     db = request.app.state.db
+    prop_id = await generate_property_id(db, data.property_type)
     property_doc = {
         "id": generate_id(),
         "user_id": user["id"],
+        "property_id": prop_id,
         "property_type": data.property_type,
         "title": data.title or f"{data.property_type} in {data.location}",
         "price": data.price,
@@ -392,11 +424,13 @@ async def create_property(request: Request, data: PropertyCreate, user: dict = D
         "description": data.description,
         "images": data.images,
         "documents": [],
+        "cover_image_index": 0,
         "status": "active",
         "views": 0,
         "created_at": get_timestamp()
     }
     await db.agentapex_properties.insert_one(property_doc)
+    property_doc.pop("_id", None)
     
     # Notify users with matching interest areas
     try:
@@ -462,7 +496,29 @@ async def get_my_properties(request: Request, user: dict = Depends(get_current_u
     properties = await db.agentapex_properties.find({"user_id": user["id"]}, {"_id": 0}).to_list(100)
     return properties
 
-@router.get("/properties/{property_id}", response_model=Property)
+@router.get("/properties/search-by-id")
+async def search_property_by_id(request: Request, property_id: str):
+    """Search property by AX-P-10001 format ID"""
+    db = request.app.state.db
+    prop = await db.agentapex_properties.find_one({"property_id": property_id}, {"_id": 0})
+    if not prop:
+        raise HTTPException(status_code=404, detail="Property not found")
+    
+    await db.agentapex_properties.update_one({"property_id": property_id}, {"$inc": {"views": 1}})
+    
+    # Get agent info
+    agent = await db.agentapex_users.find_one({"id": prop["user_id"]}, {"_id": 0})
+    
+    return {
+        "property": prop,
+        "agent": {
+            "name": agent.get("name", "Agent") if agent else "Agent",
+            "designation": agent.get("designation", "AgentApex Property Advisor") if agent else "AgentApex Property Advisor",
+            "profile_image": agent.get("profile_image") if agent else None
+        }
+    }
+
+@router.get("/properties/{property_id}")
 async def get_property(request: Request, property_id: str):
     db = request.app.state.db
     prop = await db.agentapex_properties.find_one({"id": property_id}, {"_id": 0})
@@ -482,6 +538,64 @@ async def update_property(request: Request, property_id: str, data: PropertyCrea
     update_data = data.model_dump()
     await db.agentapex_properties.update_one({"id": property_id}, {"$set": update_data})
     return {"message": "Property updated successfully"}
+
+@router.put("/properties/{property_id}/cover-image")
+async def set_cover_image(request: Request, property_id: str, index: int = 0, user: dict = Depends(get_current_user)):
+    """Set cover image by index"""
+    db = request.app.state.db
+    prop = await db.agentapex_properties.find_one({"id": property_id, "user_id": user["id"]})
+    if not prop:
+        raise HTTPException(status_code=404, detail="Property not found")
+    
+    images = prop.get("images", [])
+    if index < 0 or index >= len(images):
+        raise HTTPException(status_code=400, detail="Invalid image index")
+    
+    await db.agentapex_properties.update_one(
+        {"id": property_id},
+        {"$set": {"cover_image_index": index}}
+    )
+    return {"message": "Cover image set", "cover_image_index": index}
+
+@router.put("/properties/{property_id}/reorder-images")
+async def reorder_images(request: Request, property_id: str, user: dict = Depends(get_current_user)):
+    """Reorder property images"""
+    db = request.app.state.db
+    prop = await db.agentapex_properties.find_one({"id": property_id, "user_id": user["id"]})
+    if not prop:
+        raise HTTPException(status_code=404, detail="Property not found")
+    
+    body = await request.json()
+    new_order = body.get("images", [])
+    
+    await db.agentapex_properties.update_one(
+        {"id": property_id},
+        {"$set": {"images": new_order, "cover_image_index": 0}}
+    )
+    return {"message": "Images reordered", "images": new_order}
+
+@router.delete("/properties/{property_id}/images/{image_index}")
+async def delete_property_image(request: Request, property_id: str, image_index: int, user: dict = Depends(get_current_user)):
+    """Delete a single image from property"""
+    db = request.app.state.db
+    prop = await db.agentapex_properties.find_one({"id": property_id, "user_id": user["id"]})
+    if not prop:
+        raise HTTPException(status_code=404, detail="Property not found")
+    
+    images = prop.get("images", [])
+    if image_index < 0 or image_index >= len(images):
+        raise HTTPException(status_code=400, detail="Invalid image index")
+    
+    images.pop(image_index)
+    cover_idx = prop.get("cover_image_index", 0)
+    if cover_idx >= len(images):
+        cover_idx = 0
+    
+    await db.agentapex_properties.update_one(
+        {"id": property_id},
+        {"$set": {"images": images, "cover_image_index": cover_idx}}
+    )
+    return {"message": "Image deleted", "images": images}
 
 @router.delete("/properties/{property_id}")
 async def delete_property(request: Request, property_id: str, user: dict = Depends(get_current_user)):
@@ -584,9 +698,11 @@ async def finalize_conversation(request: Request, session_id: str, user: dict = 
     area = float(area_parts[0]) if area_parts else 0
     area_unit = " ".join(area_parts[1:]) if len(area_parts) > 1 else "Sq. Ft."
     
+    prop_id = await generate_property_id(db, data.get("property_type", "Land"))
     property_doc = {
         "id": generate_id(),
         "user_id": user["id"],
+        "property_id": prop_id,
         "property_type": data.get("property_type", "Land"),
         "title": f"{data.get('property_type', 'Property')} in {data.get('location', 'Unknown')}",
         "price": price,
@@ -604,12 +720,14 @@ async def finalize_conversation(request: Request, session_id: str, user: dict = 
         "description": None,
         "images": [],
         "documents": [],
+        "cover_image_index": 0,
         "status": "active",
         "views": 0,
         "created_at": get_timestamp()
     }
     
     await db.agentapex_properties.insert_one(property_doc)
+    property_doc.pop("_id", None)
     session["status"] = "finalized"
     session["property_id"] = property_doc["id"]
     await db.agentapex_conversations.update_one({"id": session_id}, {"$set": session})
@@ -699,6 +817,26 @@ async def get_lead_stats(request: Request, user: dict = Depends(get_current_user
 
 # ================== SHARE DATA ROUTES ==================
 
+@router.post("/migrate/property-ids")
+async def migrate_property_ids(request: Request):
+    """One-time migration: assign property_id to existing properties that don't have one"""
+    db = request.app.state.db
+    props = await db.agentapex_properties.find(
+        {"$or": [{"property_id": {"$exists": False}}, {"property_id": None}]},
+        {"_id": 0, "id": 1, "property_type": 1}
+    ).to_list(1000)
+    
+    count = 0
+    for prop in props:
+        prop_id = await generate_property_id(db, prop.get("property_type", "Land"))
+        await db.agentapex_properties.update_one(
+            {"id": prop["id"]},
+            {"$set": {"property_id": prop_id}}
+        )
+        count += 1
+    
+    return {"message": f"Migrated {count} properties", "count": count}
+
 @router.get("/properties/{property_id}/share-data")
 async def get_share_data(request: Request, property_id: str, user: dict = Depends(get_current_user)):
     """Get property + agent info for generating share cards"""
@@ -712,6 +850,7 @@ async def get_share_data(request: Request, property_id: str, user: dict = Depend
     return {
         "property": {
             "id": prop["id"],
+            "property_id": prop.get("property_id", ""),
             "type": prop.get("property_type", ""),
             "price": prop.get("price", 0),
             "price_unit": prop.get("price_unit", "Lakhs"),
@@ -720,13 +859,14 @@ async def get_share_data(request: Request, property_id: str, user: dict = Depend
             "location": prop.get("location", ""),
             "negotiable": prop.get("negotiable", False),
             "images": prop.get("images", []),
+            "cover_image_index": prop.get("cover_image_index", 0),
             "description": prop.get("description", "")
         },
         "agent": {
             "name": agent.get("name", "Agent"),
             "phone": agent.get("phone", ""),
             "profile_image": agent.get("profile_image"),
-            "designation": agent.get("designation", "Property Consultant")
+            "designation": agent.get("designation", "AgentApex Property Advisor")
         }
     }
 

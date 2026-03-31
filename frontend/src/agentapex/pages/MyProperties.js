@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation as useRouterLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Plus, MapPin, Edit2, Trash2, Eye, Check, Building2 } from 'lucide-react';
+import { ArrowLeft, Plus, MapPin, Edit2, Trash2, Eye, Check, Building2, Hash } from 'lucide-react';
 import { toast } from 'sonner';
+
+const API_BASE = process.env.REACT_APP_BACKEND_URL;
 
 const MyProperties = () => {
   const navigate = useNavigate();
@@ -104,7 +106,7 @@ const MyProperties = () => {
                     onClick={() => navigate(`/agentapex/property/${p.id}`)}
                   >
                     <img 
-                      src={p.images?.[0] || 'https://images.pexels.com/photos/3030307/pexels-photo-3030307.jpeg?auto=compress&cs=tinysrgb&w=400'} 
+                      src={p.images?.[p.cover_image_index || 0] ? `${API_BASE}${p.images[p.cover_image_index || 0]}` : 'https://images.pexels.com/photos/3030307/pexels-photo-3030307.jpeg?auto=compress&cs=tinysrgb&w=400'} 
                       alt="" 
                       className="w-full h-full object-cover" 
                     />
@@ -112,7 +114,12 @@ const MyProperties = () => {
                   <div className="flex-1 p-3 min-w-0">
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0" onClick={() => navigate(`/agentapex/property/${p.id}`)}>
-                        <p className="text-base font-bold text-gray-900">₹{p.price} {p.price_unit}</p>
+                        {p.property_id && (
+                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-gray-900 text-white text-[10px] font-mono font-bold rounded mb-1">
+                            <Hash className="w-2.5 h-2.5" />{p.property_id}
+                          </span>
+                        )}
+                        <p className="text-base font-bold text-gray-900">{'\u20B9'}{p.price} {p.price_unit}</p>
                         <p className="text-sm text-gray-900 truncate">{p.title || p.property_type}</p>
                         <p className="text-xs text-gray-500 truncate flex items-center gap-1 mt-0.5">
                           <MapPin className="w-3 h-3" />{p.location}

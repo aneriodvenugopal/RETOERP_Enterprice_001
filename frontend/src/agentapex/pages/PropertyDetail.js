@@ -8,10 +8,12 @@ import { Drawer } from 'vaul';
 import { 
   ArrowLeft, Heart, Share2, MapPin, MessageCircle, 
   ChevronLeft, ChevronRight, FolderOpen, FileText, MoreHorizontal, Bookmark,
-  Brain, Edit, Send, Phone, Lock, Unlock, Loader2
+  Brain, Edit, Send, Phone, Lock, Unlock, Loader2, Image as ImageIcon, Hash, Download
 } from 'lucide-react';
 import { toast } from 'sonner';
 import AreaIntelligence from '../components/AreaIntelligence';
+import PropertyShareCard from '../components/PropertyShareCard';
+import PropertyImageManager from '../components/PropertyImageManager';
 import 'leaflet/dist/leaflet.css';
 
 delete L.Icon.Default.prototype._getIconUrl;
@@ -38,6 +40,9 @@ const PropertyDetail = () => {
   const [ownerContact, setOwnerContact] = useState(null);
   const [revealPrice, setRevealPrice] = useState(10);
   const [processingPayment, setProcessingPayment] = useState(false);
+  const [showShareCard, setShowShareCard] = useState(false);
+  const [shareData, setShareData] = useState(null);
+  const [showImageManager, setShowImageManager] = useState(false);
 
   const isOwner = property?.user_id === user?.id;
 
@@ -179,77 +184,45 @@ const PropertyDetail = () => {
   };
 
   const handleShare = async () => {
-    // Fetch agent data for branding
-    let agentName = user?.name || 'Agent';
-    let agentPhone = user?.phone || '';
-    let agentDesignation = user?.designation || 'Property Consultant';
-    
     try {
       const res = await api().get(`/properties/${id}/share-data`);
-      agentName = res.data.agent?.name || agentName;
-      agentPhone = res.data.agent?.phone || agentPhone;
-      agentDesignation = res.data.agent?.designation || agentDesignation;
-    } catch (e) { /* use defaults */ }
-
-    const shareUrl = `${window.location.origin}/agentapex/property/${id}`;
-    const shareText = `*${property?.property_type} For Sale*
-
-*Price:* ${'\u20B9'}${property?.price} ${property?.price_unit} ${property?.negotiable ? '(Negotiable)' : ''}
+      setShareData(res.data);
+      setShowShareCard(true);
+    } catch (e) {
+      // Fallback to text share
+      const propId = property?.property_id || '';
+      const shareText = `*${property?.property_type} For Sale*
+${propId ? `\n*Property ID:* ${propId}` : ''}
+*Price:* ${'\u20B9'}${property?.price} ${property?.price_unit}
 *Area:* ${property?.area} ${property?.area_unit}
 *Location:* ${property?.location}
-${property?.description ? `\n${property?.description?.slice(0, 100)}...` : ''}
 
-View Details: ${shareUrl}
-
---- *${agentName}* ---
-${agentDesignation}
-Contact: ${agentPhone}
-_AgentApex - Your Property Partner_`;
-
-    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
-    
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: `${property?.property_type} - ${'\u20B9'}${property?.price} ${property?.price_unit}`,
-          text: shareText,
-          url: shareUrl
-        });
-      } catch (err) {
-        window.open(whatsappUrl, '_blank');
-      }
-    } else {
-      window.open(whatsappUrl, '_blank');
+Search this Property ID in AgentApex App to view full details.
+Download: https://play.google.com/store/apps/details?id=agentapex`;
+      window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank');
     }
   };
 
   const handleWhatsAppShare = async () => {
+    const propId = property?.property_id || '';
     let agentName = user?.name || 'Agent';
-    let agentPhone = user?.phone || '';
-    let agentDesignation = user?.designation || 'Property Consultant';
-    
     try {
       const res = await api().get(`/properties/${id}/share-data`);
       agentName = res.data.agent?.name || agentName;
-      agentPhone = res.data.agent?.phone || agentPhone;
-      agentDesignation = res.data.agent?.designation || agentDesignation;
     } catch (e) { /* use defaults */ }
 
-    const shareUrl = `${window.location.origin}/agentapex/property/${id}`;
-    const imageInfo = property?.images?.length > 0 ? '\n[Property Photo Attached]' : '';
     const shareText = `*${property?.property_type} For Sale*
-
+${propId ? `\n*Property ID:* ${propId}` : ''}
 *Price:* ${'\u20B9'}${property?.price} ${property?.price_unit} ${property?.negotiable ? '(Negotiable)' : ''}
 *Area:* ${property?.area} ${property?.area_unit}
 *Location:* ${property?.location}
-${property?.description ? `\n${property?.description?.slice(0, 100)}...` : ''}
 
-View Details & Photos: ${shareUrl}
+Search this Property ID in AgentApex App to view full details.
 
 --- *${agentName}* ---
-${agentDesignation}
-Contact: ${agentPhone}
-_AgentApex - Your Property Partner_`;
+AgentApex Property Advisor
+
+Download AgentApex: https://play.google.com/store/apps/details?id=agentapex`;
 
     window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank');
   };
@@ -363,9 +336,20 @@ _AgentApex - Your Property Partner_`;
 
       {/* Content */}
       <div className="px-4 py-4">
+        {/* Property ID Badge */}
+        {property.property_id && (
+          <div className="flex items-center gap-2 mb-3">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-900 text-white rounded-lg">
+              <Hash className="w-3.5 h-3.5" />
+              <span className="text-xs font-bold font-mono">{property.property_id}</span>
+            </div>
+            <span className="text-xs text-gray-400">{property.views} views</span>
+          </div>
+        )}
+
         {/* Price */}
         <p className="text-2xl font-bold text-gray-900">
-          ₹{property.price} {property.price_unit}
+          {'\u20B9'}{property.price} {property.price_unit}
         </p>
         
         {/* Title */}
@@ -488,11 +472,11 @@ _AgentApex - Your Property Partner_`;
         {isOwner ? (
           <div className="flex gap-3">
             <button
-              onClick={() => navigate(`/agentapex/property/${id}/documents`)}
+              onClick={() => setShowImageManager(true)}
               className="flex-1 py-3.5 bg-gray-100 text-gray-900 font-semibold rounded-xl flex items-center justify-center gap-2"
             >
-              <FolderOpen className="w-5 h-5" />
-              Documents
+              <ImageIcon className="w-5 h-5" />
+              Images
             </button>
             <button
               onClick={() => navigate(`/agentapex/property/${id}/edit`)}
@@ -617,6 +601,29 @@ _AgentApex - Your Property Partner_`;
           </Drawer.Content>
         </Drawer.Portal>
       </Drawer.Root>
+
+      {/* Share Card Modal */}
+      {showShareCard && shareData && (
+        <PropertyShareCard
+          property={shareData.property}
+          agent={shareData.agent}
+          onClose={() => setShowShareCard(false)}
+        />
+      )}
+
+      {/* Image Manager Modal */}
+      {showImageManager && (
+        <PropertyImageManager
+          propertyId={id}
+          images={property?.images || []}
+          coverIndex={property?.cover_image_index || 0}
+          api={api}
+          onUpdate={(newImages) => {
+            setProperty(prev => ({ ...prev, images: newImages }));
+          }}
+          onClose={() => setShowImageManager(false)}
+        />
+      )}
     </div>
   );
 };
