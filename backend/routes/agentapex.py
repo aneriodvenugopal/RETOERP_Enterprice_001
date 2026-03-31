@@ -56,20 +56,45 @@ class User(BaseModel):
 class PropertyCreate(BaseModel):
     property_type: str
     title: Optional[str] = None
-    price: float
+    price: float = 0
     price_unit: str = "Lakhs"
-    area: float
-    area_unit: str
-    location: str
+    area: float = 0
+    area_unit: str = "Sq.Yds"
+    location: str = ""
     city: Optional[str] = None
     state: Optional[str] = None
     country: str = "India"
     postal_code: Optional[str] = None
-    latitude: float
-    longitude: float
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
     negotiable: bool = False
     description: Optional[str] = None
     images: List[str] = []
+    notes: Optional[List[dict]] = None
+    youtube_videos: Optional[List[str]] = None
+
+class PropertyUpdate(BaseModel):
+    """Model for partial property updates - all fields optional"""
+    property_type: Optional[str] = None
+    title: Optional[str] = None
+    price: Optional[float] = None
+    price_unit: Optional[str] = None
+    area: Optional[float] = None
+    area_unit: Optional[str] = None
+    location: Optional[str] = None
+    location_text: Optional[str] = None
+    place_id: Optional[str] = None
+    city: Optional[str] = None
+    state: Optional[str] = None
+    country: Optional[str] = None
+    postal_code: Optional[str] = None
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    negotiable: Optional[bool] = None
+    description: Optional[str] = None
+    images: Optional[List[str]] = None
+    notes: Optional[List[dict]] = None
+    youtube_videos: Optional[List[str]] = None
 
 class Property(BaseModel):
     id: str
@@ -86,16 +111,18 @@ class Property(BaseModel):
     state: Optional[str] = None
     country: str
     postal_code: Optional[str] = None
-    latitude: float
-    longitude: float
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
     negotiable: bool
     description: Optional[str] = None
-    images: List[str]
+    images: List[str] = []
     documents: List[dict] = []
     cover_image_index: int = 0
     status: str = "active"
     views: int = 0
     created_at: str
+    notes: Optional[List[dict]] = None
+    youtube_videos: Optional[List[str]] = None
 
 class LeadCreate(BaseModel):
     property_id: str
@@ -482,6 +509,11 @@ async def get_properties(
         
         filtered = []
         for prop in properties:
+            # Skip properties without valid coordinates
+            if prop.get("latitude") is None or prop.get("longitude") is None:
+                continue
+            if prop["latitude"] == 0 and prop["longitude"] == 0:
+                continue
             dist = haversine(longitude, latitude, prop["longitude"], prop["latitude"])
             if dist <= radius_km:
                 prop["distance_km"] = round(dist, 2)
@@ -529,14 +561,16 @@ async def get_property(request: Request, property_id: str):
     return prop
 
 @router.put("/properties/{property_id}")
-async def update_property(request: Request, property_id: str, data: PropertyCreate, user: dict = Depends(get_current_user)):
+async def update_property(request: Request, property_id: str, data: PropertyUpdate, user: dict = Depends(get_current_user)):
     db = request.app.state.db
     prop = await db.agentapex_properties.find_one({"id": property_id, "user_id": user["id"]})
     if not prop:
         raise HTTPException(status_code=404, detail="Property not found or unauthorized")
     
-    update_data = data.model_dump()
-    await db.agentapex_properties.update_one({"id": property_id}, {"$set": update_data})
+    # Only update fields that are provided (not None)
+    update_data = {k: v for k, v in data.model_dump().items() if v is not None}
+    if update_data:
+        await db.agentapex_properties.update_one({"id": property_id}, {"$set": update_data})
     return {"message": "Property updated successfully"}
 
 @router.put("/properties/{property_id}/cover-image")

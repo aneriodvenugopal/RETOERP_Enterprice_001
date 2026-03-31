@@ -7,9 +7,11 @@ import { Drawer } from 'vaul';
 import { 
   ArrowLeft, Pencil, Plus, Image, FileText, Youtube, 
   Check, X, Loader2, MapPin, IndianRupee, Maximize,
-  Camera, Trash2, Upload
+  Camera, Trash2, Upload, StickyNote, Hash
 } from 'lucide-react';
 import { toast } from 'sonner';
+
+const API_BASE = process.env.REACT_APP_BACKEND_URL;
 
 const PropertyEdit = () => {
   const navigate = useNavigate();
@@ -33,6 +35,10 @@ const PropertyEdit = () => {
   const [uploadingImage, setUploadingImage] = useState(false);
   const [uploadingDoc, setUploadingDoc] = useState(false);
   const [showLocationSearch, setShowLocationSearch] = useState(false);
+  const [showAttachMenu, setShowAttachMenu] = useState(false);
+  const [showAddNote, setShowAddNote] = useState(false);
+  const [noteText, setNoteText] = useState('');
+  const [savingNote, setSavingNote] = useState(false);
 
   useEffect(() => { fetchProperty(); }, [id]);
 
@@ -185,6 +191,36 @@ const PropertyEdit = () => {
     }
   };
 
+  const addNote = async () => {
+    if (!noteText.trim()) return;
+    setSavingNote(true);
+    try {
+      const notes = [...(property.notes || []), { 
+        text: noteText, 
+        created_at: new Date().toISOString() 
+      }];
+      await api().put(`/properties/${id}`, { notes });
+      setProperty(prev => ({ ...prev, notes }));
+      setNoteText('');
+      setShowAddNote(false);
+      toast.success('Note added!');
+    } catch (e) {
+      toast.error('Failed to add note');
+    }
+    setSavingNote(false);
+  };
+
+  const deleteNote = async (index) => {
+    try {
+      const notes = property.notes.filter((_, i) => i !== index);
+      await api().put(`/properties/${id}`, { notes });
+      setProperty(prev => ({ ...prev, notes }));
+      toast.success('Note removed');
+    } catch (e) {
+      toast.error('Failed to remove note');
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
@@ -203,7 +239,12 @@ const PropertyEdit = () => {
           <button onClick={() => navigate(-1)} className="w-10 h-10 flex items-center justify-center">
             <ArrowLeft className="w-6 h-6 text-gray-900" />
           </button>
-          <h1 className="text-lg font-semibold text-gray-900">Edit Property</h1>
+          <div className="flex-1">
+            <h1 className="text-lg font-semibold text-gray-900">Edit Property</h1>
+            {property?.property_id && (
+              <p className="text-xs text-gray-500 font-mono">{property.property_id}</p>
+            )}
+          </div>
         </div>
       </header>
 
@@ -427,7 +468,7 @@ const PropertyEdit = () => {
             <div className="grid grid-cols-3 gap-2">
               {property.images.map((img, i) => (
                 <div key={i} className="relative aspect-square rounded-xl overflow-hidden group">
-                  <img src={img} alt="" className="w-full h-full object-cover" />
+                  <img src={img.startsWith('http') ? img : `${API_BASE}${img}`} alt="" className="w-full h-full object-cover" />
                   <button
                     onClick={() => deleteImage(img, i)}
                     className="absolute top-1 right-1 p-1.5 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
@@ -549,7 +590,114 @@ const PropertyEdit = () => {
             <p className="text-gray-400 text-sm text-center py-4">No videos yet</p>
           )}
         </div>
+
+        {/* Notes Section */}
+        <div className="bg-white rounded-2xl p-4 shadow-sm">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+              <StickyNote className="w-5 h-5 text-amber-500" />
+              Notes ({property.notes?.length || 0})
+            </h3>
+            <button
+              onClick={() => setShowAddNote(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 text-amber-600 rounded-xl text-sm font-medium"
+            >
+              <Plus className="w-4 h-4" /> Add Note
+            </button>
+          </div>
+          
+          {property.notes?.length > 0 ? (
+            <div className="space-y-2">
+              {property.notes.map((note, i) => (
+                <div key={i} className="flex items-start gap-3 p-3 bg-amber-50 rounded-xl">
+                  <StickyNote className="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-gray-700">{note.text}</p>
+                    {note.created_at && (
+                      <p className="text-[10px] text-gray-400 mt-1">
+                        {new Date(note.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                      </p>
+                    )}
+                  </div>
+                  <button onClick={() => deleteNote(i)} className="text-red-400 flex-shrink-0">
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-400 text-sm text-center py-4">No notes yet</p>
+          )}
+        </div>
       </div>
+
+      {/* Floating + Button */}
+      <button
+        onClick={() => setShowAttachMenu(true)}
+        data-testid="fab-attach-btn"
+        className="fixed bottom-6 right-6 w-14 h-14 bg-blue-500 text-white rounded-full shadow-lg shadow-blue-500/30 flex items-center justify-center z-50"
+      >
+        <Plus className="w-7 h-7" />
+      </button>
+
+      {/* Attach Menu Drawer */}
+      <Drawer.Root open={showAttachMenu} onOpenChange={setShowAttachMenu}>
+        <Drawer.Portal>
+          <Drawer.Overlay className="fixed inset-0 bg-black/50 z-[1001]" />
+          <Drawer.Content className="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl z-[1002] outline-none">
+            <div className="p-4 pb-8">
+              <div className="w-10 h-1 bg-gray-300 rounded-full mx-auto mb-4" />
+              <h2 className="text-lg font-bold text-gray-900 mb-4">Add to Property</h2>
+              
+              <div className="grid grid-cols-4 gap-4">
+                <button
+                  onClick={() => { setShowAttachMenu(false); fileInputRef.current?.click(); }}
+                  data-testid="attach-gallery"
+                  className="flex flex-col items-center gap-2"
+                >
+                  <div className="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center">
+                    <Camera className="w-6 h-6 text-blue-500" />
+                  </div>
+                  <span className="text-xs text-gray-600 font-medium">Gallery</span>
+                </button>
+                
+                <button
+                  onClick={() => { setShowAttachMenu(false); docInputRef.current?.click(); }}
+                  data-testid="attach-document"
+                  className="flex flex-col items-center gap-2"
+                >
+                  <div className="w-14 h-14 bg-green-50 rounded-2xl flex items-center justify-center">
+                    <FileText className="w-6 h-6 text-green-500" />
+                  </div>
+                  <span className="text-xs text-gray-600 font-medium">Document</span>
+                </button>
+                
+                <button
+                  onClick={() => { setShowAttachMenu(false); setShowAddNote(true); }}
+                  data-testid="attach-note"
+                  className="flex flex-col items-center gap-2"
+                >
+                  <div className="w-14 h-14 bg-amber-50 rounded-2xl flex items-center justify-center">
+                    <StickyNote className="w-6 h-6 text-amber-500" />
+                  </div>
+                  <span className="text-xs text-gray-600 font-medium">Notes</span>
+                </button>
+                
+                <button
+                  onClick={() => { setShowAttachMenu(false); setShowAddMedia(true); }}
+                  data-testid="attach-video"
+                  className="flex flex-col items-center gap-2"
+                >
+                  <div className="w-14 h-14 bg-red-50 rounded-2xl flex items-center justify-center">
+                    <Youtube className="w-6 h-6 text-red-500" />
+                  </div>
+                  <span className="text-xs text-gray-600 font-medium">Video</span>
+                </button>
+              </div>
+            </div>
+          </Drawer.Content>
+        </Drawer.Portal>
+      </Drawer.Root>
 
       {/* Add YouTube Link Drawer */}
       <Drawer.Root open={showAddMedia} onOpenChange={setShowAddMedia}>
@@ -558,9 +706,7 @@ const PropertyEdit = () => {
           <Drawer.Content className="fixed bottom-0 left-0 right-0 bg-white rounded-t-2xl z-[1002] outline-none">
             <div className="p-4 pb-8">
               <div className="w-10 h-1 bg-gray-300 rounded-full mx-auto mb-6" />
-              
               <h2 className="text-lg font-bold text-gray-900 mb-4">Add YouTube Video</h2>
-              
               <input
                 type="url"
                 value={youtubeUrl}
@@ -568,13 +714,41 @@ const PropertyEdit = () => {
                 placeholder="Paste YouTube URL here..."
                 className="w-full px-4 py-3 border border-gray-200 rounded-xl mb-4"
               />
-              
               <button
                 onClick={addYoutubeLink}
                 disabled={!youtubeUrl}
                 className="w-full py-3.5 bg-red-500 text-white font-semibold rounded-xl disabled:opacity-50"
               >
                 Add Video Link
+              </button>
+            </div>
+          </Drawer.Content>
+        </Drawer.Portal>
+      </Drawer.Root>
+
+      {/* Add Note Drawer */}
+      <Drawer.Root open={showAddNote} onOpenChange={setShowAddNote}>
+        <Drawer.Portal>
+          <Drawer.Overlay className="fixed inset-0 bg-black/50 z-[1001]" />
+          <Drawer.Content className="fixed bottom-0 left-0 right-0 bg-white rounded-t-2xl z-[1002] outline-none">
+            <div className="p-4 pb-8">
+              <div className="w-10 h-1 bg-gray-300 rounded-full mx-auto mb-6" />
+              <h2 className="text-lg font-bold text-gray-900 mb-4">Add Note</h2>
+              <textarea
+                value={noteText}
+                onChange={(e) => setNoteText(e.target.value)}
+                placeholder="Write your note..."
+                rows={4}
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl resize-none mb-4"
+                data-testid="note-textarea"
+              />
+              <button
+                onClick={addNote}
+                disabled={!noteText.trim() || savingNote}
+                className="w-full py-3.5 bg-amber-500 text-white font-semibold rounded-xl disabled:opacity-50"
+                data-testid="save-note-btn"
+              >
+                {savingNote ? 'Saving...' : 'Save Note'}
               </button>
             </div>
           </Drawer.Content>

@@ -115,7 +115,7 @@ const PropertyCard = ({ property, isBuying, onFavorite, isFavorite }) => {
       </div>
       <div className="p-3">
         <p className="text-lg font-bold text-gray-900">
-          ₹{isBuying ? `${property.budget_min}-${property.budget_max}` : property.price} {property.price_unit || property.budget_unit}
+          {'\u20B9'}{isBuying ? `${property.budget_min}-${property.budget_max}` : property.price} {property.price_unit || property.budget_unit}
         </p>
         <p className="text-sm text-gray-900 font-medium mt-0.5">{property.title || property.property_type}</p>
         <p className="text-sm text-gray-500 flex items-center gap-1 mt-1">
@@ -123,6 +123,9 @@ const PropertyCard = ({ property, isBuying, onFavorite, isFavorite }) => {
           {property.location || property.location_preference}
         </p>
         <div className="flex items-center gap-2 mt-2">
+          {property.property_id && (
+            <span className="px-1.5 py-0.5 bg-gray-900 text-white rounded text-[10px] font-mono font-bold">{property.property_id}</span>
+          )}
           <span className="px-2 py-0.5 bg-gray-100 rounded text-xs text-gray-600">{property.property_type}</span>
           <span className="text-xs text-gray-500">{isBuying ? (property.area_min || 'Any size') : `${property.area} ${property.area_unit}`}</span>
         </div>
@@ -550,19 +553,23 @@ const MapSearch = () => {
                     </div>`,
                     iconSize: [40, 40], iconAnchor: [20, 20], popupAnchor: [0, -20]
                   })}>
-                    <Popup><span className="text-sm font-medium">📍 You are here</span></Popup>
+                    <Popup><span className="text-sm font-medium">You are here</span></Popup>
                   </Marker>
-                  <Circle 
-                    center={[userLocation.latitude, userLocation.longitude]} 
-                    radius={radius * 1000} 
-                    pathOptions={{ 
-                      color: listingMode === 'sell' ? '#FF9500' : '#0095F6', 
-                      fillOpacity: 0.05, 
-                      weight: 2,
-                      dashArray: '5, 5'
-                    }} 
-                  />
                 </>
+              )}
+              
+              {/* Radius Circle - centered on search location or user location */}
+              {(searchCenter || userLocation) && (
+                <Circle 
+                  center={searchCenter || [userLocation.latitude, userLocation.longitude]} 
+                  radius={radius * 1000} 
+                  pathOptions={{ 
+                    color: listingMode === 'sell' ? '#FF9500' : '#0095F6', 
+                    fillOpacity: 0.06, 
+                    weight: 2,
+                    dashArray: '8, 6'
+                  }} 
+                />
               )}
               
               {listingMode === 'sell' && properties.filter(p => p.latitude && p.longitude && p.latitude !== 0 && p.longitude !== 0).map(p => (
@@ -610,6 +617,16 @@ const MapSearch = () => {
             >
               <Crosshair className={`w-5 h-5 ${userLocation ? 'text-blue-500' : 'text-gray-400'}`} />
             </button>
+
+            {/* Radius Badge */}
+            <div className="absolute top-4 left-4 z-[1000] bg-white/90 backdrop-blur rounded-full px-3 py-1.5 shadow-md border border-gray-200 flex items-center gap-1.5">
+              <div className={`w-2 h-2 rounded-full ${listingMode === 'sell' ? 'bg-amber-500' : 'bg-blue-500'}`} />
+              <span className="text-xs font-semibold text-gray-700">{radius} km radius</span>
+              <span className="text-xs text-gray-400">|</span>
+              <span className="text-xs font-medium text-gray-600">
+                {listingMode === 'sell' ? properties.length : requirements.length} found
+              </span>
+            </div>
             
             {/* Floating Result Count */}
             <div className="absolute bottom-6 left-4 right-4 z-[1000]">
@@ -704,15 +721,29 @@ const MapSearch = () => {
               
               {/* Radius */}
               <div className="mb-8">
-                <p className="text-sm font-semibold text-gray-900 mb-3">Search Radius</p>
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-sm font-semibold text-gray-900">Search Radius</p>
+                  <p className="text-sm font-bold text-blue-600">{radius} km</p>
+                </div>
+                <input
+                  type="range"
+                  min="1"
+                  max="50"
+                  step="1"
+                  value={radius}
+                  onChange={(e) => setRadius(Number(e.target.value))}
+                  className="w-full h-1 bg-gray-200 rounded-full appearance-none cursor-pointer accent-blue-500 mb-3"
+                  data-testid="radius-slider"
+                />
                 <div className="flex gap-2">
                   {RADIUS_OPTIONS.map(r => (
                     <button
                       key={r}
                       onClick={() => setRadius(r)}
-                      className={`flex-1 py-3 rounded-xl text-sm font-medium transition-all ${
+                      data-testid={`radius-${r}`}
+                      className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-all ${
                         radius === r 
-                          ? 'bg-gray-900 text-white' 
+                          ? 'bg-blue-500 text-white' 
                           : 'bg-gray-100 text-gray-600'
                       }`}
                     >
@@ -757,8 +788,13 @@ const MapSearch = () => {
                 {selectedProperty.property_type === 'Land' ? '🌾' : '📐'}
               </div>
               <div className="flex-1">
-                <p className="text-2xl font-bold text-gray-900">₹{selectedProperty.price} {selectedProperty.price_unit}</p>
-                <p className="text-gray-500 font-medium">{selectedProperty.property_type} • {selectedProperty.area} {selectedProperty.area_unit}</p>
+                {selectedProperty.property_id && (
+                  <span className="inline-block px-2 py-0.5 bg-gray-900 text-white text-[10px] font-mono font-bold rounded mb-1">
+                    {selectedProperty.property_id}
+                  </span>
+                )}
+                <p className="text-2xl font-bold text-gray-900">{'\u20B9'}{selectedProperty.price} {selectedProperty.price_unit}</p>
+                <p className="text-gray-500 font-medium">{selectedProperty.property_type} - {selectedProperty.area} {selectedProperty.area_unit}</p>
               </div>
             </div>
             

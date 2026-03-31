@@ -1,0 +1,147 @@
+{
+  "summary": "Testing of AgentApex features #21 (Property Edit FAB + Notes) and #24 (Radius filtering in map search) completed. All 10 backend tests passed. Frontend UI verified: FAB button, bottom sheet with 4 options, Notes section, radius badge, radius slider, radius circle on map. Fixed 2 backend bugs during testing.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [],
+    "fixed_during_testing": [
+      {
+        "issue": "PUT /api/agentapex/properties/{id} required all fields (PropertyCreate model)",
+        "fix": "Created PropertyUpdate model with all optional fields for partial updates",
+        "file": "/app/backend/routes/agentapex.py"
+      },
+      {
+        "issue": "GET /api/agentapex/properties with radius filter crashed on properties with null lat/lng",
+        "fix": "Added null check before haversine calculation",
+        "file": "/app/backend/routes/agentapex.py"
+      },
+      {
+        "issue": "Property response model had required latitude/longitude fields causing 500 errors",
+        "fix": "Made latitude/longitude optional in Property model, added notes and youtube_videos fields",
+        "file": "/app/backend/routes/agentapex.py"
+      }
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_property_notes_radius.py",
+    "/app/test_reports/pytest/pytest_notes_radius.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "PropertyEdit FAB button correctly positioned at bottom-right with data-testid='fab-attach-btn'",
+    "Bottom sheet opens with 4 options: Gallery, Document, Notes, Video - all with data-testid attributes",
+    "Notes section shows note count, Add Note button, and note cards with delete functionality",
+    "Add Note drawer has textarea (data-testid='note-textarea') and Save button (data-testid='save-note-btn')",
+    "Property ID (AX-P-xxxxx) displayed in PropertyEdit header",
+    "MapSearch radius badge shows 'X km radius | N found' format",
+    "Filter drawer has radius slider (1-50km) with quick-select buttons (5, 10, 20, 50 km)",
+    "Radius circle drawn on map with dashed orange line",
+    "Property cards in grid view show property_id badges"
+  ],
+  "updated_files": [
+    "/app/backend/routes/agentapex.py",
+    "/app/backend/tests/test_property_notes_radius.py"
+  ],
+  "success_rate": {
+    "backend": "100% - 10/10 tests passed",
+    "frontend": "100% - All UI features verified"
+  },
+  "test_credentials": {
+    "phone": "9908290239",
+    "otp": "Dynamic - shown on screen as 'Demo OTP: XXXXXX'"
+  },
+  "seed_data_creation": "Test properties created and cleaned up during backend tests",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Features #21 and #24 fully tested. PropertyUpdate model now supports partial updates. Property model includes notes and youtube_videos fields. Radius filtering works with null coordinate handling. Demo guide modal appears on login - use JS to remove it or click X button with force=True.",
+  "features_tested": {
+    "feature_21_property_edit_fab": {
+      "status": "PASS",
+      "evidence": [
+        "FAB button (blue + icon) visible at bottom-right corner",
+        "data-testid='fab-attach-btn' present",
+        "Clicking FAB opens bottom sheet with 4 options",
+        "Gallery option: data-testid='attach-gallery'",
+        "Document option: data-testid='attach-document'",
+        "Notes option: data-testid='attach-note'",
+        "Video option: data-testid='attach-video'"
+      ]
+    },
+    "feature_21_notes_section": {
+      "status": "PASS",
+      "evidence": [
+        "Notes section visible on PropertyEdit page",
+        "Shows note count: 'Notes (N)'",
+        "Add Note button opens drawer",
+        "Note textarea: data-testid='note-textarea'",
+        "Save Note button: data-testid='save-note-btn'",
+        "Note cards display with text and timestamp",
+        "Delete button (X) on each note card"
+      ]
+    },
+    "feature_21_backend_notes": {
+      "status": "PASS",
+      "evidence": [
+        "PUT /api/agentapex/properties/{id} accepts 'notes' field",
+        "Notes stored as array of {text, created_at} objects",
+        "Partial update works - only sending notes field",
+        "PropertyCreate model accepts notes and youtube_videos fields"
+      ]
+    },
+    "feature_24_radius_badge": {
+      "status": "PASS",
+      "evidence": [
+        "Radius badge visible on map: '10 km radius | 13 found'",
+        "Badge updates when radius filter changes",
+        "Shows current radius and property count"
+      ]
+    },
+    "feature_24_radius_slider": {
+      "status": "PASS",
+      "evidence": [
+        "Filter drawer has 'Search Radius' section",
+        "Slider range: 1-50 km",
+        "data-testid='radius-slider' present",
+        "Quick-select buttons: 5km, 10km, 20km, 50km",
+        "data-testid='radius-5', 'radius-10', 'radius-20', 'radius-50'"
+      ]
+    },
+    "feature_24_radius_circle": {
+      "status": "PASS",
+      "evidence": [
+        "Dashed circle drawn on map around search center",
+        "Circle color matches listing mode (orange for sale, blue for wanted)",
+        "Circle radius updates when filter changes"
+      ]
+    },
+    "feature_24_property_id_badges": {
+      "status": "PASS",
+      "evidence": [
+        "Property cards in grid view show property_id badges (AX-P-10001)",
+        "Property bottom sheet shows property_id badge",
+        "PropertyEdit header shows property_id"
+      ]
+    }
+  },
+  "backend_tests_summary": {
+    "total": 10,
+    "passed": 10,
+    "failed": 0,
+    "tests": [
+      "test_add_notes_to_property",
+      "test_partial_update_only_notes",
+      "test_delete_note_from_property",
+      "test_add_youtube_videos_to_property",
+      "test_get_properties_with_radius_filter",
+      "test_radius_filter_with_different_values",
+      "test_properties_sorted_by_distance",
+      "test_radius_filter_with_property_type",
+      "test_create_property_with_notes",
+      "test_create_property_with_youtube_videos"
+    ]
+  }
+}
