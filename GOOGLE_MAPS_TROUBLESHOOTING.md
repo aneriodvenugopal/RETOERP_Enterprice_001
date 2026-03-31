@@ -39,7 +39,7 @@ Your API key needs to allow your domain.
 
 **Current Domain:**
 ```
-https://whatsapp-agent-v2.preview.emergentagent.com/*
+https://whatsapp-leads-36.preview.emergentagent.com/*
 ```
 
 **Action Required:**
@@ -48,7 +48,7 @@ https://whatsapp-agent-v2.preview.emergentagent.com/*
 3. Under "Application restrictions" → "HTTP referrers"
 4. Add these referrers:
    ```
-   https://whatsapp-agent-v2.preview.emergentagent.com/*
+   https://whatsapp-leads-36.preview.emergentagent.com/*
    https://*.emergentagent.com/*
    http://localhost:3000/*
    ```

@@ -6,7 +6,7 @@ import pytest
 import requests
 import os
 
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://whatsapp-agent-v2.preview.emergentagent.com')
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://whatsapp-leads-36.preview.emergentagent.com')
 
 # Test credentials
 TENANT_ADMIN_CREDS = {"email": "rajam@realapex.in", "password": "12345678"}

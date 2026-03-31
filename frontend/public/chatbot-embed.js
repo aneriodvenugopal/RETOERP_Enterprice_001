@@ -47,7 +47,7 @@
         tenantId: tenantId,
         position: position,
         primaryColor: primaryColor,
-        backendUrl: 'https://whatsapp-agent-v2.preview.emergentagent.com/api'
+        backendUrl: 'https://whatsapp-leads-36.preview.emergentagent.com/api'
       };
       
       // Load chat widget bundle

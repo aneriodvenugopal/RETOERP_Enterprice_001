@@ -184,7 +184,7 @@
 
    **మొదటి referrer:**
    ```
-   https://whatsapp-agent-v2.preview.emergentagent.com/*
+   https://whatsapp-leads-36.preview.emergentagent.com/*
    ```
    - Paste చేసి Enter నొక్కండి
 
