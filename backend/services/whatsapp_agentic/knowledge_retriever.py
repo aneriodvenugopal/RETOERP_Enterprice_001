@@ -97,10 +97,9 @@ class KnowledgeRetriever:
         project_id: Optional[str],
         knowledge: Dict
     ):
-        """Get available plots/properties"""
+        """Get plots/properties with all statuses"""
         query = {
             "tenant_id": tenant_id,
-            "status": {"$in": ["available", "Available", "AVAILABLE"]},
             "deleted_at": None
         }
         
@@ -110,7 +109,7 @@ class KnowledgeRetriever:
         plots = await self.db.properties.find(
             query,
             {"_id": 0}
-        ).sort("created_at", -1).limit(20).to_list(20)
+        ).sort("created_at", -1).limit(30).to_list(30)
         
         for plot in plots:
             knowledge["available_plots"].append({
@@ -273,6 +272,8 @@ class KnowledgeRetriever:
     
     def format_knowledge_for_llm(self, knowledge: Dict[str, Any]) -> str:
         """Format knowledge into a structured prompt context"""
+        import os
+        base_url = os.environ.get("FRONTEND_URL", "https://realapex.in")
         
         context_parts = []
         
@@ -280,18 +281,31 @@ class KnowledgeRetriever:
         if knowledge.get("projects"):
             context_parts.append("## Available Projects:")
             for proj in knowledge["projects"]:
+                project_id = proj.get('id', '')
+                project_url = f"{base_url}/projects/{project_id}"
+                public_layout_url = f"{base_url}/public/projects/{project_id}/layout"
+                
                 context_parts.append(f"""
 Project: {proj['name']}
 - Location: {proj.get('location', 'N/A')}, {proj.get('city', '')}
 - Type: {proj.get('project_type', 'N/A')}
-- Total Units: {proj.get('total_units', 'N/A')}
 - Status: {proj.get('status', 'N/A')}
+- Total Units: {proj.get('total_units', 'N/A')}
 - RERA: {proj.get('rera_number', 'N/A')}
-- Amenities: {', '.join(proj.get('amenities', [])[:5]) or 'N/A'}
+- Layout Link: {public_layout_url}
+- Project Link: {project_url}
 """)
         
-        # Available Plots
+        # Available Plots with status
         if knowledge.get("available_plots"):
+            # Group by status
+            status_counts = {}
+            for plot in knowledge["available_plots"]:
+                s = plot.get('status', 'unknown')
+                status_counts[s] = status_counts.get(s, 0) + 1
+            
+            status_summary = ", ".join([f"{s}: {c}" for s, c in status_counts.items()])
+            context_parts.append(f"\n## Plot Status Summary: {status_summary}")
             context_parts.append("\n## Available Plots:")
             for plot in knowledge["available_plots"][:10]:
                 price = plot.get('price')
@@ -301,8 +315,7 @@ Project: {proj['name']}
                 
                 context_parts.append(f"""
 Plot #{plot.get('plot_number', 'N/A')}
-- Area: {area_str}
-- Facing: {plot.get('facing', 'N/A')}
+- Area: {area_str}, Facing: {plot.get('facing', 'N/A')}
 - Price: {price_str}
 - Status: {plot.get('status', 'Available')}
 """)
@@ -323,7 +336,7 @@ Plot #{plot.get('plot_number', 'N/A')}
             return ""
         
         lead = lead_context["lead"]
-        parts = [f"## Customer Information:"]
+        parts = ["## Customer Information:"]
         
         if lead.get("name"):
             parts.append(f"- Name: {lead['name']}")
