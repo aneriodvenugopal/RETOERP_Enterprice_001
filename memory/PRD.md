@@ -95,7 +95,16 @@ Additionally, the AgentApex mobile app requires continuous UI/UX improvements fo
 
 ### March 29, 2026
 
-#### Google Places Autocomplete Integration Fix ✅
+#### AI Response Length Optimization ✅
+- Made ALL agent prompts enforce strict 1-2 line, 15-word max replies
+- Updated: GreetingAgent, QualificationAgent, InventoryAgent, SiteVisitAgent, BookingAgent, PaymentAgent, KnowledgeAgent
+- Reduces AI costs (~₹0.05-0.10/reply instead of ₹0.15-0.30)
+- Users can read replies instantly on WhatsApp
+
+#### WhatsApp Production Number Migration ✅
+- Updated credentials: Phone +91 96667 06535, REALAPEX Lead Followup
+- New permanent token, Phone Number ID: 1052779364584074, WABA ID: 921719600754274
+- Production secrets need "Relaunch to update" in Emergent dashboard
 - Fixed Google Places autocomplete on 4 pages: `/agentapex/search`, `/agentapex/interest-areas`, `/agentapex/requirements`, `/agentapex/property-edit`
 - **Root cause**: Manual Google Places initialization ran once on mount without retry. If API loaded after component mount, autocomplete never worked.
 - **Fix**: Replaced manual initialization with reusable `useGooglePlacesAutocomplete` hook (polling-based init, 20 retries at 500ms)
