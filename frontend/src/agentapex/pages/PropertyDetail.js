@@ -179,52 +179,77 @@ const PropertyDetail = () => {
   };
 
   const handleShare = async () => {
+    // Fetch agent data for branding
+    let agentName = user?.name || 'Agent';
+    let agentPhone = user?.phone || '';
+    let agentDesignation = user?.designation || 'Property Consultant';
+    
+    try {
+      const res = await api().get(`/properties/${id}/share-data`);
+      agentName = res.data.agent?.name || agentName;
+      agentPhone = res.data.agent?.phone || agentPhone;
+      agentDesignation = res.data.agent?.designation || agentDesignation;
+    } catch (e) { /* use defaults */ }
+
     const shareUrl = `${window.location.origin}/agentapex/property/${id}`;
-    const shareText = `🏠 *${property?.property_type} For Sale*
+    const shareText = `*${property?.property_type} For Sale*
 
-💰 *Price:* ₹${property?.price} ${property?.price_unit} ${property?.negotiable ? '(Negotiable)' : ''}
-📐 *Area:* ${property?.area} ${property?.area_unit}
-📍 *Location:* ${property?.location}
+*Price:* ${'\u20B9'}${property?.price} ${property?.price_unit} ${property?.negotiable ? '(Negotiable)' : ''}
+*Area:* ${property?.area} ${property?.area_unit}
+*Location:* ${property?.location}
+${property?.description ? `\n${property?.description?.slice(0, 100)}...` : ''}
 
-${property?.description ? `📝 ${property?.description?.slice(0, 100)}...` : ''}
+View Details: ${shareUrl}
 
-👉 View Details & Contact: ${shareUrl}
+--- *${agentName}* ---
+${agentDesignation}
+Contact: ${agentPhone}
+_AgentApex - Your Property Partner_`;
 
-_Listed on AgentApex - Property Intelligence_`;
-
-    // Try WhatsApp share first
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
     
     if (navigator.share) {
       try {
         await navigator.share({
-          title: `${property?.property_type} - ₹${property?.price} ${property?.price_unit}`,
+          title: `${property?.property_type} - ${'\u20B9'}${property?.price} ${property?.price_unit}`,
           text: shareText,
           url: shareUrl
         });
       } catch (err) {
-        // If share fails, open WhatsApp
         window.open(whatsappUrl, '_blank');
       }
     } else {
-      // Open WhatsApp directly
       window.open(whatsappUrl, '_blank');
     }
   };
 
-  const handleWhatsAppShare = () => {
+  const handleWhatsAppShare = async () => {
+    let agentName = user?.name || 'Agent';
+    let agentPhone = user?.phone || '';
+    let agentDesignation = user?.designation || 'Property Consultant';
+    
+    try {
+      const res = await api().get(`/properties/${id}/share-data`);
+      agentName = res.data.agent?.name || agentName;
+      agentPhone = res.data.agent?.phone || agentPhone;
+      agentDesignation = res.data.agent?.designation || agentDesignation;
+    } catch (e) { /* use defaults */ }
+
     const shareUrl = `${window.location.origin}/agentapex/property/${id}`;
-    const shareText = `🏠 *${property?.property_type} For Sale*
+    const imageInfo = property?.images?.length > 0 ? '\n[Property Photo Attached]' : '';
+    const shareText = `*${property?.property_type} For Sale*
 
-💰 *Price:* ₹${property?.price} ${property?.price_unit} ${property?.negotiable ? '(Negotiable)' : ''}
-📐 *Area:* ${property?.area} ${property?.area_unit}
-📍 *Location:* ${property?.location}
+*Price:* ${'\u20B9'}${property?.price} ${property?.price_unit} ${property?.negotiable ? '(Negotiable)' : ''}
+*Area:* ${property?.area} ${property?.area_unit}
+*Location:* ${property?.location}
+${property?.description ? `\n${property?.description?.slice(0, 100)}...` : ''}
 
-${property?.description ? `📝 ${property?.description?.slice(0, 100)}...` : ''}
+View Details & Photos: ${shareUrl}
 
-👉 View Details & Contact: ${shareUrl}
-
-_Listed on AgentApex - Property Intelligence_`;
+--- *${agentName}* ---
+${agentDesignation}
+Contact: ${agentPhone}
+_AgentApex - Your Property Partner_`;
 
     window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank');
   };

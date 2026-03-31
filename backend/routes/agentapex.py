@@ -47,6 +47,7 @@ class User(BaseModel):
     name: Optional[str] = None
     email: Optional[str] = None
     profile_image: Optional[str] = None
+    designation: Optional[str] = None
     latitude: Optional[float] = None
     longitude: Optional[float] = None
     subscription_type: str = "free"
@@ -284,6 +285,7 @@ async def update_profile(
     request: Request,
     name: Optional[str] = None,
     email: Optional[str] = None,
+    designation: Optional[str] = None,
     latitude: Optional[float] = None,
     longitude: Optional[float] = None,
     user: dict = Depends(get_current_user)
@@ -294,6 +296,8 @@ async def update_profile(
         update_data["name"] = name
     if email:
         update_data["email"] = email
+    if designation is not None:
+        update_data["designation"] = designation
     if latitude:
         update_data["latitude"] = latitude
     if longitude:
@@ -304,6 +308,64 @@ async def update_profile(
     
     updated_user = await db.agentapex_users.find_one({"id": user["id"]}, {"_id": 0})
     return updated_user
+
+@router.post("/auth/profile-image")
+async def upload_profile_image(
+    request: Request,
+    image: UploadFile = File(...),
+    user: dict = Depends(get_current_user)
+):
+    """Upload profile photo using Object Storage"""
+    db = request.app.state.db
+    
+    allowed_types = {'.jpg', '.jpeg', '.png', '.webp'}
+    file_ext = Path(image.filename).suffix.lower()
+    if file_ext not in allowed_types:
+        raise HTTPException(status_code=400, detail="Image type not allowed. Use: JPG, PNG, WEBP")
+    
+    contents = await image.read()
+    if len(contents) > 5 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="Image size exceeds 5MB limit")
+    
+    file_id = generate_id()
+    filename = f"{file_id}{file_ext}"
+    
+    # Save locally first
+    file_path = UPLOAD_DIR / filename
+    with open(file_path, "wb") as f:
+        f.write(contents)
+    
+    # Save to object storage for persistence
+    try:
+        from services.object_storage import put_object
+        content_type = f"image/{file_ext.strip('.')}"
+        if file_ext == '.jpg':
+            content_type = "image/jpeg"
+        put_object(f"agentapex/profiles/{filename}", contents, content_type)
+    except Exception as e:
+        logging.warning(f"Object storage upload failed: {e}")
+    
+    # Save file record
+    file_doc = {
+        "id": file_id,
+        "user_id": user["id"],
+        "original_name": image.filename,
+        "stored_name": filename,
+        "file_type": file_ext,
+        "size": len(contents),
+        "created_at": get_timestamp()
+    }
+    await db.agentapex_files.insert_one(file_doc)
+    
+    image_url = f"/api/agentapex/files/{file_id}"
+    
+    # Update user profile
+    await db.agentapex_users.update_one(
+        {"id": user["id"]},
+        {"$set": {"profile_image": image_url}}
+    )
+    
+    return {"url": image_url, "success": True}
 
 # ================== PROPERTY ROUTES ==================
 
@@ -556,7 +618,7 @@ async def finalize_conversation(request: Request, session_id: str, user: dict = 
 
 # ================== LEADS ROUTES ==================
 
-@router.post("/leads", response_model=Lead)
+@router.post("/leads")
 async def create_lead(request: Request, data: LeadCreate):
     db = request.app.state.db
     prop = await db.agentapex_properties.find_one({"id": data.property_id}, {"_id": 0})
@@ -571,15 +633,37 @@ async def create_lead(request: Request, data: LeadCreate):
         "buyer_phone": data.buyer_phone,
         "message": data.message,
         "status": "new",
+        "lead_source": "enquiry",
         "created_at": get_timestamp()
     }
     await db.agentapex_leads.insert_one(lead)
+    # Remove _id before returning
+    lead.pop("_id", None)
     return lead
 
-@router.get("/leads", response_model=List[Lead])
-async def get_leads(request: Request, user: dict = Depends(get_current_user)):
+@router.get("/leads")
+async def get_leads(request: Request, status: Optional[str] = None, user: dict = Depends(get_current_user)):
     db = request.app.state.db
-    leads = await db.agentapex_leads.find({"seller_id": user["id"]}, {"_id": 0}).to_list(100)
+    query = {"seller_id": user["id"]}
+    if status:
+        query["status"] = status
+    
+    leads = await db.agentapex_leads.find(query, {"_id": 0}).sort("created_at", -1).to_list(200)
+    
+    # Enrich with property info
+    property_ids = list(set(lead.get("property_id") for lead in leads if lead.get("property_id")))
+    properties = {}
+    if property_ids:
+        props = await db.agentapex_properties.find({"id": {"$in": property_ids}}, {"_id": 0}).to_list(len(property_ids))
+        properties = {p["id"]: p for p in props}
+    
+    for lead in leads:
+        prop = properties.get(lead.get("property_id"), {})
+        lead["property_type"] = prop.get("property_type", "")
+        lead["property_location"] = prop.get("location", "")
+        lead["property_price"] = prop.get("price", 0)
+        lead["property_price_unit"] = prop.get("price_unit", "Lakhs")
+    
     return leads
 
 @router.put("/leads/{lead_id}/status")
@@ -587,11 +671,64 @@ async def update_lead_status(request: Request, lead_id: str, status: str, user: 
     db = request.app.state.db
     result = await db.agentapex_leads.update_one(
         {"id": lead_id, "seller_id": user["id"]},
-        {"$set": {"status": status}}
+        {"$set": {"status": status, "updated_at": get_timestamp()}}
     )
     if result.modified_count == 0:
         raise HTTPException(status_code=404, detail="Lead not found")
     return {"message": "Status updated"}
+
+@router.get("/leads/stats")
+async def get_lead_stats(request: Request, user: dict = Depends(get_current_user)):
+    """Get lead pipeline stats"""
+    db = request.app.state.db
+    pipeline = [
+        {"$match": {"seller_id": user["id"]}},
+        {"$group": {"_id": "$status", "count": {"$sum": 1}}}
+    ]
+    results = await db.agentapex_leads.aggregate(pipeline).to_list(20)
+    stats = {r["_id"]: r["count"] for r in results}
+    return {
+        "total": sum(stats.values()),
+        "new": stats.get("new", 0),
+        "contacted": stats.get("contacted", 0),
+        "hot": stats.get("hot", 0),
+        "warm": stats.get("warm", 0),
+        "cold": stats.get("cold", 0),
+        "closed": stats.get("closed", 0)
+    }
+
+# ================== SHARE DATA ROUTES ==================
+
+@router.get("/properties/{property_id}/share-data")
+async def get_share_data(request: Request, property_id: str, user: dict = Depends(get_current_user)):
+    """Get property + agent info for generating share cards"""
+    db = request.app.state.db
+    prop = await db.agentapex_properties.find_one({"id": property_id}, {"_id": 0})
+    if not prop:
+        raise HTTPException(status_code=404, detail="Property not found")
+    
+    agent = await db.agentapex_users.find_one({"id": user["id"]}, {"_id": 0})
+    
+    return {
+        "property": {
+            "id": prop["id"],
+            "type": prop.get("property_type", ""),
+            "price": prop.get("price", 0),
+            "price_unit": prop.get("price_unit", "Lakhs"),
+            "area": prop.get("area", 0),
+            "area_unit": prop.get("area_unit", ""),
+            "location": prop.get("location", ""),
+            "negotiable": prop.get("negotiable", False),
+            "images": prop.get("images", []),
+            "description": prop.get("description", "")
+        },
+        "agent": {
+            "name": agent.get("name", "Agent"),
+            "phone": agent.get("phone", ""),
+            "profile_image": agent.get("profile_image"),
+            "designation": agent.get("designation", "Property Consultant")
+        }
+    }
 
 # ================== FOLLOW-UPS ROUTES ==================
 
@@ -608,16 +745,91 @@ async def create_followup(request: Request, data: FollowUpCreate, user: dict = D
         "next_follow_up": data.next_follow_up,
         "location": data.location,
         "status": "pending",
+        "hidden": False,
         "updated_at": None,
         "created_at": get_timestamp()
     }
     await db.agentapex_followups.insert_one(followup)
     return followup
 
-@router.get("/followups", response_model=List[FollowUp])
-async def get_followups(request: Request, user: dict = Depends(get_current_user)):
+@router.post("/followups/bulk")
+async def bulk_create_followups(request: Request, user: dict = Depends(get_current_user)):
+    """Add multiple contacts to followup list at once"""
     db = request.app.state.db
-    followups = await db.agentapex_followups.find({"user_id": user["id"]}, {"_id": 0}).to_list(100)
+    body = await request.json()
+    contacts = body.get("contacts", [])
+    
+    if not contacts:
+        raise HTTPException(status_code=400, detail="No contacts provided")
+    
+    created = []
+    for c in contacts:
+        if not c.get("contact_name") or not c.get("contact_phone"):
+            continue
+        # Check if already exists
+        existing = await db.agentapex_followups.find_one({
+            "user_id": user["id"],
+            "contact_phone": c["contact_phone"],
+            "hidden": {"$ne": True}
+        })
+        if existing:
+            continue
+        
+        followup = {
+            "id": generate_id(),
+            "user_id": user["id"],
+            "lead_id": c.get("lead_id"),
+            "contact_name": c["contact_name"],
+            "contact_phone": c["contact_phone"],
+            "notes": c.get("notes", ""),
+            "next_follow_up": c.get("next_follow_up"),
+            "location": c.get("location", ""),
+            "status": "pending",
+            "hidden": False,
+            "updated_at": None,
+            "created_at": get_timestamp()
+        }
+        await db.agentapex_followups.insert_one(followup)
+        created.append(followup)
+    
+    return {"message": f"{len(created)} contact(s) added", "contacts": [{k: v for k, v in c.items() if k != '_id'} for c in created]}
+
+@router.get("/followups")
+async def get_followups(
+    request: Request,
+    search: Optional[str] = None,
+    hidden: Optional[bool] = False,
+    user: dict = Depends(get_current_user)
+):
+    db = request.app.state.db
+    query = {"user_id": user["id"]}
+    
+    if hidden:
+        query["hidden"] = True
+    else:
+        query["$or"] = [{"hidden": False}, {"hidden": {"$exists": False}}]
+    
+    if search:
+        query["$or"] = [
+            {"contact_name": {"$regex": search, "$options": "i"}},
+            {"contact_phone": {"$regex": search, "$options": "i"}},
+            {"location": {"$regex": search, "$options": "i"}}
+        ]
+        # Remove the hidden filter from $or if search is active - show both
+        if hidden:
+            query.pop("hidden", None)
+        else:
+            query.pop("$or", None)
+            query["$and"] = [
+                {"$or": [{"hidden": False}, {"hidden": {"$exists": False}}]},
+                {"$or": [
+                    {"contact_name": {"$regex": search, "$options": "i"}},
+                    {"contact_phone": {"$regex": search, "$options": "i"}},
+                    {"location": {"$regex": search, "$options": "i"}}
+                ]}
+            ]
+    
+    followups = await db.agentapex_followups.find(query, {"_id": 0}).sort("created_at", -1).to_list(200)
     return followups
 
 @router.put("/followups/{followup_id}")
@@ -645,6 +857,37 @@ async def update_followup(
     if result.modified_count == 0:
         raise HTTPException(status_code=404, detail="Follow-up not found")
     return {"message": "Follow-up updated"}
+
+@router.put("/followups/{followup_id}/toggle-hidden")
+async def toggle_followup_hidden(
+    request: Request,
+    followup_id: str,
+    user: dict = Depends(get_current_user)
+):
+    """Move contact between Active and Hidden tabs"""
+    db = request.app.state.db
+    followup = await db.agentapex_followups.find_one({"id": followup_id, "user_id": user["id"]})
+    if not followup:
+        raise HTTPException(status_code=404, detail="Follow-up not found")
+    
+    new_hidden = not followup.get("hidden", False)
+    await db.agentapex_followups.update_one(
+        {"id": followup_id},
+        {"$set": {"hidden": new_hidden, "updated_at": get_timestamp()}}
+    )
+    return {"message": "Moved to Hidden" if new_hidden else "Moved to Active", "hidden": new_hidden}
+
+@router.delete("/followups/{followup_id}")
+async def delete_followup(
+    request: Request,
+    followup_id: str,
+    user: dict = Depends(get_current_user)
+):
+    db = request.app.state.db
+    result = await db.agentapex_followups.delete_one({"id": followup_id, "user_id": user["id"]})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Follow-up not found")
+    return {"message": "Follow-up deleted"}
 
 # ================== FAVORITES ROUTES ==================
 
@@ -888,51 +1131,69 @@ async def get_property_documents(request: Request, property_id: str):
 # ================== IMAGE UPLOAD ROUTES ==================
 
 @router.post("/properties/{property_id}/images")
-async def upload_property_image(request: Request, property_id: str, image: UploadFile = File(...), user: dict = Depends(get_current_user)):
+async def upload_property_images(request: Request, property_id: str, files: List[UploadFile] = File(...), user: dict = Depends(get_current_user)):
+    """Upload multiple images to a property"""
     db = request.app.state.db
     prop = await db.agentapex_properties.find_one({"id": property_id, "user_id": user["id"]})
     if not prop:
         raise HTTPException(status_code=404, detail="Property not found or unauthorized")
     
     allowed_types = {'.jpg', '.jpeg', '.png', '.webp'}
-    file_ext = Path(image.filename).suffix.lower()
-    if file_ext not in allowed_types:
-        raise HTTPException(status_code=400, detail="Image type not allowed. Use: JPG, PNG, WEBP")
-    
-    contents = await image.read()
     max_size = 10 * 1024 * 1024
-    if len(contents) > max_size:
-        raise HTTPException(status_code=400, detail="Image size exceeds 10MB limit")
+    uploaded_urls = []
     
-    file_id = generate_id()
-    filename = f"{file_id}{file_ext}"
-    file_path = UPLOAD_DIR / filename
+    for image in files:
+        file_ext = Path(image.filename).suffix.lower()
+        if file_ext not in allowed_types:
+            continue
+        
+        contents = await image.read()
+        if len(contents) > max_size:
+            continue
+        
+        file_id = generate_id()
+        filename = f"{file_id}{file_ext}"
+        file_path = UPLOAD_DIR / filename
+        
+        with open(file_path, "wb") as f:
+            f.write(contents)
+        
+        # Also save to object storage
+        try:
+            from services.object_storage import put_object
+            content_type = f"image/{file_ext.strip('.')}"
+            if file_ext == '.jpg':
+                content_type = "image/jpeg"
+            put_object(f"agentapex/properties/{filename}", contents, content_type)
+        except Exception as e:
+            logging.warning(f"Object storage upload failed: {e}")
+        
+        image_url = f"/api/agentapex/files/{file_id}"
+        
+        file_doc = {
+            "id": file_id,
+            "user_id": user["id"],
+            "property_id": property_id,
+            "original_name": image.filename,
+            "stored_name": filename,
+            "file_type": file_ext,
+            "size": len(contents),
+            "created_at": get_timestamp()
+        }
+        await db.agentapex_files.insert_one(file_doc)
+        
+        await db.agentapex_properties.update_one(
+            {"id": property_id},
+            {"$push": {"images": image_url}}
+        )
+        uploaded_urls.append(image_url)
     
-    with open(file_path, "wb") as f:
-        f.write(contents)
-    
-    image_url = f"/api/agentapex/files/{file_id}"
-    
-    file_doc = {
-        "id": file_id,
-        "user_id": user["id"],
-        "property_id": property_id,
-        "original_name": image.filename,
-        "stored_name": filename,
-        "file_type": file_ext,
-        "size": len(contents),
-        "created_at": get_timestamp()
-    }
-    await db.agentapex_files.insert_one(file_doc)
-    
-    await db.agentapex_properties.update_one(
-        {"id": property_id},
-        {"$push": {"images": image_url}}
-    )
+    if not uploaded_urls:
+        raise HTTPException(status_code=400, detail="No valid images to upload")
     
     return {
-        "url": image_url,
-        "id": file_id,
+        "urls": uploaded_urls,
+        "count": len(uploaded_urls),
         "success": True
     }
 

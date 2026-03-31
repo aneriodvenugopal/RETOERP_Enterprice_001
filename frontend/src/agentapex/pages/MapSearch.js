@@ -565,7 +565,7 @@ const MapSearch = () => {
                 </>
               )}
               
-              {listingMode === 'sell' && properties.map(p => (
+              {listingMode === 'sell' && properties.filter(p => p.latitude && p.longitude && p.latitude !== 0 && p.longitude !== 0).map(p => (
                 <Marker 
                   key={p.id} 
                   position={[p.latitude, p.longitude]} 
