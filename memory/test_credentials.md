@@ -13,6 +13,7 @@
 - https://whatsapp-leads-36.preview.emergentagent.com
 
 ## Test Data
-- 3 active followup contacts (Raju/Srinivas + bulk test contacts)
-- 2 hidden followup contacts
+- Property IDs: AX-P-10001 through AX-P-10015
+- Test property: AX-P-10014 (Plot, Kollur Hyderabad, 200 Sq.Yds, 60000 Per Sq.Yd)
+- Followup contacts: Raju (active), Srinivas (hidden)
 - Profile designation: Property Consultant

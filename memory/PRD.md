@@ -19,63 +19,71 @@ Build a production-ready, multi-tenant Agentic AI workflow for the RealApex plat
 
 ## What's Been Implemented
 
+### Phase 2 - Property ID & Share System (Completed 2026-03-31)
+
+#### Property ID System (#new)
+- Auto-generated unique IDs: `AX-P-10001` (Plot), `AX-V-10002` (Villa), `AX-A-10003` (Apartment), `AX-C-10004` (Commercial), `AX-F-10005` (Farm), `AX-H-10006` (House)
+- Atomic counter starting from 10001
+- Migration endpoint for existing properties
+- Property ID shown on: detail page badge, MyProperties cards, share card
+
+#### Property Share Card (#3, #4)
+- Canvas-based image generation (html-to-image)
+- Card layout: Property image → Title banner → Details grid → Agent branding → QR code → Footer
+- Agent info: name, profile photo, "AgentApex Property Advisor" designation
+- QR code for Play Store download
+- **Contact details NOT shown** — footer says "Search Property ID in AgentApex App"
+- "Share via WhatsApp" and "Download Card" buttons
+
+#### Property Search by ID (#new)
+- Public route `/agentapex/search-property` (no auth required)
+- Enter AX-P-10001 → View property + agent branding
+- "Request Contact Details" button → Creates lead (ensures app installs & lead tracking)
+
+#### Property Image Management (#23 partial)
+- Set cover image (star icon)
+- Delete individual images
+- Drag-to-reorder images
+- "Images" button on PropertyDetail for owners
+
 ### Phase 1 - Core Systems (Completed 2026-03-31)
 
-#### System 1: Property Sharing (#3, #4)
-- Property share card with agent name, photo, designation, contact number
-- WhatsApp sharing with agent branding template
+#### System 1: Property Sharing
+- WhatsApp sharing with agent branding template (no contact details)
 - `GET /api/agentapex/properties/{id}/share-data` returns property + agent info
-- Share text includes: Property type, price, area, location, agent details
 
 #### System 2: Followup System (#5, #6, #7, #8)
 - Active/Hidden tabs with counts
 - Search contacts by name, phone, location
-- Add single contact form (name, phone, location, notes)
-- Bulk add multiple contacts at once
-- Add follow-up notes with status (Interested/Not Interested/Reschedule/Follow-up Again)
-- Schedule next follow-up date/time
-- Move contacts between Active/Hidden tabs
-- Delete contacts
-- Followup history tracking
-- Phone contact import (via Contact Picker API)
+- Add single + bulk contacts
+- Follow-up notes with status tracking
+- Phone contact import (Contact Picker API)
 
 #### System 3: Lead Pipeline (#11)
-- Cold → Warm → Hot pipeline UI
-- Pipeline stats cards (Hot/Warm/Cold/New/Closed)
-- Search leads by name, phone, location
-- Filter tabs (All/New/Contacted/Hot/Warm/Cold/Closed)
-- Status change drawer with one-tap status update
-- Property info enrichment on lead cards
-- Call/WhatsApp quick actions
+- Cold → Warm → Hot pipeline with stats cards and filter tabs
+- Status change drawer, property enrichment on lead cards
 
-#### Profile Enhancement (#2, #9)
-- Profile photo upload via Object Storage
-- Designation field (e.g., Property Consultant)
-- Stats row (Properties/Leads/Follow-ups)
-- WhatsApp App Invite card with branding message
-- Share icon in header for quick invite
+#### Profile (#2, #9)
+- Profile photo upload via Object Storage + designation field
+- WhatsApp App Invite card
 
 #### Bug Fixes
-- #10: Multiple document/image upload now works (was single only)
-- #12: Map points with invalid/zero coordinates filtered out
+- #10: Multiple document/image upload ✅
+- #12: Map points with invalid coordinates filtered ✅
 
 ### Previously Completed
 - AgentApex mobile-first PWA with OTP login
-- Property CRUD (Post, Edit, Delete, Images, Documents)
-- Map Search with Google Places Autocomplete
+- Property CRUD, Map Search with Google Places Autocomplete
 - 7-Agent AI WhatsApp Sales Engine
 - Meta WhatsApp Cloud API integration
-- Emergent Object Storage for property images
-- Admin panel for tenant management
-- Requirements/buyer posting system
-- Favorites system
-- Voice property posting
+- Emergent Object Storage, Admin panel
+- Requirements/buyer posting, Favorites, Voice property posting
 
 ---
 
 ## Prioritized Backlog
 
-### P1 - Next Phase (Medium Priority)
+### P1 - Next Phase
 - #1: Mobile app overall UI improvements
 - #15: Multiple owners option in property edit
 - #16: Password protection to view owner contacts
@@ -84,43 +92,28 @@ Build a production-ready, multi-tenant Agentic AI workflow for the RealApex plat
 - #20: WhatsApp-style chat interface for property notes
 - #24: Radius filtering in map search
 
-### P2 - Future (Low-Medium Priority)
-- #18: Complaint/Enquiry module for agents
-- #21: + icon attach gallery/documents/notes
-- #22: Private Info toggle (hide additional info from customers)
-- #23: Property images editing (crop/reorder)
+### P2 - Future
+- #18: Complaint/Enquiry module
+- #21: Attachments (gallery/documents/notes)
+- #22: Private Info toggle
 - #25: Audio-based property posting
-- #26: Realapex projects show with icon
-- #27: Separate notifications module (Interested Areas/Notifications/Requirements)
+- #26: Realapex projects icon
+- #27: Notifications module
 
 ### P3 - Infrastructure
-- Agent Dashboard UI (human agents monitor/takeover AI conversations)
-- Scalability Refactor (Redis/Celery migration)
-- API Route Conflict resolution (customer_payments.py vs stripe_payments.py)
+- Agent Dashboard UI, Redis/Celery migration, API Route Conflict
 
 ---
 
 ## Known Issues
-- WhatsApp message sending from frontend /leads page: BLOCKED - Meta phone number in PENDING status
-- PropertyEdit.js: May have mid-edit state from Google Places Autocomplete migration
+- WhatsApp message sending from /leads page: BLOCKED (Meta phone PENDING)
+- PropertyEdit.js: Mid-edit state from Google Places migration
 
-## API Endpoints (AgentApex)
-- `POST /api/agentapex/auth/send-otp` - Send OTP
-- `POST /api/agentapex/auth/verify-otp` - Verify OTP & get token
-- `GET /api/agentapex/auth/me` - Get current user
-- `PUT /api/agentapex/auth/profile` - Update profile (name, email, designation)
-- `POST /api/agentapex/auth/profile-image` - Upload profile photo
-- `GET /api/agentapex/properties` - List properties
-- `POST /api/agentapex/properties` - Create property
-- `GET /api/agentapex/properties/{id}` - Get property detail
-- `POST /api/agentapex/properties/{id}/images` - Upload multiple images
-- `GET /api/agentapex/properties/{id}/share-data` - Get share card data
-- `GET /api/agentapex/leads` - Get leads with property enrichment
-- `GET /api/agentapex/leads/stats` - Get pipeline stats
-- `PUT /api/agentapex/leads/{id}/status` - Update lead status
-- `GET /api/agentapex/followups` - Get followups (filter: hidden, search)
-- `POST /api/agentapex/followups` - Create followup
-- `POST /api/agentapex/followups/bulk` - Bulk add contacts
-- `PUT /api/agentapex/followups/{id}` - Update followup note
-- `PUT /api/agentapex/followups/{id}/toggle-hidden` - Toggle Active/Hidden
-- `DELETE /api/agentapex/followups/{id}` - Delete followup
+## Key API Endpoints
+- `GET /api/agentapex/properties/search-by-id?property_id=AX-P-10001` (PUBLIC)
+- `GET /api/agentapex/properties/{id}/share-data`
+- `PUT /api/agentapex/properties/{id}/cover-image?index=0`
+- `PUT /api/agentapex/properties/{id}/reorder-images`
+- `DELETE /api/agentapex/properties/{id}/images/{index}`
+- `POST /api/agentapex/migrate/property-ids`
+- All followup, lead, profile endpoints from Phase 1
