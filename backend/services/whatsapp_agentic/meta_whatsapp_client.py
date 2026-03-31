@@ -43,15 +43,24 @@ class MetaWhatsAppClient:
     
     def __init__(self):
         self.base_url = "https://graph.facebook.com/v25.0"
-        self.access_token = os.getenv("META_WHATSAPP_ACCESS_TOKEN", "")
-        self.phone_number_id = os.getenv("META_WHATSAPP_PHONE_NUMBER_ID", "")
-        self.waba_id = os.getenv("META_WHATSAPP_WABA_ID", "")
         self.timeout = 30
         self._session_manager = None
         self._db = None
         
         # Fallback template for expired sessions
         self.fallback_template = os.getenv("WHATSAPP_FALLBACK_TEMPLATE", "hello_world")
+    
+    @property
+    def access_token(self):
+        return os.getenv("META_WHATSAPP_ACCESS_TOKEN", "")
+    
+    @property
+    def phone_number_id(self):
+        return os.getenv("META_WHATSAPP_PHONE_NUMBER_ID", "")
+    
+    @property
+    def waba_id(self):
+        return os.getenv("META_WHATSAPP_WABA_ID", "")
     
     def set_session_manager(self, session_manager, db):
         """Set session manager and database for session tracking"""
