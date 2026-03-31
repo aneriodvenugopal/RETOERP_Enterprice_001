@@ -73,7 +73,7 @@ def validate_file(content_type: str, extension: str, file_size: int) -> dict:
     if not category:
         return {
             "valid": False,
-            "error": f"File type not allowed. Supported: images (jpg, png), documents (pdf, doc), videos (mp4)"
+            "error": "File type not allowed. Supported: images (jpg, png), documents (pdf, doc), videos (mp4)"
         }
     
     max_size = ALLOWED_TYPES[category]["max_size"]
@@ -165,22 +165,7 @@ class FileUploadService:
         related_id: Optional[str] = None,
         metadata: Optional[dict] = None
     ) -> dict:
-        """
-        Upload a file and store metadata in database
-        
-        Args:
-            file_content: Raw file bytes
-            original_filename: Original filename
-            content_type: MIME type
-            context: Upload context (customer_document, property_media, etc.)
-            tenant_id: Tenant ID
-            uploaded_by: User ID who uploaded
-            related_id: Related entity ID (customer_id, property_id, etc.)
-            metadata: Additional metadata
-        
-        Returns:
-            dict with upload result
-        """
+        """Upload a file to object storage and store metadata in database"""
         # Validate file
         extension = original_filename.split(".")[-1] if "." in original_filename else ""
         validation = validate_file(content_type, extension, len(file_content))
@@ -191,15 +176,35 @@ class FileUploadService:
         # Generate unique filename
         unique_filename = generate_unique_filename(original_filename)
         
-        # Get upload path
+        # Try object storage first (persistent), fallback to local
+        storage_path = None
+        try:
+            from services.object_storage import put_object, get_mime_type
+            obj_path = f"realapex/{context}/{tenant_id}/{unique_filename}"
+            mime = content_type or get_mime_type(original_filename)
+            result = put_object(obj_path, file_content, mime)
+            storage_path = result.get("path", obj_path)
+            
+            # Also upload thumbnail for images
+            thumbnail_storage_path = None
+            if validation["category"] == "image":
+                try:
+                    thumb_data = self._generate_thumbnail_bytes(file_content)
+                    if thumb_data:
+                        thumb_filename = f"thumb_{unique_filename}"
+                        thumb_path = f"realapex/{context}/{tenant_id}/{thumb_filename}"
+                        put_object(thumb_path, thumb_data, "image/jpeg")
+                        thumbnail_storage_path = thumb_path
+                except Exception:
+                    pass
+        except Exception as e:
+            print(f"Object storage upload failed, falling back to local: {e}")
+        
+        # Also save locally as backup
         file_path = get_upload_path(context, tenant_id, unique_filename)
+        await save_file(file_content, file_path)
         
-        # Save file
-        saved = await save_file(file_content, file_path)
-        if not saved:
-            return {"success": False, "error": "Failed to save file"}
-        
-        # Generate thumbnail for images
+        # Generate thumbnail locally for images (if not done via object storage)
         thumbnail_url = None
         if validation["category"] == "image":
             thumb_filename = f"thumb_{unique_filename}"
@@ -221,7 +226,9 @@ class FileUploadService:
             "context": context,
             "file_size": len(file_content),
             "file_url": file_url,
+            "storage_path": storage_path,
             "thumbnail_url": thumbnail_url,
+            "thumbnail_storage_path": thumbnail_storage_path if storage_path else None,
             "file_path": file_path,
             "related_id": related_id,
             "metadata": metadata or {},
@@ -235,6 +242,7 @@ class FileUploadService:
         return {
             "success": True,
             "file_id": file_record["id"],
+            "url": file_url,
             "file_url": file_url,
             "thumbnail_url": thumbnail_url,
             "filename": unique_filename,
@@ -242,6 +250,19 @@ class FileUploadService:
             "file_size": len(file_content),
             "category": validation["category"]
         }
+    
+    def _generate_thumbnail_bytes(self, file_content: bytes, size: tuple = (300, 300)) -> Optional[bytes]:
+        """Generate thumbnail bytes from image content"""
+        try:
+            with Image.open(io.BytesIO(file_content)) as img:
+                img.thumbnail(size, Image.Resampling.LANCZOS)
+                if img.mode in ('RGBA', 'P'):
+                    img = img.convert('RGB')
+                buf = io.BytesIO()
+                img.save(buf, "JPEG", quality=85)
+                return buf.getvalue()
+        except Exception:
+            return None
     
     async def get_files(
         self,

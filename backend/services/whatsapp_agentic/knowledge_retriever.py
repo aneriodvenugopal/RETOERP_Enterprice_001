@@ -123,7 +123,12 @@ class KnowledgeRetriever:
                 "dimensions": plot.get("dimensions", ""),
                 "status": plot.get("status"),
                 "project_id": plot.get("project_id"),
-                "layout_id": plot.get("layout_id")
+                "layout_id": plot.get("layout_id"),
+                "location": plot.get("location") or plot.get("location_text") or "",
+                "city": plot.get("city", ""),
+                "state": plot.get("state", ""),
+                "latitude": plot.get("latitude"),
+                "longitude": plot.get("longitude")
             })
     
     async def _get_pricing_info(
@@ -312,12 +317,20 @@ Project: {proj['name']}
                 price_str = f"₹{price:,.0f}" if price else "Contact for price"
                 area = plot.get('area')
                 area_str = f"{area} {plot.get('area_unit', 'sqft')}" if area else "N/A"
+                location = plot.get('location', '')
+                city = plot.get('city', '')
+                location_str = f"{location}, {city}".strip(', ') if location or city else "N/A"
+                lat = plot.get('latitude')
+                lng = plot.get('longitude')
+                maps_link = f"https://maps.google.com/?q={lat},{lng}" if lat and lng else ""
                 
                 context_parts.append(f"""
 Plot #{plot.get('plot_number', 'N/A')}
 - Area: {area_str}, Facing: {plot.get('facing', 'N/A')}
 - Price: {price_str}
 - Status: {plot.get('status', 'Available')}
+- Location: {location_str}
+{f'- Maps: {maps_link}' if maps_link else ''}
 """)
         
         # Pricing

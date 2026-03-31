@@ -4,17 +4,16 @@ Endpoints for file upload, retrieval, and management
 """
 
 from fastapi import APIRouter, HTTPException, Request, UploadFile, File, Form, Query
-from fastapi.responses import FileResponse, StreamingResponse
+from fastapi.responses import FileResponse, StreamingResponse, Response
 from typing import Optional, List
 from middleware.auth import get_current_user
 from services.file_upload_service import FileUploadService, UPLOAD_CONTEXTS, get_upload_path
 import os
 
-router = APIRouter(prefix="/files", tags=["files"])
-
-
 def get_db(request: Request):
     return request.app.state.db
+
+router = APIRouter(prefix="/files", tags=["files"])
 
 
 @router.post("/upload")
@@ -168,7 +167,7 @@ async def list_files(
 
 @router.get("/{context}/{tenant_id}/{filename}")
 async def serve_file(context: str, tenant_id: str, filename: str, request: Request):
-    """Serve uploaded file"""
+    """Serve uploaded file - checks object storage first, then local"""
     # Validate context
     if context not in UPLOAD_CONTEXTS:
         raise HTTPException(status_code=404, detail="Invalid path")
@@ -177,36 +176,45 @@ async def serve_file(context: str, tenant_id: str, filename: str, request: Reque
     if ".." in filename or "/" in filename:
         raise HTTPException(status_code=400, detail="Invalid filename")
     
-    file_path = get_upload_path(context, tenant_id, filename)
-    
-    if not os.path.exists(file_path):
-        raise HTTPException(status_code=404, detail="File not found")
-    
     # Determine content type
     extension = filename.split(".")[-1].lower() if "." in filename else ""
     content_types = {
-        "jpg": "image/jpeg",
-        "jpeg": "image/jpeg",
-        "png": "image/png",
-        "gif": "image/gif",
-        "webp": "image/webp",
-        "pdf": "application/pdf",
-        "doc": "application/msword",
+        "jpg": "image/jpeg", "jpeg": "image/jpeg", "png": "image/png",
+        "gif": "image/gif", "webp": "image/webp", "pdf": "application/pdf",
+        "doc": "application/msword", "mp4": "video/mp4", "webm": "video/webm",
+        "mov": "video/quicktime",
         "docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         "xls": "application/vnd.ms-excel",
-        "xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        "mp4": "video/mp4",
-        "webm": "video/webm",
-        "mov": "video/quicktime"
+        "xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     }
-    
     media_type = content_types.get(extension, "application/octet-stream")
     
-    return FileResponse(
-        file_path,
-        media_type=media_type,
-        filename=filename
-    )
+    # Try local file first
+    file_path = get_upload_path(context, tenant_id, filename)
+    if os.path.exists(file_path):
+        return FileResponse(file_path, media_type=media_type, filename=filename)
+    
+    # Try object storage
+    try:
+        from services.object_storage import get_object
+        storage_path = f"realapex/{context}/{tenant_id}/{filename}"
+        
+        # Also check DB for storage_path
+        db = get_db(request)
+        file_record = await db.files.find_one(
+            {"filename": filename, "tenant_id": tenant_id},
+            {"_id": 0, "storage_path": 1, "content_type": 1}
+        )
+        if file_record and file_record.get("storage_path"):
+            storage_path = file_record["storage_path"]
+            media_type = file_record.get("content_type", media_type)
+        
+        content, obj_content_type = get_object(storage_path)
+        return Response(content=content, media_type=media_type)
+    except Exception as e:
+        print(f"Object storage fetch failed for {filename}: {e}")
+    
+    raise HTTPException(status_code=404, detail="File not found")
 
 
 @router.delete("/{file_id}")

@@ -170,7 +170,9 @@ const PropertyEditTabs = ({
         if (response.ok) {
           const data = await response.json();
           newImages.push({
-            url: data.url,
+            url: data.url || data.file_url,
+            thumbnail_url: data.thumbnail_url,
+            file_id: data.file_id,
             caption: '',
             is_cover: newImages.length === 0,
             uploaded_at: new Date().toISOString()
