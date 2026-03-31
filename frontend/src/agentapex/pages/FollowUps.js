@@ -252,7 +252,38 @@ const FollowUps = () => {
               <Users className="w-5 h-5 text-blue-500" />
             </button>
             <button 
-              onClick={() => setShowAdd(true)}
+              onClick={async () => {
+                // Try to open phone contacts directly
+                if ('contacts' in navigator && 'ContactsManager' in window) {
+                  try {
+                    const props = ['name', 'tel'];
+                    const opts = { multiple: true };
+                    const selected = await navigator.contacts.select(props, opts);
+                    if (selected && selected.length > 0) {
+                      const newContacts = selected.map(c => ({
+                        contact_name: c.name?.[0] || '',
+                        contact_phone: c.tel?.[0]?.replace(/\D/g, '') || ''
+                      })).filter(c => c.contact_name && c.contact_phone);
+                      
+                      if (newContacts.length > 0) {
+                        try {
+                          const res = await api().post('/followups/bulk', { contacts: newContacts });
+                          toast.success(res.data.message || `${newContacts.length} contact(s) added`);
+                          fetchFollowups();
+                        } catch (e) {
+                          toast.error('Failed to add contacts');
+                        }
+                      }
+                    }
+                  } catch (e) {
+                    // User cancelled or API failed, show manual form
+                    setShowAdd(true);
+                  }
+                } else {
+                  // Contact Picker not available, show manual form
+                  setShowAdd(true);
+                }
+              }}
               data-testid="add-followup-btn"
               className="w-10 h-10 flex items-center justify-center"
             >
@@ -464,12 +495,12 @@ const FollowUps = () => {
             <div className="p-4 pb-8">
               <div className="w-10 h-1 bg-gray-300 rounded-full mx-auto mb-4" />
               <h2 className="text-xl font-bold text-gray-900 mb-2">Add Contact</h2>
-              <p className="text-sm text-gray-500 mb-6">Add from phone or enter manually</p>
+              <p className="text-sm text-gray-500 mb-6">Pick from phone contacts or enter manually</p>
               
-              {'contacts' in navigator && (
-                <button
-                  type="button"
-                  onClick={async () => {
+              <button
+                type="button"
+                onClick={async () => {
+                  if ('contacts' in navigator && 'ContactsManager' in window) {
                     try {
                       const props = ['name', 'tel'];
                       const selected = await navigator.contacts.select(props, { multiple: false });
@@ -481,13 +512,18 @@ const FollowUps = () => {
                         });
                         toast.success('Contact imported!');
                       }
-                    } catch (e) { console.error(e); }
-                  }}
-                  className="w-full py-4 mb-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold rounded-2xl flex items-center justify-center gap-3 shadow-lg"
-                >
-                  <UserPlus className="w-5 h-5" /> Import from Phone
-                </button>
-              )}
+                    } catch (e) { 
+                      toast.info('Open this app on your mobile phone to import contacts');
+                    }
+                  } else {
+                    toast.info('Contact import works only on mobile phones. Enter details manually below.');
+                  }
+                }}
+                data-testid="import-single-contact"
+                className="w-full py-4 mb-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold rounded-2xl flex items-center justify-center gap-3 shadow-lg"
+              >
+                <UserPlus className="w-5 h-5" /> Pick from Phone Contacts
+              </button>
               
               <div className="relative mb-4">
                 <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-200" /></div>
