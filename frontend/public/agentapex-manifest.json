@@ -1,7 +1,7 @@
 {
   "name": "AgentApex - Free Pocket Diary for Land Agents",
   "short_name": "AgentApex",
-  "description": "FREE pocket diary for real estate agents to track land deals, find nearby property leads & manage sales. Post properties, view map, track follow-ups.",
+  "description": "FREE pocket diary for real estate agents to track land deals, find nearby property leads and manage sales. Post properties, view on map, track follow-ups, generate share cards and manage your CRM pipeline.",
   "start_url": "/agentapex",
   "scope": "/agentapex",
   "id": "/agentapex",
@@ -75,7 +75,7 @@
       "sizes": "512x512",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "AgentApex Home Screen"
+      "label": "AgentApex Dashboard - Property Management"
     }
   ],
   "related_applications": [],
