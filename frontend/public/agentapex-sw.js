@@ -1,24 +1,20 @@
-// AgentApex Service Worker for PWA
+// AgentApex Service Worker
 const CACHE_NAME = 'agentapex-v1';
 const OFFLINE_URL = '/agentapex';
 
-// Assets to cache for offline use
-const ASSETS_TO_CACHE = [
+// Assets to pre-cache
+const PRECACHE_ASSETS = [
   '/agentapex',
-  '/agentapex/',
-  '/agentapex-manifest.json',
   '/agentapex-icon-192.png',
   '/agentapex-icon-512.png',
   '/agentapex-apple-touch-icon.png'
 ];
 
-// Install event - cache essential files
+// Install event - pre-cache essential assets
 self.addEventListener('install', (event) => {
-  console.log('[AgentApex SW] Installing...');
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('[AgentApex SW] Caching app shell');
-      return cache.addAll(ASSETS_TO_CACHE);
+      return cache.addAll(PRECACHE_ASSETS);
     })
   );
   self.skipWaiting();
@@ -26,54 +22,31 @@ self.addEventListener('install', (event) => {
 
 // Activate event - clean old caches
 self.addEventListener('activate', (event) => {
-  console.log('[AgentApex SW] Activating...');
   event.waitUntil(
-    caches.keys().then((keyList) => {
+    caches.keys().then((cacheNames) => {
       return Promise.all(
-        keyList.map((key) => {
-          if (key !== CACHE_NAME) {
-            console.log('[AgentApex SW] Removing old cache:', key);
-            return caches.delete(key);
-          }
-        })
+        cacheNames
+          .filter((name) => name !== CACHE_NAME)
+          .map((name) => caches.delete(name))
       );
     })
   );
   self.clients.claim();
 });
 
-// Fetch event - network first, fallback to cache
+// Fetch event - network first, cache fallback
 self.addEventListener('fetch', (event) => {
-  // Only handle agentapex routes
-  if (!event.request.url.includes('/agentapex') && 
-      !event.request.url.includes('/api/agentapex')) {
-    return;
-  }
-
   // Skip non-GET requests
-  if (event.request.method !== 'GET') {
-    return;
-  }
+  if (event.request.method !== 'GET') return;
 
-  // For API requests - network only
-  if (event.request.url.includes('/api/')) {
-    event.respondWith(
-      fetch(event.request).catch(() => {
-        return new Response(
-          JSON.stringify({ error: 'Offline', message: 'No network connection' }),
-          { headers: { 'Content-Type': 'application/json' } }
-        );
-      })
-    );
-    return;
-  }
+  // Skip API calls
+  if (event.request.url.includes('/api/')) return;
 
-  // For page requests - network first, cache fallback
   event.respondWith(
     fetch(event.request)
       .then((response) => {
-        // Clone and cache successful responses
-        if (response.status === 200) {
+        // Cache successful responses
+        if (response.ok) {
           const responseClone = response.clone();
           caches.open(CACHE_NAME).then((cache) => {
             cache.put(event.request, responseClone);
@@ -82,78 +55,15 @@ self.addEventListener('fetch', (event) => {
         return response;
       })
       .catch(() => {
-        // Fallback to cache
+        // Serve from cache if network fails
         return caches.match(event.request).then((cachedResponse) => {
-          if (cachedResponse) {
-            return cachedResponse;
+          if (cachedResponse) return cachedResponse;
+          // For navigation requests, return the app shell
+          if (event.request.mode === 'navigate') {
+            return caches.match(OFFLINE_URL);
           }
-          // If no cache, return the offline page
-          return caches.match(OFFLINE_URL);
+          return new Response('Offline', { status: 503, statusText: 'Offline' });
         });
       })
   );
 });
-
-// Push notification handler
-self.addEventListener('push', (event) => {
-  console.log('[AgentApex SW] Push received');
-  
-  let data = { title: 'AgentApex', body: 'New notification', icon: '/agentapex-icon-192.png' };
-  
-  if (event.data) {
-    try {
-      data = event.data.json();
-    } catch (e) {
-      data.body = event.data.text();
-    }
-  }
-
-  const options = {
-    body: data.body || data.message,
-    icon: '/agentapex-icon-192.png',
-    badge: '/agentapex-icon-192.png',
-    vibrate: [100, 50, 100],
-    data: {
-      url: data.url || '/agentapex',
-      dateOfArrival: Date.now()
-    },
-    actions: [
-      { action: 'open', title: 'Open' },
-      { action: 'close', title: 'Close' }
-    ]
-  };
-
-  event.waitUntil(
-    self.registration.showNotification(data.title || 'AgentApex', options)
-  );
-});
-
-// Notification click handler
-self.addEventListener('notificationclick', (event) => {
-  console.log('[AgentApex SW] Notification clicked');
-  event.notification.close();
-
-  if (event.action === 'close') {
-    return;
-  }
-
-  const urlToOpen = event.notification.data?.url || '/agentapex';
-
-  event.waitUntil(
-    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
-      // Check if there's already a window/tab open
-      for (const client of windowClients) {
-        if (client.url.includes('/agentapex') && 'focus' in client) {
-          client.navigate(urlToOpen);
-          return client.focus();
-        }
-      }
-      // Open new window if none found
-      if (clients.openWindow) {
-        return clients.openWindow(urlToOpen);
-      }
-    })
-  );
-});
-
-console.log('[AgentApex SW] Service Worker loaded');

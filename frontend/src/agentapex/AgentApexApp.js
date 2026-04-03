@@ -217,10 +217,10 @@ const SwipeBackHandler = ({ children }) => {
       manifestLink.href = '/agentapex-manifest.json';
     }
     
-    // Set theme color for AgentApex (amber)
+    // Set theme color for AgentApex (navy blue)
     let themeColor = document.querySelector('meta[name="theme-color"]');
     if (themeColor) {
-      themeColor.content = '#F59E0B';
+      themeColor.content = '#1a365d';
     }
     
     // Add apple-touch-icon for iOS
