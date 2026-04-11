@@ -25,6 +25,12 @@
                     document.getElementById('app-touch-icon-180').href = '/realapex-logo.png';
                 } else {
                     document.title = 'AgentApex - Property Intelligence';
+                    // Register Service Worker for AgentApex PWA
+                    if ('serviceWorker' in navigator) {
+                        navigator.serviceWorker.register('/pwabuilder-sw.js')
+                            .then(function(reg) { console.log('[AgentApex] SW registered', reg.scope); })
+                            .catch(function(err) { console.log('[AgentApex] SW failed', err); });
+                    }
                 }
             })();
         </script>
