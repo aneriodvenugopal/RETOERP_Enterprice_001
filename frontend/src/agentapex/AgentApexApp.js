@@ -192,10 +192,10 @@ const PublicRoute = ({ children }) => {
   return <PageWrapper>{children}</PageWrapper>;
 };
 
-// Register AgentApex Service Worker for PWA
+// Register AgentApex Service Worker for PWA (PWABuilder compatible)
 const registerServiceWorker = () => {
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/agentapex-sw.js', { scope: '/agentapex' })
+    navigator.serviceWorker.register('/pwabuilder-sw.js', { scope: '/agentapex' })
       .then((registration) => {
         console.log('[AgentApex] SW registered:', registration.scope);
       })
