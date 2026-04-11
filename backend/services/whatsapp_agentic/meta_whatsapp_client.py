@@ -42,7 +42,7 @@ class MetaWhatsAppClient:
     """
     
     def __init__(self):
-        self.base_url = "https://graph.facebook.com/v25.0"
+        self.base_url = "https://graph.facebook.com/v19.0"
         self.timeout = 30
         self._session_manager = None
         self._db = None
