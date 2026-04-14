@@ -77,6 +77,8 @@ Build a production-ready, multi-tenant Agentic AI workflow for the RealApex plat
 - **Bot Loop Prevention**: Ignores messages from own WhatsApp number
 - **Rate Limiting**: Per-phone 5-second cooldown to prevent rapid-fire event floods
 - **POST Always Returns 200**: Prevents Meta retry storms that consume credits
+- **Template Integration**: Added `follow_up_template` (ID: 2876419272756500) and `leadintroductiontemplate` (ID: 2013287089623141) with dedicated API endpoints (`/send-followup`, `/send-introduction`)
+- **Improved Error Capture**: Template send errors now show full Meta error message
 
 ### Blocked:
 - WhatsApp message **sending** still blocked (Meta WABA account needs Payment Method added by user)

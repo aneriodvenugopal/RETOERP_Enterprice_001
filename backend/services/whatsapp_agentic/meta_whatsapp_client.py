@@ -48,7 +48,7 @@ class MetaWhatsAppClient:
         self._db = None
         
         # Fallback template for expired sessions
-        self.fallback_template = os.getenv("WHATSAPP_FALLBACK_TEMPLATE", "hello_world")
+        self.fallback_template = os.getenv("WHATSAPP_FALLBACK_TEMPLATE", "follow_up_template")
     
     @property
     def access_token(self):
@@ -293,7 +293,24 @@ class MetaWhatsAppClient:
                 
                 result = response.json() if response.status_code in [200, 201] else {}
                 
-                print(f"📤 Template Send Response: {response.status_code} - {result}")
+                logger.info(f"📤 Template Send Response: {response.status_code} - {result}")
+                
+                if response.status_code not in [200, 201]:
+                    error_data = {}
+                    try:
+                        error_data = response.json()
+                    except Exception:
+                        pass
+                    error_msg = error_data.get("error", {}).get("message", f"HTTP {response.status_code}")
+                    error_code = error_data.get("error", {}).get("code")
+                    return {
+                        "success": False,
+                        "status_code": response.status_code,
+                        "error_code": error_code,
+                        "error": error_msg,
+                        "message_id": None,
+                        "response": error_data
+                    }
                 
                 return {
                     "success": response.status_code in [200, 201],
@@ -611,6 +628,71 @@ class MetaWhatsAppClient:
                 
         except Exception as e:
             return {"success": False, "error": "exception", "message": str(e)}
+    
+    # ============ APPROVED TEMPLATE REGISTRY ============
+    
+    TEMPLATES = {
+        "follow_up_template": {
+            "id": "2876419272756500",
+            "name": "follow_up_template",
+            "category": "MARKETING",
+            "language": "en",
+            "params": ["name", "agent", "area"],
+            "description": "Follow-up for existing leads"
+        },
+        "leadintroductiontemplate": {
+            "id": "2013287089623141",
+            "name": "leadintroductiontemplate",
+            "category": "MARKETING",
+            "language": "en",
+            "params": ["name", "agent", "area"],
+            "description": "Introduction for new leads"
+        }
+    }
+    
+    async def send_follow_up(
+        self,
+        phone: str,
+        customer_name: str,
+        agent_name: str,
+        area: str
+    ) -> Dict[str, Any]:
+        """
+        Send follow_up_template to a lead.
+        
+        Template body:
+        Hi {{1}}! This is {{2}} from Vijayawada.
+        Just checking if you're still interested in properties at {{3}}.
+        Reply to continue our conversation.
+        """
+        return await self.send_template_message(
+            phone=phone,
+            template_name="follow_up_template",
+            template_params=[customer_name, agent_name, area],
+            language="en"
+        )
+    
+    async def send_lead_introduction(
+        self,
+        phone: str,
+        customer_name: str,
+        agent_name: str,
+        area: str
+    ) -> Dict[str, Any]:
+        """
+        Send leadintroductiontemplate to a new lead.
+        
+        Template body:
+        Hi {{1}}! I'm {{2}} from Vijayawada.
+        We have exciting property options in {{3}} area that match your requirements.
+        Would you like to know more? Reply YES to continue.
+        """
+        return await self.send_template_message(
+            phone=phone,
+            template_name="leadintroductiontemplate",
+            template_params=[customer_name, agent_name, area],
+            language="en"
+        )
     
     async def send_with_retry(
         self,
