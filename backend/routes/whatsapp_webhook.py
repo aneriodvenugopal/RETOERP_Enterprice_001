@@ -3,15 +3,22 @@ WhatsApp Webhook Handler for Meta Cloud API
 Handles incoming WhatsApp messages and triggers AI workflow
 
 Features:
+- Meta webhook verification (plain text challenge response)
+- Duplicate message dedup (in-memory cache)
+- Bot loop prevention (ignore own messages)
+- Per-phone rate limiting
 - 24-hour session management
 - Template fallback for expired sessions
 - Error handling and logging
 """
 
 from fastapi import APIRouter, Request, HTTPException, BackgroundTasks, Depends
+from fastapi.responses import PlainTextResponse
 from pydantic import BaseModel, Field
 from typing import Optional, Dict, Any, List
 from datetime import datetime, timezone
+from collections import OrderedDict
+import time
 import uuid
 import os
 import logging
@@ -28,6 +35,51 @@ load_dotenv()
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/whatsapp", tags=["WhatsApp AI"])
+
+# ============ Dedup & Rate Limit Caches ============
+
+class TTLCache:
+    """Simple in-memory TTL cache for dedup and rate limiting"""
+    def __init__(self, max_size=10000, ttl_seconds=300):
+        self._cache = OrderedDict()
+        self._max_size = max_size
+        self._ttl = ttl_seconds
+
+    def _evict(self):
+        now = time.time()
+        keys_to_delete = [k for k, (_, ts) in self._cache.items() if now - ts > self._ttl]
+        for k in keys_to_delete:
+            del self._cache[k]
+        while len(self._cache) > self._max_size:
+            self._cache.popitem(last=False)
+
+    def has(self, key: str) -> bool:
+        self._evict()
+        if key in self._cache:
+            _, ts = self._cache[key]
+            if time.time() - ts <= self._ttl:
+                return True
+            del self._cache[key]
+        return False
+
+    def set(self, key: str, value: Any = True):
+        self._evict()
+        self._cache[key] = (value, time.time())
+
+    def get_ts(self, key: str) -> float:
+        if key in self._cache:
+            _, ts = self._cache[key]
+            return ts
+        return 0.0
+
+
+# Dedup cache: stores message IDs for 5 minutes
+_message_dedup = TTLCache(max_size=10000, ttl_seconds=300)
+# Rate limit cache: stores last processing time per phone
+_rate_limit = TTLCache(max_size=5000, ttl_seconds=10)
+
+# Our own phone number (to prevent bot loops)
+OWN_PHONE_NUMBER_ID = os.getenv("META_WHATSAPP_PHONE_NUMBER_ID", "")
 
 
 def get_db(request: Request):
@@ -238,30 +290,68 @@ async def whatsapp_webhook(
     request: Request,
     background_tasks: BackgroundTasks
 ):
-    """Webhook endpoint for Meta WhatsApp Cloud API"""
+    """
+    Webhook endpoint for Meta WhatsApp Cloud API.
+    
+    - Returns 200 immediately (Meta requirement)
+    - Deduplicates by message ID
+    - Prevents bot loops (ignores own messages)
+    - Rate limits per phone number
+    - Processes messages in background
+    """
     db = get_db(request)
     
     try:
         raw_payload = await request.json()
-        print(f"WhatsApp Webhook received: {raw_payload}")
+        logger.info(f"WhatsApp Webhook POST received: {raw_payload}")
         
+        # Parse the Meta webhook payload format
         parsed = meta_whatsapp_client.parse_webhook_payload(raw_payload)
         
         if parsed.get("error"):
-            return {"status": "error", "message": "Failed to parse payload"}
+            # Still return 200 to Meta so it doesn't retry
+            return {"status": "ok"}
         
         phone = parsed.get("phone", "")
         message_text = parsed.get("text", "")
         message_id = parsed.get("message_id", "")
         
         if not phone or not message_text:
-            return {"status": "ok", "message": "Non-message webhook received"}
+            # Status updates, read receipts, etc. - acknowledge and ignore
+            return {"status": "ok"}
         
-        phone = normalize_phone(phone)
+        # --- DUPLICATE MESSAGE PROTECTION ---
+        if message_id and _message_dedup.has(message_id):
+            logger.info(f"Duplicate message ignored: {message_id}")
+            return {"status": "ok"}
+        if message_id:
+            _message_dedup.set(message_id)
+        
+        # --- BOT LOOP PREVENTION ---
+        # Ignore messages sent from our own WhatsApp number
+        own_number = os.getenv("META_WHATSAPP_PHONE_NUMBER_ID", "")
+        sender_phone = normalize_phone(phone)
+        # Also check raw phone digits against known own numbers from env
+        own_display = os.getenv("META_WHATSAPP_OWN_PHONE", "")
+        if own_display and normalize_phone(own_display) == sender_phone:
+            logger.info(f"Bot loop prevented: ignoring message from own number {sender_phone}")
+            return {"status": "ok"}
+        
+        # --- RATE LIMITING (per phone, 5 second cooldown) ---
+        rate_key = f"rate_{sender_phone}"
+        last_ts = _rate_limit.get_ts(rate_key)
+        if last_ts and (time.time() - last_ts) < 5:
+            logger.info(f"Rate limited: {sender_phone} (too fast)")
+            return {"status": "ok"}
+        _rate_limit.set(rate_key)
+        
+        # --- PROCESS IN BACKGROUND ---
+        phone = sender_phone
         tenant_id = await identify_tenant(db, raw_payload)
         
         if not tenant_id:
-            return {"status": "error", "message": "Tenant not identified"}
+            logger.warning("Tenant not identified from webhook payload")
+            return {"status": "ok"}
         
         lead = await find_or_create_lead(db, tenant_id, phone)
         lead_id = lead["id"]
@@ -276,35 +366,39 @@ async def whatsapp_webhook(
             message_id
         )
         
-        return {
-            "status": "ok",
-            "message": "Message received and processing",
-            "lead_id": lead_id
-        }
+        return {"status": "ok"}
         
     except Exception as e:
-        print(f"Webhook error: {e}")
-        return {"status": "error", "message": str(e)}
+        logger.error(f"Webhook error: {e}")
+        # Always return 200 to Meta to prevent retries
+        return {"status": "ok"}
 
 
 @router.get("/webhook")
 async def whatsapp_webhook_verify(request: Request):
-    """Webhook verification endpoint for Meta Cloud API"""
+    """
+    Webhook verification endpoint for Meta Cloud API.
+    
+    Meta sends: hub.mode, hub.verify_token, hub.challenge
+    Must return ONLY the challenge as plain text with HTTP 200.
+    Must return HTTP 403 if verification fails.
+    """
     params = request.query_params
     
-    # Meta sends hub.mode, hub.challenge, hub.verify_token
     mode = params.get("hub.mode")
     token = params.get("hub.verify_token")
     challenge = params.get("hub.challenge")
     
-    verify_token = os.getenv("META_WHATSAPP_VERIFY_TOKEN", os.getenv("WHATSAPP_VERIFY_TOKEN", "realapex_whatsapp_verify"))
+    verify_token = os.getenv("META_WHATSAPP_VERIFY_TOKEN", os.getenv("WHATSAPP_VERIFY_TOKEN", ""))
+    
+    logger.info(f"Webhook verify: mode={mode}, token_match={token == verify_token}, challenge={challenge}")
     
     if mode == "subscribe" and token == verify_token:
-        print("✅ Webhook verified successfully!")
-        return int(challenge) if challenge else 0
+        logger.info("Webhook verified successfully!")
+        return PlainTextResponse(content=str(challenge), status_code=200)
     
-    # For non-verification requests, return OK
-    return {"status": "ok", "message": "WhatsApp webhook active"}
+    logger.warning(f"Webhook verification FAILED: mode={mode}, token={token}")
+    return PlainTextResponse(content="Forbidden", status_code=403)
 
 
 # ============ API Endpoints ============

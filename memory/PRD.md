@@ -71,8 +71,16 @@ Build a production-ready, multi-tenant Agentic AI workflow for the RealApex plat
 
 ### Ignored by user: 15, 16, 17, 18
 
+### Phase 5 - WhatsApp Webhook Fix (2026-04-14)
+- **Webhook GET Verification**: Fixed to return plain text challenge (was returning JSON). Now returns `PlainTextResponse` with HTTP 200/403
+- **Duplicate Message Protection**: In-memory TTL cache deduplicates by `message_id` (5min window)
+- **Bot Loop Prevention**: Ignores messages from own WhatsApp number
+- **Rate Limiting**: Per-phone 5-second cooldown to prevent rapid-fire event floods
+- **POST Always Returns 200**: Prevents Meta retry storms that consume credits
+
 ### Blocked:
-- WhatsApp message sending (Meta WABA account restricted - user must visit Business Support Home)
+- WhatsApp message **sending** still blocked (Meta WABA account needs Payment Method added by user)
+- Phone number `9390893060` needs physical verification in Meta Dashboard
 
 ---
 
@@ -80,4 +88,6 @@ Build a production-ready, multi-tenant Agentic AI workflow for the RealApex plat
 - `GET /api/agentapex/properties/search-by-id?property_id=AX-P-10001` (PUBLIC)
 - `GET /api/agentapex/properties?latitude=X&longitude=Y&radius_km=Z`
 - `PUT /api/agentapex/properties/{id}` (partial update via PropertyUpdate model)
+- `GET /api/whatsapp/webhook?hub.mode=subscribe&hub.verify_token=...&hub.challenge=...` (Meta verification - returns plain text)
+- `POST /api/whatsapp/webhook` (Meta event receiver - dedup + rate limited)
 - All followup, lead, profile, share-data endpoints
