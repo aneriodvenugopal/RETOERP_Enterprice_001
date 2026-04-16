@@ -71,18 +71,21 @@ Build a production-ready, multi-tenant Agentic AI workflow for the RealApex plat
 
 ### Ignored by user: 15, 16, 17, 18
 
-### Phase 5 - WhatsApp Webhook Fix (2026-04-14)
-- **Webhook GET Verification**: Fixed to return plain text challenge (was returning JSON). Now returns `PlainTextResponse` with HTTP 200/403
+### Phase 5 - WhatsApp Webhook & API Fix (2026-04-14)
+- **Webhook GET Verification**: Fixed to return plain text challenge (was returning JSON). `PlainTextResponse` HTTP 200/403
 - **Duplicate Message Protection**: In-memory TTL cache deduplicates by `message_id` (5min window)
 - **Bot Loop Prevention**: Ignores messages from own WhatsApp number
 - **Rate Limiting**: Per-phone 5-second cooldown to prevent rapid-fire event floods
 - **POST Always Returns 200**: Prevents Meta retry storms that consume credits
-- **Template Integration**: Added `follow_up_template` (ID: 2876419272756500) and `leadintroductiontemplate` (ID: 2013287089623141) with dedicated API endpoints (`/send-followup`, `/send-introduction`)
-- **Improved Error Capture**: Template send errors now show full Meta error message
+- **WhatsApp API FIXED**: Resolved BSP permission issue. Messages now sending successfully via `+91 63093 56590` (Phone ID: `963130426884425`)
+- **Template Integration**: `follow_up_template` (4 params: name/agent/city/area), `leadintroductiontemplate` (4 params), `otp_1` (1 param)
+- **API Endpoints**: `/send-followup`, `/send-introduction`, `/approved-templates`
+- **API Version**: Updated to v21.0
 
-### Blocked:
-- WhatsApp message **sending** still blocked (Meta WABA account needs Payment Method added by user)
-- Phone number `9390893060` needs physical verification in Meta Dashboard
+### Active Credentials:
+- WABA: `25977390118562175` (Eloniot Software Solutions)
+- Phone: `+91 63093 56590` (ID: `963130426884425`, GREEN quality)
+- System User: `REALAPEX_Admin1` (ID: `61580667278343`)
 
 ---
 

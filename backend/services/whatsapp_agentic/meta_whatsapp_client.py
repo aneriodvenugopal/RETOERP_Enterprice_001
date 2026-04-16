@@ -42,7 +42,7 @@ class MetaWhatsAppClient:
     """
     
     def __init__(self):
-        self.base_url = "https://graph.facebook.com/v19.0"
+        self.base_url = "https://graph.facebook.com/v21.0"
         self.timeout = 30
         self._session_manager = None
         self._db = None
@@ -637,7 +637,7 @@ class MetaWhatsAppClient:
             "name": "follow_up_template",
             "category": "MARKETING",
             "language": "en",
-            "params": ["name", "agent", "area"],
+            "params": ["name", "agent", "city", "area"],
             "description": "Follow-up for existing leads"
         },
         "leadintroductiontemplate": {
@@ -645,8 +645,15 @@ class MetaWhatsAppClient:
             "name": "leadintroductiontemplate",
             "category": "MARKETING",
             "language": "en",
-            "params": ["name", "agent", "area"],
+            "params": ["name", "agent", "city", "area"],
             "description": "Introduction for new leads"
+        },
+        "otp_1": {
+            "name": "otp_1",
+            "category": "AUTHENTICATION",
+            "language": "en",
+            "params": ["otp_code"],
+            "description": "OTP verification"
         }
     }
     
@@ -655,20 +662,21 @@ class MetaWhatsAppClient:
         phone: str,
         customer_name: str,
         agent_name: str,
+        city: str,
         area: str
     ) -> Dict[str, Any]:
         """
         Send follow_up_template to a lead.
         
         Template body:
-        Hi {{1}}! This is {{2}} from Vijayawada.
-        Just checking if you're still interested in properties at {{3}}.
+        Hi {{1}}! This is {{2}} from {{3}}.
+        Just checking if you're still interested in properties at {{4}}.
         Reply to continue our conversation.
         """
         return await self.send_template_message(
             phone=phone,
             template_name="follow_up_template",
-            template_params=[customer_name, agent_name, area],
+            template_params=[customer_name, agent_name, city, area],
             language="en"
         )
     
@@ -677,20 +685,38 @@ class MetaWhatsAppClient:
         phone: str,
         customer_name: str,
         agent_name: str,
+        city: str,
         area: str
     ) -> Dict[str, Any]:
         """
         Send leadintroductiontemplate to a new lead.
         
         Template body:
-        Hi {{1}}! I'm {{2}} from Vijayawada.
-        We have exciting property options in {{3}} area that match your requirements.
+        Hi {{1}}! I'm {{2}} from {{3}}.
+        We have exciting property options in {{4}} area that match your requirements.
         Would you like to know more? Reply YES to continue.
         """
         return await self.send_template_message(
             phone=phone,
             template_name="leadintroductiontemplate",
-            template_params=[customer_name, agent_name, area],
+            template_params=[customer_name, agent_name, city, area],
+            language="en"
+        )
+    
+    async def send_otp(
+        self,
+        phone: str,
+        otp_code: str
+    ) -> Dict[str, Any]:
+        """
+        Send OTP verification template.
+        
+        Template body: *{{1}}* is your verification code.
+        """
+        return await self.send_template_message(
+            phone=phone,
+            template_name="otp_1",
+            template_params=[otp_code],
             language="en"
         )
     

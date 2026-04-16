@@ -1190,6 +1190,7 @@ class FollowUpRequest(BaseModel):
     phone: str
     customer_name: str
     agent_name: str
+    city: str = "Vijayawada"
     area: str
 
 
@@ -1198,39 +1199,32 @@ class LeadIntroRequest(BaseModel):
     phone: str
     customer_name: str
     agent_name: str
+    city: str = "Vijayawada"
     area: str
 
 
 @router.post("/send-followup")
 async def send_followup_template(req: FollowUpRequest):
     """
-    Send follow_up_template (ID: 2876419272756500)
+    Send follow_up_template (4 params: name, agent, city, area)
     
     Body preview:
-    Hi {{1}}! This is {{2}} from Vijayawada.
-    Just checking if you're still interested in properties at {{3}}.
+    Hi {{1}}! This is {{2}} from {{3}}.
+    Just checking if you're still interested in properties at {{4}}.
     Reply to continue our conversation.
-    
-    Example:
-    POST /api/whatsapp/send-followup
-    {
-        "phone": "919948303060",
-        "customer_name": "Ravi",
-        "agent_name": "Sai",
-        "area": "Santhinagar"
-    }
     """
     result = await meta_whatsapp_client.send_follow_up(
         phone=req.phone,
         customer_name=req.customer_name,
         agent_name=req.agent_name,
+        city=req.city,
         area=req.area
     )
     return {
         "success": result.get("success", False),
         "template": "follow_up_template",
         "phone": req.phone,
-        "params": {"name": req.customer_name, "agent": req.agent_name, "area": req.area},
+        "params": {"name": req.customer_name, "agent": req.agent_name, "city": req.city, "area": req.area},
         "message_id": result.get("message_id"),
         "error": result.get("error")
     }
@@ -1239,33 +1233,25 @@ async def send_followup_template(req: FollowUpRequest):
 @router.post("/send-introduction")
 async def send_introduction_template(req: LeadIntroRequest):
     """
-    Send leadintroductiontemplate (ID: 2013287089623141)
+    Send leadintroductiontemplate (4 params: name, agent, city, area)
     
     Body preview:
-    Hi {{1}}! I'm {{2}} from Vijayawada.
-    We have exciting property options in {{3}} area that match your requirements.
+    Hi {{1}}! I'm {{2}} from {{3}}.
+    We have exciting property options in {{4}} area that match your requirements.
     Would you like to know more? Reply YES to continue.
-    
-    Example:
-    POST /api/whatsapp/send-introduction
-    {
-        "phone": "919948303060",
-        "customer_name": "Ravi",
-        "agent_name": "Sai",
-        "area": "Santhinagar"
-    }
     """
     result = await meta_whatsapp_client.send_lead_introduction(
         phone=req.phone,
         customer_name=req.customer_name,
         agent_name=req.agent_name,
+        city=req.city,
         area=req.area
     )
     return {
         "success": result.get("success", False),
         "template": "leadintroductiontemplate",
         "phone": req.phone,
-        "params": {"name": req.customer_name, "agent": req.agent_name, "area": req.area},
+        "params": {"name": req.customer_name, "agent": req.agent_name, "city": req.city, "area": req.area},
         "message_id": result.get("message_id"),
         "error": result.get("error")
     }
@@ -1280,29 +1266,40 @@ async def get_approved_templates():
         "templates": [
             {
                 "name": "follow_up_template",
-                "id": "2876419272756500",
                 "category": "Marketing",
                 "language": "en",
                 "params": {
                     "1": "Customer name",
                     "2": "Agent name",
-                    "3": "Area/Project"
+                    "3": "City",
+                    "4": "Area/Project"
                 },
                 "endpoint": "POST /api/whatsapp/send-followup",
-                "body_preview": "Hi {{1}}! This is {{2}} from Vijayawada. Just checking if you're still interested in properties at {{3}}. Reply to continue our conversation."
+                "body_preview": "Hi {{1}}! This is {{2}} from {{3}}. Just checking if you're still interested in properties at {{4}}. Reply to continue our conversation."
             },
             {
                 "name": "leadintroductiontemplate",
-                "id": "2013287089623141",
                 "category": "Marketing",
                 "language": "en",
                 "params": {
                     "1": "Customer name",
                     "2": "Agent name",
-                    "3": "Area/Project"
+                    "3": "City",
+                    "4": "Area/Project"
                 },
                 "endpoint": "POST /api/whatsapp/send-introduction",
-                "body_preview": "Hi {{1}}! I'm {{2}} from Vijayawada. We have exciting property options in {{3}} area that match your requirements. Would you like to know more? Reply YES to continue."
+                "body_preview": "Hi {{1}}! I'm {{2}} from {{3}}. We have exciting property options in {{4}} area that match your requirements. Would you like to know more? Reply YES to continue."
+            },
+            {
+                "name": "otp_1",
+                "category": "Authentication",
+                "language": "en",
+                "params": {
+                    "1": "OTP code"
+                },
+                "body_preview": "*{{1}}* is your verification code."
             }
-        ]
+        ],
+        "sender": "+91 63093 56590",
+        "phone_number_id": "963130426884425"
     }
