@@ -82,30 +82,34 @@ const Leads = () => {
     "Are you looking to buy or invest?"
   ];
 
-  // WhatsApp Templates (Approved)
+  // WhatsApp Templates (Approved - Eloniot Software Solutions)
   const whatsappTemplates = [
     {
-      id: 'hello_world',
-      name: 'Welcome Message',
-      description: 'Send welcome greeting to lead',
-      language: 'en_US',
-      hasParams: false
-    },
-    {
-      id: 'sample_issue_resolution',
+      id: 'follow_up_template',
       name: 'Follow Up',
-      description: 'Check if issue was resolved',
-      language: 'en_US',
+      description: 'Follow-up with existing lead',
+      language: 'en',
       hasParams: true,
-      params: ['name']
+      params: ['name', 'agent', 'city', 'area'],
+      endpoint: '/api/whatsapp/send-followup'
     },
     {
-      id: 'sample_shipping_confirmation',
-      name: 'Update Notification',
-      description: 'Send delivery/update info',
-      language: 'en_US',
+      id: 'leadintroductiontemplate',
+      name: 'Welcome Message',
+      description: 'Introduce to new lead',
+      language: 'en',
       hasParams: true,
-      params: ['days']
+      params: ['name', 'agent', 'city', 'area'],
+      endpoint: '/api/whatsapp/send-introduction'
+    },
+    {
+      id: 'otp_1',
+      name: 'OTP Verification',
+      description: 'Send OTP code',
+      language: 'en',
+      hasParams: true,
+      params: ['otp_code'],
+      endpoint: '/api/whatsapp/send-template-live'
     }
   ];
 
@@ -299,27 +303,43 @@ const Leads = () => {
     }]);
     
     try {
-      // Build template payload
-      let templatePayload = {
-        phone: chatLead.phone,
-        template_name: template.id,
-        language: template.language
-      };
+      let response;
       
-      // Add parameters if needed
-      if (template.hasParams && template.params) {
-        if (template.id === 'sample_issue_resolution') {
-          templatePayload.params = [chatLead.name || 'Customer'];
-        } else if (template.id === 'sample_shipping_confirmation') {
-          templatePayload.params = ['3-5'];
+      if (template.id === 'follow_up_template' || template.id === 'leadintroductiontemplate') {
+        // Use dedicated endpoints for approved templates
+        const payload = {
+          phone: chatLead.phone,
+          customer_name: chatLead.name || 'Sir',
+          agent_name: user?.name || 'Agent',
+          city: 'Vijayawada',
+          area: chatLead.project_name || chatLead.interested_area || 'your area'
+        };
+        
+        response = await fetch(`${API_URL}${template.endpoint}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+      } else {
+        // Fallback for other templates (otp etc)
+        const templatePayload = {
+          phone: chatLead.phone,
+          template_name: template.id,
+          language: template.language
+        };
+        
+        if (template.hasParams && template.params) {
+          if (template.id === 'otp_1') {
+            templatePayload.params = [Math.floor(100000 + Math.random() * 900000).toString()];
+          }
         }
+        
+        response = await fetch(`${API_URL}/api/whatsapp/send-template-live`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(templatePayload)
+        });
       }
-      
-      const response = await fetch(`${API_URL}/api/whatsapp/send-template-live`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(templatePayload)
-      });
       
       const result = await response.json();
       

@@ -71,8 +71,8 @@ Build a production-ready, multi-tenant Agentic AI workflow for the RealApex plat
 
 ### Ignored by user: 15, 16, 17, 18
 
-### Phase 5 - WhatsApp Webhook & API Fix (2026-04-14)
-- **Webhook GET Verification**: Fixed to return plain text challenge (was returning JSON). `PlainTextResponse` HTTP 200/403
+### Phase 5 - WhatsApp Webhook & API Fix (2026-04-14 to 2026-04-16)
+- **Webhook GET Verification**: Fixed to return plain text challenge. `PlainTextResponse` HTTP 200/403
 - **Duplicate Message Protection**: In-memory TTL cache deduplicates by `message_id` (5min window)
 - **Bot Loop Prevention**: Ignores messages from own WhatsApp number
 - **Rate Limiting**: Per-phone 5-second cooldown to prevent rapid-fire event floods
@@ -81,6 +81,8 @@ Build a production-ready, multi-tenant Agentic AI workflow for the RealApex plat
 - **Template Integration**: `follow_up_template` (4 params: name/agent/city/area), `leadintroductiontemplate` (4 params), `otp_1` (1 param)
 - **API Endpoints**: `/send-followup`, `/send-introduction`, `/approved-templates`
 - **API Version**: Updated to v21.0
+- **Webhook Auto-configured via API**: `https://realapex.in/api/whatsapp/webhook` subscribed to `messages` field
+- **Leads Page Template Buttons**: Updated from old deleted app templates to new approved templates (follow_up_template, leadintroductiontemplate)
 
 ### Active Credentials:
 - WABA: `25977390118562175` (Eloniot Software Solutions)
