@@ -426,93 +426,10 @@ async def whatsapp_webhook(
         return {"status": "ok"}
 
 
-@router.post("/webhook-debug")
-async def whatsapp_webhook_debug(
-    request: Request,
-    background_tasks: BackgroundTasks
-):
-    """
-    Debug version of webhook - returns detailed trace instead of just 'ok'.
-    Use to diagnose why production webhook isn't processing messages.
-    """
-    db = get_db(request)
-    trace = []
-    
-    try:
-        raw_payload = await request.json()
-        trace.append(f"1. Payload received: {str(raw_payload)[:200]}")
-        
-        parsed = meta_whatsapp_client.parse_webhook_payload(raw_payload)
-        trace.append(f"2. Parsed: phone={parsed.get('phone')}, text={parsed.get('text','')[:50]}, error={parsed.get('error')}")
-        
-        if parsed.get("error"):
-            return {"trace": trace, "stopped_at": "parse_error"}
-        
-        phone = parsed.get("phone", "")
-        message_text = parsed.get("text", "")
-        message_id = parsed.get("message_id", "")
-        
-        if not phone or not message_text:
-            trace.append("3. No phone or text - status update")
-            return {"trace": trace, "stopped_at": "no_message"}
-        
-        sender_phone = normalize_phone(phone)
-        trace.append(f"3. Sender: {sender_phone}")
-        
-        # Bot loop check
-        own_phones = {normalize_phone("6309356590"), normalize_phone("9390893060")}
-        if sender_phone in own_phones:
-            trace.append(f"4. BOT LOOP - {sender_phone} is own number")
-            return {"trace": trace, "stopped_at": "bot_loop"}
-        trace.append(f"4. Not bot loop (own={own_phones})")
-        
-        # Tenant
-        tenant_id = await identify_tenant(db, raw_payload)
-        trace.append(f"5. Tenant: {tenant_id}")
-        if not tenant_id:
-            return {"trace": trace, "stopped_at": "no_tenant"}
-        
-        # Lead
-        lead = await find_or_create_lead(db, tenant_id, sender_phone)
-        trace.append(f"6. Lead: {lead.get('id','')[:12]} name={lead.get('buyer_name','')}")
-        
-        # Process directly (not background) for debugging
-        try:
-            session_manager.set_db(db)
-            meta_whatsapp_client.set_session_manager(session_manager, db)
-            
-            from services.whatsapp_agentic.orchestrator import AIOrchestrator
-            orchestrator = AIOrchestrator(db)
-            
-            result = await orchestrator.process_message(
-                tenant_id=tenant_id,
-                lead_id=lead["id"],
-                phone=sender_phone,
-                message=message_text,
-                message_id=message_id or f"debug_{uuid.uuid4().hex[:8]}"
-            )
-            trace.append(f"7. AI: success={result.get('success')}, intent={result.get('intent')}, has_response={bool(result.get('response'))}")
-            
-            if result.get("response"):
-                send_result = await meta_whatsapp_client.send_text_message(
-                    phone=sender_phone,
-                    message=result["response"],
-                    tenant_id=tenant_id,
-                    check_session=True,
-                    fallback_to_template=True
-                )
-                trace.append(f"8. Send: success={send_result.get('success')}, error={send_result.get('error')}, msg_id={send_result.get('message_id')}")
-            else:
-                trace.append("8. No response to send")
-                
-        except Exception as ai_err:
-            trace.append(f"7. AI ERROR: {str(ai_err)}")
-        
-        return {"trace": trace, "status": "complete"}
-        
-    except Exception as e:
-        trace.append(f"ERROR: {str(e)}")
-        return {"trace": trace, "stopped_at": "exception"}
+@router.get("/webhook-health")
+async def webhook_health():
+    """Quick health check that confirms latest code is deployed"""
+    return {"status": "ok", "version": "v5_with_ai_reply", "deployed": True}
 
 
 
