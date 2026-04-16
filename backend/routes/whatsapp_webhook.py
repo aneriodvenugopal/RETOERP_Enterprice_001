@@ -439,7 +439,7 @@ async def whatsapp_webhook(
 @router.get("/webhook-health")
 async def webhook_health():
     """Quick health check that confirms latest code is deployed"""
-    return {"status": "ok", "version": "v8_auto_reset_handoff", "deployed": True}
+    return {"status": "ok", "version": "v9_sales_engine", "deployed": True}
 
 
 @router.post("/reset-conversation/{phone}")

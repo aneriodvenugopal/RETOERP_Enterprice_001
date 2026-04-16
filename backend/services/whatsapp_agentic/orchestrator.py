@@ -104,30 +104,15 @@ If unclear, respond with "general_question".
         source: str = "whatsapp"
     ) -> Dict[str, Any]:
         """
-        Main entry point for processing incoming WhatsApp messages
-        
-        Args:
-            tenant_id: Tenant identifier
-            lead_id: Lead identifier
-            phone: Customer phone number
-            message: Message text
-            message_id: External message ID
-            source: Message source (whatsapp, simulator)
-            
-        Returns:
-            Dict with response and metadata
+        Main entry point - uses Sales Engine for DB-first sales flow
         """
         try:
             # Get or create conversation
             conversation = await self.state_machine.get_or_create_conversation(
                 tenant_id, lead_id, phone
             )
-            
-            # Mark source for auto-handoff decisions
             conversation["source"] = source
-            
             conversation_id = conversation["id"]
-            current_state = ConversationState(conversation["state"])
             
             # Store incoming message
             await self._store_message(
@@ -139,106 +124,99 @@ If unclear, respond with "general_question".
                 message_id=message_id
             )
             
-            # Check if AI is disabled for this conversation
+            # Check if AI is disabled (real human agent active)
             if not conversation.get("ai_enabled", True):
-                return {
-                    "success": True,
-                    "response": None,
-                    "action": "human_handoff_active",
-                    "message": "Conversation is with human agent"
-                }
+                # Auto-reset if no real agent assigned
+                if not conversation.get("human_agent_id"):
+                    await self.db.whatsapp_conversations.update_one(
+                        {"id": conversation_id},
+                        {"$set": {"ai_enabled": True, "state": "qualification"}}
+                    )
+                    conversation["ai_enabled"] = True
+                    conversation["state"] = "qualification"
+                else:
+                    return {
+                        "success": True,
+                        "response": None,
+                        "action": "human_handoff_active"
+                    }
             
-            # Check for explicit human handoff request
+            # Check for human handoff request
             if self._should_handoff_to_human(message):
                 await self.state_machine.enable_human_handoff(
-                    conversation_id,
-                    reason="customer_request"
+                    conversation_id, reason="customer_request"
                 )
                 return {
                     "success": True,
-                    "response": self._get_handoff_message(conversation.get("context", {}).get("language", "english")),
+                    "response": "Connecting you with our sales team. They will contact you shortly!",
                     "action": "human_handoff",
                     "conversation_id": conversation_id
                 }
             
-            # Detect intent
-            intent = await self._detect_intent(
-                message, 
-                conversation,
-                current_state
-            )
+            # --- USE SALES ENGINE (DB-first approach) ---
+            from .sales_engine import SalesEngine
+            engine = SalesEngine(self.db, self.llm_key)
             
-            # Get context for AI
-            context = await self._build_context(
-                tenant_id, 
-                lead_id, 
-                conversation
-            )
-            
-            # Select and run appropriate agent
-            agent_result = await self._run_agent(
-                intent=intent,
-                current_state=current_state,
+            result = await engine.process(
                 tenant_id=tenant_id,
                 lead_id=lead_id,
+                phone=phone,
                 message=message,
-                context=context
+                conversation=conversation,
+                message_id=message_id
             )
             
-            # Get response
-            response_text = agent_result.get("response", "")
+            response_text = result.get("response", "")
             
             # Store AI response
-            await self._store_message(
-                conversation_id=conversation_id,
-                tenant_id=tenant_id,
-                lead_id=lead_id,
-                role="assistant",
-                content=response_text,
-                metadata={
-                    "intent": intent.value,
-                    "agent": agent_result.get("agent_used"),
-                    "action": agent_result.get("action")
-                }
-            )
+            if response_text:
+                await self._store_message(
+                    conversation_id=conversation_id,
+                    tenant_id=tenant_id,
+                    lead_id=lead_id,
+                    role="assistant",
+                    content=response_text,
+                    metadata={
+                        "action": result.get("action"),
+                        "intent": result.get("intent")
+                    }
+                )
             
             # Update conversation state
-            next_state = agent_result.get("next_state")
+            next_state = result.get("next_state")
             if next_state:
-                new_state = ConversationState(next_state) if isinstance(next_state, str) else next_state
-                await self.state_machine.transition_state(
-                    conversation_id,
-                    new_state,
-                    context_update=agent_result.get("context_update")
-                )
+                context_update = result.get("context_update", {})
+                try:
+                    new_state = ConversationState(next_state)
+                    await self.state_machine.transition_state(
+                        conversation_id, new_state, context_update=context_update
+                    )
+                except ValueError:
+                    # Unknown state, just update context
+                    await self.db.whatsapp_conversations.update_one(
+                        {"id": conversation_id},
+                        {"$set": {"state": next_state, "context": context_update,
+                                  "updated_at": datetime.utcnow()}}
+                    )
             
             # Update conversation metadata
-            await self._update_conversation_metadata(
-                conversation_id,
-                intent,
-                agent_result
+            await self.db.whatsapp_conversations.update_one(
+                {"id": conversation_id},
+                {"$inc": {"message_count": 1},
+                 "$set": {"updated_at": datetime.utcnow()}}
             )
-            
-            # Check if we should trigger human handoff
-            if self._should_auto_handoff(intent, agent_result, conversation):
-                await self.state_machine.enable_human_handoff(
-                    conversation_id,
-                    reason="auto_high_intent"
-                )
-                # Still send the AI response, but mark for follow-up
-                agent_result["human_followup_required"] = True
             
             return {
                 "success": True,
                 "response": response_text,
                 "conversation_id": conversation_id,
-                "intent": intent.value,
-                "action": agent_result.get("action"),
+                "intent": result.get("intent") or result.get("action"),
+                "action": result.get("action"),
                 "next_state": next_state,
-                "human_followup_required": agent_result.get("human_followup_required", False),
+                "human_followup_required": result.get("human_followup_required", False),
                 "metadata": {
-                    "site_visit_id": agent_result.get("site_visit_id"),
-                    "booking_id": agent_result.get("booking_id")
+                    "site_visit_id": result.get("site_visit_id"),
+                    "booking_id": result.get("booking_id")
                 }
             }
             
@@ -246,11 +224,10 @@ If unclear, respond with "general_question".
             print(f"Orchestrator error: {e}")
             import traceback
             traceback.print_exc()
-            
             return {
                 "success": False,
                 "error": str(e),
-                "response": "I apologize, but I'm having trouble processing your request. Our team will get back to you shortly."
+                "response": "Thank you for your message! Our team will get back to you shortly."
             }
     
     async def _detect_intent(

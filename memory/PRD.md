@@ -84,7 +84,11 @@ Build a production-ready, multi-tenant Agentic AI workflow for the RealApex plat
 - **Webhook Auto-configured via API**: `https://realapex.in/api/whatsapp/webhook` subscribed to `messages` field
 - **Leads Page Template Buttons**: Updated from old deleted app templates to new approved templates (follow_up_template, leadintroductiontemplate)
 
-### Active Credentials:
+### Phase 6 - Sales Engine Rewrite (2026-04-16)
+- **Complete AI rewrite**: Replaced 7-agent question-machine with single DB-first Sales Engine
+- **Flow**: User message → Parse location/budget → DB search → Match? Show projects + close → No match? Max 3 questions → Lead capture
+- **Features**: Location extraction (50+ Indian cities/areas), budget parsing (lakhs/crores), property type detection, option selection (call/visit/details), site visit scheduling, exit detection
+- **Rules enforced**: Max 3 questions, never repeat, DB check first, fast conversion
 - WABA: `25977390118562175` (Eloniot Software Solutions)
 - Phone: `+91 63093 56590` (ID: `963130426884425`, GREEN quality)
 - System User: `REALAPEX_Admin1` (ID: `61580667278343`)
