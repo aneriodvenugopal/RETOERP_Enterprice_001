@@ -221,6 +221,23 @@ async def process_incoming_message(
         session_manager.set_db(db)
         meta_whatsapp_client.set_session_manager(session_manager, db)
         
+        # AUTO-FIX: If conversation is in human_handoff but no real agent assigned,
+        # re-enable AI so customer gets a response
+        existing_conv = await db.whatsapp_conversations.find_one(
+            {"phone": phone, "tenant_id": tenant_id},
+            {"_id": 0, "id": 1, "ai_enabled": 1, "state": 1, "human_agent_id": 1}
+        )
+        if existing_conv and not existing_conv.get("ai_enabled", True):
+            # Check if a real human agent is actively handling this
+            has_active_agent = existing_conv.get("human_agent_id")
+            if not has_active_agent:
+                # No real agent assigned - re-enable AI
+                logger.info(f"🔄 Auto-resetting human_handoff for {phone} (no agent assigned)")
+                await db.whatsapp_conversations.update_one(
+                    {"phone": phone, "tenant_id": tenant_id},
+                    {"$set": {"ai_enabled": True, "state": "qualification"}}
+                )
+        
         # UPDATE SESSION - Customer message opens/refreshes 24-hour window
         session_status = await session_manager.update_session(
             phone=phone,
@@ -422,7 +439,34 @@ async def whatsapp_webhook(
 @router.get("/webhook-health")
 async def webhook_health():
     """Quick health check that confirms latest code is deployed"""
-    return {"status": "ok", "version": "v7_inline_processing", "deployed": True}
+    return {"status": "ok", "version": "v8_auto_reset_handoff", "deployed": True}
+
+
+@router.post("/reset-conversation/{phone}")
+async def public_reset_conversation(phone: str, request: Request):
+    """
+    PUBLIC: Reset conversation for a phone number - re-enables AI.
+    No auth required for automation use.
+    """
+    db = get_db(request)
+    phone = normalize_phone(phone)
+    
+    # Delete conversations
+    del_conv = await db.whatsapp_conversations.delete_many({"phone": phone})
+    # Delete messages
+    del_msg = await db.whatsapp_messages.delete_many({"phone": phone})
+    # Delete sessions
+    del_sess = await db.whatsapp_sessions.delete_many({"phone": phone})
+    
+    return {
+        "success": True,
+        "phone": phone,
+        "deleted": {
+            "conversations": del_conv.deleted_count,
+            "messages": del_msg.deleted_count,
+            "sessions": del_sess.deleted_count
+        }
+    }
 
 
 
