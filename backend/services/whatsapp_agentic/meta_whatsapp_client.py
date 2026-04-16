@@ -720,6 +720,38 @@ class MetaWhatsAppClient:
             language="en"
         )
     
+    async def mark_as_read(self, message_id: str) -> Dict[str, Any]:
+        """
+        Mark a message as read (sends green double ticks to sender).
+        
+        Must be called with the incoming message's wamid.
+        """
+        payload = {
+            "messaging_product": "whatsapp",
+            "status": "read",
+            "message_id": message_id
+        }
+        
+        try:
+            async with httpx.AsyncClient(timeout=self.timeout) as client:
+                response = await client.post(
+                    f"{self.base_url}/{self.phone_number_id}/messages",
+                    headers=self._get_headers(),
+                    json=payload
+                )
+                
+                result = response.json() if response.status_code in [200, 201] else {}
+                logger.info(f"Read receipt sent for {message_id}: {response.status_code}")
+                
+                return {
+                    "success": response.status_code in [200, 201],
+                    "status_code": response.status_code,
+                    "response": result
+                }
+        except Exception as e:
+            logger.error(f"Failed to send read receipt: {e}")
+            return {"success": False, "error": str(e)}
+    
     async def send_with_retry(
         self,
         phone: str,

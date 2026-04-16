@@ -127,21 +127,46 @@ def normalize_phone(phone: str) -> str:
 
 async def identify_tenant(db, payload: Dict) -> Optional[str]:
     """Identify tenant from webhook payload"""
-    to_number = payload.get("to", payload.get("waba_id", ""))
+    # Extract WABA ID from Meta webhook payload structure
+    waba_id = ""
+    entries = payload.get("entry", [])
+    if entries:
+        waba_id = str(entries[0].get("id", ""))
+    
+    # Also try metadata phone number
+    phone_number_id = ""
+    if entries:
+        changes = entries[0].get("changes", [])
+        if changes:
+            metadata = changes[0].get("value", {}).get("metadata", {})
+            phone_number_id = metadata.get("phone_number_id", "")
+            display_phone = metadata.get("display_phone_number", "")
+    
+    # Try direct field too
+    to_number = payload.get("to", payload.get("waba_id", waba_id))
     
     if to_number:
+        to_normalized = normalize_phone(str(to_number))
         mapping = await db.whatsapp_tenant_mapping.find_one(
-            {"whatsapp_number": normalize_phone(to_number)},
+            {"$or": [
+                {"whatsapp_number": to_normalized},
+                {"waba_id": str(to_number)},
+                {"phone_number_id": phone_number_id}
+            ]},
             {"_id": 0}
         )
         if mapping:
             return mapping["tenant_id"]
     
-    # For development - use first active tenant
+    # Fallback: use first active tenant
     tenant = await db.tenants.find_one(
         {"is_active": {"$ne": False}},
         {"_id": 0, "id": 1}
     )
+    if tenant:
+        logger.info(f"Using fallback tenant: {tenant.get('id')}")
+    else:
+        logger.error("No active tenant found!")
     return tenant.get("id") if tenant else None
 
 
@@ -190,6 +215,8 @@ async def process_incoming_message(
 ):
     """Background task to process incoming message with session management"""
     try:
+        logger.info(f"🔄 Processing message from {phone}: '{message}' (tenant={tenant_id}, lead={lead_id})")
+        
         # Initialize session manager with db
         session_manager.set_db(db)
         meta_whatsapp_client.set_session_manager(session_manager, db)
@@ -206,16 +233,28 @@ async def process_incoming_message(
         # Process with AI Orchestrator
         orchestrator = AIOrchestrator(db)
         
-        result = await orchestrator.process_message(
-            tenant_id=tenant_id,
-            lead_id=lead_id,
-            phone=phone,
-            message=message,
-            message_id=message_id
-        )
+        try:
+            result = await orchestrator.process_message(
+                tenant_id=tenant_id,
+                lead_id=lead_id,
+                phone=phone,
+                message=message,
+                message_id=message_id
+            )
+            logger.info(f"🤖 AI result: success={result.get('success')}, intent={result.get('intent')}, has_response={bool(result.get('response'))}")
+        except Exception as ai_error:
+            logger.error(f"❌ AI Orchestrator failed: {ai_error}")
+            # Fallback: send a basic acknowledgment
+            result = {
+                "success": True,
+                "response": "Thank you for your message! Our team will get back to you shortly.",
+                "intent": "fallback",
+                "action": "ai_error_fallback"
+            }
         
         # Send response with session awareness
         if result.get("success") and result.get("response"):
+            logger.info(f"📤 Sending reply to {phone}: '{result['response'][:100]}...'")
             send_result = await meta_whatsapp_client.send_text_message(
                 phone=phone,
                 message=result["response"],
@@ -320,6 +359,12 @@ async def whatsapp_webhook(
             # Status updates, read receipts, etc. - acknowledge and ignore
             return {"status": "ok"}
         
+        logger.info(f"Incoming message from {phone}: '{message_text}' (id={message_id})")
+        
+        # --- SEND READ RECEIPT (green ticks) ---
+        if message_id:
+            background_tasks.add_task(meta_whatsapp_client.mark_as_read, message_id)
+        
         # --- DUPLICATE MESSAGE PROTECTION ---
         if message_id and _message_dedup.has(message_id):
             logger.info(f"Duplicate message ignored: {message_id}")
@@ -328,12 +373,19 @@ async def whatsapp_webhook(
             _message_dedup.set(message_id)
         
         # --- BOT LOOP PREVENTION ---
-        # Ignore messages sent from our own WhatsApp number
-        own_number = os.getenv("META_WHATSAPP_PHONE_NUMBER_ID", "")
+        # Ignore messages sent from our own WhatsApp numbers
         sender_phone = normalize_phone(phone)
-        # Also check raw phone digits against known own numbers from env
-        own_display = os.getenv("META_WHATSAPP_OWN_PHONE", "")
-        if own_display and normalize_phone(own_display) == sender_phone:
+        own_phones = set()
+        # Add all known business phone numbers
+        for env_key in ["META_WHATSAPP_OWN_PHONE", "META_WHATSAPP_OWN_PHONE_2"]:
+            val = os.getenv(env_key, "")
+            if val:
+                own_phones.add(normalize_phone(val))
+        # Known business numbers
+        own_phones.add(normalize_phone("6309356590"))
+        own_phones.add(normalize_phone("9390893060"))
+        
+        if sender_phone in own_phones:
             logger.info(f"Bot loop prevented: ignoring message from own number {sender_phone}")
             return {"status": "ok"}
         
