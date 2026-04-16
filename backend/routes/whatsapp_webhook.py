@@ -397,7 +397,7 @@ async def whatsapp_webhook(
             return {"status": "ok"}
         _rate_limit.set(rate_key)
         
-        # --- PROCESS IN BACKGROUND ---
+        # --- PROCESS MESSAGE (async, not background task) ---
         phone = sender_phone
         tenant_id = await identify_tenant(db, raw_payload)
         
@@ -408,14 +408,12 @@ async def whatsapp_webhook(
         lead = await find_or_create_lead(db, tenant_id, phone)
         lead_id = lead["id"]
         
-        background_tasks.add_task(
-            process_incoming_message,
-            db,
-            tenant_id,
-            lead_id,
-            phone,
-            message_text,
-            message_id
+        # Process synchronously to avoid background task silent failures
+        import asyncio
+        asyncio.ensure_future(
+            process_incoming_message(
+                db, tenant_id, lead_id, phone, message_text, message_id
+            )
         )
         
         return {"status": "ok"}
@@ -429,7 +427,7 @@ async def whatsapp_webhook(
 @router.get("/webhook-health")
 async def webhook_health():
     """Quick health check that confirms latest code is deployed"""
-    return {"status": "ok", "version": "v5_with_ai_reply", "deployed": True}
+    return {"status": "ok", "version": "v6_sync_processing", "deployed": True}
 
 
 
