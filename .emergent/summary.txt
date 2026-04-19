@@ -1,127 +1,121 @@
-<analysis>Here is the comprehensive handover summary based on the LLM message history:
+<analysis>**original_problem_statement:**
+The user is building the AgentApex platform, an AI-powered real estate application. The primary goals are building a robust CRM with an AI-powered WhatsApp workflow (Sales Engine), UI/UX improvements, and preparing the app for Google Play Store publishing via PWABuilder. 
 
-**original_problem_statement:**
-The user (a senior AI backend architect) is building a production-ready, multi-tenant Agentic AI workflow for their Realapex platform. This includes an AI-powered WhatsApp real estate sales assistant acting under strict business rules (Sales Engine). The application requires UI/UX enhancements (replacing old map search with Google Places Autocomplete API), fixing WhatsApp message triggering from the frontend, and migrating to a live production Meta WhatsApp number.
-
-**User's preferred language**: Telugu (You MUST automatically detect the user's primary language from their messages inside the trajectory tag and INSTRUCT the next agent to respond in the user's preferred language only. High-level plans, summaries, and explanations must be in Telugu, while keeping code, technical file names, and direct API responses in English).
+**User's preferred language**: Telugu (You MUST automatically detect the user's primary language from their messages inside the <trajectory> tag and INSTRUCT next agent to respond in the user's preferred language only. High-level plans, summaries, and explanations must be in Telugu, while keeping code, technical file names, and direct API responses in English).
 
 **what currently exists?** 
-- A FastAPI backend + React frontend application.
-- Live Meta WhatsApp Cloud API integration with dynamic  reading (to avoid credential caching).
-- AI engine consisting of 7 distinct RAG-based agents (Sales Engine).
-- Persistent Object Storage integrated for handling property image uploads.
-- Google Places Autocomplete API partially integrated across the frontend.
+A FastAPI backend + React frontend application with a multi-tenant Agentic AI workflow. The frontend has been successfully optimized for PWABuilder. The WhatsApp webhook is fully verified and receiving messages. The AI Sales Engine has been completely rewritten from a multi-agent questionnaire loop into a strict, fast-conversion business flow that checks the database first for matching projects before asking any questions.
 
 **Last working item**:
-- **Last item agent was working**: Debugging the WhatsApp message sending failure on the frontend  page. The agent tested the  endpoint and ran a python script to check the Meta Phone ID status. It was discovered that the Meta WhatsApp number () is currently in a  state and the API returns . The agent has invoked the  tool to notify the user that the failure is due to Meta account verification/registration status, not the backend code.
-- **Status**: BLOCKED (Waiting for user response to )
-- **Agent Testing Done**: Y
-- **Which testing method agent to use?**: Backend curl / python script (used to verify Meta endpoint status). 
-- **User Testing Done**: N
+- Last item agent was working: Rewriting the WhatsApp Agentic AI workflow into a strict Sales Engine (). The bot now parses user intent/location/budget, matches with internal DB data, and if a match is found, immediately offers Call/Site Visit/Project Details. If no match, it asks a maximum of 3 questions to capture the lead.
+- Status: USER VERIFICATION PENDING
+- Agent Testing Done: Y
+- Which testing method agent to use?: Backend testing via bash/simulator.
+- User Testing Done: N
 
 **All Pending/In progress Issue list**:
-- **Issue 1: Leads Page WhatsApp Sending Failure (Account Not Registered) (P0)**
-     - **Attempted fixes**: The agent tested the API and found that while the dynamic credential loading works, the Meta endpoint rejects the message because the phone number status is .
-     - **Next debug checklist**: Await user reply. The user needs to verify/register the number on the Meta Business dashboard. Once the user confirms the account is  and approved, re-test the  endpoint using .
-     - **Why fix this issue and what will be achieved with the fix?**: Human agents need to send manual WhatsApp messages directly from the Lead Management UI.
-     - **Status**: BLOCKED
-     - **Is recurring issue?**: Y (Meta WABA account and token issues).
-     - **Should Test frontend/backend/both after fix?**: Both
-     - **Blocked on other issue**: Meta WhatsApp Number Verification by User.
-
-- **Issue 2: PropertyEdit.js Mid-Edit State (P1)**
-     - **Attempted fixes**: The agent briefly checked  and confirmed it contains mid-edit GooglePlacesAutocomplete logic from a previous fork. 
-     - **Next debug checklist**: Check  for syntax errors or incomplete hook replacements. Ensure , , , and  are captured correctly and map restrictions are set to India.
-     - **Why fix this issue and what will be achieved with the fix?**: Ensures map markers are placed accurately via exact lat/lng coordinates instead of address strings.
-     - **Status**: IN PROGRESS
-     - **Is recurring issue?**: N
-     - **Should Test frontend/backend/both after fix?**: Frontend (Screenshot tool).
-     - **Blocked on other issue**: None
+No blocking issues. Webhook and Meta API sending are fully functional on production.
 
 **In progress Task List**:
-- **Task 1: Update Property Search Filtering (P1)**
-     - **Where to resume**: Modify  and the backend property search API ().
-     - **What will be achieved with this?**: If a location is selected in the search field via Google Places, filter properties within a radius (e.g., 20km) using latitude/longitude distance calculations instead of text matching.
-     - **Status**: NOT STARTED
-     - **Should Test frontend/backend/both after fix?**: Both
-     - **Blocked on something**: Completion of Issue 2 ().
+- Task 1: Integrate New WhatsApp Templates
+    - Where to resume:  /  and frontend .
+    - What will be achieved with this?: Safer utility templates (, , , ).
+    - Status: BLOCKED (Waiting for Meta approval of these new templates).
+    - Should Test frontend/backend/both after fix?: Both
 
-**Upcoming and Future Tasks**
-- **P2: Build Frontend Agent Dashboard**: Create a UI for human agents to monitor and take over AI conversations.
-- **P2: Scalability Refactor**: Migrate conversation state tracking to Redis and background tasks to Celery.
-- **P2: API Refactor**: Resolve the route prefix conflict between  and .
+**Upcoming and Future Tasks**:
+Upcoming Tasks:
+- P1: Map radius filtering verification.
+Future Tasks:
+- P1: Auto project recommendation AI, Price negotiation triggers, Urgency messaging (Enhancements to the Sales Engine).
+- P2: Audio Property Posting (Voice feature).
+- P2: Realapex Projects integration.
+- P3: Notification Module.
 
-**Completed work in this session**
-- Successfully diagnosed the root cause of the  WhatsApp messaging failure. Verified through direct Meta API queries that the phone number  is in  status, causing the  error. (DONE)
+**Completed work in this session**:
+- Fixed Meta WhatsApp webhook GET verification (now returns plain text challenge).
+- Resolved Meta API sending (#200 Permission & #132000 param count) errors; templates are successfully delivering.
+- Updated frontend Leads page to use new approved templates (, ).
+- Fixed a production deployment bug where background tasks () were silently failing. The webhook now processes messages synchronously/inline.
+- Created  to replace the 7-agent LLM loop with a strict, fast-closing real estate business flow.
+- Added auto-reset for conversations stuck in  state.
 
-**Earlier issues found/mentioned but not fixed**
+**Earlier issues found/mentioned but not fixed**:
 None.
 
-**Known issue recurrence from previous fork**
-  - **Issue recurrence in previous fork**: Meta WhatsApp API credentials syncing and WABA Account Verification Status.
-  - **Recurrence count**: 4
-  - **Status**: BLOCKED
+**Known issue recurrence from previous fork**:
+- Meta WhatsApp API errors (Permissions, App Subscription). Agent successfully resolved all of them by configuring the correct WABA ID, Phone ID, and webhook subscriptions.
 
-**Code Architecture**
+**Code Architecture**:
 
 
-**Key Technical Concepts**
-- FastAPI Backend & React Frontend
-- Meta WhatsApp Cloud API
-- AI Agent Orchestrator (7 specialized Agents leveraging RAG)
-- Emergent Integrations Object Storage
-- Google Maps Places Autocomplete
+**Key Technical Concepts**:
+- FastAPI Backend & React Frontend.
+- Meta Graph API v21.0 (WhatsApp Cloud API).
+- LiteLLM for AI logic (Strict DB-first business flow).
 
-**key DB schema**
-  - : { , , , ,  }
-  - : { , , ,  }
+**key DB schema**:
+- : Manages chat states (, ).
+- : Captures user location, budget, and property type.
 
-**changes in tech stack**
-  - No new stack changes in this specific session.
+**changes in tech stack**:
+- Removed the 7 individual LLM agents and consolidated AI logic into a single  class to enforce a strict sales conversion flow.
 
-**All files of reference**
--  
--  
--  
--  
+**All files of reference**:
+-  (Updated to process webhook inline)
+-  (Created for DB-first sales flow)
+-  (Updated to use SalesEngine)
+-  (Updated API version and read receipts)
+-  (Updated template names and endpoints)
+-  (Updated Meta credentials)
 
 **Areas that need refactoring**:
--  is currently mid-edit and requires completion of the Google Places Autocomplete component replacement.
+- The webhook processing in  was made synchronous because FastAPI background tasks were failing on the production environment. While this works perfectly now, for massive scale, an external queue (like Celery/Redis) might be needed in the future.
 
-**key api endpoints**
+**key api endpoints**:
+-  (Meta verification)
+-  (Message receiving)
+-  (Returns current deployed version, currently v8/v9)
 - 
+
+**Critical Info for New Agent**:
+- **LANGUAGE REQUIREMENT**: You MUST speak Telugu to the user.
+- **SALES ENGINE**: Do NOT revert to the multi-agent questionnaire loop. The user strictly wants a Sales Closer bot that checks the database first, offers projects immediately if matched, and asks a maximum of 3 questions to capture a lead if unmatched. 
+- **WEBHOOK PROCESSING**: Do NOT use  or  for the core webhook processing. The production environment event loop drops them. Keep processing synchronous/inline before returning the 200 OK to Meta.
+- **LARAVEL COMMANDS**: The user sometimes sends PHP/Laravel commands (). Remind them politely in Telugu that this is a Python/FastAPI environment.
+
+**documents and test reports created in this job**:
 - 
 
-**Critical Info for New Agent**
-- **Language Requirements**: Speak **Telugu** to the user during conversational responses, summaries, and planning. Keep technical details, code snippets, and logs in English.
-- **Pending Human Input**: Your absolute first step must be reading the user's response to the pending  prompt regarding the Meta WhatsApp  account status.
-- **WhatsApp Issue Diagnosis**: The  page message failure is confirmed to be an external Meta account issue (), not a code issue. Do not attempt to fix this by modifying backend code until the user confirms the Meta account is fully registered and live.
+**Last 10 User Messages and any pending HUMAN messages**:
+1. User shared exact template credentials and strict logic for DB-first sales flow. (Completed)
+2. User reported health endpoint working but wanted to make sure conversation process works as explained. (Completed)
+3. User requested clear cache/config commands. (Agent clarified it's Python not Laravel).
+4. User updated token. (Completed)
+5. User shared deployment logs showing webhook verification failing and timeouts. (Completed by making webhook inline).
+6. User reported 502 bad gateway on debug endpoint. (Completed by removing debug endpoint).
+7. User noted messages were being read (green ticks) but no auto-reply. (Completed, background task was failing, changed to inline).
+8. User reported no messages arriving at 9948303060. (Completed, debugged production vs preview DB).
+9. User asked for exact prompt format for business flow. (Completed)
+10. (Latest) User confirmed health check version deployed. Agent tested the Sales Engine rewrite and finished the task.
 
-**documents and test reports created in this job**
-  - None created in this specific job iteration.
+**Project Health Check**:
+Broken: None.
+Mocked: None.
 
-**Last 10 User Messages and any pending HUMAN messages** 
- 1. *Agent*: Invoked  tool to report that the Meta API is rejecting messages because the registered phone number status is currently  and asked how the user wants to proceed.
- 2. *User*: **PENDING RESPONSE TO  TOOL**. (Read this message first upon starting).
+**3rd Party Integrations**:
+- Meta WhatsApp Cloud API — requires User API Key (Configured and working).
+- OpenAI/Anthropic via Emergent LLM Key — uses Emergent LLM Key (Used in SalesEngine).
 
-**Project Health Check:**
-- Broken: WhatsApp message dispatch from the frontend  page (External Meta Account issue).  might have syntax errors from previous mid-edit.
-- Mocked: None.
+**Testing status**:
+- Testing agent used after significant changes: NO (Tested extensively via backend bash scripts/curl).
+- Troubleshoot agent used after agent stuck in loop: NO
+- Test files created: None
+- Known regressions: None
 
-**3rd Party Integrations**
-- OpenAI / Claude (Agentic LLMs) — uses Emergent LLM Key.
-- Emergent Integrations Object Storage — uses Emergent LLM Key / Platform internal config.
-- Google Maps JavaScript / Places APIs — requires User API Key.
-- Meta WhatsApp Cloud API — requires User API Key (Permanent token provided).
+**Credentials to test flow**:
+- Admin:  / 
+- Tenant Admin:  / 
 
-**Testing status**
-  - Testing agent used after significant changes: NO
-  - Troubleshoot agent used after agent stuck in loop: NO
-  - Test files created: None
-  - Known regressions:  needs to be verified as it was interrupted mid-edit in an earlier session.
-
-**Credentials to test flow:**
-- Check .
-
-**What agent forgot to execute**
-- The agent properly diagnosed the issue, verified it via a Python test script hitting the Meta API, and correctly paused to consult the user. No critical steps were missed.</analysis>
+**What agent forgot to execute**:
+The agent successfully completed the entire Sales Engine rewrite and tested it on the preview environment. The user just needs to verify it by interacting with the WhatsApp bot on the production number.</analysis>

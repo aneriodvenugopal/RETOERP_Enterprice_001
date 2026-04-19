@@ -10,7 +10,7 @@
 - **Tenant Admin**: rajam@retoerp.com / 12345678
 
 ## Backend URL
-- https://whatsapp-leads-36.preview.emergentagent.com
+- https://realapex-preview.preview.emergentagent.com
 
 ## Test Data
 - Property IDs: AX-P-10001 through AX-P-10015

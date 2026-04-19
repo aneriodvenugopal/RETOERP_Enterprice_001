@@ -48,7 +48,7 @@ This watermark appears when Google Maps API billing is not properly configured.
    - Select "HTTP referrers (websites)"
    - Add your domains:
      ```
-     https://whatsapp-leads-36.preview.emergentagent.com/*
+     https://realapex-preview.preview.emergentagent.com/*
      http://localhost:3000/*
      ```
 

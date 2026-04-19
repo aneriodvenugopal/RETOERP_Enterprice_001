@@ -7,7 +7,7 @@ import pytest
 import requests
 import os
 
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://whatsapp-leads-36.preview.emergentagent.com')
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://realapex-preview.preview.emergentagent.com')
 
 
 class TestSubscriptionPackages:
@@ -268,7 +268,7 @@ class TestSubscriptionCheckout:
             json={
                 "package_id": "starter",
                 "billing_cycle": "monthly",
-                "origin_url": "https://whatsapp-leads-36.preview.emergentagent.com"
+                "origin_url": "https://realapex-preview.preview.emergentagent.com"
             }
         )
         assert response.status_code == 200
@@ -295,7 +295,7 @@ class TestSubscriptionCheckout:
             json={
                 "package_id": "pro",
                 "billing_cycle": "yearly",
-                "origin_url": "https://whatsapp-leads-36.preview.emergentagent.com"
+                "origin_url": "https://realapex-preview.preview.emergentagent.com"
             }
         )
         assert response.status_code == 200
@@ -312,7 +312,7 @@ class TestSubscriptionCheckout:
             json={
                 "package_id": "invalid_package",
                 "billing_cycle": "monthly",
-                "origin_url": "https://whatsapp-leads-36.preview.emergentagent.com"
+                "origin_url": "https://realapex-preview.preview.emergentagent.com"
             }
         )
         assert response.status_code == 400
@@ -325,7 +325,7 @@ class TestSubscriptionCheckout:
             json={
                 "package_id": "starter",
                 "billing_cycle": "monthly",
-                "origin_url": "https://whatsapp-leads-36.preview.emergentagent.com"
+                "origin_url": "https://realapex-preview.preview.emergentagent.com"
             }
         )
         assert response.status_code == 401
@@ -339,7 +339,7 @@ class TestSubscriptionCheckout:
             json={
                 "package_id": "enterprise",
                 "billing_cycle": "monthly",
-                "origin_url": "https://whatsapp-leads-36.preview.emergentagent.com"
+                "origin_url": "https://realapex-preview.preview.emergentagent.com"
             }
         )
         assert create_response.status_code == 200

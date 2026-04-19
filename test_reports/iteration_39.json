@@ -1,0 +1,122 @@
+{
+  "summary": "WhatsApp Dual-LLM AI testing completed successfully. All 13 tests passed. Verified Gemini 2.5 Flash-Lite (primary) + GPT-4o-mini (fallback) integration working correctly with cost-optimized routing.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_whatsapp_dual_llm.py",
+    "/app/test_reports/pytest/pytest_whatsapp_dual_llm.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "LLM Router correctly implements dual-LLM strategy with Gemini primary and GPT-4o-mini fallback",
+    "Complexity classification working: simple messages -> Gemini, complex/emotional -> OpenAI",
+    "Fallback mechanism working: OpenAI quota errors correctly fall back to Gemini",
+    "LLM stats tracking working: gemini_calls=7, openai_calls=4, errors=1 after test run",
+    "Sales Engine v2 correctly uses RAG from tenant database with location highlights",
+    "Exit message handling correctly returns 'closed' state",
+    "Site visit scheduling flow working with proper state transitions",
+    "Lead capture after 3 questions working as designed"
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_whatsapp_dual_llm.py"
+  ],
+  "success_rate": {
+    "backend": "100% (13/13 tests passed)",
+    "frontend": "N/A - Backend only testing"
+  },
+  "test_credentials": {
+    "email": "rajam@retoerp.com",
+    "password": "12345678"
+  },
+  "seed_data_creation": "None - used existing tenant data",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "WhatsApp Dual-LLM AI fully tested. LLM stats persist in singleton (llm_router). OpenAI key has quota limits - fallback to Gemini is expected behavior. Test phones use format 91999XXXXXXX and are cleaned up after tests.",
+  "features_tested": {
+    "webhook_health_v10_dual_llm": {
+      "status": "PASS",
+      "evidence": [
+        "GET /api/whatsapp/webhook-health returns status=ok, version=v10_dual_llm",
+        "llm_engine shows 'gemini-2.5-flash-lite + gpt-4o-mini'",
+        "llm_stats includes gemini_calls, openai_calls, errors, total"
+      ]
+    },
+    "greeting_message_ai_response": {
+      "status": "PASS",
+      "evidence": [
+        "POST /api/whatsapp/simulate with 'Hello, good morning!' returns AI response",
+        "Response is conversational and greeting-like",
+        "Uses Gemini for simple greeting messages"
+      ]
+    },
+    "location_budget_db_search": {
+      "status": "PASS",
+      "evidence": [
+        "Message 'Looking for plots in Hyderabad, budget 50 lakhs' triggers DB search",
+        "Response relates to location/budget context",
+        "State transitions to project_discussion or qualification"
+      ]
+    },
+    "option_selection_1_2_3": {
+      "status": "PASS",
+      "evidence": [
+        "After project_discussion state, sending '2' triggers site visit flow",
+        "Options 1/2/3 correctly mapped to callback/visit/details"
+      ]
+    },
+    "site_visit_scheduling": {
+      "status": "PASS",
+      "evidence": [
+        "After option 2, sending 'Tomorrow 10 AM' schedules visit",
+        "Response confirms visit scheduling",
+        "State transitions appropriately"
+      ]
+    },
+    "complex_negotiation_gpt4o_fallback": {
+      "status": "PASS",
+      "evidence": [
+        "Complex message with negotiation/emotional keywords triggers GPT-4o-mini",
+        "OpenAI quota error correctly falls back to Gemini",
+        "Response addresses customer concerns appropriately"
+      ]
+    },
+    "exit_message_closed_state": {
+      "status": "PASS",
+      "evidence": [
+        "Message 'bye, not interested' returns closed state",
+        "action_taken = 'conversation_closed'",
+        "Response is farewell message"
+      ]
+    },
+    "lead_capture_after_3_questions": {
+      "status": "PASS",
+      "evidence": [
+        "After 3+ vague responses, bot captures lead",
+        "Offers callback from sales team",
+        "State transitions to qualification"
+      ]
+    },
+    "llm_stats_tracking": {
+      "status": "PASS",
+      "evidence": [
+        "gemini_calls increments for simple messages",
+        "openai_calls increments for complex messages (or fallback attempts)",
+        "errors tracks failed LLM calls",
+        "total = gemini_calls + openai_calls"
+      ]
+    }
+  },
+  "llm_stats_after_tests": {
+    "gemini_calls": 7,
+    "openai_calls": 4,
+    "errors": 1,
+    "total": 11
+  }
+}

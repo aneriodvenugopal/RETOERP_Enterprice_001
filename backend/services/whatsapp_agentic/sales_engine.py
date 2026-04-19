@@ -1,12 +1,13 @@
 """
-Sales Engine - DB-First Real Estate Sales Closer
-Replaces the question-machine approach with a smart sales flow:
+Sales Engine v2 - RealApex Property Expert
+Cost-optimized WhatsApp AI with Gemini primary + GPT-4o-mini fallback.
 
 FLOW:
-  User message → Parse location/budget/intent
-  → Check DB for matching projects/properties
-  → Match Found? → Show projects → Close (visit/call/booking)
-  → No Match? → Ask max 3 questions → Capture lead → "Our team will call"
+  User message -> Parse location/budget/intent
+  -> RAG: Pull tenant's project data, plots, FAQs, location highlights
+  -> Check DB for matching projects/properties
+  -> Match Found? -> Show projects + location highlights -> Close (visit/call/booking)
+  -> No Match? -> Ask max 3 questions -> Capture lead -> "Our team will call"
 
 RULES:
   - Max 3 questions total
@@ -14,6 +15,8 @@ RULES:
   - DB check FIRST, then ask
   - Fast conversion (visit/call/booking)
   - Exit on bye/not interested
+  - Multi-tenant: use only current tenant's data
+  - NEVER reveal customer private data
 """
 
 import os
@@ -23,10 +26,10 @@ from typing import Optional, Dict, Any, List
 from datetime import datetime, timezone
 import uuid
 
-from emergentintegrations.llm.chat import LlmChat, UserMessage
+from .llm_router import llm_router
+from .knowledge_retriever import KnowledgeRetriever
 
 logger = logging.getLogger(__name__)
-
 
 # Location keywords for Indian cities/areas
 LOCATION_KEYWORDS = {
@@ -35,20 +38,55 @@ LOCATION_KEYWORDS = {
                    "kukatpally", "bachupally", "nizampet", "pragathi nagar", "patancheru",
                    "mokila", "shankarpally", "shadnagar", "maheshwaram", "ibrahimpatnam",
                    "ghatkesar", "uppal", "nagole", "lb nagar", "dilsukhnagar", "vanasthalipuram",
-                   "hayathnagar", "balapur", "meerpet", "bandlaguda"],
+                   "hayathnagar", "balapur", "meerpet", "bandlaguda", "narsingi", "kokapet",
+                   "financial district", "nanakramguda", "tellapur", "ameenpur", "isnapur",
+                   "dundigal", "sangareddy", "sadashivpet", "chevella", "moinabad",
+                   "srisailam highway", "airport", "shamshabad", "kothur", "sagar highway",
+                   "gandipet", "osman sagar", "himayat sagar", "jubilee hills", "banjara hills",
+                   "film nagar", "manikonda", "puppalaguda", "rajendra nagar",
+                   "mehdipatnam", "attapur", "pillar no", "tolichowki"],
     "vijayawada": ["vijayawada", "vjw", "bezawada", "mangalagiri", "guntur", "amaravati",
                    "tadepalli", "undavalli", "sattenapalli", "tenali", "narasaraopet",
-                   "santhinagar", "poranki", "kanuru", "gannavaram", "kanchikacherla"],
+                   "santhinagar", "poranki", "kanuru", "gannavaram", "kanchikacherla",
+                   "nunna", "jaggaiahpet", "ibrahimpatnam"],
     "visakhapatnam": ["visakhapatnam", "vizag", "vishakhapatnam", "madhurawada",
                       "gajuwaka", "anakapalle", "pendurthi", "simhachalam"],
     "bangalore": ["bangalore", "bengaluru", "blr", "whitefield", "electronic city",
                   "sarjapur", "hsr layout", "koramangala", "marathahalli"],
     "chennai": ["chennai", "madras", "tambaram", "velachery", "adyar", "anna nagar",
                 "omr", "ecr", "sholinganallur"],
+    "warangal": ["warangal", "hanamkonda", "kazipet"],
+    "karimnagar": ["karimnagar"],
+    "khammam": ["khammam"],
+    "nalgonda": ["nalgonda"],
+    "nizamabad": ["nizamabad"],
+    "tirupati": ["tirupati"],
+    "nellore": ["nellore"],
+    "rajahmundry": ["rajahmundry", "rajamahendravaram"],
+    "kakinada": ["kakinada"],
 }
 
 EXIT_KEYWORDS = ["bye", "not interested", "no thanks", "no need", "stop", "cancel",
                  "leave me", "dont want", "don't want", "no more", "exit"]
+
+# Location highlights for Telangana/Hyderabad areas
+LOCATION_HIGHLIGHTS = {
+    "shamirpet": "RRR Road proximity, Genome Valley, IIT Hyderabad nearby, HMDA approved layouts",
+    "adibatla": "Near Rajiv Gandhi International Airport, Aerospace SEZ, HMDA approved, RRR connectivity",
+    "tukkuguda": "ORR Exit 14, Airport proximity, Growing residential hub, HMDA approved",
+    "kompally": "Medchal-Malkajgiri district, NH-44 access, Metro expansion planned",
+    "shadnagar": "Srisailam Highway, RRR connectivity, HMDA approved, Affordable pricing",
+    "maheshwaram": "Near ORR, LB Nagar connectivity, HMDA approved, Pharma City nearby",
+    "mokila": "Gachibowli proximity, IT corridor access, Peaceful residential area",
+    "patancheru": "Industrial hub, NH-65 access, Affordable land rates",
+    "kokapet": "Financial District adjacent, Premium location, Metro connectivity planned",
+    "narsingi": "ORR access, Gachibowli IT hub nearby, Premium residential area",
+    "tellapur": "Near Gachibowli, Rapid development, Metro planned",
+    "shamshabad": "Airport Road, Logistics hub, HMDA approved",
+    "mangalagiri": "Amaravati Capital Region, NH-16 access, Growing city",
+    "guntur": "AP major city, Medical hub, Education center",
+    "tadepalli": "Krishna River front, Capital Region, NH connectivity",
+}
 
 
 def extract_location(message: str) -> Optional[str]:
@@ -57,7 +95,6 @@ def extract_location(message: str) -> Optional[str]:
     for city, keywords in LOCATION_KEYWORDS.items():
         for kw in keywords:
             if kw in msg_lower:
-                # Return the specific area if it's not the city name
                 if kw != city:
                     return kw.title()
                 return city.title()
@@ -67,8 +104,6 @@ def extract_location(message: str) -> Optional[str]:
 def extract_budget(message: str) -> Optional[Dict[str, Any]]:
     """Extract budget from message. Returns dict with min/max and raw text"""
     msg_lower = message.lower()
-
-    # Patterns: "50 lakhs", "50L", "1 crore", "1cr", "20-30 lakhs"
     patterns = [
         (r'(\d+\.?\d*)\s*(?:to|-)\s*(\d+\.?\d*)\s*(?:lakhs?|lacs?|l\b)', 'lakh_range'),
         (r'(\d+\.?\d*)\s*(?:to|-)\s*(\d+\.?\d*)\s*(?:crores?|cr\b)', 'crore_range'),
@@ -76,7 +111,6 @@ def extract_budget(message: str) -> Optional[Dict[str, Any]]:
         (r'(\d+\.?\d*)\s*(?:crores?|cr\b)', 'crore'),
         (r'(\d+\.?\d*)\s*(?:k\b)', 'thousand'),
     ]
-
     for pattern, ptype in patterns:
         match = re.search(pattern, msg_lower)
         if match:
@@ -101,27 +135,27 @@ def extract_budget(message: str) -> Optional[Dict[str, Any]]:
 def extract_property_type(message: str) -> Optional[str]:
     """Extract property type from message"""
     msg_lower = message.lower()
-    if any(w in msg_lower for w in ["plot", "plots", "land", "site", "sites"]):
+    if any(w in msg_lower for w in ["plot", "plots", "land", "site", "sites", "open plot"]):
         return "plot"
-    if any(w in msg_lower for w in ["villa", "villas", "house", "independent house"]):
+    if any(w in msg_lower for w in ["villa", "villas", "house", "independent house", "duplex"]):
         return "villa"
-    if any(w in msg_lower for w in ["flat", "flats", "apartment", "apartments", "2bhk", "3bhk"]):
+    if any(w in msg_lower for w in ["flat", "flats", "apartment", "apartments", "2bhk", "3bhk", "1bhk"]):
         return "flat"
-    if any(w in msg_lower for w in ["commercial", "shop", "office", "warehouse"]):
+    if any(w in msg_lower for w in ["commercial", "shop", "office", "warehouse", "godown"]):
         return "commercial"
+    if any(w in msg_lower for w in ["farm", "farm land", "agricultural", "agriculture"]):
+        return "farmland"
     if any(w in msg_lower for w in ["residential", "property", "properties"]):
         return "residential"
     return None
 
 
 def is_exit_message(message: str) -> bool:
-    """Check if user wants to exit"""
     msg_lower = message.lower().strip()
     return any(kw in msg_lower for kw in EXIT_KEYWORDS)
 
 
 def is_option_selection(message: str) -> Optional[int]:
-    """Check if user selected an option (1, 2, 3)"""
     msg = message.strip()
     if msg in ["1", "2", "3"]:
         return int(msg)
@@ -134,15 +168,72 @@ def is_option_selection(message: str) -> Optional[int]:
     return None
 
 
+def get_location_highlights(location: str) -> str:
+    """Get location highlights for a given area"""
+    loc_lower = location.lower()
+    for area, highlights in LOCATION_HIGHLIGHTS.items():
+        if area in loc_lower or loc_lower in area:
+            return highlights
+    return ""
+
+
+# System prompt for the RealApex Property Expert
+REALAPEX_EXPERT_PROMPT = """You are "RealApex Property Expert" – a warm, highly experienced, and professional real estate advisor for builders in Telangana/Hyderabad.
+
+You work inside RealApex SaaS (multi-tenant system). Each tenant (builder) uploads their own project data, properties, layouts, availability status, gallery images, YouTube links, location details, FAQs, brochures, website content, and additional information into the database.
+
+Always use the latest tenant-specific/project-specific data from the Knowledge Base below for the current chat.
+
+Key Rules:
+1. Identify the tenant_id / project_id / builder from the conversation context and use ONLY that tenant's data.
+2. Provide accurate, up-to-date information about:
+   - Project details, property types, layouts, pricing, availability status
+   - Brochures (share direct links if available)
+   - Specific layout links / floor plans
+   - Gallery images and YouTube video links
+   - Location highlights, amenities, FAQs, website content
+3. Share brochures, layouts, gallery, or website links naturally when relevant.
+4. STRICT PRIVACY: NEVER reveal, mention, or hint at any customer personal data, purchase history, buyer names, payment details, or any hidden/sensitive information of previous customers. If asked, politely say you cannot share private customer information.
+
+Personality & Style:
+- Speak like a senior, caring real estate consultant who genuinely wants the best for the customer's family.
+- Use empathy, excitement about the project, and emotional intelligence.
+- Build trust and gently guide the lead towards site visit or booking.
+- Never sound robotic. Keep replies natural, warm, and professional.
+- If the customer speaks Telugu, respond with natural Telugu-English mix.
+- Keep WhatsApp messages concise (3-5 lines max).
+
+STRICT RULES:
+- Ask ONLY ONE question at a time
+- NEVER repeat a question if info is already known
+- Keep response under 5 lines
+- NO emojis except minimal (1-2 max)
+- NEVER ask more than what's missing
+
+Goal:
+Make the customer feel they are talking to a real, knowledgeable project-specific expert so they confidently book a site visit and move towards booking/payment.
+
+Always end with a clear next step question to move the conversation forward.
+
+{knowledge_context}
+
+{location_highlights}
+
+KNOWN CUSTOMER INFO: {known_info}
+MISSING INFO: {missing_info}
+QUESTIONS ASKED: {questions_asked}
+"""
+
+
 class SalesEngine:
     """
-    DB-First Real Estate Sales Engine.
-    Single smart agent that checks DB first, then closes deals.
+    DB-First Real Estate Sales Engine v2.
+    Uses Gemini (primary) + GPT-4o-mini (fallback) for cost optimization.
     """
 
-    def __init__(self, db, llm_key: Optional[str] = None):
+    def __init__(self, db):
         self.db = db
-        self.llm_key = llm_key or os.getenv("EMERGENT_LLM_KEY")
+        self.knowledge_retriever = KnowledgeRetriever(db)
 
     async def process(
         self,
@@ -153,10 +244,7 @@ class SalesEngine:
         conversation: Dict[str, Any],
         message_id: Optional[str] = None
     ) -> Dict[str, Any]:
-        """
-        Main sales engine entry point.
-        Returns dict with response, next_state, action, etc.
-        """
+        """Main sales engine entry point."""
         context = conversation.get("context", {})
         state = conversation.get("state", "new_lead")
         questions_asked = context.get("questions_asked", 0)
@@ -176,7 +264,6 @@ class SalesEngine:
         budget = extract_budget(message)
         prop_type = extract_property_type(message) or context.get("property_type")
 
-        # Update context with new info
         new_context = dict(context)
         if location and not context.get("location"):
             new_context["location"] = location
@@ -205,7 +292,9 @@ class SalesEngine:
         if current_location:
             matches = await self._search_db(tenant_id, current_location, new_context.get("budget"))
             if matches["projects"] or matches["properties"]:
-                response = self._format_matches(matches, current_location, new_context)
+                response = await self._format_matches_with_ai(
+                    matches, current_location, new_context, tenant_id, message
+                )
                 return {
                     "success": True,
                     "response": response,
@@ -218,7 +307,7 @@ class SalesEngine:
                     }
                 }
 
-        # --- NO MATCH / NOT ENOUGH INFO → SMART LEAD CAPTURE ---
+        # --- NO MATCH / NOT ENOUGH INFO -> SMART LEAD CAPTURE ---
         return await self._smart_lead_capture(
             message, tenant_id, lead_id, phone, new_context, questions_asked, state
         )
@@ -229,7 +318,6 @@ class SalesEngine:
         """Search projects and properties by location and budget"""
         loc_lower = location.lower()
 
-        # Search projects
         project_query = {
             "tenant_id": tenant_id,
             "deleted_at": None,
@@ -244,7 +332,6 @@ class SalesEngine:
             project_query, {"_id": 0}
         ).limit(5).to_list(5)
 
-        # Search properties
         prop_query = {
             "tenant_id": tenant_id,
             "deleted_at": None,
@@ -267,7 +354,6 @@ class SalesEngine:
             prop_query, {"_id": 0}
         ).limit(10).to_list(10)
 
-        # Also try without budget filter if no results
         if not properties and budget:
             properties = await self.db.properties.find(
                 {k: v for k, v in prop_query.items() if k != "$and"},
@@ -276,34 +362,85 @@ class SalesEngine:
 
         return {"projects": projects, "properties": properties}
 
-    def _format_matches(
+    async def _format_matches_with_ai(
+        self, matches: Dict, location: str, context: Dict, tenant_id: str, user_message: str
+    ) -> str:
+        """Format matches using AI for a natural, expert response"""
+        # Build knowledge context from matches
+        knowledge_parts = []
+        for proj in matches["projects"][:3]:
+            knowledge_parts.append(
+                f"Project: {proj.get('name', '')}, Location: {proj.get('location', '')}, "
+                f"Status: {proj.get('status', '')}, Units: {proj.get('total_units', '')}, "
+                f"RERA: {proj.get('rera_number', 'N/A')}, "
+                f"Amenities: {', '.join(proj.get('amenities', [])[:5])}"
+            )
+
+        if not matches["projects"]:
+            for prop in matches["properties"][:5]:
+                price = prop.get("total_price") or prop.get("price", "")
+                price_str = f"Rs.{price:,.0f}" if isinstance(price, (int, float)) and price else "Contact"
+                knowledge_parts.append(
+                    f"Plot #{prop.get('plot_number', prop.get('property_number', 'N/A'))}: "
+                    f"Area {prop.get('area_sqft') or prop.get('total_area', 'N/A')} sqft, "
+                    f"Facing: {prop.get('facing', 'N/A')}, Price: {price_str}, "
+                    f"Status: {prop.get('status', 'Available')}"
+                )
+
+        loc_highlights = get_location_highlights(location)
+
+        # Use AI for natural formatting
+        try:
+            format_prompt = f"""You are RealApex Property Expert. Format this property data as a warm, 
+exciting WhatsApp message for a customer looking in {location}.
+
+DATA:
+{chr(10).join(knowledge_parts)}
+
+LOCATION HIGHLIGHTS: {loc_highlights if loc_highlights else 'N/A'}
+
+RULES:
+- Start with an excited but professional greeting about finding matching properties
+- List properties briefly with key details (2-3 lines each)
+- Mention location advantages (RRR, Metro, HMDA if applicable)
+- End with: "Would you like to:\n1. Talk to our expert\n2. Schedule site visit\n3. Get full project details\n\n_Reply 1, 2 or 3_"
+- Keep total message under 15 lines
+- Use natural Telugu-English mix if appropriate
+- Max 2 emojis"""
+
+            result = await llm_router.generate(
+                system_prompt=format_prompt,
+                user_message=user_message,
+                context=context,
+                force_model="gemini",
+            )
+            if result.get("text"):
+                return result["text"]
+        except Exception as e:
+            logger.warning(f"AI formatting failed, using template: {e}")
+
+        # Fallback: template format
+        return self._format_matches_template(matches, location, context)
+
+    def _format_matches_template(
         self, matches: Dict, location: str, context: Dict
     ) -> str:
-        """Format matching projects/properties as a sales-ready response"""
-        parts = []
-        parts.append(f"We have properties in {location} matching your requirement!\n")
+        """Fallback template formatting"""
+        parts = [f"We have properties in {location} matching your requirement!\n"]
 
-        # Show projects
         for i, proj in enumerate(matches["projects"][:3], 1):
             name = proj.get("name", "Project")
             loc = proj.get("location", "")
-            total = proj.get("total_units", "")
-            status = proj.get("status", "")
             parts.append(f"{i}. *{name}*")
             if loc:
                 parts.append(f"   Location: {loc}")
-            if total:
-                parts.append(f"   Total Units: {total}")
 
-        # Show properties if no projects
         if not matches["projects"] and matches["properties"]:
             for i, prop in enumerate(matches["properties"][:3], 1):
                 plot_num = prop.get("plot_number", prop.get("property_number", f"Property {i}"))
                 area = prop.get("area_sqft") or prop.get("total_area", "")
                 price = prop.get("total_price") or prop.get("price", "")
                 facing = prop.get("facing", "")
-                loc = prop.get("location", prop.get("location_text", ""))
-
                 parts.append(f"{i}. *Plot {plot_num}*")
                 if area:
                     parts.append(f"   Area: {area} sqft")
@@ -311,6 +448,10 @@ class SalesEngine:
                     parts.append(f"   Price: Rs.{price:,.0f}" if isinstance(price, (int, float)) else f"   Price: {price}")
                 if facing:
                     parts.append(f"   Facing: {facing}")
+
+        loc_highlights = get_location_highlights(location)
+        if loc_highlights:
+            parts.append(f"\nLocation Highlights: {loc_highlights}")
 
         parts.append("\nWould you like to:")
         parts.append("1. Talk to our expert")
@@ -323,9 +464,7 @@ class SalesEngine:
     async def _handle_option_selection(
         self, option: int, tenant_id: str, lead_id: str, phone: str, context: Dict
     ) -> Dict[str, Any]:
-        """Handle user's option selection after seeing projects"""
         if option == 1:
-            # CALL REQUEST
             await self._update_lead(tenant_id, lead_id, {
                 "status": "hot",
                 "notes": f"WhatsApp: Requested callback. Location: {context.get('location', 'N/A')}, Budget: {context.get('budget_text', 'N/A')}",
@@ -339,9 +478,7 @@ class SalesEngine:
                 "context_update": {**context, "callback_requested": True},
                 "human_followup_required": True
             }
-
         elif option == 2:
-            # SITE VISIT
             return {
                 "success": True,
                 "response": "Great choice! Let's schedule your site visit.\n\nPlease share your preferred date and time.\n\n_Example: Tomorrow 10 AM, Saturday 3 PM_",
@@ -349,13 +486,46 @@ class SalesEngine:
                 "action": "site_visit_flow",
                 "context_update": {**context, "visit_requested": True}
             }
-
         elif option == 3:
-            # PROJECT DETAILS
             location = context.get("location", "")
             matches = await self._search_db(tenant_id, location) if location else {"projects": [], "properties": []}
-            detail_parts = [f"Project details for {location}:\n"]
 
+            # Get full knowledge from RAG
+            knowledge = await self.knowledge_retriever.get_project_knowledge(tenant_id)
+            knowledge_text = self.knowledge_retriever.format_knowledge_for_llm(knowledge)
+
+            try:
+                detail_prompt = f"""You are RealApex Property Expert. A customer asked for full project details about properties in {location}.
+
+KNOWLEDGE BASE:
+{knowledge_text[:3000]}
+
+RULES:
+- Share project name, location, total units, RERA, key amenities
+- Share brochure/layout links if available
+- Mention location highlights (RRR, Metro, HMDA)
+- Keep it informative but concise (10-15 lines max)
+- End with "Would you like to schedule a site visit? Reply 'yes' or '2'"
+- Natural, warm tone"""
+
+                result = await llm_router.generate(
+                    system_prompt=detail_prompt,
+                    user_message=f"Tell me full details about properties in {location}",
+                    context=context,
+                )
+                if result.get("text"):
+                    return {
+                        "success": True,
+                        "response": result["text"],
+                        "next_state": "project_discussion",
+                        "action": "details_sent",
+                        "context_update": {**context, "details_sent": True}
+                    }
+            except Exception as e:
+                logger.warning(f"AI details generation failed: {e}")
+
+            # Fallback template
+            detail_parts = [f"Project details for {location}:\n"]
             for proj in matches.get("projects", [])[:2]:
                 detail_parts.append(f"*{proj.get('name', '')}*")
                 if proj.get("description"):
@@ -367,18 +537,6 @@ class SalesEngine:
                 if proj.get("rera_number"):
                     detail_parts.append(f"RERA: {proj['rera_number']}")
                 detail_parts.append("")
-
-            if not matches.get("projects"):
-                for prop in matches.get("properties", [])[:3]:
-                    detail_parts.append(f"*Plot {prop.get('plot_number', '')}*")
-                    area = prop.get("area_sqft") or prop.get("total_area", "")
-                    if area:
-                        detail_parts.append(f"Area: {area} sqft")
-                    price = prop.get("total_price") or prop.get("price")
-                    if price:
-                        detail_parts.append(f"Price: Rs.{price:,.0f}" if isinstance(price, (int, float)) else f"Price: {price}")
-                    detail_parts.append("")
-
             detail_parts.append("Would you like to schedule a site visit?")
             detail_parts.append("_Reply 'yes' or '2' to book visit_")
 
@@ -396,8 +554,6 @@ class SalesEngine:
         self, message: str, tenant_id: str, lead_id: str, phone: str,
         context: Dict, conversation: Dict
     ) -> Dict[str, Any]:
-        """Handle site visit date/time from user"""
-        # Save site visit
         visit_id = str(uuid.uuid4())
         visit = {
             "id": visit_id,
@@ -431,15 +587,11 @@ class SalesEngine:
         self, message: str, tenant_id: str, lead_id: str, phone: str,
         context: Dict, questions_asked: int, state: str
     ) -> Dict[str, Any]:
-        """
-        Smart lead capture - ask only what's missing, max 3 questions.
-        Uses LLM for natural conversation but with strict rules.
-        """
         location = context.get("location")
         budget = context.get("budget")
         prop_type = context.get("property_type")
 
-        # If we've asked 3+ questions already, just capture and close
+        # If we've asked 3+ questions already, capture and close
         if questions_asked >= 3:
             await self._update_lead(tenant_id, lead_id, {
                 "status": "warm",
@@ -468,7 +620,7 @@ class SalesEngine:
 
         # Generate natural response with LLM
         response = await self._generate_sales_response(
-            message, context, missing, questions_asked, state
+            message, context, missing, questions_asked, state, tenant_id
         )
 
         return {
@@ -484,9 +636,10 @@ class SalesEngine:
         }
 
     async def _generate_sales_response(
-        self, message: str, context: Dict, missing: List[str], questions_asked: int, state: str
+        self, message: str, context: Dict, missing: List[str], questions_asked: int,
+        state: str, tenant_id: str
     ) -> str:
-        """Generate a natural sales response using LLM"""
+        """Generate a natural sales response using cost-optimized LLM"""
         known_info = []
         if context.get("location"):
             known_info.append(f"Location: {context['location']}")
@@ -498,49 +651,52 @@ class SalesEngine:
         known_str = ", ".join(known_info) if known_info else "Nothing known yet"
         missing_str = ", ".join(missing) if missing else "All info collected"
 
-        system_prompt = f"""You are a smart real estate sales agent for Eloniot Software Solutions.
-You are chatting on WhatsApp. Be concise, friendly, and professional.
-
-STRICT RULES:
-- Ask ONLY ONE question at a time
-- NEVER repeat a question if info is already known
-- Keep response under 3 lines
-- Use natural Telugu-English mix if customer seems Telugu
-- NO emojis except minimal (1-2 max)
-- NEVER ask more than what's missing
-- If greeting (hi/hello), welcome briefly and ask about location preference
-
-KNOWN CUSTOMER INFO: {known_str}
-MISSING INFO NEEDED: {missing_str}
-QUESTIONS ASKED SO FAR: {questions_asked}
-
-If no info is missing, say: "Thank you! Our expert will call you shortly with the best options."
-If only location is missing, ask: "Which area/city are you looking for properties?"
-If only budget is missing, ask: "What's your budget range?"
-If only type is missing, ask: "Are you looking for plots, villa, or flat?"
-"""
+        # Get tenant knowledge for RAG
+        knowledge_text = ""
         try:
-            chat = LlmChat(
-                api_key=self.llm_key,
-                session_id=f"sales_{context.get('phone', 'unknown')}_{questions_asked}",
-                system_message=system_prompt
-            ).with_model("anthropic", "claude-sonnet-4-20250514")
+            knowledge = await self.knowledge_retriever.get_project_knowledge(tenant_id)
+            knowledge_text = self.knowledge_retriever.format_knowledge_for_llm(knowledge)
+            if len(knowledge_text) > 2000:
+                knowledge_text = knowledge_text[:2000] + "\n..."
+        except Exception:
+            pass
 
-            response = await chat.send_message(UserMessage(text=message))
-            return response.strip()
+        loc_highlights = ""
+        if context.get("location"):
+            highlights = get_location_highlights(context["location"])
+            if highlights:
+                loc_highlights = f"\nLOCATION HIGHLIGHTS for {context['location']}: {highlights}"
+
+        system_prompt = REALAPEX_EXPERT_PROMPT.format(
+            knowledge_context=f"\n--- KNOWLEDGE BASE ---\n{knowledge_text}" if knowledge_text else "",
+            location_highlights=loc_highlights,
+            known_info=known_str,
+            missing_info=missing_str,
+            questions_asked=questions_asked,
+        )
+
+        try:
+            result = await llm_router.generate(
+                system_prompt=system_prompt,
+                user_message=message,
+                context=context,
+            )
+            if result.get("text"):
+                logger.info(f"LLM response via {result['model']}, cost~${result['cost_estimate']:.6f}, latency={result['latency_ms']}ms")
+                return result["text"].strip()
         except Exception as e:
             logger.error(f"LLM error in sales engine: {e}")
-            # Fallback: ask the first missing item
-            if "location" in missing:
-                return "Which area are you looking for properties?"
-            elif "budget" in missing:
-                return "What's your budget range?"
-            elif "property_type" in missing:
-                return "Looking for plots, villa, or flat?"
-            return "Thank you! Our expert will call you shortly."
+
+        # Fallback: ask the first missing item
+        if "location" in missing:
+            return "Which area are you looking for properties?"
+        elif "budget" in missing:
+            return "What's your budget range?"
+        elif "property_type" in missing:
+            return "Looking for plots, villa, or flat?"
+        return "Thank you! Our expert will call you shortly."
 
     async def _update_lead(self, tenant_id: str, lead_id: str, updates: Dict):
-        """Update lead in database"""
         try:
             await self.db.leads.update_one(
                 {"tenant_id": tenant_id, "id": lead_id},

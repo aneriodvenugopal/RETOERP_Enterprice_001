@@ -9,19 +9,8 @@ from datetime import datetime
 import uuid
 from dotenv import load_dotenv
 
-from emergentintegrations.llm.chat import LlmChat, UserMessage
-
 from .state_machine import ConversationStateMachine, ConversationState, CustomerIntent
 from .knowledge_retriever import KnowledgeRetriever
-from .agents import (
-    GreetingAgent,
-    QualificationAgent,
-    InventoryAgent,
-    SiteVisitAgent,
-    BookingAgent,
-    PaymentAgent,
-    KnowledgeAgent
-)
 
 load_dotenv()
 
@@ -67,32 +56,8 @@ If unclear, respond with "general_question".
     
     def __init__(self, db):
         self.db = db
-        self.llm_key = os.getenv("EMERGENT_LLM_KEY")
         self.state_machine = ConversationStateMachine(db)
         self.knowledge_retriever = KnowledgeRetriever(db)
-        
-        # Initialize agents
-        self.agents = {
-            "greeting": GreetingAgent(db, self.llm_key),
-            "qualification": QualificationAgent(db, self.llm_key),
-            "inventory": InventoryAgent(db, self.llm_key),
-            "site_visit": SiteVisitAgent(db, self.llm_key),
-            "booking": BookingAgent(db, self.llm_key),
-            "payment": PaymentAgent(db, self.llm_key),
-            "knowledge": KnowledgeAgent(db, self.llm_key)
-        }
-        
-        # Intent to agent mapping
-        self.intent_agent_map = {
-            CustomerIntent.GREETING: "greeting",
-            CustomerIntent.PRICE_INQUIRY: "knowledge",
-            CustomerIntent.AVAILABILITY_CHECK: "inventory",
-            CustomerIntent.LAYOUT_REQUEST: "knowledge",
-            CustomerIntent.SITE_VISIT_REQUEST: "site_visit",
-            CustomerIntent.BOOKING_INTEREST: "booking",
-            CustomerIntent.PAYMENT_QUESTION: "payment",
-            CustomerIntent.GENERAL_QUESTION: "knowledge"
-        }
     
     async def process_message(
         self,
@@ -155,7 +120,7 @@ If unclear, respond with "general_question".
             
             # --- USE SALES ENGINE (DB-first approach) ---
             from .sales_engine import SalesEngine
-            engine = SalesEngine(self.db, self.llm_key)
+            engine = SalesEngine(self.db)
             
             result = await engine.process(
                 tenant_id=tenant_id,
@@ -252,14 +217,13 @@ If unclear, respond with "general_question".
         )
         
         try:
-            chat = LlmChat(
-                api_key=self.llm_key,
-                session_id=f"intent_{conversation['id']}",
-                system_message="You are an intent classifier. Respond with only the intent name."
-            ).with_model("anthropic", "claude-sonnet-4-20250514")
-            
-            response = await chat.send_message(UserMessage(text=prompt))
-            intent_str = response.strip().lower().replace(" ", "_")
+            from .llm_router import llm_router
+            result = await llm_router.generate(
+                system_prompt="You are an intent classifier. Respond with only the intent name.",
+                user_message=prompt,
+                force_model="gemini",
+            )
+            intent_str = result.get("text", "general_question").strip().lower().replace(" ", "_")
             
             # Map to CustomerIntent enum
             intent_map = {

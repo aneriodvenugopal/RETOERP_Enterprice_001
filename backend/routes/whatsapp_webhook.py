@@ -439,7 +439,15 @@ async def whatsapp_webhook(
 @router.get("/webhook-health")
 async def webhook_health():
     """Quick health check that confirms latest code is deployed"""
-    return {"status": "ok", "version": "v9_sales_engine", "deployed": True}
+    from services.whatsapp_agentic.llm_router import llm_router
+    stats = llm_router.get_stats()
+    return {
+        "status": "ok",
+        "version": "v10_dual_llm",
+        "deployed": True,
+        "llm_engine": "gemini-2.5-flash-lite + gpt-4o-mini",
+        "llm_stats": stats
+    }
 
 
 @router.post("/reset-conversation/{phone}")
