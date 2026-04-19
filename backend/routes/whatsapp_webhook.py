@@ -231,11 +231,16 @@ async def process_incoming_message(
             # Check if a real human agent is actively handling this
             has_active_agent = existing_conv.get("human_agent_id")
             if not has_active_agent:
-                # No real agent assigned - re-enable AI
+                # No real agent assigned - re-enable AI and RESET context
                 logger.info(f"🔄 Auto-resetting human_handoff for {phone} (no agent assigned)")
                 await db.whatsapp_conversations.update_one(
                     {"phone": phone, "tenant_id": tenant_id},
-                    {"$set": {"ai_enabled": True, "state": "qualification"}}
+                    {"$set": {
+                        "ai_enabled": True,
+                        "state": "new_lead",
+                        "context.questions_asked": 0,
+                        "context.lead_captured": False,
+                    }}
                 )
         
         # UPDATE SESSION - Customer message opens/refreshes 24-hour window

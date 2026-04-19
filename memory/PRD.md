@@ -23,7 +23,8 @@ Build a production-ready, multi-tenant Agentic AI workflow for the RealApex plat
 - **Cost Tracking**: Per-request cost estimation and LLM stats via `/api/whatsapp/webhook-health`
 - **Fault Tolerance**: If one LLM fails, automatically falls back to the other
 - **Multi-tenant**: Uses only current tenant's data for responses
-- **Files**: `llm_router.py` (new), `sales_engine.py` (rewritten), `orchestrator.py` (updated)
+- **BUG FIX**: Fixed "stuck conversation" bug - conversations with questions_asked >= 3 were permanently stuck returning "expert will call" on every message. Added stale conversation reset: after lead capture, next message starts fresh conversation.
+- **Files**: `llm_router.py` (new), `sales_engine.py` (rewritten), `orchestrator.py` (updated), `whatsapp_webhook.py` (context reset on human_handoff)
 
 ### Phase 6 - Sales Engine Rewrite (2026-04-16)
 - **Complete AI rewrite**: Replaced 7-agent question-machine with single DB-first Sales Engine

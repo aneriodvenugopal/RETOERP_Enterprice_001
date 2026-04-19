@@ -249,6 +249,24 @@ class SalesEngine:
         state = conversation.get("state", "new_lead")
         questions_asked = context.get("questions_asked", 0)
 
+        # --- STALE CONVERSATION RESET ---
+        # Reset ONLY if:
+        #  1. Lead was already captured (user got "expert will call" once, now continuing)
+        #  2. questions_asked > 3 (safety net for old stuck conversations without lead_captured flag)
+        if context.get("lead_captured") or questions_asked > 3:
+            logger.info(f"Resetting stale conversation for {phone} (lead_captured={context.get('lead_captured')}, questions={questions_asked})")
+            # Keep useful info but reset counters
+            context = {
+                "location": context.get("location"),
+                "budget": context.get("budget"),
+                "budget_text": context.get("budget_text"),
+                "property_type": context.get("property_type"),
+                "questions_asked": 0,
+                "lead_captured": False,
+            }
+            questions_asked = 0
+            state = "new_lead"
+
         # --- EXIT CHECK ---
         if is_exit_message(message):
             return {

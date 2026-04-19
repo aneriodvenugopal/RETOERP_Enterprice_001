@@ -95,10 +95,19 @@ If unclear, respond with "general_question".
                 if not conversation.get("human_agent_id"):
                     await self.db.whatsapp_conversations.update_one(
                         {"id": conversation_id},
-                        {"$set": {"ai_enabled": True, "state": "qualification"}}
+                        {"$set": {
+                            "ai_enabled": True,
+                            "state": "new_lead",
+                            "context.questions_asked": 0,
+                            "context.lead_captured": False,
+                        }}
                     )
                     conversation["ai_enabled"] = True
-                    conversation["state"] = "qualification"
+                    conversation["state"] = "new_lead"
+                    conv_context = conversation.get("context", {})
+                    conv_context["questions_asked"] = 0
+                    conv_context["lead_captured"] = False
+                    conversation["context"] = conv_context
                 else:
                     return {
                         "success": True,
