@@ -1549,3 +1549,157 @@ async def set_tenant_mapping(
             "phone_number_id": phone_id
         }
     }
+
+
+
+# ============ AUTO FOLLOW-UP ENDPOINTS ============
+
+@router.post("/followup/run")
+async def run_auto_followup(
+    request: Request,
+    tenant_id: Optional[str] = None,
+    min_delay_hours: float = 2.0,
+    dry_run: bool = False,
+):
+    """
+    Run auto follow-up batch.
+
+    - Finds leads who showed interest but didn't reply
+    - Generates personalized follow-up via Gemini
+    - Sends as free-form message within 24h window
+    - dry_run=true: generates messages without sending
+
+    Query params:
+        tenant_id: Optional filter by tenant
+        min_delay_hours: Minimum hours since last bot response (default 2)
+        dry_run: If true, generate but don't send (default false)
+    """
+    db = get_db(request)
+    from services.whatsapp_agentic.auto_followup import AutoFollowupService
+
+    service = AutoFollowupService(db)
+    result = await service.run_batch(
+        meta_client=meta_whatsapp_client,
+        tenant_id=tenant_id,
+        min_delay_hours=min_delay_hours,
+        dry_run=dry_run,
+    )
+    return result
+
+
+@router.get("/followup/pending")
+async def get_pending_followups(
+    request: Request,
+    tenant_id: Optional[str] = None,
+    min_delay_hours: float = 2.0,
+):
+    """
+    Preview which leads are eligible for auto follow-up.
+    Does NOT send anything — just shows who would receive a message.
+    """
+    db = get_db(request)
+    from services.whatsapp_agentic.auto_followup import AutoFollowupService
+
+    service = AutoFollowupService(db)
+    pending = await service.find_pending_followups(
+        tenant_id=tenant_id,
+        min_delay_hours=min_delay_hours,
+    )
+
+    items = []
+    for p in pending:
+        conv = p["conversation"]
+        items.append({
+            "phone": p["phone"],
+            "tenant_id": p["tenant_id"],
+            "state": conv.get("state"),
+            "last_updated": conv.get("updated_at"),
+            "context_location": conv.get("context", {}).get("location"),
+            "context_project": conv.get("context", {}).get("matched_project_name"),
+            "lead_id": conv.get("lead_id"),
+        })
+
+    return {"total": len(items), "pending": items}
+
+
+@router.get("/followup/history")
+async def get_followup_history(
+    request: Request,
+    tenant_id: Optional[str] = None,
+    limit: int = 50,
+):
+    """Get history of sent auto follow-ups."""
+    db = get_db(request)
+    query = {}
+    if tenant_id:
+        query["tenant_id"] = tenant_id
+
+    followups = await db.whatsapp_followups.find(
+        query, {"_id": 0}
+    ).sort("sent_at", -1).limit(limit).to_list(limit)
+
+    return {
+        "total": len(followups),
+        "followups": followups,
+    }
+
+
+@router.post("/followup/send-one")
+async def send_single_followup(
+    request: Request,
+    phone: str,
+    tenant_id: Optional[str] = None,
+):
+    """
+    Manually trigger a follow-up for a specific phone number.
+    Useful for testing or manual intervention.
+    """
+    db = get_db(request)
+    from services.whatsapp_agentic.auto_followup import AutoFollowupService
+
+    phone_normalized = normalize_phone(phone)
+
+    # Find the conversation
+    query = {"phone": phone_normalized}
+    if tenant_id:
+        query["tenant_id"] = tenant_id
+
+    conv = await db.whatsapp_conversations.find_one(query, {"_id": 0})
+    if not conv:
+        raise HTTPException(status_code=404, detail="No conversation found for this phone")
+
+    tid = conv.get("tenant_id", tenant_id or "")
+    service = AutoFollowupService(db)
+
+    # Generate message
+    message = await service.generate_followup_message(conv, tid, phone_normalized)
+
+    # Send
+    send_result = await meta_whatsapp_client.send_text_message(
+        phone=phone_normalized,
+        message=message,
+        tenant_id=tid,
+        check_session=True,
+        fallback_to_template=False,
+    )
+
+    # Record
+    await db.whatsapp_followups.insert_one({
+        "conversation_id": conv.get("id"),
+        "tenant_id": tid,
+        "phone": phone_normalized,
+        "lead_id": conv.get("lead_id"),
+        "message": message,
+        "sent_at": datetime.now(timezone.utc),
+        "success": send_result.get("success", False),
+        "message_id": send_result.get("message_id"),
+        "manual": True,
+    })
+
+    return {
+        "success": send_result.get("success", False),
+        "phone": phone_normalized,
+        "message": message,
+        "message_id": send_result.get("message_id"),
+        "error": send_result.get("error"),
+    }

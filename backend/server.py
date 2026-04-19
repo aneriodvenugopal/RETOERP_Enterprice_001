@@ -270,4 +270,45 @@ logger = logging.getLogger(__name__)
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
+    # Stop the follow-up scheduler
+    if hasattr(app.state, "followup_task") and app.state.followup_task:
+        app.state.followup_task.cancel()
     client.close()
+
+
+# ============ AUTO FOLLOW-UP BACKGROUND SCHEDULER ============
+import asyncio
+
+async def _followup_scheduler_loop():
+    """Background loop that checks for pending follow-ups every 30 minutes."""
+    await asyncio.sleep(60)  # Initial delay — let server fully start
+    while True:
+        try:
+            from services.whatsapp_agentic.auto_followup import AutoFollowupService
+            from services.whatsapp_agentic.meta_whatsapp_client import meta_whatsapp_client as _meta_client
+            from services.whatsapp_agentic.session_manager import session_manager as _session_mgr
+
+            _session_mgr.set_db(db)
+            _meta_client.set_session_manager(_session_mgr, db)
+
+            service = AutoFollowupService(db)
+            result = await service.run_batch(meta_client=_meta_client, min_delay_hours=2.0)
+
+            if result["processed"] > 0:
+                logger.info(
+                    f"Auto follow-up batch: {result['successful']} sent, "
+                    f"{result['failed']} failed out of {result['total_pending']} pending"
+                )
+        except asyncio.CancelledError:
+            break
+        except Exception as e:
+            logger.error(f"Auto follow-up scheduler error: {e}")
+
+        await asyncio.sleep(1800)  # Run every 30 minutes
+
+
+@app.on_event("startup")
+async def start_followup_scheduler():
+    """Start the auto follow-up background scheduler."""
+    app.state.followup_task = asyncio.create_task(_followup_scheduler_loop())
+    logger.info("Auto follow-up scheduler started (runs every 30 minutes)")

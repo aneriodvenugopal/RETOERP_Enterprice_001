@@ -14,6 +14,15 @@ Build a production-ready, multi-tenant Agentic AI workflow for the RealApex plat
 
 ## Completed Features
 
+### Phase 8 - Auto Follow-up Feature (2026-04-19)
+- **Auto Follow-up Service**: Background scheduler (every 30 min) finds leads who showed interest but didn't reply
+- **Free-form only**: Sends within 24h Customer Service Window, NO templates (zero cost for messages)
+- **Gemini-powered**: Personalized, warm follow-up messages with lead name, conversation context, project data
+- **Multi-tenant**: Uses correct tenant's project data for each lead
+- **One follow-up per lead per 24h**: No spam, dedup via `whatsapp_followups` collection
+- **API Endpoints**: `/followup/run` (batch), `/followup/pending` (preview), `/followup/history`, `/followup/send-one` (manual)
+- **Files**: `auto_followup.py` (new), `whatsapp_webhook.py` (endpoints), `server.py` (scheduler)
+
 ### Phase 7 - Dual-LLM WhatsApp AI (2026-04-19)
 - **Removed Emergent LLM Key** from WhatsApp automation, replaced with user's own API keys
 - **LLM Router**: Smart routing - Gemini 2.5 Flash-Lite (primary, $0.10/$0.40 per M tokens) + GPT-4o-mini (fallback for complex reasoning)
