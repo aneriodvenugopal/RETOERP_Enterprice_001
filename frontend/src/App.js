@@ -86,6 +86,7 @@ import TenantCategoryManagement from "./pages/admin/TenantCategoryManagement";
 import TutorAIAdmin from "./pages/TutorAIAdmin";
 import RealApexDemos from "./pages/RealApexDemos";
 import WhatsAppSimulator from "./pages/WhatsAppSimulator";
+import WhatsAppCRM from "./pages/WhatsAppCRM";
 
 // Settings Pages
 import RoleAssignments from "./pages/settings/RoleAssignments";
@@ -1035,6 +1036,16 @@ function App() {
                 element={
                   <PrivateRoute>
                     <WhatsAppSimulator />
+                  </PrivateRoute>
+                }
+              />
+              
+              {/* WhatsApp CRM Dashboard */}
+              <Route
+                path="/whatsapp-crm"
+                element={
+                  <PrivateRoute>
+                    <WhatsAppCRM />
                   </PrivateRoute>
                 }
               />

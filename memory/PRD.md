@@ -15,6 +15,15 @@ Build a production-ready, multi-tenant Agentic AI workflow for the RealApex plat
 
 ## Completed Features
 
+### Phase 10 - WhatsApp CRM Dashboard UI (2026-04-19)
+- **Admin Dashboard**: `/whatsapp-crm` — All leads with metrics, filters, search, actions
+- **Agent Dashboard**: Non-admin users see only assigned leads
+- **Lead Cards**: Name, Phone, Type, Budget, Purpose, Timeline, Score badge, First message, Next action
+- **Action Buttons**: Call, WhatsApp, Followed Up, Schedule Visit, Status change, Assign Agent
+- **Metrics Row**: New Leads, Hot Leads, Warm, Calls Needed
+- **Backend APIs**: PUT `/crm/leads/{id}`, POST `/crm/leads/{id}/followed-up`, POST `/crm/leads/{id}/schedule-visit`, GET `/crm/agents`
+- **Files**: `WhatsAppCRM.js` (new), `whatsapp_webhook.py` (management endpoints)
+
 ### Phase 9 - WhatsApp CRM Lead System (2026-04-19)
 - **Instant Lead Creation**: Every first WhatsApp message creates CRM lead with phone, message, source, score
 - **Rule-based Intent Scoring** (zero AI cost): Cold/Warm/Hot based on keyword matching

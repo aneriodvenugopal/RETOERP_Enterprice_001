@@ -1806,3 +1806,134 @@ async def archive_stale(
     crm = CRMLeadEngine(db)
     archived = await crm.archive_stale_conversations(tenant_id, days)
     return {"archived": archived, "days_threshold": days}
+
+
+
+# ============ CRM LEAD MANAGEMENT ============
+
+class LeadUpdateRequest(BaseModel):
+    status: Optional[str] = None
+    lead_score: Optional[str] = None
+    assigned_to: Optional[str] = None
+    next_action: Optional[str] = None
+    notes: Optional[str] = None
+
+
+@router.put("/crm/leads/{lead_id}")
+async def update_crm_lead(
+    lead_id: str,
+    request: Request,
+    updates: LeadUpdateRequest = None,
+    current_user: dict = Depends(get_current_user),
+):
+    """Update a CRM lead — assign agent, change status, add notes, set next action."""
+    db = get_db(request)
+    tenant_id = current_user.get("tenant_id")
+
+    # Parse body manually if Pydantic binding failed
+    if updates is None:
+        try:
+            body = await request.json()
+            updates = LeadUpdateRequest(**body)
+        except Exception:
+            updates = LeadUpdateRequest()
+
+    set_fields = {"updated_at": datetime.utcnow()}
+    if updates.status:
+        set_fields["status"] = updates.status
+    if updates.lead_score:
+        set_fields["lead_score"] = updates.lead_score
+    if updates.assigned_to:
+        set_fields["assigned_to"] = updates.assigned_to
+    if updates.next_action:
+        set_fields["next_action"] = updates.next_action
+    if updates.notes is not None:
+        set_fields["last_notes"] = updates.notes
+
+    result = await db.leads.update_one(
+        {"tenant_id": tenant_id, "id": lead_id},
+        {"$set": set_fields}
+    )
+
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Lead not found")
+
+    return {"success": True, "updated_fields": list(set_fields.keys())}
+
+
+@router.post("/crm/leads/{lead_id}/followed-up")
+async def mark_followed_up(
+    lead_id: str,
+    request: Request,
+    current_user: dict = Depends(get_current_user),
+):
+    """Mark a lead as followed up."""
+    db = get_db(request)
+    tenant_id = current_user.get("tenant_id")
+
+    await db.leads.update_one(
+        {"tenant_id": tenant_id, "id": lead_id},
+        {"$set": {
+            "last_followed_up_at": datetime.utcnow(),
+            "followed_up_by": current_user.get("id"),
+            "next_action": "awaiting_response",
+            "updated_at": datetime.utcnow(),
+        }}
+    )
+    return {"success": True}
+
+
+@router.post("/crm/leads/{lead_id}/schedule-visit")
+async def schedule_visit_from_crm(
+    lead_id: str,
+    request: Request,
+    current_user: dict = Depends(get_current_user),
+    preferred_time: str = "To be confirmed",
+):
+    """Schedule a site visit for a CRM lead."""
+    db = get_db(request)
+    tenant_id = current_user.get("tenant_id")
+
+    lead = await db.leads.find_one(
+        {"tenant_id": tenant_id, "id": lead_id}, {"_id": 0}
+    )
+    if not lead:
+        raise HTTPException(status_code=404, detail="Lead not found")
+
+    visit = {
+        "id": str(uuid.uuid4()),
+        "tenant_id": tenant_id,
+        "lead_id": lead_id,
+        "phone": lead.get("buyer_phone", ""),
+        "location": lead.get("preferred_location", ""),
+        "preferred_time": preferred_time,
+        "status": "scheduled",
+        "source": "crm_dashboard",
+        "scheduled_by": current_user.get("id"),
+        "created_at": datetime.now(timezone.utc),
+    }
+    await db.site_visits.insert_one(visit)
+
+    await db.leads.update_one(
+        {"tenant_id": tenant_id, "id": lead_id},
+        {"$set": {"status": "hot", "next_action": "site_visit_scheduled", "updated_at": datetime.utcnow()}}
+    )
+
+    return {"success": True, "visit_id": visit["id"]}
+
+
+@router.get("/crm/agents")
+async def get_agents_list(
+    request: Request,
+    current_user: dict = Depends(get_current_user),
+):
+    """Get list of agents who can be assigned leads."""
+    db = get_db(request)
+    tenant_id = current_user.get("tenant_id")
+
+    agents = await db.users.find(
+        {"tenant_id": tenant_id, "role": {"$in": ["marketing_agent", "admin", "tenant_admin", "sales_agent"]}},
+        {"_id": 0, "id": 1, "name": 1, "email": 1, "phone": 1, "role": 1}
+    ).to_list(50)
+
+    return {"agents": agents}
