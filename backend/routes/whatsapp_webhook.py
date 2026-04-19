@@ -21,6 +21,7 @@ from collections import OrderedDict
 import time
 import uuid
 import os
+import asyncio
 import logging
 from dotenv import load_dotenv
 
@@ -307,25 +308,35 @@ async def process_incoming_message(
                 "action": "ai_error_fallback"
             }
         
-        # Send response with session awareness
+        # Send response with session awareness + typing delay + message splitting
         if result.get("success") and result.get("response"):
-            logger.info(f"📤 Sending reply to {phone}: '{result['response'][:100]}...'")
-            send_result = await meta_whatsapp_client.send_text_message(
-                phone=phone,
-                message=result["response"],
-                tenant_id=tenant_id,
-                check_session=True,
-                fallback_to_template=True
-            )
-            
-            if not send_result.get("success"):
-                logger.error(f"❌ Failed to send WhatsApp response: {send_result.get('error')}")
-                
-                # If fallback was used, log it
-                if send_result.get("fallback_used"):
-                    logger.info(f"📋 Fallback template sent instead to {phone}")
-            else:
-                logger.info(f"✅ Response sent to {phone}")
+            response_text = result["response"]
+            logger.info(f"📤 Sending reply to {phone}: '{response_text[:100]}...'")
+
+            # Import enhancer for message splitting
+            from services.whatsapp_agentic.conversation_enhancer import split_long_message
+
+            # Split long messages into multiple short ones
+            message_parts = split_long_message(response_text, max_chars=500)
+
+            for i, part in enumerate(message_parts):
+                # Add typing delay between messages (1-2 seconds)
+                if i > 0:
+                    await asyncio.sleep(1.5)
+
+                send_result = await meta_whatsapp_client.send_text_message(
+                    phone=phone,
+                    message=part,
+                    tenant_id=tenant_id,
+                    check_session=True,
+                    fallback_to_template=(i == 0)  # Only first part falls back to template
+                )
+
+                if not send_result.get("success"):
+                    logger.error(f"❌ Failed to send part {i+1}: {send_result.get('error')}")
+                    break
+
+            logger.info(f"✅ Sent {len(message_parts)} message(s) to {phone}")
         
         if result.get("human_followup_required"):
             await notify_agent_for_followup(db, tenant_id, lead_id, result)

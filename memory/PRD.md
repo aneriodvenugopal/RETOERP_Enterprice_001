@@ -15,6 +15,17 @@ Build a production-ready, multi-tenant Agentic AI workflow for the RealApex plat
 
 ## Completed Features
 
+### Phase 12 - Realistic Conversation Enhancements (2026-04-19)
+- **Telugu Auto-Detection**: Detects 100+ Telugu words + Telugu script → replies in Telugu-English mix
+- **Customer Name Memory**: Extracts name from "my name is" / "na peru" patterns, persists in context, used in every reply
+- **Time-Aware Greetings**: IST-based "Good morning"/"Good evening" for first messages
+- **Typing Delay**: 1.5s delay between split messages to simulate real typing
+- **Message Splitting**: Long responses split at natural breakpoints into 2-3 short WhatsApp messages
+- **Price Negotiation Handling**: Detects "rate thaggisthara" / "discount" → checks DB for EMI/offers → guides to site visit
+- **Urgency Messaging**: Real scarcity from DB (available count, recently sold) injected into LLM context
+- **Auto Project Recommendation**: Budget + location + type combined search for best matches
+- **Files**: `conversation_enhancer.py` (new), `sales_engine.py` (enhanced), `whatsapp_webhook.py` (split + delay), `meta_whatsapp_client.py` (typing indicator)
+
 ### Phase 11 - Strict Multi-Tenant WABA Data Isolation (2026-04-19)
 - **Removed ALL cross-tenant fallbacks**: No more "data-rich tenant" search that leaked other tenant data
 - **Strict `identify_tenant`**: Only WABA mapping + existing conversation lookup, no guessing

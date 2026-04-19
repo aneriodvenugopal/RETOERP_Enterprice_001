@@ -28,6 +28,12 @@ import uuid
 
 from .llm_router import llm_router
 from .knowledge_retriever import KnowledgeRetriever
+from .conversation_enhancer import (
+    detect_telugu, get_ist_greeting, get_ist_time_context,
+    is_price_negotiation, split_long_message,
+    get_urgency_data, get_negotiation_data,
+    build_enhanced_system_context,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -153,6 +159,22 @@ def extract_property_type(message: str) -> Optional[str]:
 def is_exit_message(message: str) -> bool:
     msg_lower = message.lower().strip()
     return any(kw in msg_lower for kw in EXIT_KEYWORDS)
+
+
+def extract_name_from_message(message: str) -> Optional[str]:
+    """Extract customer name from message text."""
+    patterns = [
+        r"(?:my name is|i am|i'm|this is|myself)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)",
+        r"(?:name|naam)\s*(?:is|:)?\s*([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)",
+        r"(?:na peru|naa peru|peru)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)",
+    ]
+    for pat in patterns:
+        match = re.search(pat, message, re.IGNORECASE)
+        if match:
+            name = match.group(1).strip()
+            if len(name) > 2 and name.lower() not in {"sir", "madam", "hi", "hello"}:
+                return name
+    return None
 
 
 def is_option_selection(message: str) -> Optional[int]:
@@ -401,6 +423,51 @@ class SalesEngine:
         # --- LOAD FULL CHAT HISTORY (long-term memory) ---
         conv_id = conversation.get("id", "")
         chat_history = await self._load_chat_history(conv_id, phone)
+
+        # --- CONVERSATION ENHANCEMENTS ---
+        is_telugu = detect_telugu(message) or context.get("is_telugu", False)
+        customer_name = context.get("customer_name", "")
+        detected_name = extract_name_from_message(message)
+        if detected_name:
+            customer_name = detected_name
+        if not customer_name:
+            # Try from lead data
+            lead_data = await self.db.leads.find_one(
+                {"tenant_id": tenant_id, "id": lead_id}, {"_id": 0, "buyer_name": 1}
+            )
+            if lead_data and lead_data.get("buyer_name"):
+                customer_name = lead_data["buyer_name"]
+
+        new_context["is_telugu"] = is_telugu
+        if customer_name:
+            new_context["customer_name"] = customer_name
+
+        # Time-aware greeting
+        time_greeting = get_ist_greeting()
+        current_time = get_ist_time_context()
+
+        # Price negotiation detection
+        is_negotiation = is_price_negotiation(message)
+
+        # Urgency data from DB
+        matched_project_id = context.get("matched_project_id", "")
+        urgency = await get_urgency_data(self.db, tenant_id, matched_project_id)
+
+        # Negotiation data (only if customer is negotiating)
+        negotiation = None
+        if is_negotiation:
+            negotiation = await get_negotiation_data(self.db, tenant_id, matched_project_id)
+
+        # Build enhanced context string for LLM
+        enhanced_context = build_enhanced_system_context(
+            customer_name=customer_name,
+            is_telugu=is_telugu,
+            time_greeting=time_greeting if state == "new_lead" else "",
+            urgency=urgency,
+            negotiation=negotiation,
+            current_time=current_time,
+        )
+        new_context["_enhanced"] = enhanced_context
 
         # --- OPTION SELECTION (after projects shown) ---
         if state == "project_discussion":
@@ -826,6 +893,11 @@ STYLE (MANDATORY):
             missing_info=missing_str,
             questions_asked=questions_asked,
         )
+
+        # Inject enhanced context (Telugu, name, time, urgency, negotiation)
+        enhanced = context.get("_enhanced", "")
+        if enhanced:
+            system_prompt += f"\n\n--- CONTEXT ---\n{enhanced}"
 
         try:
             result = await llm_router.generate(
