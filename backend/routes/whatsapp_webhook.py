@@ -126,8 +126,11 @@ def normalize_phone(phone: str) -> str:
 
 
 async def identify_tenant(db, payload: Dict) -> Optional[str]:
-    """Identify tenant from webhook payload"""
-    # Extract WABA ID from Meta webhook payload structure
+    """
+    Identify tenant STRICTLY from WABA mapping.
+    NEVER falls back to another tenant's data.
+    Returns None if tenant cannot be identified → caller must handle safely.
+    """
     waba_id = ""
     phone_number_id = ""
     display_phone = ""
@@ -139,11 +142,10 @@ async def identify_tenant(db, payload: Dict) -> Optional[str]:
             metadata = changes[0].get("value", {}).get("metadata", {})
             phone_number_id = metadata.get("phone_number_id", "")
             display_phone = metadata.get("display_phone_number", "")
-    
-    # Try direct field too
+
     to_number = payload.get("to", payload.get("waba_id", waba_id))
-    
-    # Step 1: Check explicit WhatsApp tenant mapping
+
+    # Step 1: Check explicit WABA → tenant mapping
     if to_number or phone_number_id:
         to_normalized = normalize_phone(str(to_number)) if to_number else ""
         mapping = await db.whatsapp_tenant_mapping.find_one(
@@ -155,63 +157,42 @@ async def identify_tenant(db, payload: Dict) -> Optional[str]:
             {"_id": 0}
         )
         if mapping:
-            logger.info(f"Tenant identified via mapping: {mapping['tenant_id']}")
+            logger.info(f"Tenant identified via WABA mapping: {mapping['tenant_id']}")
             return mapping["tenant_id"]
-    
-    # Step 2: Smart fallback — find tenant with MOST projects/properties (the one with real data)
-    pipeline = [
-        {"$match": {"deleted_at": None}},
-        {"$group": {"_id": "$tenant_id", "count": {"$sum": 1}}},
-        {"$sort": {"count": -1}},
-        {"$limit": 1}
-    ]
-    
-    # Try projects first
-    top_tenant = None
-    async for doc in db.projects.aggregate(pipeline):
-        if doc["count"] > 0:
-            top_tenant = doc["_id"]
-            break
-    
-    # If no projects, try properties
-    if not top_tenant:
-        async for doc in db.properties.aggregate(pipeline):
-            if doc["count"] > 0:
-                top_tenant = doc["_id"]
-                break
-    
-    if top_tenant:
-        logger.info(f"Using data-rich tenant: {top_tenant}")
-        # Auto-create mapping for future fast lookups
-        if waba_id or phone_number_id:
-            try:
-                await db.whatsapp_tenant_mapping.update_one(
-                    {"waba_id": waba_id or "auto"},
-                    {"$set": {
-                        "tenant_id": top_tenant,
-                        "waba_id": waba_id,
-                        "phone_number_id": phone_number_id,
-                        "display_phone": display_phone,
-                        "auto_mapped": True,
-                        "created_at": datetime.utcnow()
-                    }},
-                    upsert=True
-                )
-                logger.info(f"Auto-mapped WABA {waba_id} → tenant {top_tenant}")
-            except Exception as e:
-                logger.warning(f"Failed to auto-map: {e}")
-        return top_tenant
-    
-    # Step 3: Last resort — first active tenant
-    tenant = await db.tenants.find_one(
-        {"is_active": {"$ne": False}},
-        {"_id": 0, "id": 1}
+
+    # Step 2: Check if sender phone already has a conversation with a known tenant
+    sender_phone = ""
+    if entries:
+        changes = entries[0].get("changes", [])
+        if changes:
+            messages = changes[0].get("value", {}).get("messages", [])
+            if messages:
+                sender_phone = normalize_phone(messages[0].get("from", ""))
+
+    if sender_phone:
+        existing_conv = await db.whatsapp_conversations.find_one(
+            {"phone": sender_phone}, {"_id": 0, "tenant_id": 1}
+        )
+        if existing_conv and existing_conv.get("tenant_id"):
+            logger.info(f"Tenant identified from existing conversation: {existing_conv['tenant_id']}")
+            return existing_conv["tenant_id"]
+
+    # Step 3: NO CROSS-TENANT FALLBACK. Log security event and return None.
+    await db.security_logs.insert_one({
+        "event": "tenant_identification_failed",
+        "waba_id": waba_id,
+        "phone_number_id": phone_number_id,
+        "display_phone": display_phone,
+        "sender_phone": sender_phone,
+        "timestamp": datetime.now(timezone.utc),
+        "severity": "warning",
+    })
+    logger.warning(
+        f"TENANT NOT IDENTIFIED: waba={waba_id} phone_id={phone_number_id} "
+        f"sender={sender_phone}. No WABA mapping configured. "
+        f"Use POST /api/whatsapp/tenant-mapping to configure."
     )
-    if tenant:
-        logger.info(f"Using last-resort fallback tenant: {tenant.get('id')}")
-    else:
-        logger.error("No active tenant found!")
-    return tenant.get("id") if tenant else None
+    return None
 
 
 async def find_or_create_lead(db, tenant_id: str, phone: str, message: str = "", contact_name: str = "") -> Dict:
@@ -476,7 +457,17 @@ async def whatsapp_webhook(
         tenant_id = await identify_tenant(db, raw_payload)
         
         if not tenant_id:
-            logger.warning("Tenant not identified from webhook payload")
+            logger.warning(f"TENANT NOT IDENTIFIED for {phone}. Sending safe error. Configure WABA mapping.")
+            # Send safe error message — never expose other tenant data
+            try:
+                await meta_whatsapp_client.send_text_message(
+                    phone=phone,
+                    message="Thank you for contacting us! Our team will get back to you shortly. Please call our office for immediate assistance.",
+                    tenant_id="",
+                    check_session=False,
+                )
+            except Exception:
+                pass
             return {"status": "ok"}
         
         contact_name = parsed.get("contact_name", "")
@@ -1937,3 +1928,24 @@ async def get_agents_list(
     ).to_list(50)
 
     return {"agents": agents}
+
+
+
+# ============ SECURITY LOGS ============
+
+@router.get("/security/logs")
+async def get_security_logs(
+    request: Request,
+    current_user: dict = Depends(get_current_user),
+    limit: int = 50,
+):
+    """View security audit logs (admin only)."""
+    db = get_db(request)
+    if current_user.get("role") not in ["admin", "tenant_admin"]:
+        raise HTTPException(status_code=403, detail="Admin access required")
+
+    logs = await db.security_logs.find(
+        {}, {"_id": 0}
+    ).sort("timestamp", -1).limit(limit).to_list(limit)
+
+    return {"total": len(logs), "logs": logs}

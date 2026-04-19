@@ -15,6 +15,15 @@ Build a production-ready, multi-tenant Agentic AI workflow for the RealApex plat
 
 ## Completed Features
 
+### Phase 11 - Strict Multi-Tenant WABA Data Isolation (2026-04-19)
+- **Removed ALL cross-tenant fallbacks**: No more "data-rich tenant" search that leaked other tenant data
+- **Strict `identify_tenant`**: Only WABA mapping + existing conversation lookup, no guessing
+- **Safe error response**: Unknown WABA → generic safe message, no data exposed, no lead/conversation created
+- **Security logging**: `security_logs` collection tracks all failed tenant identification attempts
+- **Security API**: `GET /api/whatsapp/security/logs` — admin-only audit trail
+- **Verified**: Unknown WABA (99999...) → security log created, zero data leaked, no conversation created
+- **Files**: `whatsapp_webhook.py` (strict identify_tenant), `sales_engine.py` (removed cross-tenant fallbacks)
+
 ### Phase 10 - WhatsApp CRM Dashboard UI (2026-04-19)
 - **Admin Dashboard**: `/whatsapp-crm` — All leads with metrics, filters, search, actions
 - **Agent Dashboard**: Non-admin users see only assigned leads

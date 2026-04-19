@@ -429,24 +429,9 @@ class SalesEngine:
         knowledge = await self.knowledge_retriever.get_project_knowledge(tenant_id)
         knowledge_text = self.knowledge_retriever.format_knowledge_for_llm(knowledge)
 
-        # FALLBACK: If current tenant has no data, find the data-rich tenant
+        # STRICT ISOLATION: No cross-tenant fallback. If tenant has no data, respond honestly.
         if not knowledge.get("projects") and not knowledge.get("available_plots"):
-            logger.warning(f"Tenant {tenant_id} has no project data, searching for data-rich tenant...")
-            pipeline = [
-                {"$match": {"deleted_at": None}},
-                {"$group": {"_id": "$tenant_id", "count": {"$sum": 1}}},
-                {"$sort": {"count": -1}},
-                {"$limit": 1}
-            ]
-            async for doc in self.db.projects.aggregate(pipeline):
-                if doc["count"] > 0:
-                    rich_tenant = doc["_id"]
-                    logger.info(f"Using data-rich tenant: {rich_tenant}")
-                    knowledge = await self.knowledge_retriever.get_project_knowledge(rich_tenant)
-                    knowledge_text = self.knowledge_retriever.format_knowledge_for_llm(knowledge)
-                    # Override tenant_id for DB searches in this session
-                    tenant_id = rich_tenant
-                    break
+            logger.info(f"Tenant {tenant_id} has no project data uploaded yet.")
 
         # --- CHECK: Is this a project inquiry? ---
         is_project_inquiry = self._is_project_inquiry(message)
@@ -695,33 +680,7 @@ class SalesEngine:
             {"tenant_id": tenant_id, "deleted_at": None}
         )
 
-        # FALLBACK: If current tenant has NO data, find tenant with most data
-        if not all_projects and total_count == 0:
-            logger.warning(f"Tenant {tenant_id} has no project data! Searching for data-rich tenant...")
-            pipeline = [
-                {"$match": {"deleted_at": None}},
-                {"$group": {"_id": "$tenant_id", "count": {"$sum": 1}}},
-                {"$sort": {"count": -1}},
-                {"$limit": 1}
-            ]
-            async for doc in self.db.projects.aggregate(pipeline):
-                if doc["count"] > 0:
-                    rich_tenant = doc["_id"]
-                    logger.info(f"Found data-rich tenant: {rich_tenant} with {doc['count']} projects")
-                    all_projects = await self.db.projects.find(
-                        {"tenant_id": rich_tenant, "deleted_at": None}, {"_id": 0}
-                    ).limit(10).to_list(10)
-                    available_count = await self.db.properties.count_documents(
-                        {"tenant_id": rich_tenant, "deleted_at": None,
-                         "status": {"$in": ["available", "Available", "AVAILABLE"]}}
-                    )
-                    total_count = await self.db.properties.count_documents(
-                        {"tenant_id": rich_tenant, "deleted_at": None}
-                    )
-                    # Also refresh knowledge from rich tenant
-                    knowledge = await self.knowledge_retriever.get_project_knowledge(rich_tenant)
-                    knowledge_text = self.knowledge_retriever.format_knowledge_for_llm(knowledge)
-                    break
+        # STRICT ISOLATION: No cross-tenant data. If no data, respond honestly.
 
         # Build project summary for AI
         proj_summary = []
