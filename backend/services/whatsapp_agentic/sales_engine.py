@@ -178,42 +178,33 @@ def get_location_highlights(location: str) -> str:
 
 
 # System prompt for the RealApex Property Expert
-REALAPEX_EXPERT_PROMPT = """You are "RealApex Property Expert" – a warm, highly experienced, and professional real estate advisor for builders in Telangana/Hyderabad.
+REALAPEX_EXPERT_PROMPT = """You are a trained senior real estate sales assistant working for a builder in Hyderabad/Telangana.
 
-You work inside RealApex SaaS (multi-tenant system). Each tenant (builder) uploads their own project data, properties, layouts, availability status, gallery images, YouTube links, location details, FAQs, brochures, website content, and additional information into the database.
+You sound HUMAN, not like a chatbot. Short, clear, mobile-friendly replies.
 
-Always use the latest tenant-specific/project-specific data from the Knowledge Base below for the current chat.
+STYLE RULES (MANDATORY):
+- Maximum 1 to 4 short lines per reply
+- NO long paragraphs. One point per line.
+- Use bullets (•) for lists
+- Only emojis: ✅ 📍 📞 🏠 (max 1-2 per message, only when useful)
+- NEVER say "Certainly!", "I'd be delighted", "Absolutely!", "Great question!"
+- Use natural phrases: "Sure sir", "Yes madam", "Available", "Sharing now", "Ji"
+- If Telugu, use natural Telugu-English mix
+- Links on separate line with label
+- Ask only ONE next-step question
+- Sound like a real person, not AI
 
-Key Rules:
-1. Identify the tenant_id / project_id / builder from the conversation context and use ONLY that tenant's data.
-2. Provide accurate, up-to-date information about:
-   - Project details, property types, layouts, pricing, availability status
-   - Brochures (share direct links if available)
-   - Specific layout links / floor plans
-   - Gallery images and YouTube video links
-   - Location highlights, amenities, FAQs, website content
-3. Share brochures, layouts, gallery, or website links naturally when relevant.
-4. STRICT PRIVACY: NEVER reveal, mention, or hint at any customer personal data, purchase history, buyer names, payment details, or any hidden/sensitive information of previous customers. If asked, politely say you cannot share private customer information.
+FORMATTING:
+- Separate each point with line break
+- Use *bold* for project names and key info
+- Put links on own line with label before
+- Keep mobile screen readability first
 
-Personality & Style:
-- Speak like a senior, caring real estate consultant who genuinely wants the best for the customer's family.
-- Use empathy, excitement about the project, and emotional intelligence.
-- Build trust and gently guide the lead towards site visit or booking.
-- Never sound robotic. Keep replies natural, warm, and professional.
-- If the customer speaks Telugu, respond with natural Telugu-English mix.
-- Keep WhatsApp messages concise (3-5 lines max).
-
-STRICT RULES:
-- Ask ONLY ONE question at a time
-- NEVER repeat a question if info is already known
-- Keep response under 5 lines
-- NO emojis except minimal (1-2 max)
-- NEVER ask more than what's missing
-
-Goal:
-Make the customer feel they are talking to a real, knowledgeable project-specific expert so they confidently book a site visit and move towards booking/payment.
-
-Always end with a clear next step question to move the conversation forward.
+DATA RULES:
+- Use ONLY this tenant's data from Knowledge Base below
+- Share actual names, prices, availability, links
+- NEVER reveal other customer data
+- NEVER make up data not in Knowledge Base
 
 {knowledge_context}
 
@@ -579,19 +570,18 @@ class SalesEngine:
         sold = [p for p in properties if str(p.get("status", "")).lower() in ["sold", "booked", "reserved"]]
         total = len(properties)
 
-        # Build plot availability table
+        # Build plot availability table (compact, mobile-friendly)
         table_lines = []
-        for p in properties[:30]:  # Limit to 30 for WhatsApp
+        for p in available[:10]:  # Show max 10 available plots
             plot_num = p.get("plot_number") or p.get("property_number") or "N/A"
             area = p.get("area_sqft") or p.get("total_area") or ""
-            area_str = f"{area}" if area else "-"
-            facing = p.get("facing") or "-"
-            status = p.get("status") or "available"
+            area_str = f"{area} sqft" if area else ""
+            facing = p.get("facing") or ""
             price = p.get("total_price") or p.get("price") or ""
-            price_str = f"₹{price:,.0f}" if isinstance(price, (int, float)) and price else "-"
+            price_str = f"₹{price:,.0f}" if isinstance(price, (int, float)) and price else ""
 
-            status_icon = "✅" if status.lower() in ["available", ""] else "❌"
-            table_lines.append(f"{status_icon} Plot {plot_num} | {area_str} sqft | {facing} | {price_str}")
+            details = " | ".join(filter(None, [area_str, facing, price_str]))
+            table_lines.append(f"✅ Plot {plot_num} - {details}")
 
         # Get layout info
         await self.db.layouts.find(
@@ -599,46 +589,44 @@ class SalesEngine:
             {"_id": 0, "id": 1, "name": 1}
         ).to_list(5)
 
-        # Build response
+        # Build clean, mobile-friendly response
         parts = []
         parts.append(f"*{project_name}*")
-        parts.append(f"📍 Location: {project.get('location', 'N/A')}, {project.get('city', '')}")
-        if project.get("status"):
-            parts.append(f"Status: {project['status']}")
-        if project.get("rera_number"):
-            parts.append(f"RERA: {project['rera_number']}")
-        if project.get("total_units"):
-            parts.append(f"Total Units: {project['total_units']}")
+        parts.append(f"📍 {project.get('location', '')}, {project.get('city', '')}")
 
-        parts.append(f"\n📊 *Plot Availability*: {len(available)} Available / {len(sold)} Sold / {total} Total")
+        # Key facts as compact bullets
+        facts = []
+        if project.get("rera_number"):
+            facts.append(f"RERA: {project['rera_number']}")
+        if project.get("status"):
+            facts.append(f"Status: {project['status']}")
+        if facts:
+            parts.append(" • ".join(facts))
+
+        parts.append(f"\n✅ *{len(available)} Available* / {len(sold)} Sold / {total} Total")
 
         if table_lines:
             parts.append("")
-            parts.append("```")
-            parts.append("Status | Plot | Area | Facing | Price")
-            parts.append("─" * 35)
-            for line in table_lines[:20]:
+            for line in table_lines[:8]:
                 parts.append(line)
-            if len(table_lines) > 20:
-                parts.append(f"... +{len(table_lines)-20} more plots")
-            parts.append("```")
+            if len(available) > 8:
+                parts.append(f"... +{len(available)-8} more available")
 
-        # Links
+        # Links on separate lines
         project_link = f"{base_url}/projects/{project_id}"
         layout_link = f"{base_url}/public/projects/{project_id}/layout"
-        parts.append(f"\n🔗 Project: {project_link}")
-        parts.append(f"📐 Layout: {layout_link}")
+        parts.append(f"\nLayout:\n{layout_link}")
+        parts.append(f"\nProject:\n{project_link}")
 
         if project.get("brochure_url"):
             brochure = project["brochure_url"]
             if not brochure.startswith("http"):
                 brochure = f"{base_url}{brochure}"
-            parts.append(f"📄 Brochure: {brochure}")
+            parts.append(f"\nBrochure:\n{brochure}")
 
-        parts.append("\nWould you like to:")
-        parts.append("1. Talk to our expert")
-        parts.append("2. Schedule site visit")
-        parts.append("3. Get more details")
+        parts.append("\n1 - Talk to expert")
+        parts.append("2 - Schedule visit")
+        parts.append("3 - More details")
         parts.append("\n_Reply 1, 2 or 3_")
 
         return "\n".join(parts)
@@ -701,27 +689,28 @@ class SalesEngine:
         ).limit(5).to_list(5)
 
         try:
-            prompt = f"""You are RealApex Property Expert. The customer is asking about projects/properties.
-Answer their question using ONLY the data below. Be specific, share names, numbers, details.
+            prompt = f"""You are a real estate sales assistant. Customer asking about projects/properties.
+Answer from the data below. Be specific and short.
 
-TENANT'S PROJECTS ({len(all_projects)} total):
+PROJECTS ({len(all_projects)} total):
 {chr(10).join(proj_summary) if proj_summary else 'No projects uploaded yet.'}
 
-PROPERTY STATS: {available_count} available out of {total_count} total properties
+AVAILABILITY: {available_count} available / {total_count} total
 
-FULL KNOWLEDGE BASE:
-{knowledge_text[:3000]}
+KNOWLEDGE:
+{knowledge_text[:2000]}
 
-CUSTOMER MESSAGE: {message}
+CUSTOMER: {message}
 
-RULES:
-- Share ACTUAL project names, locations, status, units, RERA numbers
-- Share availability count and property details
-- Share brochure/layout links if available in knowledge base
-- If the customer asks about a specific project, give detailed info
-- Keep it concise but INFORMATIVE (share real data, not vague statements)
-- End with a question to move towards site visit/booking
-- Max 10 lines"""
+STYLE (MANDATORY):
+- Max 4-6 short lines
+- Use • bullets for project list
+- One project per line with key detail
+- No long paragraphs
+- End with ONE question: "Which project interests you?" or "Shall I share layout?"
+- Sound human: "Sure", "Here you go", "These are available"
+- NEVER say "Certainly!" or "I'd be delighted"
+- Max 1 emoji"""
 
             result = await llm_router.generate(
                 system_prompt=prompt,
@@ -742,20 +731,15 @@ RULES:
 
         # Fallback: show projects as plain text
         if all_projects:
-            parts = [f"Here are our projects ({len(all_projects)}):\n"]
+            parts = ["Our projects:\n"]
             for i, proj in enumerate(all_projects[:5], 1):
-                parts.append(f"{i}. *{proj.get('name', 'Project')}*")
-                if proj.get("location"):
-                    parts.append(f"   Location: {proj['location']}, {proj.get('city', '')}")
-                if proj.get("total_units"):
-                    parts.append(f"   Units: {proj['total_units']}")
-                if proj.get("status"):
-                    parts.append(f"   Status: {proj['status']}")
-            parts.append(f"\nAvailable properties: {available_count}/{total_count}")
-            parts.append("\nWould you like to:")
-            parts.append("1. Talk to our expert")
-            parts.append("2. Schedule site visit")
-            parts.append("3. Get detailed project info")
+                loc = proj.get("location", proj.get("city", ""))
+                parts.append(f"• *{proj.get('name', 'Project')}* - {loc}")
+            if available_count:
+                parts.append(f"\n✅ {available_count} plots available")
+            parts.append("\n1 - Talk to expert")
+            parts.append("2 - Schedule visit")
+            parts.append("3 - Get details")
             parts.append("\n_Reply 1, 2 or 3_")
             return {
                 "success": True,
@@ -767,7 +751,7 @@ RULES:
 
         return {
             "success": True,
-            "response": "We are currently updating our project listings. Which area are you interested in? Our team can share the latest options with you.",
+            "response": "Our project listings are being updated.\n\nWhich area are you interested in?",
             "next_state": "qualification",
             "action": "no_projects_found",
             "context_update": context
@@ -798,7 +782,7 @@ RULES:
             })
             return {
                 "success": True,
-                "response": "Thank you! Our property expert will call you shortly with suitable options.",
+                "response": "Noted. Our team will call you with best options shortly.",
                 "next_state": "qualification",
                 "action": "lead_captured",
                 "context_update": {**context, "lead_captured": True},
@@ -893,7 +877,7 @@ RULES:
             }
         return {
             "success": True,
-            "response": "Thank you! Our expert will call you shortly.",
+            "response": "Noted. Our team will call you shortly.",
             "next_state": "qualification",
             "action": "lead_captured",
             "context_update": {**context, "lead_captured": True},
@@ -980,22 +964,27 @@ RULES:
 
         # Use AI for natural formatting
         try:
-            format_prompt = f"""You are RealApex Property Expert. Format this property data as a warm, 
-exciting WhatsApp message for a customer looking in {location}.
+            format_prompt = f"""You are a real estate sales assistant. Customer looking in {location}. Share matching properties.
 
 DATA:
 {chr(10).join(knowledge_parts)}
 
-LOCATION HIGHLIGHTS: {loc_highlights if loc_highlights else 'N/A'}
+LOCATION: {loc_highlights if loc_highlights else 'N/A'}
 
-RULES:
-- Start with an excited but professional greeting about finding matching properties
-- List properties briefly with key details (2-3 lines each)
-- Mention location advantages (RRR, Metro, HMDA if applicable)
-- End with: "Would you like to:\n1. Talk to our expert\n2. Schedule site visit\n3. Get full project details\n\n_Reply 1, 2 or 3_"
-- Keep total message under 15 lines
-- Use natural Telugu-English mix if appropriate
-- Max 2 emojis"""
+STYLE (MANDATORY):
+- Start with short confirmation: "Available in {location}:" or "Found matching options:"
+- List properties with • bullets, one per line
+- Include key detail per property (area, price, facing)
+- Max 6-8 lines total
+- End with:
+1 - Talk to expert
+2 - Schedule visit
+3 - Full details
+
+_Reply 1, 2 or 3_
+- NEVER say "Certainly!" or "I'd be delighted"
+- Max 1 emoji
+- Sound human, not AI"""
 
             result = await llm_router.generate(
                 system_prompt=format_prompt,
@@ -1015,38 +1004,26 @@ RULES:
     def _format_matches_template(
         self, matches: Dict, location: str, context: Dict
     ) -> str:
-        """Fallback template formatting"""
-        parts = [f"We have properties in {location} matching your requirement!\n"]
+        """Fallback template — short, mobile-friendly"""
+        parts = [f"Available in {location}:\n"]
 
-        for i, proj in enumerate(matches["projects"][:3], 1):
+        for proj in matches["projects"][:3]:
             name = proj.get("name", "Project")
             loc = proj.get("location", "")
-            parts.append(f"{i}. *{name}*")
-            if loc:
-                parts.append(f"   Location: {loc}")
+            parts.append(f"• *{name}* - {loc}")
 
         if not matches["projects"] and matches["properties"]:
-            for i, prop in enumerate(matches["properties"][:3], 1):
-                plot_num = prop.get("plot_number", prop.get("property_number", f"Property {i}"))
+            for prop in matches["properties"][:3]:
+                plot_num = prop.get("plot_number", prop.get("property_number", ""))
                 area = prop.get("area_sqft") or prop.get("total_area", "")
                 price = prop.get("total_price") or prop.get("price", "")
-                facing = prop.get("facing", "")
-                parts.append(f"{i}. *Plot {plot_num}*")
-                if area:
-                    parts.append(f"   Area: {area} sqft")
-                if price:
-                    parts.append(f"   Price: Rs.{price:,.0f}" if isinstance(price, (int, float)) else f"   Price: {price}")
-                if facing:
-                    parts.append(f"   Facing: {facing}")
+                price_str = f"₹{price:,.0f}" if isinstance(price, (int, float)) and price else ""
+                details = " | ".join(filter(None, [f"{area} sqft" if area else "", price_str]))
+                parts.append(f"✅ Plot {plot_num} - {details}")
 
-        loc_highlights = get_location_highlights(location)
-        if loc_highlights:
-            parts.append(f"\nLocation Highlights: {loc_highlights}")
-
-        parts.append("\nWould you like to:")
-        parts.append("1. Talk to our expert")
-        parts.append("2. Schedule site visit")
-        parts.append("3. Get full project details")
+        parts.append("\n1 - Talk to expert")
+        parts.append("2 - Schedule visit")
+        parts.append("3 - Full details")
         parts.append("\n_Reply 1, 2 or 3_")
 
         return "\n".join(parts)
@@ -1063,7 +1040,7 @@ RULES:
             })
             return {
                 "success": True,
-                "response": "Our property expert will call you shortly!\n\nIs there a preferred time for the call?",
+                "response": "Sure. Our expert will call you shortly.\n\nPreferred time for call?",
                 "next_state": "qualification",
                 "action": "callback_requested",
                 "context_update": {**context, "callback_requested": True},
@@ -1072,7 +1049,7 @@ RULES:
         elif option == 2:
             return {
                 "success": True,
-                "response": "Great choice! Let's schedule your site visit.\n\nPlease share your preferred date and time.\n\n_Example: Tomorrow 10 AM, Saturday 3 PM_",
+                "response": "Sure. Share your preferred date and time.\n\n_Example: Tomorrow 10 AM, Saturday 3 PM_",
                 "next_state": "site_visit_offer",
                 "action": "site_visit_flow",
                 "context_update": {**context, "visit_requested": True}
@@ -1086,18 +1063,23 @@ RULES:
             knowledge_text = self.knowledge_retriever.format_knowledge_for_llm(knowledge)
 
             try:
-                detail_prompt = f"""You are RealApex Property Expert. A customer asked for full project details about properties in {location}.
+                detail_prompt = f"""Customer asked for project details in {location}. Share from data below.
 
-KNOWLEDGE BASE:
-{knowledge_text[:3000]}
+KNOWLEDGE:
+{knowledge_text[:2500]}
 
-RULES:
-- Share project name, location, total units, RERA, key amenities
-- Share brochure/layout links if available
-- Mention location highlights (RRR, Metro, HMDA)
-- Keep it informative but concise (10-15 lines max)
-- End with "Would you like to schedule a site visit? Reply 'yes' or '2'"
-- Natural, warm tone"""
+STYLE (MANDATORY):
+- Project name on first line with *bold*
+- Key facts as short bullet points (• location, units, RERA, amenities)
+- Links on separate lines with labels:
+  Layout:
+  https://...
+  Brochure:
+  https://...
+- Max 8-10 lines
+- End with: "Shall I schedule a site visit?"
+- Sound human, not AI. No "Certainly!" or "I'd be delighted"
+- Max 1 emoji"""
 
                 result = await llm_router.generate(
                     system_prompt=detail_prompt,
@@ -1167,7 +1149,7 @@ RULES:
 
         return {
             "success": True,
-            "response": f"Your site visit is confirmed!\n\nTime: {message}\nLocation: {context.get('location', 'N/A')}\n\nOur team will contact you to confirm. Thank you!",
+            "response": f"Visit confirmed ✅\n\nTime: {message}\nLocation: {context.get('location', 'N/A')}\n\nOur team will call to confirm.",
             "next_state": "site_visit_scheduled",
             "action": "visit_scheduled",
             "site_visit_id": visit_id,
