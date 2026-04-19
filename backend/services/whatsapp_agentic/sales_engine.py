@@ -327,6 +327,22 @@ class SalesEngine:
         # --- CHECK: Is this a project inquiry? ---
         is_project_inquiry = self._is_project_inquiry(message)
 
+        # --- SEARCH BY PROJECT NAME (fuzzy/partial match) ---
+        name_match = await self._search_by_project_name(tenant_id, message)
+        if name_match:
+            response = await self._format_project_detail(name_match, tenant_id, message, new_context)
+            return {
+                "success": True,
+                "response": response,
+                "next_state": "project_discussion",
+                "action": "project_detail_shown",
+                "context_update": {
+                    **new_context,
+                    "matched_project_id": name_match.get("id"),
+                    "matched_project_name": name_match.get("name"),
+                }
+            }
+
         # --- DB SEARCH BY LOCATION (if location available) ---
         current_location = new_context.get("location")
         if current_location:
@@ -360,6 +376,157 @@ class SalesEngine:
             message, tenant_id, lead_id, phone, new_context, questions_asked, state,
             knowledge_text
         )
+
+    async def _search_by_project_name(self, tenant_id: str, message: str) -> Optional[Dict]:
+        """
+        Smart project name search — fuzzy, partial, token matching.
+        Extracts potential project name tokens from user message and searches DB.
+        """
+        msg_lower = message.lower().strip()
+
+        # Skip very short or generic messages
+        if len(msg_lower) < 3 or msg_lower in ["hi", "hello", "hey", "ok", "yes", "no", "1", "2", "3"]:
+            return None
+
+        # Remove common filler words to extract project name tokens
+        filler_words = {
+            "show", "me", "the", "about", "tell", "give", "details", "of", "in",
+            "what", "is", "are", "do", "you", "have", "any", "data", "project",
+            "projects", "plots", "plot", "available", "status", "price", "layout",
+            "unda", "undi", "cheppu", "kavali", "kosam", "lo", "ki", "ni", "na",
+            "i", "want", "need", "looking", "for", "a", "can", "get", "info",
+            "information", "property", "properties", "how", "many",
+        }
+        tokens = [w for w in msg_lower.split() if w not in filler_words and len(w) > 1]
+        if not tokens:
+            return None
+
+        # Build search query: try matching project name with extracted tokens
+        search_patterns = []
+        # Full token string
+        token_str = " ".join(tokens)
+        if len(token_str) > 2:
+            search_patterns.append({"name": {"$regex": token_str, "$options": "i"}})
+
+        # Individual tokens (for partial match)
+        for token in tokens:
+            if len(token) > 2:
+                search_patterns.append({"name": {"$regex": token, "$options": "i"}})
+
+        if not search_patterns:
+            return None
+
+        # Search projects
+        projects = await self.db.projects.find(
+            {"tenant_id": tenant_id, "deleted_at": None, "$or": search_patterns},
+            {"_id": 0}
+        ).limit(5).to_list(5)
+
+        if not projects:
+            return None
+
+        # Score matches by how many tokens match
+        best_match = None
+        best_score = 0
+        for proj in projects:
+            proj_name_lower = proj.get("name", "").lower()
+            score = sum(1 for t in tokens if t in proj_name_lower)
+            # Bonus for exact substring match
+            if token_str in proj_name_lower:
+                score += 5
+            if score > best_score:
+                best_score = score
+                best_match = proj
+
+        # Only return if at least 1 token matched
+        if best_match and best_score >= 1:
+            logger.info(f"Project name match: '{best_match.get('name')}' (score={best_score}, tokens={tokens})")
+            return best_match
+
+        return None
+
+    async def _format_project_detail(
+        self, project: Dict, tenant_id: str, message: str, context: Dict
+    ) -> str:
+        """Format a specific project's full details with plot availability table"""
+        project_id = project.get("id", "")
+        project_name = project.get("name", "Project")
+        base_url = "https://realapex.in"
+
+        # Get all properties for this project
+        properties = await self.db.properties.find(
+            {"project_id": project_id, "deleted_at": None},
+            {"_id": 0}
+        ).to_list(200)
+
+        # Count by status
+        available = [p for p in properties if str(p.get("status", "")).lower() in ["available", ""]]
+        sold = [p for p in properties if str(p.get("status", "")).lower() in ["sold", "booked", "reserved"]]
+        total = len(properties)
+
+        # Build plot availability table
+        table_lines = []
+        for p in properties[:30]:  # Limit to 30 for WhatsApp
+            plot_num = p.get("plot_number") or p.get("property_number") or "N/A"
+            area = p.get("area_sqft") or p.get("total_area") or ""
+            area_str = f"{area}" if area else "-"
+            facing = p.get("facing") or "-"
+            status = p.get("status") or "available"
+            price = p.get("total_price") or p.get("price") or ""
+            price_str = f"₹{price:,.0f}" if isinstance(price, (int, float)) and price else "-"
+
+            status_icon = "✅" if status.lower() in ["available", ""] else "❌"
+            table_lines.append(f"{status_icon} Plot {plot_num} | {area_str} sqft | {facing} | {price_str}")
+
+        # Get layout info
+        await self.db.layouts.find(
+            {"project_id": project_id, "deleted_at": None},
+            {"_id": 0, "id": 1, "name": 1}
+        ).to_list(5)
+
+        # Build response
+        parts = []
+        parts.append(f"*{project_name}*")
+        parts.append(f"📍 Location: {project.get('location', 'N/A')}, {project.get('city', '')}")
+        if project.get("status"):
+            parts.append(f"Status: {project['status']}")
+        if project.get("rera_number"):
+            parts.append(f"RERA: {project['rera_number']}")
+        if project.get("total_units"):
+            parts.append(f"Total Units: {project['total_units']}")
+
+        parts.append(f"\n📊 *Plot Availability*: {len(available)} Available / {len(sold)} Sold / {total} Total")
+
+        if table_lines:
+            parts.append("")
+            parts.append("```")
+            parts.append("Status | Plot | Area | Facing | Price")
+            parts.append("─" * 35)
+            for line in table_lines[:20]:
+                parts.append(line)
+            if len(table_lines) > 20:
+                parts.append(f"... +{len(table_lines)-20} more plots")
+            parts.append("```")
+
+        # Links
+        project_link = f"{base_url}/projects/{project_id}"
+        layout_link = f"{base_url}/public/projects/{project_id}/layout"
+        parts.append(f"\n🔗 Project: {project_link}")
+        parts.append(f"📐 Layout: {layout_link}")
+
+        if project.get("brochure_url"):
+            brochure = project["brochure_url"]
+            if not brochure.startswith("http"):
+                brochure = f"{base_url}{brochure}"
+            parts.append(f"📄 Brochure: {brochure}")
+
+        parts.append("\nWould you like to:")
+        parts.append("1. Talk to our expert")
+        parts.append("2. Schedule site visit")
+        parts.append("3. Get more details")
+        parts.append("\n_Reply 1, 2 or 3_")
+
+        return "\n".join(parts)
 
     def _is_project_inquiry(self, message: str) -> bool:
         """Detect if user is asking about projects, availability, or property details"""
