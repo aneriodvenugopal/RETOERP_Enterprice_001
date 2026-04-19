@@ -214,8 +214,8 @@ async def identify_tenant(db, payload: Dict) -> Optional[str]:
     return tenant.get("id") if tenant else None
 
 
-async def find_or_create_lead(db, tenant_id: str, phone: str) -> Dict:
-    """Find existing lead or create new one"""
+async def find_or_create_lead(db, tenant_id: str, phone: str, message: str = "", contact_name: str = "") -> Dict:
+    """Find existing lead or create new one with CRM tracking."""
     phone = normalize_phone(phone)
     
     lead = await db.leads.find_one(
@@ -237,15 +237,23 @@ async def find_or_create_lead(db, tenant_id: str, phone: str) -> Dict:
     new_lead = {
         "id": str(uuid.uuid4()),
         "tenant_id": tenant_id,
-        "buyer_name": "",
+        "buyer_name": contact_name or "",
         "buyer_phone": phone,
         "source": "whatsapp",
         "status": "new",
+        "crm_tracked": True,
+        "lead_score": "cold",
+        "lead_source": "organic",
+        "first_message": message[:500] if message else "",
+        "first_contact_at": datetime.now(timezone.utc),
+        "last_message_at": datetime.now(timezone.utc),
+        "message_count": 0,
         "created_at": datetime.utcnow(),
         "updated_at": datetime.utcnow()
     }
     
     await db.leads.insert_one(new_lead)
+    logger.info(f"New CRM lead created: {phone}")
     return new_lead
 
 
@@ -471,8 +479,21 @@ async def whatsapp_webhook(
             logger.warning("Tenant not identified from webhook payload")
             return {"status": "ok"}
         
-        lead = await find_or_create_lead(db, tenant_id, phone)
+        contact_name = parsed.get("contact_name", "")
+        lead = await find_or_create_lead(db, tenant_id, phone, message_text, contact_name)
         lead_id = lead["id"]
+        
+        # --- CRM LEAD SCORING (rule-based, zero AI cost) ---
+        from services.whatsapp_agentic.crm_lead_engine import CRMLeadEngine
+        crm = CRMLeadEngine(db)
+        crm_result = await crm.process_first_contact(
+            tenant_id=tenant_id,
+            phone=phone,
+            message=message_text,
+            contact_name=contact_name,
+            existing_lead=lead,
+        )
+        logger.info(f"CRM score: {crm_result['intent']} | use_gemini: {crm_result['use_gemini']} | new: {crm_result['is_new_contact']}")
         
         # Process INLINE - not in background task (production background tasks fail silently)
         await process_incoming_message(db, tenant_id, lead_id, phone, message_text, message_id)
@@ -1703,3 +1724,85 @@ async def send_single_followup(
         "message_id": send_result.get("message_id"),
         "error": send_result.get("error"),
     }
+
+
+
+# ============ CRM DASHBOARD & MANAGEMENT ============
+
+@router.get("/crm/dashboard")
+async def crm_dashboard(
+    request: Request,
+    current_user: dict = Depends(get_current_user),
+    date: Optional[str] = None,
+):
+    """
+    CRM Dashboard — daily metrics for leads, conversions, and pipeline.
+
+    Returns:
+    - new_leads, send_click_contacts, warm/hot counts
+    - calls_needed, site_visits, total CRM leads
+    """
+    db = get_db(request)
+    tenant_id = current_user.get("tenant_id")
+    if not tenant_id:
+        raise HTTPException(status_code=403, detail="Tenant not identified")
+
+    from services.whatsapp_agentic.crm_lead_engine import CRMLeadEngine
+    crm = CRMLeadEngine(db)
+    metrics = await crm.get_dashboard_metrics(tenant_id, date)
+    return metrics
+
+
+@router.get("/crm/leads")
+async def get_crm_leads(
+    request: Request,
+    current_user: dict = Depends(get_current_user),
+    score: Optional[str] = None,
+    status: Optional[str] = None,
+    limit: int = 50,
+    skip: int = 0,
+):
+    """
+    Get CRM-tracked leads with filters.
+
+    Query params:
+        score: cold / warm / hot
+        status: new / warm / hot / booked
+        limit, skip: pagination
+    """
+    db = get_db(request)
+    tenant_id = current_user.get("tenant_id")
+    if not tenant_id:
+        raise HTTPException(status_code=403, detail="Tenant not identified")
+
+    query = {"tenant_id": tenant_id, "crm_tracked": True}
+    if score:
+        query["lead_score"] = score
+    if status:
+        query["status"] = status
+
+    leads = await db.leads.find(
+        query, {"_id": 0}
+    ).sort("last_message_at", -1).skip(skip).limit(limit).to_list(limit)
+
+    total = await db.leads.count_documents(query)
+
+    return {"total": total, "leads": leads, "limit": limit, "skip": skip}
+
+
+@router.post("/crm/archive-stale")
+async def archive_stale(
+    request: Request,
+    current_user: dict = Depends(get_current_user),
+    days: int = 30,
+):
+    """Archive conversations with no activity for N days."""
+    db = get_db(request)
+    tenant_id = current_user.get("tenant_id")
+    if not tenant_id:
+        raise HTTPException(status_code=403, detail="Tenant not identified")
+
+    from services.whatsapp_agentic.crm_lead_engine import CRMLeadEngine
+    crm = CRMLeadEngine(db)
+    archived = await crm.archive_stale_conversations(tenant_id, days)
+    return {"archived": archived, "days_threshold": days}

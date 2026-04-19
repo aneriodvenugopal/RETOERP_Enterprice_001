@@ -233,7 +233,7 @@ class SalesEngine:
     """
 
     # Max recent messages to send in full to LLM
-    MAX_RECENT_MESSAGES = 30
+    MAX_RECENT_MESSAGES = 5
     # Messages older than this get summarized
     SUMMARIZE_THRESHOLD = 50
 
