@@ -250,12 +250,8 @@ class SalesEngine:
         questions_asked = context.get("questions_asked", 0)
 
         # --- STALE CONVERSATION RESET ---
-        # Reset ONLY if:
-        #  1. Lead was already captured (user got "expert will call" once, now continuing)
-        #  2. questions_asked > 3 (safety net for old stuck conversations without lead_captured flag)
         if context.get("lead_captured") or questions_asked > 3:
             logger.info(f"Resetting stale conversation for {phone} (lead_captured={context.get('lead_captured')}, questions={questions_asked})")
-            # Keep useful info but reset counters
             context = {
                 "location": context.get("location"),
                 "budget": context.get("budget"),
@@ -305,7 +301,14 @@ class SalesEngine:
                 message, tenant_id, lead_id, phone, new_context, conversation
             )
 
-        # --- DB SEARCH (always check first if we have location) ---
+        # --- ALWAYS LOAD TENANT KNOWLEDGE (RAG) ---
+        knowledge = await self.knowledge_retriever.get_project_knowledge(tenant_id)
+        knowledge_text = self.knowledge_retriever.format_knowledge_for_llm(knowledge)
+
+        # --- CHECK: Is this a project inquiry? ---
+        is_project_inquiry = self._is_project_inquiry(message)
+
+        # --- DB SEARCH BY LOCATION (if location available) ---
         current_location = new_context.get("location")
         if current_location:
             matches = await self._search_db(tenant_id, current_location, new_context.get("budget"))
@@ -325,10 +328,271 @@ class SalesEngine:
                     }
                 }
 
-        # --- NO MATCH / NOT ENOUGH INFO -> SMART LEAD CAPTURE ---
-        return await self._smart_lead_capture(
-            message, tenant_id, lead_id, phone, new_context, questions_asked, state
+        # --- PROJECT INQUIRY WITHOUT LOCATION ---
+        # User asks "project names", "show projects", "availability" etc.
+        if is_project_inquiry:
+            return await self._handle_project_inquiry(
+                message, tenant_id, new_context, knowledge, knowledge_text
+            )
+
+        # --- SMART AI RESPONSE WITH KNOWLEDGE ---
+        # For any message, use LLM with full project knowledge to answer
+        return await self._smart_response_with_knowledge(
+            message, tenant_id, lead_id, phone, new_context, questions_asked, state,
+            knowledge_text
         )
+
+    def _is_project_inquiry(self, message: str) -> bool:
+        """Detect if user is asking about projects, availability, or property details"""
+        msg_lower = message.lower()
+        inquiry_keywords = [
+            "project", "projects", "project name", "project details",
+            "available", "availability", "show me", "show properties",
+            "what do you have", "what properties", "list", "names",
+            "plots available", "how many", "which projects",
+            "tell me about", "give me details", "brochure", "layout",
+            "price", "pricing", "rate", "cost", "sqft rate",
+            "amenities", "features", "rera", "status",
+            "property details", "plot details", "units",
+            "floor plan", "gallery", "images", "photos",
+            "youtube", "video", "website", "link",
+            "where is", "address", "total units",
+        ]
+        return any(kw in msg_lower for kw in inquiry_keywords)
+
+    async def _handle_project_inquiry(
+        self, message: str, tenant_id: str, context: Dict,
+        knowledge: Dict, knowledge_text: str
+    ) -> Dict[str, Any]:
+        """Handle project inquiry - show ALL tenant projects/properties"""
+        # Also fetch ALL projects for this tenant (not filtered by location)
+        all_projects = await self.db.projects.find(
+            {"tenant_id": tenant_id, "deleted_at": None}, {"_id": 0}
+        ).limit(10).to_list(10)
+
+        # Count properties per status
+        available_count = await self.db.properties.count_documents(
+            {"tenant_id": tenant_id, "deleted_at": None,
+             "status": {"$in": ["available", "Available", "AVAILABLE"]}}
+        )
+        total_count = await self.db.properties.count_documents(
+            {"tenant_id": tenant_id, "deleted_at": None}
+        )
+
+        # Build project summary for AI
+        proj_summary = []
+        for proj in all_projects:
+            proj_summary.append(
+                f"- *{proj.get('name', 'N/A')}*: {proj.get('location', '')}, "
+                f"{proj.get('city', '')}, Status: {proj.get('status', 'N/A')}, "
+                f"Units: {proj.get('total_units', 'N/A')}, "
+                f"RERA: {proj.get('rera_number', 'N/A')}"
+            )
+
+        # Get sample properties
+        await self.db.properties.find(
+            {"tenant_id": tenant_id, "deleted_at": None},
+            {"_id": 0, "plot_number": 1, "property_number": 1, "area_sqft": 1,
+             "total_area": 1, "total_price": 1, "price": 1, "facing": 1,
+             "status": 1, "location": 1, "location_text": 1, "city": 1}
+        ).limit(5).to_list(5)
+
+        try:
+            prompt = f"""You are RealApex Property Expert. The customer is asking about projects/properties.
+Answer their question using ONLY the data below. Be specific, share names, numbers, details.
+
+TENANT'S PROJECTS ({len(all_projects)} total):
+{chr(10).join(proj_summary) if proj_summary else 'No projects uploaded yet.'}
+
+PROPERTY STATS: {available_count} available out of {total_count} total properties
+
+FULL KNOWLEDGE BASE:
+{knowledge_text[:3000]}
+
+CUSTOMER MESSAGE: {message}
+
+RULES:
+- Share ACTUAL project names, locations, status, units, RERA numbers
+- Share availability count and property details
+- Share brochure/layout links if available in knowledge base
+- If the customer asks about a specific project, give detailed info
+- Keep it concise but INFORMATIVE (share real data, not vague statements)
+- End with a question to move towards site visit/booking
+- Max 10 lines"""
+
+            result = await llm_router.generate(
+                system_prompt=prompt,
+                user_message=message,
+                context=context,
+            )
+            if result.get("text"):
+                return {
+                    "success": True,
+                    "response": result["text"].strip(),
+                    "next_state": "project_discussion",
+                    "action": "project_info_shared",
+                    "context_update": {**context, "projects_shown": True}
+                }
+        except Exception as e:
+            logger.error(f"AI project inquiry failed: {e}")
+
+        # Fallback: show projects as plain text
+        if all_projects:
+            parts = [f"Here are our projects ({len(all_projects)}):\n"]
+            for i, proj in enumerate(all_projects[:5], 1):
+                parts.append(f"{i}. *{proj.get('name', 'Project')}*")
+                if proj.get("location"):
+                    parts.append(f"   Location: {proj['location']}, {proj.get('city', '')}")
+                if proj.get("total_units"):
+                    parts.append(f"   Units: {proj['total_units']}")
+                if proj.get("status"):
+                    parts.append(f"   Status: {proj['status']}")
+            parts.append(f"\nAvailable properties: {available_count}/{total_count}")
+            parts.append("\nWould you like to:")
+            parts.append("1. Talk to our expert")
+            parts.append("2. Schedule site visit")
+            parts.append("3. Get detailed project info")
+            parts.append("\n_Reply 1, 2 or 3_")
+            return {
+                "success": True,
+                "response": "\n".join(parts),
+                "next_state": "project_discussion",
+                "action": "project_info_shared",
+                "context_update": {**context, "projects_shown": True}
+            }
+
+        return {
+            "success": True,
+            "response": "We are currently updating our project listings. Which area are you interested in? Our team can share the latest options with you.",
+            "next_state": "qualification",
+            "action": "no_projects_found",
+            "context_update": context
+        }
+
+    async def _smart_response_with_knowledge(
+        self, message: str, tenant_id: str, lead_id: str, phone: str,
+        context: Dict, questions_asked: int, state: str, knowledge_text: str
+    ) -> Dict[str, Any]:
+        """
+        Smart AI response with full project knowledge.
+        Answers questions informationally FIRST, then guides to conversion.
+        Falls back to lead capture only after max questions.
+        """
+        location = context.get("location")
+        budget = context.get("budget")
+        prop_type = context.get("property_type")
+
+        # If we've asked 3+ questions already, capture and close
+        if questions_asked >= 3:
+            await self._update_lead(tenant_id, lead_id, {
+                "status": "warm",
+                "preferred_location": location or "",
+                "budget": budget.get("max") if budget else None,
+                "property_type": prop_type or "",
+                "notes": f"WhatsApp lead capture: Location={location}, Budget={context.get('budget_text','N/A')}, Type={prop_type}"
+            })
+            return {
+                "success": True,
+                "response": "Thank you! Our property expert will call you shortly with suitable options.",
+                "next_state": "qualification",
+                "action": "lead_captured",
+                "context_update": {**context, "lead_captured": True},
+                "human_followup_required": True
+            }
+
+        # Determine what's missing
+        missing = []
+        if not location:
+            missing.append("location")
+        if not prop_type:
+            missing.append("property_type")
+        if not budget:
+            missing.append("budget")
+
+        # Build known info
+        known_info = []
+        if location:
+            known_info.append(f"Location: {location}")
+        if context.get("budget_text"):
+            known_info.append(f"Budget: {context['budget_text']}")
+        if prop_type:
+            known_info.append(f"Type: {prop_type}")
+
+        known_str = ", ".join(known_info) if known_info else "Nothing known yet"
+        missing_str = ", ".join(missing) if missing else "All info collected"
+
+        # Truncate knowledge for prompt
+        k_text = knowledge_text[:2500] if knowledge_text else "No project data available."
+
+        loc_highlights = ""
+        if location:
+            highlights = get_location_highlights(location)
+            if highlights:
+                loc_highlights = f"\nLOCATION HIGHLIGHTS for {location}: {highlights}"
+
+        system_prompt = REALAPEX_EXPERT_PROMPT.format(
+            knowledge_context=f"\n--- KNOWLEDGE BASE ---\n{k_text}",
+            location_highlights=loc_highlights,
+            known_info=known_str,
+            missing_info=missing_str,
+            questions_asked=questions_asked,
+        )
+
+        try:
+            result = await llm_router.generate(
+                system_prompt=system_prompt,
+                user_message=message,
+                context=context,
+            )
+            if result.get("text"):
+                logger.info(f"LLM response via {result['model']}, cost~${result['cost_estimate']:.6f}, latency={result['latency_ms']}ms")
+                return {
+                    "success": True,
+                    "response": result["text"].strip(),
+                    "next_state": "qualification",
+                    "action": "lead_qualifying",
+                    "context_update": {
+                        **context,
+                        "questions_asked": questions_asked + 1,
+                        "last_asked": missing[0] if missing else None
+                    }
+                }
+        except Exception as e:
+            logger.error(f"LLM error in sales engine: {e}")
+
+        # Fallback
+        if "location" in missing:
+            return {
+                "success": True,
+                "response": "Which area are you looking for properties?",
+                "next_state": "qualification",
+                "action": "lead_qualifying",
+                "context_update": {**context, "questions_asked": questions_asked + 1}
+            }
+        elif "budget" in missing:
+            return {
+                "success": True,
+                "response": "What's your budget range?",
+                "next_state": "qualification",
+                "action": "lead_qualifying",
+                "context_update": {**context, "questions_asked": questions_asked + 1}
+            }
+        elif "property_type" in missing:
+            return {
+                "success": True,
+                "response": "Looking for plots, villa, or flat?",
+                "next_state": "qualification",
+                "action": "lead_qualifying",
+                "context_update": {**context, "questions_asked": questions_asked + 1}
+            }
+        return {
+            "success": True,
+            "response": "Thank you! Our expert will call you shortly.",
+            "next_state": "qualification",
+            "action": "lead_captured",
+            "context_update": {**context, "lead_captured": True},
+            "human_followup_required": True
+        }
 
     async def _search_db(
         self, tenant_id: str, location: str, budget: Optional[Dict] = None
@@ -600,119 +864,6 @@ RULES:
             "context_update": {**context, "visit_scheduled": True, "visit_time": message},
             "human_followup_required": True
         }
-
-    async def _smart_lead_capture(
-        self, message: str, tenant_id: str, lead_id: str, phone: str,
-        context: Dict, questions_asked: int, state: str
-    ) -> Dict[str, Any]:
-        location = context.get("location")
-        budget = context.get("budget")
-        prop_type = context.get("property_type")
-
-        # If we've asked 3+ questions already, capture and close
-        if questions_asked >= 3:
-            await self._update_lead(tenant_id, lead_id, {
-                "status": "warm",
-                "preferred_location": location or "",
-                "budget": budget.get("max") if budget else None,
-                "property_type": prop_type or "",
-                "notes": f"WhatsApp lead capture: Location={location}, Budget={context.get('budget_text','N/A')}, Type={prop_type}"
-            })
-            return {
-                "success": True,
-                "response": "Thank you! Our property expert will call you shortly with suitable options.",
-                "next_state": "qualification",
-                "action": "lead_captured",
-                "context_update": {**context, "lead_captured": True},
-                "human_followup_required": True
-            }
-
-        # Determine what to ask
-        missing = []
-        if not location:
-            missing.append("location")
-        if not prop_type:
-            missing.append("property_type")
-        if not budget:
-            missing.append("budget")
-
-        # Generate natural response with LLM
-        response = await self._generate_sales_response(
-            message, context, missing, questions_asked, state, tenant_id
-        )
-
-        return {
-            "success": True,
-            "response": response,
-            "next_state": "qualification",
-            "action": "lead_qualifying",
-            "context_update": {
-                **context,
-                "questions_asked": questions_asked + 1,
-                "last_asked": missing[0] if missing else None
-            }
-        }
-
-    async def _generate_sales_response(
-        self, message: str, context: Dict, missing: List[str], questions_asked: int,
-        state: str, tenant_id: str
-    ) -> str:
-        """Generate a natural sales response using cost-optimized LLM"""
-        known_info = []
-        if context.get("location"):
-            known_info.append(f"Location: {context['location']}")
-        if context.get("budget_text"):
-            known_info.append(f"Budget: {context['budget_text']}")
-        if context.get("property_type"):
-            known_info.append(f"Type: {context['property_type']}")
-
-        known_str = ", ".join(known_info) if known_info else "Nothing known yet"
-        missing_str = ", ".join(missing) if missing else "All info collected"
-
-        # Get tenant knowledge for RAG
-        knowledge_text = ""
-        try:
-            knowledge = await self.knowledge_retriever.get_project_knowledge(tenant_id)
-            knowledge_text = self.knowledge_retriever.format_knowledge_for_llm(knowledge)
-            if len(knowledge_text) > 2000:
-                knowledge_text = knowledge_text[:2000] + "\n..."
-        except Exception:
-            pass
-
-        loc_highlights = ""
-        if context.get("location"):
-            highlights = get_location_highlights(context["location"])
-            if highlights:
-                loc_highlights = f"\nLOCATION HIGHLIGHTS for {context['location']}: {highlights}"
-
-        system_prompt = REALAPEX_EXPERT_PROMPT.format(
-            knowledge_context=f"\n--- KNOWLEDGE BASE ---\n{knowledge_text}" if knowledge_text else "",
-            location_highlights=loc_highlights,
-            known_info=known_str,
-            missing_info=missing_str,
-            questions_asked=questions_asked,
-        )
-
-        try:
-            result = await llm_router.generate(
-                system_prompt=system_prompt,
-                user_message=message,
-                context=context,
-            )
-            if result.get("text"):
-                logger.info(f"LLM response via {result['model']}, cost~${result['cost_estimate']:.6f}, latency={result['latency_ms']}ms")
-                return result["text"].strip()
-        except Exception as e:
-            logger.error(f"LLM error in sales engine: {e}")
-
-        # Fallback: ask the first missing item
-        if "location" in missing:
-            return "Which area are you looking for properties?"
-        elif "budget" in missing:
-            return "What's your budget range?"
-        elif "property_type" in missing:
-            return "Looking for plots, villa, or flat?"
-        return "Thank you! Our expert will call you shortly."
 
     async def _update_lead(self, tenant_id: str, lead_id: str, updates: Dict):
         try:
