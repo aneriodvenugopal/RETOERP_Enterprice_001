@@ -6,45 +6,49 @@ Build a production-ready, multi-tenant Agentic AI workflow for the RealApex plat
 ## Architecture
 - **Backend**: FastAPI (Python) | **Frontend**: React (CRA) - Mobile-first PWA
 - **Database**: MongoDB | **Storage**: Emergent Object Storage
-- **APIs**: Meta WhatsApp Cloud API, Google Places Autocomplete, OpenAI/Claude via Emergent LLM Key
+- **APIs**: Meta WhatsApp Cloud API, Google Places Autocomplete
+- **WhatsApp AI**: Gemini 2.5 Flash-Lite (primary, cost-optimized) + GPT-4o-mini (fallback for complex reasoning)
 - **Theme**: Navy blue (#1a365d) with shield logo branding
 
 ---
 
 ## Completed Features
 
+### Phase 7 - Dual-LLM WhatsApp AI (2026-04-19)
+- **Removed Emergent LLM Key** from WhatsApp automation, replaced with user's own API keys
+- **LLM Router**: Smart routing - Gemini 2.5 Flash-Lite (primary, $0.10/$0.40 per M tokens) + GPT-4o-mini (fallback for complex reasoning)
+- **RealApex Property Expert** personality: Warm, empathetic, Telugu-English mix, privacy-strict
+- **RAG Integration**: Pulls tenant's project data, layouts, pricing, amenities, FAQs from database
+- **Location Highlights**: Hyderabad areas with RRR, Metro, HMDA, Airport proximity info
+- **Cost Tracking**: Per-request cost estimation and LLM stats via `/api/whatsapp/webhook-health`
+- **Fault Tolerance**: If one LLM fails, automatically falls back to the other
+- **Multi-tenant**: Uses only current tenant's data for responses
+- **Files**: `llm_router.py` (new), `sales_engine.py` (rewritten), `orchestrator.py` (updated)
+
+### Phase 6 - Sales Engine Rewrite (2026-04-16)
+- **Complete AI rewrite**: Replaced 7-agent question-machine with single DB-first Sales Engine
+- **Flow**: User message -> Parse location/budget -> DB search -> Match? Show projects + close -> No match? Max 3 questions -> Lead capture
+- **Features**: Location extraction (50+ Indian cities/areas), budget parsing (lakhs/crores), property type detection, option selection (call/visit/details), site visit scheduling, exit detection
+
+### Phase 5 - WhatsApp Webhook & API Fix (2026-04-14 to 2026-04-16)
+- **Webhook GET Verification**: Fixed to return plain text challenge
+- **Duplicate Message Protection**: In-memory TTL cache deduplicates by message_id
+- **Bot Loop Prevention**: Ignores messages from own WhatsApp number
+- **Rate Limiting**: Per-phone 5-second cooldown
+- **Template Integration**: `follow_up_template`, `leadintroductiontemplate`, `otp_1`
+- **API Version**: v21.0, Webhook auto-configured
+
 ### Phase 4 - Dashboard Redesign & PWA Fixes (2026-04-03)
-- **Dashboard Redesign**: Navy blue theme (#1a365d), 2x2 stat grid, colored menu icons matching reference design
-- **Logo Update**: Generated new shield+building+arrows logo icons (192, 512, maskable versions)
-- **Property Search Relocation**: Removed from dashboard menu → # icon in header for Property ID search
-- **PWA Manifest Fix**: Static `<link rel="manifest">` tag (replaced document.write for PWABuilder compatibility)
-- **Icon Sizes Fix**: Resized 1024x1024 to proper 512x512 and 192x192 to match manifest declarations
-- **Service Worker**: Added agentapex-sw.js with network-first caching strategy
-- **Meta WhatsApp Fix Attempt**: WABA account restricted by Meta - user must resolve via Business Support Home
+- Dashboard Redesign, Logo Update, Property Search Relocation, PWA Manifest Fix, Service Worker
 
 ### Phase 3 - Attachments & Radius Search (2026-03-31)
-- **#21 Property Edit FAB + Attachments**: Floating + button, bottom sheet with Gallery/Document/Notes/Video options
-- **#24 Radius Search**: Radius slider 1-50km, badge on map, dashed circle, quick-select buttons
-- PropertyUpdate model for partial updates
+- Property Edit FAB + Attachments, Radius Search 1-50km
 
 ### Phase 2 - Property ID & Share System (2026-03-31)
-- Property ID system: AX-P-10001 format, auto-increment
-- Canvas-based share card image (html-to-image + QR code)
-- Property Search by ID (public route, no auth)
-- Image management (reorder, delete, set cover)
-- Privacy Policy for AgentApex (Play Store ready)
+- Property ID system (AX-P-10001), Canvas share cards, QR code, Privacy Policy
 
 ### Phase 1 - Core Systems (2026-03-31)
-- Property Sharing with agent branding
-- Followup System (Active/Hidden, search, bulk add, notes)
-- Lead Pipeline (Cold/Warm/Hot)
-- Profile photo upload + designation
-- WhatsApp App Invite
-
-### Previously Completed
-- AgentApex PWA with OTP login, Property CRUD, Map Search
-- 7-Agent AI WhatsApp Sales Engine, Meta WhatsApp API
-- Object Storage, Admin panel, Requirements, Favorites
+- Property Sharing, Followup System, Lead Pipeline, Profile photo, WhatsApp Invite
 
 ---
 
@@ -62,43 +66,32 @@ Build a production-ready, multi-tenant Agentic AI workflow for the RealApex plat
 | 26 | LOW | Realapex projects show with icon | PENDING |
 | 27 | LOW | Notifications module | PENDING |
 
-### Pending Bug Fixes (from last session):
+### In Progress (BLOCKED):
+- New WhatsApp Templates (`property_info_update`, `property_followup_update`, `otp_verification_code`, `callback_confirmation`) — Waiting Meta approval
+
+### Upcoming:
+- P1: Map radius filtering verification
+- P1: Sales Engine enhancements (Auto recommendation, Price negotiation, Urgency messaging)
+
+### Pending Bug Fixes:
 | Issue | Status |
 |---|---|
 | Followup "+" native contacts API | Code updated, not verified on mobile |
 | Property Share Card design match | Code updated, needs mobile testing |
 | Multiple document upload | Code updated, needs verification |
 
-### Ignored by user: 15, 16, 17, 18
-
-### Phase 5 - WhatsApp Webhook & API Fix (2026-04-14 to 2026-04-16)
-- **Webhook GET Verification**: Fixed to return plain text challenge. `PlainTextResponse` HTTP 200/403
-- **Duplicate Message Protection**: In-memory TTL cache deduplicates by `message_id` (5min window)
-- **Bot Loop Prevention**: Ignores messages from own WhatsApp number
-- **Rate Limiting**: Per-phone 5-second cooldown to prevent rapid-fire event floods
-- **POST Always Returns 200**: Prevents Meta retry storms that consume credits
-- **WhatsApp API FIXED**: Resolved BSP permission issue. Messages now sending successfully via `+91 63093 56590` (Phone ID: `963130426884425`)
-- **Template Integration**: `follow_up_template` (4 params: name/agent/city/area), `leadintroductiontemplate` (4 params), `otp_1` (1 param)
-- **API Endpoints**: `/send-followup`, `/send-introduction`, `/approved-templates`
-- **API Version**: Updated to v21.0
-- **Webhook Auto-configured via API**: `https://realapex.in/api/whatsapp/webhook` subscribed to `messages` field
-- **Leads Page Template Buttons**: Updated from old deleted app templates to new approved templates (follow_up_template, leadintroductiontemplate)
-
-### Phase 6 - Sales Engine Rewrite (2026-04-16)
-- **Complete AI rewrite**: Replaced 7-agent question-machine with single DB-first Sales Engine
-- **Flow**: User message → Parse location/budget → DB search → Match? Show projects + close → No match? Max 3 questions → Lead capture
-- **Features**: Location extraction (50+ Indian cities/areas), budget parsing (lakhs/crores), property type detection, option selection (call/visit/details), site visit scheduling, exit detection
-- **Rules enforced**: Max 3 questions, never repeat, DB check first, fast conversion
-- WABA: `25977390118562175` (Eloniot Software Solutions)
-- Phone: `+91 63093 56590` (ID: `963130426884425`, GREEN quality)
-- System User: `REALAPEX_Admin1` (ID: `61580667278343`)
-
 ---
 
 ## Key API Endpoints
-- `GET /api/agentapex/properties/search-by-id?property_id=AX-P-10001` (PUBLIC)
-- `GET /api/agentapex/properties?latitude=X&longitude=Y&radius_km=Z`
-- `PUT /api/agentapex/properties/{id}` (partial update via PropertyUpdate model)
-- `GET /api/whatsapp/webhook?hub.mode=subscribe&hub.verify_token=...&hub.challenge=...` (Meta verification - returns plain text)
-- `POST /api/whatsapp/webhook` (Meta event receiver - dedup + rate limited)
-- All followup, lead, profile, share-data endpoints
+- `GET /api/whatsapp/webhook-health` (Returns version, LLM engine info, and usage stats)
+- `GET /api/whatsapp/webhook` (Meta verification)
+- `POST /api/whatsapp/webhook` (Message receiving)
+- `POST /api/whatsapp/simulate?phone=X&message=Y` (Test simulator, requires auth)
+- `POST /api/whatsapp/simulate/reset/{phone}` (Reset conversation)
+- `POST /api/whatsapp/send-followup` / `send-introduction`
+- All property, followup, lead, profile endpoints
+
+## WhatsApp Configuration
+- WABA: `25977390118562175` (Eloniot Software Solutions)
+- Phone: `+91 63093 56590` (ID: `963130426884425`, GREEN quality)
+- System User: `REALAPEX_Admin1` (ID: `61580667278343`)

@@ -1,19 +1,21 @@
 # Test Credentials
 
-## AgentApex App
-- **Login Phone**: 9908290239
-- **OTP**: Dynamic - shown on screen as "Demo OTP: XXXXXX" (read from page)
-- **Auth**: Phone OTP-based authentication (no password)
+## Admin Account
+- Email: admin@realapex.in
+- Password: admin123
+- NOTE: May not exist in current DB
 
-## Admin Panel  
-- **Super Admin**: admin@realapex.in / admin123
-- **Tenant Admin**: rajam@retoerp.com / 12345678
+## Tenant Admin
+- Email: rajam@retoerp.com
+- Password: 12345678
+- Role: tenant_admin
+- Tenant ID: f18f7bd6-3a1f-472d-acf9-c2fb181787e7
 
-## Backend URL
-- https://realapex-preview.preview.emergentagent.com
+## Auth Endpoint
+- POST /api/auth/login
+- Body: {"email": "...", "password": "..."}
+- Returns: {"access_token": "...", "token_type": "bearer", ...}
 
-## Test Data
-- Property IDs: AX-P-10001 through AX-P-10015
-- Test property: AX-P-10014 (Plot, Kollur Hyderabad, 200 Sq.Yds, 60000 Per Sq.Yd)
-- Followup contacts: Raju (active), Srinivas (hidden)
-- Profile designation: Property Consultant
+## WhatsApp Simulator
+- POST /api/whatsapp/simulate?phone=PHONE&message=MESSAGE
+- Header: Authorization: Bearer {access_token}
