@@ -129,13 +129,11 @@ async def identify_tenant(db, payload: Dict) -> Optional[str]:
     """Identify tenant from webhook payload"""
     # Extract WABA ID from Meta webhook payload structure
     waba_id = ""
+    phone_number_id = ""
+    display_phone = ""
     entries = payload.get("entry", [])
     if entries:
         waba_id = str(entries[0].get("id", ""))
-    
-    # Also try metadata phone number
-    phone_number_id = ""
-    if entries:
         changes = entries[0].get("changes", [])
         if changes:
             metadata = changes[0].get("value", {}).get("metadata", {})
@@ -145,8 +143,9 @@ async def identify_tenant(db, payload: Dict) -> Optional[str]:
     # Try direct field too
     to_number = payload.get("to", payload.get("waba_id", waba_id))
     
-    if to_number:
-        to_normalized = normalize_phone(str(to_number))
+    # Step 1: Check explicit WhatsApp tenant mapping
+    if to_number or phone_number_id:
+        to_normalized = normalize_phone(str(to_number)) if to_number else ""
         mapping = await db.whatsapp_tenant_mapping.find_one(
             {"$or": [
                 {"whatsapp_number": to_normalized},
@@ -156,15 +155,60 @@ async def identify_tenant(db, payload: Dict) -> Optional[str]:
             {"_id": 0}
         )
         if mapping:
+            logger.info(f"Tenant identified via mapping: {mapping['tenant_id']}")
             return mapping["tenant_id"]
     
-    # Fallback: use first active tenant
+    # Step 2: Smart fallback — find tenant with MOST projects/properties (the one with real data)
+    pipeline = [
+        {"$match": {"deleted_at": None}},
+        {"$group": {"_id": "$tenant_id", "count": {"$sum": 1}}},
+        {"$sort": {"count": -1}},
+        {"$limit": 1}
+    ]
+    
+    # Try projects first
+    top_tenant = None
+    async for doc in db.projects.aggregate(pipeline):
+        if doc["count"] > 0:
+            top_tenant = doc["_id"]
+            break
+    
+    # If no projects, try properties
+    if not top_tenant:
+        async for doc in db.properties.aggregate(pipeline):
+            if doc["count"] > 0:
+                top_tenant = doc["_id"]
+                break
+    
+    if top_tenant:
+        logger.info(f"Using data-rich tenant: {top_tenant}")
+        # Auto-create mapping for future fast lookups
+        if waba_id or phone_number_id:
+            try:
+                await db.whatsapp_tenant_mapping.update_one(
+                    {"waba_id": waba_id or "auto"},
+                    {"$set": {
+                        "tenant_id": top_tenant,
+                        "waba_id": waba_id,
+                        "phone_number_id": phone_number_id,
+                        "display_phone": display_phone,
+                        "auto_mapped": True,
+                        "created_at": datetime.utcnow()
+                    }},
+                    upsert=True
+                )
+                logger.info(f"Auto-mapped WABA {waba_id} → tenant {top_tenant}")
+            except Exception as e:
+                logger.warning(f"Failed to auto-map: {e}")
+        return top_tenant
+    
+    # Step 3: Last resort — first active tenant
     tenant = await db.tenants.find_one(
         {"is_active": {"$ne": False}},
         {"_id": 0, "id": 1}
     )
     if tenant:
-        logger.info(f"Using fallback tenant: {tenant.get('id')}")
+        logger.info(f"Using last-resort fallback tenant: {tenant.get('id')}")
     else:
         logger.error("No active tenant found!")
     return tenant.get("id") if tenant else None
@@ -1411,4 +1455,97 @@ async def get_approved_templates():
         ],
         "sender": "+91 63093 56590",
         "phone_number_id": "963130426884425"
+    }
+
+
+
+# ============ TENANT MAPPING MANAGEMENT ============
+
+class TenantMappingRequest(BaseModel):
+    """Request for configuring WhatsApp tenant mapping"""
+    tenant_id: str
+    waba_id: Optional[str] = None
+    phone_number_id: Optional[str] = None
+    whatsapp_number: Optional[str] = None
+
+
+@router.get("/tenant-mapping")
+async def get_tenant_mapping(request: Request):
+    """
+    Get current WhatsApp → Tenant mappings.
+    Shows which tenant handles incoming WhatsApp messages.
+    """
+    db = get_db(request)
+    mappings = await db.whatsapp_tenant_mapping.find(
+        {}, {"_id": 0}
+    ).to_list(20)
+
+    # Also show all tenants with their data counts for reference
+    tenants = await db.tenants.find(
+        {"is_active": {"$ne": False}}, {"_id": 0, "id": 1, "name": 1, "company_name": 1}
+    ).to_list(50)
+
+    tenant_stats = []
+    for t in tenants:
+        tid = t["id"]
+        proj_count = await db.projects.count_documents({"tenant_id": tid, "deleted_at": None})
+        prop_count = await db.properties.count_documents({"tenant_id": tid, "deleted_at": None})
+        tenant_stats.append({
+            "tenant_id": tid,
+            "name": t.get("name", ""),
+            "company": t.get("company_name", ""),
+            "projects": proj_count,
+            "properties": prop_count
+        })
+
+    return {
+        "mappings": mappings,
+        "tenants": sorted(tenant_stats, key=lambda x: x["projects"], reverse=True),
+        "configured_waba": os.getenv("META_WHATSAPP_WABA_ID", ""),
+        "configured_phone_id": os.getenv("META_WHATSAPP_PHONE_NUMBER_ID", "")
+    }
+
+
+@router.post("/tenant-mapping")
+async def set_tenant_mapping(
+    mapping: TenantMappingRequest,
+    request: Request
+):
+    """
+    Set WhatsApp → Tenant mapping.
+    Maps a WABA ID or phone number to a specific tenant.
+    """
+    db = get_db(request)
+
+    # Verify tenant exists
+    tenant = await db.tenants.find_one({"id": mapping.tenant_id}, {"_id": 0, "id": 1, "name": 1})
+    if not tenant:
+        raise HTTPException(status_code=404, detail="Tenant not found")
+
+    # Use configured values if not provided
+    waba_id = mapping.waba_id or os.getenv("META_WHATSAPP_WABA_ID", "")
+    phone_id = mapping.phone_number_id or os.getenv("META_WHATSAPP_PHONE_NUMBER_ID", "")
+    wa_number = mapping.whatsapp_number or ""
+
+    await db.whatsapp_tenant_mapping.update_one(
+        {"waba_id": waba_id},
+        {"$set": {
+            "tenant_id": mapping.tenant_id,
+            "waba_id": waba_id,
+            "phone_number_id": phone_id,
+            "whatsapp_number": wa_number,
+            "auto_mapped": False,
+            "updated_at": datetime.utcnow()
+        }},
+        upsert=True
+    )
+
+    return {
+        "success": True,
+        "message": f"Mapped WABA {waba_id} → tenant {mapping.tenant_id} ({tenant.get('name', '')})",
+        "mapping": {
+            "tenant_id": mapping.tenant_id,
+            "waba_id": waba_id,
+            "phone_number_id": phone_id
+        }
     }

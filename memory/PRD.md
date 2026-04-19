@@ -24,7 +24,9 @@ Build a production-ready, multi-tenant Agentic AI workflow for the RealApex plat
 - **Fault Tolerance**: If one LLM fails, automatically falls back to the other
 - **Multi-tenant**: Uses only current tenant's data for responses
 - **BUG FIX**: Fixed "stuck conversation" bug - conversations with questions_asked >= 3 were permanently stuck returning "expert will call" on every message. Added stale conversation reset: after lead capture, next message starts fresh conversation.
-- **Files**: `llm_router.py` (new), `sales_engine.py` (rewritten), `orchestrator.py` (updated), `whatsapp_webhook.py` (context reset on human_handoff)
+- **BUG FIX**: Fixed "no project data" bug - WhatsApp webhook was connecting to wrong tenant (empty data). Added smart tenant identification: finds tenant with most projects/properties + auto-creates WABA→tenant mapping.
+- **Tenant Mapping API**: `GET/POST /api/whatsapp/tenant-mapping` to view/configure which tenant handles WhatsApp messages.
+- **Files**: `llm_router.py` (new), `sales_engine.py` (rewritten), `orchestrator.py` (updated), `whatsapp_webhook.py` (smart tenant ID + context reset + mapping API)
 
 ### Phase 6 - Sales Engine Rewrite (2026-04-16)
 - **Complete AI rewrite**: Replaced 7-agent question-machine with single DB-first Sales Engine
