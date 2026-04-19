@@ -229,11 +229,131 @@ class SalesEngine:
     """
     DB-First Real Estate Sales Engine v2.
     Uses Gemini (primary) + GPT-4o-mini (fallback) for cost optimization.
+    Full long-term conversation memory via chat history from DB.
     """
+
+    # Max recent messages to send in full to LLM
+    MAX_RECENT_MESSAGES = 30
+    # Messages older than this get summarized
+    SUMMARIZE_THRESHOLD = 50
 
     def __init__(self, db):
         self.db = db
         self.knowledge_retriever = KnowledgeRetriever(db)
+
+    async def _load_chat_history(
+        self, conversation_id: str, phone: str
+    ) -> List[Dict[str, str]]:
+        """
+        Load full chat history for this phone/conversation from DB.
+        Returns list of {"role": "user"|"assistant", "content": "..."}.
+
+        Memory management:
+        - Last 30 messages: sent in full
+        - Older messages: auto-summarized into a single context block
+        """
+        # Load all messages for this conversation, oldest first
+        all_messages = await self.db.whatsapp_messages.find(
+            {"conversation_id": conversation_id},
+            {"_id": 0, "role": 1, "content": 1, "timestamp": 1}
+        ).sort("timestamp", 1).to_list(500)
+
+        if not all_messages:
+            return []
+
+        # Filter to user/assistant only (skip system messages)
+        chat_msgs = [
+            m for m in all_messages
+            if m.get("role") in ("user", "assistant") and m.get("content")
+        ]
+
+        total = len(chat_msgs)
+
+        if total <= self.MAX_RECENT_MESSAGES:
+            # All messages fit — return as-is
+            return [{"role": m["role"], "content": m["content"]} for m in chat_msgs]
+
+        # Split: old messages get summarized, recent messages kept in full
+        old_msgs = chat_msgs[: total - self.MAX_RECENT_MESSAGES]
+        recent_msgs = chat_msgs[total - self.MAX_RECENT_MESSAGES :]
+
+        # Check if a summary already exists for this conversation
+        existing_summary = await self.db.whatsapp_conversation_summaries.find_one(
+            {"conversation_id": conversation_id, "message_count": {"$gte": len(old_msgs)}},
+            {"_id": 0, "summary": 1}
+        )
+
+        if existing_summary:
+            summary_text = existing_summary["summary"]
+        else:
+            # Generate summary of old messages
+            summary_text = self._build_summary(old_msgs)
+            # Cache the summary
+            await self.db.whatsapp_conversation_summaries.update_one(
+                {"conversation_id": conversation_id},
+                {"$set": {
+                    "conversation_id": conversation_id,
+                    "summary": summary_text,
+                    "message_count": len(old_msgs),
+                    "updated_at": datetime.now(timezone.utc),
+                }},
+                upsert=True,
+            )
+
+        # Build final history: summary as first "assistant" context + recent messages
+        history = []
+        if summary_text:
+            history.append({
+                "role": "user",
+                "content": "[Previous conversation summary — customer context]"
+            })
+            history.append({
+                "role": "assistant",
+                "content": summary_text
+            })
+
+        for m in recent_msgs:
+            history.append({"role": m["role"], "content": m["content"]})
+
+        logger.info(f"Chat history loaded: {total} total msgs, {len(old_msgs)} summarized, {len(recent_msgs)} recent")
+        return history
+
+    def _build_summary(self, messages: List[Dict]) -> str:
+        """Build a text summary of old messages (without LLM — fast extraction)."""
+        parts = ["PREVIOUS CONVERSATION SUMMARY:"]
+        customer_topics = set()
+        customer_locations = set()
+        customer_budget = ""
+
+        for m in messages:
+            content = m.get("content", "")
+            role = m.get("role", "")
+
+            if role == "user":
+                # Extract key info from customer messages
+                loc = extract_location(content)
+                if loc:
+                    customer_locations.add(loc)
+                budget = extract_budget(content)
+                if budget:
+                    customer_budget = budget.get("text", "")
+                prop_type = extract_property_type(content)
+                if prop_type:
+                    customer_topics.add(prop_type)
+                # Keep first few customer messages as context
+                if len(parts) < 8:
+                    parts.append(f"Customer: {content[:100]}")
+            elif role == "assistant" and len(parts) < 10:
+                parts.append(f"Agent: {content[:100]}")
+
+        if customer_locations:
+            parts.append(f"Customer interested in: {', '.join(customer_locations)}")
+        if customer_budget:
+            parts.append(f"Budget mentioned: {customer_budget}")
+        if customer_topics:
+            parts.append(f"Property types discussed: {', '.join(customer_topics)}")
+
+        return "\n".join(parts)
 
     async def process(
         self,
@@ -287,12 +407,16 @@ class SalesEngine:
         if prop_type and not context.get("property_type"):
             new_context["property_type"] = prop_type
 
+        # --- LOAD FULL CHAT HISTORY (long-term memory) ---
+        conv_id = conversation.get("id", "")
+        chat_history = await self._load_chat_history(conv_id, phone)
+
         # --- OPTION SELECTION (after projects shown) ---
         if state == "project_discussion":
             option = is_option_selection(message)
             if option:
                 return await self._handle_option_selection(
-                    option, tenant_id, lead_id, phone, new_context
+                    option, tenant_id, lead_id, phone, new_context, chat_history
                 )
 
         # --- SITE VISIT SCHEDULING ---
@@ -330,7 +454,7 @@ class SalesEngine:
         # --- SEARCH BY PROJECT NAME (fuzzy/partial match) ---
         name_match = await self._search_by_project_name(tenant_id, message)
         if name_match:
-            response = await self._format_project_detail(name_match, tenant_id, message, new_context)
+            response = await self._format_project_detail(name_match, tenant_id, message, new_context, chat_history)
             return {
                 "success": True,
                 "response": response,
@@ -349,7 +473,7 @@ class SalesEngine:
             matches = await self._search_db(tenant_id, current_location, new_context.get("budget"))
             if matches["projects"] or matches["properties"]:
                 response = await self._format_matches_with_ai(
-                    matches, current_location, new_context, tenant_id, message
+                    matches, current_location, new_context, tenant_id, message, chat_history
                 )
                 return {
                     "success": True,
@@ -367,14 +491,14 @@ class SalesEngine:
         # User asks "project names", "show projects", "availability" etc.
         if is_project_inquiry:
             return await self._handle_project_inquiry(
-                message, tenant_id, new_context, knowledge, knowledge_text
+                message, tenant_id, new_context, knowledge, knowledge_text, chat_history
             )
 
         # --- SMART AI RESPONSE WITH KNOWLEDGE ---
         # For any message, use LLM with full project knowledge to answer
         return await self._smart_response_with_knowledge(
             message, tenant_id, lead_id, phone, new_context, questions_asked, state,
-            knowledge_text
+            knowledge_text, chat_history
         )
 
     async def _search_by_project_name(self, tenant_id: str, message: str) -> Optional[Dict]:
@@ -396,6 +520,11 @@ class SalesEngine:
             "unda", "undi", "cheppu", "kavali", "kosam", "lo", "ki", "ni", "na",
             "i", "want", "need", "looking", "for", "a", "can", "get", "info",
             "information", "property", "properties", "how", "many",
+            "my", "and", "was", "were", "or", "no", "yes", "ok", "it", "its",
+            "this", "that", "to", "at", "on", "with", "from", "by", "be",
+            "not", "but", "so", "if", "he", "she", "we", "they", "your",
+            "our", "has", "had", "will", "would", "could", "should", "did",
+            "name", "called", "which", "where", "when", "who", "there",
         }
         tokens = [w for w in msg_lower.split() if w not in filler_words and len(w) > 1]
         if not tokens:
@@ -438,15 +567,16 @@ class SalesEngine:
                 best_score = score
                 best_match = proj
 
-        # Only return if at least 1 token matched
-        if best_match and best_score >= 1:
+        # Only return if at least 2 tokens matched OR exact substring match
+        if best_match and best_score >= 2:
             logger.info(f"Project name match: '{best_match.get('name')}' (score={best_score}, tokens={tokens})")
             return best_match
 
         return None
 
     async def _format_project_detail(
-        self, project: Dict, tenant_id: str, message: str, context: Dict
+        self, project: Dict, tenant_id: str, message: str, context: Dict,
+        chat_history: Optional[List[Dict]] = None
     ) -> str:
         """Format a specific project's full details with plot availability table"""
         project_id = project.get("id", "")
@@ -548,7 +678,7 @@ class SalesEngine:
 
     async def _handle_project_inquiry(
         self, message: str, tenant_id: str, context: Dict,
-        knowledge: Dict, knowledge_text: str
+        knowledge: Dict, knowledge_text: str, chat_history: Optional[List[Dict]] = None
     ) -> Dict[str, Any]:
         """Handle project inquiry - show ALL tenant projects/properties"""
         # Fetch ALL projects for this tenant
@@ -638,6 +768,7 @@ RULES:
                 system_prompt=prompt,
                 user_message=message,
                 context=context,
+                chat_history=chat_history,
             )
             if result.get("text"):
                 return {
@@ -685,7 +816,8 @@ RULES:
 
     async def _smart_response_with_knowledge(
         self, message: str, tenant_id: str, lead_id: str, phone: str,
-        context: Dict, questions_asked: int, state: str, knowledge_text: str
+        context: Dict, questions_asked: int, state: str, knowledge_text: str,
+        chat_history: Optional[List[Dict]] = None
     ) -> Dict[str, Any]:
         """
         Smart AI response with full project knowledge.
@@ -757,6 +889,7 @@ RULES:
                 system_prompt=system_prompt,
                 user_message=message,
                 context=context,
+                chat_history=chat_history,
             )
             if result.get("text"):
                 logger.info(f"LLM response via {result['model']}, cost~${result['cost_estimate']:.6f}, latency={result['latency_ms']}ms")
@@ -859,7 +992,8 @@ RULES:
         return {"projects": projects, "properties": properties}
 
     async def _format_matches_with_ai(
-        self, matches: Dict, location: str, context: Dict, tenant_id: str, user_message: str
+        self, matches: Dict, location: str, context: Dict, tenant_id: str,
+        user_message: str, chat_history: Optional[List[Dict]] = None
     ) -> str:
         """Format matches using AI for a natural, expert response"""
         # Build knowledge context from matches
@@ -909,6 +1043,7 @@ RULES:
                 user_message=user_message,
                 context=context,
                 force_model="gemini",
+                chat_history=chat_history,
             )
             if result.get("text"):
                 return result["text"]
@@ -958,7 +1093,8 @@ RULES:
         return "\n".join(parts)
 
     async def _handle_option_selection(
-        self, option: int, tenant_id: str, lead_id: str, phone: str, context: Dict
+        self, option: int, tenant_id: str, lead_id: str, phone: str, context: Dict,
+        chat_history: Optional[List[Dict]] = None
     ) -> Dict[str, Any]:
         if option == 1:
             await self._update_lead(tenant_id, lead_id, {
@@ -1008,6 +1144,7 @@ RULES:
                     system_prompt=detail_prompt,
                     user_message=f"Tell me full details about properties in {location}",
                     context=context,
+                    chat_history=chat_history,
                 )
                 if result.get("text"):
                     return {
