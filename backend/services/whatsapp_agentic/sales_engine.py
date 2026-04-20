@@ -200,31 +200,39 @@ def get_location_highlights(location: str) -> str:
 
 
 # System prompt for the RealApex Property Expert
-REALAPEX_EXPERT_PROMPT = """You are a trained senior real estate sales assistant working for a builder in Hyderabad/Telangana.
+REALAPEX_EXPERT_PROMPT = """You are a warm, friendly, professional Real Estate Sales Assistant for a builder in Hyderabad/Telangana.
+You sound HUMAN — never robotic, never overly salesy. Build trust naturally.
 
-You sound HUMAN, not like a chatbot. Short, clear, mobile-friendly replies.
-
-STYLE RULES (MANDATORY):
-- Maximum 1 to 4 short lines per reply
-- NO long paragraphs. One point per line.
-- Use bullets (•) for lists
-- Only emojis: ✅ 📍 📞 🏠 (max 1-2 per message, only when useful)
-- NEVER say "Certainly!", "I'd be delighted", "Absolutely!", "Great question!"
-- Use natural phrases: "Sure sir", "Yes madam", "Available", "Sharing now", "Ji"
-- If Telugu, use natural Telugu-English mix
+STYLE (MANDATORY):
+- 1 to 4 short lines per reply. NO paragraphs.
+- Use • bullets for lists
+- Only emojis: ✅ 📍 📞 🏠 (max 1-2, only when useful)
+- NEVER say "Certainly!", "I'd be delighted", "Absolutely!"
+- Use: "Sure sir", "Yes madam", "Available", "Sharing now", "Ji"
+- Telugu detected? Reply in natural Telugu-English mix.
 - Links on separate line with label
-- Ask only ONE next-step question
-- Sound like a real person, not AI
+- Ask ONE next-step question only
+- *bold* for project names and key info
 
-FORMATTING:
-- Separate each point with line break
-- Use *bold* for project names and key info
-- Put links on own line with label before
-- Keep mobile screen readability first
+FACING DIRECTIONS (IMPORTANT):
+When customer asks East/West/North/South facing:
+- Respond PROJECT-WISE with clear counts
+- Format: "In *Project Name*: East Facing - X units"
+- Only share exact plot numbers if customer SPECIFICALLY asks "plot numbers" or "unit numbers"
+
+NEVER SAY THESE:
+- "Sorry, I have no data"
+- "I don't know"
+- "I can't answer that"
+- "No information available"
+Instead: Share whatever data IS available and offer next step.
+
+SENSITIVE/DIFFICULT QUESTIONS (legal, financial, hypothetical):
+Reply: "Good question sir. Our sales expert will explain this in detail over a call or during site visit. Shall I arrange a call for you?"
 
 DATA RULES:
-- Use ONLY this tenant's data from Knowledge Base below
-- Share actual names, prices, availability, links
+- Use ONLY this tenant's data from Knowledge Base
+- Share actual names, prices, availability
 - NEVER reveal other customer data
 - NEVER make up data not in Knowledge Base
 
@@ -483,6 +491,15 @@ class SalesEngine:
                 message, tenant_id, lead_id, phone, new_context, conversation
             )
 
+        # --- FACING DIRECTION QUERY ---
+        facing_query = self._detect_facing_query(message)
+        if facing_query:
+            facing_response = await self._handle_facing_query(
+                tenant_id, facing_query, message, new_context
+            )
+            if facing_response:
+                return facing_response
+
         # --- ALWAYS LOAD TENANT KNOWLEDGE (RAG) ---
         knowledge = await self.knowledge_retriever.get_project_knowledge(tenant_id)
         knowledge_text = self.knowledge_retriever.format_knowledge_for_llm(knowledge)
@@ -498,16 +515,18 @@ class SalesEngine:
         name_match = await self._search_by_project_name(tenant_id, message)
         if name_match:
             response = await self._format_project_detail(name_match, tenant_id, message, new_context, chat_history)
+            action = "project_detail_shown"
             return {
                 "success": True,
                 "response": response,
                 "next_state": "project_discussion",
-                "action": "project_detail_shown",
+                "action": action,
                 "context_update": {
                     **new_context,
                     "matched_project_id": name_match.get("id"),
                     "matched_project_name": name_match.get("name"),
-                }
+                },
+                "quick_replies": self._get_quick_replies(action, new_context),
             }
 
         # --- DB SEARCH BY LOCATION (if location available) ---
@@ -543,6 +562,148 @@ class SalesEngine:
             message, tenant_id, lead_id, phone, new_context, questions_asked, state,
             knowledge_text, chat_history
         )
+
+    def _get_quick_replies(self, action: str, context: Dict) -> List[Dict[str, str]]:
+        """Generate context-appropriate quick reply buttons (max 3)."""
+        if action in ("projects_shown", "project_detail_shown", "project_info_shared", "facing_query_answered"):
+            return [
+                {"id": "qr_visit", "title": "📍 Site Visit"},
+                {"id": "qr_call", "title": "📞 Call Me"},
+                {"id": "qr_layout", "title": "📐 Layout"},
+            ]
+        if action in ("callback_requested", "site_visit_flow", "visit_scheduled"):
+            return [
+                {"id": "qr_today", "title": "Today"},
+                {"id": "qr_tomorrow", "title": "Tomorrow"},
+                {"id": "qr_weekend", "title": "This Weekend"},
+            ]
+        if action == "lead_qualifying":
+            missing = context.get("last_asked", "")
+            if missing == "property_type":
+                return [
+                    {"id": "qr_plots", "title": "Plots"},
+                    {"id": "qr_flats", "title": "Flats/Apartment"},
+                    {"id": "qr_villas", "title": "Villas"},
+                ]
+            if missing == "budget":
+                return [
+                    {"id": "qr_20l", "title": "20-30 Lakhs"},
+                    {"id": "qr_40l", "title": "30-50 Lakhs"},
+                    {"id": "qr_50l", "title": "50L - 1Cr"},
+                ]
+            return [
+                {"id": "qr_visit", "title": "📍 Site Visit"},
+                {"id": "qr_call", "title": "📞 Call Me"},
+                {"id": "qr_projects", "title": "Show Projects"},
+            ]
+        # Default
+        return [
+            {"id": "qr_visit", "title": "📍 Site Visit"},
+            {"id": "qr_call", "title": "📞 Call Me"},
+            {"id": "qr_projects", "title": "Show Projects"},
+        ]
+
+    def _detect_facing_query(self, message: str) -> Optional[str]:
+        """Detect if customer is asking about facing directions."""
+        msg_lower = message.lower()
+        facings = {
+            "east": ["east", "east facing", "toorpu", "sunrise"],
+            "west": ["west", "west facing", "padamara", "sunset"],
+            "north": ["north", "north facing", "uttaram"],
+            "south": ["south", "south facing", "dakshinam"],
+            "north-east": ["north east", "north-east", "northeast", "ne facing"],
+            "south-east": ["south east", "south-east", "southeast", "se facing"],
+            "north-west": ["north west", "north-west", "northwest", "nw facing"],
+            "south-west": ["south west", "south-west", "southwest", "sw facing"],
+        }
+        # Check if "facing" or direction keyword present
+        has_facing_context = "facing" in msg_lower or "face" in msg_lower or "direction" in msg_lower
+        for direction, keywords in facings.items():
+            if any(kw in msg_lower for kw in keywords):
+                return direction
+        if has_facing_context:
+            return "all"
+        return None
+
+    async def _handle_facing_query(
+        self, tenant_id: str, facing: str, message: str, context: Dict
+    ) -> Optional[Dict[str, Any]]:
+        """Handle facing direction queries — return project-wise facing counts."""
+        wants_plot_numbers = any(
+            kw in message.lower()
+            for kw in ["plot number", "unit number", "property number", "plot no", "unit no", "numbers"]
+        )
+
+        # Get all projects for this tenant
+        projects = await self.db.projects.find(
+            {"tenant_id": tenant_id, "deleted_at": None}, {"_id": 0, "id": 1, "name": 1}
+        ).to_list(20)
+
+        if not projects:
+            return None
+
+        parts = []
+        found_any = False
+
+        for proj in projects:
+            pid = proj["id"]
+            pname = proj.get("name", "Project")
+
+            # Query properties by facing
+            if facing == "all":
+                props = await self.db.properties.find(
+                    {"project_id": pid, "deleted_at": None, "facing": {"$exists": True, "$ne": ""}},
+                    {"_id": 0, "facing": 1, "plot_number": 1, "property_number": 1, "area_sqft": 1, "total_area": 1, "status": 1}
+                ).to_list(200)
+            else:
+                props = await self.db.properties.find(
+                    {"project_id": pid, "deleted_at": None, "facing": {"$regex": facing, "$options": "i"}},
+                    {"_id": 0, "facing": 1, "plot_number": 1, "property_number": 1, "area_sqft": 1, "total_area": 1, "status": 1}
+                ).to_list(200)
+
+            if not props:
+                continue
+
+            found_any = True
+            available = [p for p in props if str(p.get("status", "")).lower() in ["available", ""]]
+
+            if facing == "all":
+                # Group by facing direction
+                facing_counts = {}
+                for p in available:
+                    f = p.get("facing", "Unknown")
+                    facing_counts[f] = facing_counts.get(f, 0) + 1
+                parts.append(f"*{pname}*:")
+                for f_dir, count in sorted(facing_counts.items()):
+                    parts.append(f"• {f_dir} Facing - {count} units")
+            else:
+                parts.append(f"*{pname}*: {facing.title()} Facing - {len(available)} available")
+
+            # Show plot numbers only if specifically asked
+            if wants_plot_numbers and available:
+                for p in available[:10]:
+                    plot_num = p.get("plot_number") or p.get("property_number") or ""
+                    area = p.get("area_sqft") or p.get("total_area") or ""
+                    area_str = f" ({area} sqft)" if area else ""
+                    parts.append(f"  ✅ Plot {plot_num}{area_str}")
+                if len(available) > 10:
+                    parts.append(f"  ... +{len(available)-10} more")
+
+        if not found_any:
+            return None
+
+        # Add next step
+        parts.append("")
+        parts.append("Shall I share layout or schedule a visit?")
+
+        return {
+            "success": True,
+            "response": "\n".join(parts),
+            "next_state": "project_discussion",
+            "action": "facing_query_answered",
+            "context_update": {**context, "facing_preference": facing},
+            "quick_replies": ["📐 Layout", "📍 Site Visit", "📞 Call Me"],
+        }
 
     async def _search_by_project_name(self, tenant_id: str, message: str) -> Optional[Dict]:
         """

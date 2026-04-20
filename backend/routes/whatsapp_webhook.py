@@ -337,6 +337,20 @@ async def process_incoming_message(
                     break
 
             logger.info(f"✅ Sent {len(message_parts)} message(s) to {phone}")
+
+            # Send quick reply buttons if available
+            quick_replies = result.get("quick_replies")
+            if quick_replies and isinstance(quick_replies, list) and len(quick_replies) > 0:
+                await asyncio.sleep(0.5)
+                try:
+                    await meta_whatsapp_client.send_interactive_buttons(
+                        phone=phone,
+                        body_text="Choose an option or type your message:",
+                        buttons=quick_replies[:3],
+                    )
+                    logger.info(f"📱 Quick reply buttons sent to {phone}")
+                except Exception as btn_err:
+                    logger.warning(f"Quick reply buttons failed: {btn_err}")
         
         if result.get("human_followup_required"):
             await notify_agent_for_followup(db, tenant_id, lead_id, result)

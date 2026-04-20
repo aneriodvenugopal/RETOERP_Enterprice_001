@@ -15,6 +15,13 @@ Build a production-ready, multi-tenant Agentic AI workflow for the RealApex plat
 
 ## Completed Features
 
+### Phase 13 - Facing Directions + Quick Replies + Sales Rules (2026-04-20)
+- **Facing Direction Handler**: Detects east/west/north/south facing queries → project-wise counts. Plot numbers only when specifically asked.
+- **Quick Reply Buttons**: Context-aware WhatsApp interactive buttons after every response (Site Visit, Call Me, Layout / budget ranges / property types)
+- **Never "Sorry No Data"**: System prompt enforces — always share available data + offer call/visit for unknowns
+- **Sensitive Questions**: Legal/financial/hypothetical → "Our sales expert will explain over call. Shall I arrange?"
+- **Files**: `sales_engine.py` (facing handler + quick replies + prompt), `whatsapp_webhook.py` (button sending)
+
 ### Phase 12 - Realistic Conversation Enhancements (2026-04-19)
 - **Telugu Auto-Detection**: Detects 100+ Telugu words + Telugu script → replies in Telugu-English mix
 - **Customer Name Memory**: Extracts name from "my name is" / "na peru" patterns, persists in context, used in every reply
