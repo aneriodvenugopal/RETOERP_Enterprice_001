@@ -15,6 +15,14 @@ Build a production-ready, multi-tenant Agentic AI workflow for the RealApex plat
 
 ## Completed Features
 
+### Phase 14 - Accounting & Money Tracking (2026-04-22)
+- **Payment Receive Module** (`payment_receive.py`): Record customer payments (Cash/UPI/NEFT/Cheque/DD) against Project→Property→EMI/Booking/Advance. NOT online processing — record only.
+- **Payment Transfer Module** (`payment_out.py`): Record outgoing payments to Agent/Vendor/Staff/Land Owner from selected bank account. Balance check before transfer.
+- **Agent Commission Ledger**: Add commission per deal (manually decided amount), track earned/paid/balance per agent, project-wise breakdown, partial payouts.
+- **Cheque Management**: Create cheque records on receive, track pending/cleared/bounced status, auto-update account balances on clear/bounce.
+- **Account Ledger**: Per-account transaction history with IN/OUT/balance and pending cheques.
+- **Daily Report**: All accounts summary — per-account balance, day credits/debits, uncleared cheques, total available.
+
 ### Phase 13 - Facing Directions + Quick Replies + Sales Rules (2026-04-20)
 - **Facing Direction Handler**: Detects east/west/north/south facing queries → project-wise counts. Plot numbers only when specifically asked.
 - **Quick Reply Buttons**: Context-aware WhatsApp interactive buttons after every response (Site Visit, Call Me, Layout / budget ranges / property types)

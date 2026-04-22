@@ -200,6 +200,11 @@ api_router.include_router(realapex_demos.router)  # RealApex SaaS Demo Generator
 api_router.include_router(agentapex.router)  # AgentApex Mobile Property App
 api_router.include_router(whatsapp_webhook.router)  # WhatsApp Agentic AI Workflow (NEW)
 
+# Phase 1 — Accounting & Money Tracking
+from routes import payment_receive, payment_out
+api_router.include_router(payment_receive.router)  # Payment Receive + Cheques + Ledger + Daily Report
+api_router.include_router(payment_out.router)  # Payment Transfer + Agent Commission
+
 # PWA Install tracking
 @api_router.post("/analytics/pwa-install")
 async def track_pwa_install(request: Request, platform: str = "unknown"):
