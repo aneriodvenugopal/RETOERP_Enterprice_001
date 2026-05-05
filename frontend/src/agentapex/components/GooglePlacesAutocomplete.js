@@ -57,7 +57,7 @@ export const GooglePlacesAutocomplete = ({
   const autocompleteServiceRef = useRef(null);
   const placesServiceRef = useRef(null);
   const containerRef = useRef(null);
-  const debouncedQuery = useDebounce(query, 300);
+  const debouncedQuery = useDebounce(query, 150);
 
   // Initialize Google Places with robust polling
   useEffect(() => {
@@ -101,7 +101,7 @@ export const GooglePlacesAutocomplete = ({
 
   // Search when query changes
   useEffect(() => {
-    if (debouncedQuery.length >= 2) {
+    if (debouncedQuery.length >= 1) {
       searchPlaces(debouncedQuery);
     } else {
       setResults([]);
@@ -141,7 +141,7 @@ export const GooglePlacesAutocomplete = ({
       {
         input: searchQuery,
         componentRestrictions: { country: 'in' },
-        types: ['geocode']
+        language: 'en',
       },
       (predictions, status) => {
         clearTimeout(safetyTimeout);
@@ -216,75 +216,74 @@ export const GooglePlacesAutocomplete = ({
   if (mode === 'fullscreen') {
     return (
       <div className="fixed inset-0 bg-white z-[2000] flex flex-col">
-        {/* Header */}
-        <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-100">
+        {/* Header — Google Maps style */}
+        <div className="flex items-center gap-2 px-3 py-2 border-b border-gray-200 bg-white shadow-sm">
           <button 
             onClick={onClose} 
-            className="w-12 h-12 flex items-center justify-center rounded-full hover:bg-gray-100"
+            className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 active:bg-gray-200 transition-colors"
             data-testid="close-location-search"
           >
-            <ArrowLeft className="w-6 h-6 text-gray-700" />
+            <ArrowLeft className="w-5 h-5 text-gray-700" />
           </button>
-          <div className="flex-1 flex items-center bg-gray-100 rounded-full px-4 py-3">
-            <Search className="w-5 h-5 text-gray-400 mr-3 flex-shrink-0" />
+          <div className="flex-1 flex items-center bg-gray-100 rounded-full px-4 py-2.5">
+            <Search className="w-4 h-4 text-gray-400 mr-2 flex-shrink-0" />
             <input
               ref={inputRef}
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder={placeholder}
-              className="flex-1 bg-transparent border-none outline-none text-lg"
+              className="flex-1 bg-transparent border-none outline-none text-base"
+              autoComplete="off"
               data-testid="location-search-input"
             />
-            {loading && <Loader2 className="w-5 h-5 text-blue-500 animate-spin ml-2" />}
+            {loading && <Loader2 className="w-4 h-4 text-blue-500 animate-spin ml-2" />}
             {query && !loading && (
-              <button onClick={() => setQuery('')} className="ml-2">
-                <X className="w-5 h-5 text-gray-400" />
+              <button onClick={() => { setQuery(''); setResults([]); }} className="ml-2 p-1">
+                <X className="w-4 h-4 text-gray-400" />
               </button>
             )}
           </div>
         </div>
 
-        {/* Results */}
-        <div className="flex-1 overflow-y-auto">
+        {/* Results — Google Maps style */}
+        <div className="flex-1 overflow-y-auto bg-white">
           {results.length > 0 ? (
-            <div>
+            <div className="py-1">
               {results.map((result, idx) => (
                 <button
                   key={result.place_id}
                   onClick={() => handleSelectPlace(result)}
-                  className={`w-full px-4 py-4 flex items-start gap-4 text-left hover:bg-blue-50 active:bg-blue-100 ${
-                    idx !== results.length - 1 ? 'border-b border-gray-100' : ''
-                  }`}
+                  className="w-full px-4 py-3 flex items-center gap-3 text-left hover:bg-gray-50 active:bg-gray-100 transition-colors"
                   data-testid={`location-result-${idx}`}
                 >
-                  <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                    <MapPin className="w-5 h-5 text-blue-500" />
+                  <div className="w-9 h-9 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <MapPin className="w-4 h-4 text-gray-500" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-lg text-gray-800">
+                    <p className="text-[15px] font-medium text-gray-900 leading-tight">
                       <HighlightText text={result.mainText} query={query} />
                     </p>
-                    <p className="text-base text-gray-500 mt-0.5 truncate">{result.secondaryText}</p>
+                    <p className="text-[13px] text-gray-500 mt-0.5 truncate leading-tight">{result.secondaryText}</p>
                   </div>
                 </button>
               ))}
             </div>
-          ) : query.length >= 2 && !loading ? (
+          ) : query.length >= 1 && !loading ? (
             <div className="p-8 text-center">
-              <MapPin className="w-12 h-12 text-gray-200 mx-auto mb-4" />
-              <p className="text-lg text-gray-500">No locations found</p>
-              <p className="text-sm text-gray-400 mt-1">Try a different search term</p>
+              <MapPin className="w-10 h-10 text-gray-200 mx-auto mb-3" />
+              <p className="text-sm text-gray-500">No locations found for "{query}"</p>
+              <p className="text-xs text-gray-400 mt-1">Try different spelling</p>
             </div>
           ) : (
-            <div className="p-6">
-              <p className="text-sm font-semibold text-gray-600 mb-4">Popular Areas</p>
-              <div className="flex flex-wrap gap-3">
+            <div className="p-4">
+              <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-3 px-1">Popular Areas</p>
+              <div className="flex flex-wrap gap-2">
                 {popularAreas.map(area => (
                   <button
                     key={area}
                     onClick={() => setQuery(area)}
-                    className="px-5 py-3 bg-gray-100 rounded-full text-base font-medium text-gray-700 hover:bg-gray-200"
+                    className="px-4 py-2 bg-gray-50 border border-gray-200 rounded-full text-sm text-gray-700 hover:bg-gray-100 active:bg-gray-200 transition-colors"
                   >
                     {area}
                   </button>
@@ -411,7 +410,7 @@ export const useGooglePlacesAutocomplete = () => {
         {
           input: query,
           componentRestrictions: { country: 'in' },
-          types: ['geocode']
+          language: 'en',
         },
         (predictions, status) => {
           clearTimeout(timeout);
