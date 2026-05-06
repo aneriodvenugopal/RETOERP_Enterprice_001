@@ -493,7 +493,7 @@ export const useGooglePlacesAutocomplete = () => {
     });
   }, []);
 
-  return { searchPlaces, getPlaceDetails, isReady };
+  return { searchPlaces, search: searchPlaces, getPlaceDetails, isReady };
 };
 
 export default GooglePlacesAutocomplete;
