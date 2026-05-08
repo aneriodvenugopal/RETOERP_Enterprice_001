@@ -162,6 +162,46 @@ const About = () => {
           </div>
         </div>
 
+        {/* Service & Payment Information */}
+        <div className="bg-white/10 backdrop-blur-md rounded-2xl p-12 border border-white/20 mb-16">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-3xl font-bold text-white mb-6">Our Services & Payments</h2>
+            
+            <div className="space-y-6 text-gray-200 text-lg">
+              <div className="bg-white/5 rounded-xl p-6 border border-white/10">
+                <h3 className="text-xl font-semibold text-cyan-300 mb-3">Purpose of Service</h3>
+                <p>Our main objective is to connect real estate agents and property owners on a single platform. We provide comprehensive tools for property management, lead tracking, CRM, and AI-powered WhatsApp automation.</p>
+              </div>
+
+              <div className="bg-white/5 rounded-xl p-6 border border-white/10">
+                <h3 className="text-xl font-semibold text-cyan-300 mb-3">Subscription Model</h3>
+                <p>Agents who wish to view contact details of properties posted by other users must purchase a subscription plan. Our plans offer various levels of access including contact views, priority listings, and premium features.</p>
+              </div>
+
+              <div className="bg-white/5 rounded-xl p-6 border border-white/10">
+                <h3 className="text-xl font-semibold text-cyan-300 mb-3">Secure Payments</h3>
+                <p>We accept online payments through <span className="text-white font-semibold">Cashfree</span> payment gateway for user convenience and security. All transactions are encrypted and processed securely.</p>
+              </div>
+
+              <div className="bg-white/5 rounded-xl p-6 border border-white/10">
+                <h3 className="text-xl font-semibold text-cyan-300 mb-3">Instant Activation</h3>
+                <p>Premium features (Contact Access) are instantly activated in the user's account immediately after successful payment. No waiting, no manual processing.</p>
+              </div>
+            </div>
+
+            {/* Telugu Version */}
+            <div className="mt-8 bg-white/5 rounded-xl p-6 border border-white/10">
+              <h3 className="text-xl font-semibold text-cyan-300 mb-4">మా సేవల వివరాలు</h3>
+              <div className="text-gray-200 space-y-3 text-base leading-relaxed">
+                <p><strong className="text-white">సేవ యొక్క ఉద్దేశ్యం:</strong> రియల్ ఎస్టేట్ ఏజెంట్లు మరియు ప్రాపర్టీ యజమానులను ఒకే చోట చేర్చడం మా ప్రధాన ఉద్దేశ్యం.</p>
+                <p><strong className="text-white">సబ్‌స్క్రిప్షన్ మోడల్:</strong> ఏజెంట్లు ఇతర వినియోగదారులు పోస్ట్ చేసిన ప్రాపర్టీల యొక్క కాంటాక్ట్ వివరాలను చూడాలనుకుంటే, వారు నిర్ణీత సబ్‌స్క్రిప్షన్ ప్లాన్‌ను కొనుగోలు చేయాలి.</p>
+                <p><strong className="text-white">సురక్షిత చెల్లింపులు:</strong> వినియోగదారుల సౌకర్యార్థం మరియు భద్రత కోసం మేము Cashfree ద్వారా ఆన్‌లైన్ చెల్లింపులను స్వీకరిస్తున్నాము.</p>
+                <p><strong className="text-white">డిజిటల్ సర్వీస్:</strong> చెల్లింపు పూర్తయిన వెంటనే, సదరు ఏజెంట్ లేదా యూజర్ ఖాతాలో ప్రీమియం ఫీచర్లు (Contact Access) వెంటనే యాక్టివేట్ చేయబడతాయి.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* CTA Section */}
         <div className="text-center">
           <h2 className="text-4xl font-bold text-white mb-6">

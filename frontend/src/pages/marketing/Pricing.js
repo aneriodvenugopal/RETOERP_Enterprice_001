@@ -272,12 +272,25 @@ const Pricing = () => {
         </div>
       </section>
 
+      {/* Payment Info */}
+      <section className="container mx-auto px-6 mt-12">
+        <div className="bg-white/5 backdrop-blur-md rounded-xl p-6 border border-white/10 text-center">
+          <p className="text-gray-300 text-sm">Secure payments powered by <span className="text-white font-semibold">Cashfree</span> Payment Gateway</p>
+          <p className="text-gray-400 text-xs mt-2">Subscription fees are for accessing contact data and premium features on the platform. This platform does not guarantee or involve any real estate transactions.</p>
+        </div>
+      </section>
+
       {/* Footer */}
       <footer className="bg-gray-900/50 py-8 border-t border-white/10 mt-12">
         <div className="container mx-auto px-6 text-center">
           <p className="text-gray-400">
             © 2025 RealApex. All rights reserved.
           </p>
+          <div className="mt-2 flex justify-center gap-4 text-xs text-gray-500">
+            <Link to="/terms-conditions" className="hover:text-gray-300">Terms</Link>
+            <Link to="/privacy-policy" className="hover:text-gray-300">Privacy</Link>
+            <Link to="/refund-policy" className="hover:text-gray-300">Refund Policy</Link>
+          </div>
         </div>
       </footer>
     </div>

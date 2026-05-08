@@ -60,8 +60,14 @@ const TermsConditions = () => {
               <li>Payment is due at the beginning of each billing cycle</li>
               <li>Auto-renewal applies unless cancelled before renewal date</li>
               <li>Prices are subject to change with 30 days notice</li>
-              <li>All payments are processed through secure payment gateways (Razorpay/Stripe)</li>
+              <li>All payments are processed securely through Cashfree payment gateway</li>
+              <li>Premium features (Contact Access) are activated immediately after successful payment</li>
             </ul>
+            <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <p className="text-gray-800 font-medium">
+                Subscription fees paid by agents are solely for accessing contact data and premium features. This platform does not guarantee or involve any real estate transactions.
+              </p>
+            </div>
           </section>
 
           <section>
